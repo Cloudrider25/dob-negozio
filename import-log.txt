@@ -1,0 +1,1 @@
+Righe CSV: 103, prodotti importabili: 66\nImportati 66 prodotti (esclusi Cab:).\n
