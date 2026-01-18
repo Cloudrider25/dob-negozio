@@ -240,6 +240,7 @@ export interface Service {
    * Es. 60 min
    */
   duration?: string | null;
+  serviceType: 'single' | 'package';
   active?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -487,6 +488,7 @@ export interface ServicesSelect<T extends boolean = true> {
   description?: T;
   price?: T;
   duration?: T;
+  serviceType?: T;
   active?: T;
   updatedAt?: T;
   createdAt?: T;

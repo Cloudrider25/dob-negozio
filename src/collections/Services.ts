@@ -6,7 +6,7 @@ export const Services: CollectionConfig = {
   slug: 'services',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'price', 'duration', 'active'],
+    defaultColumns: ['name', 'serviceType', 'price', 'duration', 'active'],
   },
   access: {
     read: () => true,
@@ -52,6 +52,16 @@ export const Services: CollectionConfig = {
       admin: {
         description: 'Es. 60 min',
       },
+    },
+    {
+      name: 'serviceType',
+      type: 'select',
+      required: true,
+      defaultValue: 'single',
+      options: [
+        { label: 'Singolo', value: 'single' },
+        { label: 'Pacchetto', value: 'package' },
+      ],
     },
     {
       name: 'active',

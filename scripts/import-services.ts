@@ -588,6 +588,11 @@ const run = async () => {
       categoryMap.set(service.category, categoryId)
     }
 
+    const isPackage = /sedute|sessione|pacchetto|promo|x\s*\d/i.test(
+      service.name.toLowerCase(),
+    )
+    const serviceType: 'single' | 'package' = isPackage ? 'package' : 'single'
+
     const dataPayload = {
       name: service.name,
       category: Number(categoryId),
@@ -595,6 +600,7 @@ const run = async () => {
       price: price ?? 0,
       active: true,
       slug,
+      serviceType,
     }
 
     const existing = await payload.find({
@@ -614,6 +620,7 @@ const run = async () => {
         id: existing.docs[0].id,
         overrideAccess: true,
         locale: 'it',
+        draft: false,
         data: dataPayload,
       })
     } else {
@@ -621,6 +628,7 @@ const run = async () => {
         collection: 'services',
         overrideAccess: true,
         locale: 'it',
+        draft: false,
         data: dataPayload,
       })
     }

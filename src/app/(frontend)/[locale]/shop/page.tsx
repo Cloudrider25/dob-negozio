@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
 import { getPayload } from 'payload'
@@ -285,7 +286,13 @@ export default async function ShopPage({
                 <div className={view === 'list' ? 'shop-card list' : 'shop-card'} key={product.id}>
                   <div className="shop-image">
                     {imageData?.url ? (
-                      <img src={imageData.url} alt={imageData.alt} loading="lazy" />
+                      <Image
+                        className="product-img"
+                        src={imageData.url}
+                        alt={imageData.alt}
+                        fill
+                        sizes="(max-width: 700px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
                     ) : (
                       <div className="shop-image-placeholder" />
                     )}

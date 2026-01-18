@@ -5,6 +5,8 @@ import { getPayload } from 'payload'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import configPromise from '@/payload.config'
 import { ServicesProtocol } from '@/components/ServicesProtocol'
+import { ServicesCarousel } from '@/components/ServicesCarousel'
+import { ServicesToggle } from '@/components/ServicesToggle'
 
 const fallbackImage = '/media/493b3205c13b5f67b36cf794c2222583.jpg'
 const highlightFallbackLeft =
@@ -24,12 +26,10 @@ export default async function ServiceCategoryPage({
   searchParams,
 }: {
   params: Promise<{ locale: string; category: string }>
-  searchParams?: Promise<{ q?: string; dur?: string; price?: string }>
+  searchParams?: Promise<{ type?: string }>
 }) {
   const { locale, category } = await params
-  const query = (await searchParams)?.q?.trim() || ''
-  const durationFilter = (await searchParams)?.dur?.trim() || ''
-  const priceFilter = (await searchParams)?.price?.trim() || ''
+  const typeFilter = (await searchParams)?.type?.trim() || ''
 
   if (!isLocale(locale)) {
     notFound()
@@ -98,44 +98,13 @@ export default async function ServiceCategoryPage({
   const minDuration = durations.length ? Math.min(...durations) : null
   const maxDuration = durations.length ? Math.max(...durations) : null
 
-  const matchesDuration = (value?: string | null) => {
-    if (!durationFilter) return true
-    const minutes = parseMinutes(value)
-    if (!minutes) return false
-    if (durationFilter === 'short') return minutes <= 45
-    if (durationFilter === 'medium') return minutes > 45 && minutes <= 75
-    if (durationFilter === 'long') return minutes >= 90
-    return true
-  }
-
-  const matchesPrice = (value?: number | null) => {
-    if (!priceFilter) return true
-    const price = value ?? 0
-    if (priceFilter === 'low') return price <= 70
-    if (priceFilter === 'mid') return price > 70 && price <= 120
-    if (priceFilter === 'high') return price > 120
-    return true
-  }
-
-  const normalize = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-
-  const matchesQuery = (value?: string | null) => {
-    if (!query) return true
-    if (!value) return false
-    return normalize(value).includes(normalize(query))
+  const matchesType = (value?: string | null) => {
+    if (!typeFilter) return true
+    return value === typeFilter
   }
 
   const filteredServices = services.docs.filter((service) => {
-    return (
-      matchesDuration(service.duration) &&
-      matchesPrice(service.price) &&
-      matchesQuery(service.name)
-    )
+    return matchesType(service.serviceType)
   })
 
   return (
@@ -183,7 +152,7 @@ export default async function ServiceCategoryPage({
         </div>
         <div className="services-highlight-content">
           <span className="services-highlight-eyebrow">{categoryDoc.dobGroup || 'DOB'}</span>
-          <h2>Why {categoryDoc.title}?</h2>
+          <h2>Perchè {categoryDoc.title} da DOB Milano?</h2>
           <p className="services-highlight-lead">
             {categoryDoc.highlightLead ||
               'Trattamenti studiati per risultati visibili, texture luminosa e cura profonda.'}
@@ -215,69 +184,19 @@ export default async function ServiceCategoryPage({
           <p className="services-eyebrow">{t.services.title}</p>
           <h2>{categoryDoc.title}</h2>
           <div className="services-tools">
-            <form method="get" className="services-search">
-              <input name="q" type="search" defaultValue={query} placeholder="Cerca servizio" />
-              <select name="dur" defaultValue={durationFilter}>
-                <option value="">Durata</option>
-                <option value="short">Fino a 45 min</option>
-                <option value="medium">60-75 min</option>
-                <option value="long">90+ min</option>
-              </select>
-              <select name="price" defaultValue={priceFilter}>
-                <option value="">Prezzo</option>
-                <option value="low">Fino a €70</option>
-                <option value="mid">€70-€120</option>
-                <option value="high">€120+</option>
-              </select>
-              <button type="submit">Filtra</button>
-            </form>
+            <ServicesToggle currentType={typeFilter} />
           </div>
-          <div className="services-items">
-            {filteredServices.map((service, index) => {
-              const tag =
-                (service.price || 0) >= 150
-                  ? 'Premium'
-                  : parseMinutes(service.duration) && parseMinutes(service.duration)! >= 90
-                    ? 'Deep care'
-                    : 'Signature'
-              return (
-                <div className="services-card" key={service.id}>
-                  <div className="services-card-main">
-                    <span className="services-index">{String(index + 1).padStart(2, '0')}</span>
-                    <div>
-                      <h4>{service.name}</h4>
-                      <p className="services-card-desc">
-                        {service.description || categoryDoc.description || 'Trattamento su misura.'}
-                      </p>
-                      <span className="services-card-tag">{tag}</span>
-                    </div>
-                  </div>
-                  <div className="services-card-meta">
-                    <span>{service.duration}</span>
-                    <span>{formatPrice(service.price || 0)}</span>
-                  </div>
-                  <div className="services-card-actions">
-                    <a
-                      className="cta outline"
-                      href={`https://wa.me/39XXXXXXXXXX?text=${encodeURIComponent(
-                        `Info su ${service.name}`,
-                      )}`}
-                    >
-                      Dettagli
-                    </a>
-                    <a
-                      className="cta"
-                      href={`https://wa.me/39XXXXXXXXXX?text=${encodeURIComponent(
-                        `Prenotazione ${service.name}`,
-                      )}`}
-                    >
-                      Prenota
-                    </a>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+          <ServicesCarousel
+            items={filteredServices.map((service) => ({
+              id: service.id,
+              name: service.name,
+              description: service.description || categoryDoc.description || 'Trattamento su misura.',
+            }))}
+            groupLabel={categoryDoc.dobGroup || 'DOB'}
+            imageLeft={highlightImageLeft}
+            imageRight={highlightImageRight}
+            autoplayMs={5200}
+          />
           {!filteredServices.length && <p className="note">{t.services.note}</p>}
         </div>
       </section>
