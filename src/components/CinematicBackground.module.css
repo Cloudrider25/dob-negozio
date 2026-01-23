@@ -1,0 +1,22 @@
+.cinematic {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: var(--obsidian);
+  background-image:
+    radial-gradient(120% 120% at 50% 50%, rgba(7, 7, 10, 0) 0%, rgba(7, 7, 10, 0.5) 65%, rgba(7, 7, 10, 0.85) 100%),
+    radial-gradient(circle at 20% 20%, rgba(122, 231, 255, 0.08), transparent 55%),
+    radial-gradient(circle at 80% 30%, rgba(255, 45, 45, 0.06), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%);
+  opacity: 0.72;
+  z-index: 1;
+  mix-blend-mode: multiply;
+}
+
+:global(body.dark) .cinematic {
+  opacity: 1;
+}
+
+:global(body.light) .cinematic {
+  opacity: 0;
+}

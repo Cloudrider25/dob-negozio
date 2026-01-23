@@ -1,10 +1,8 @@
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
-import { getPayload } from 'payload'
-
 import { getDictionary, isLocale } from '@/lib/i18n'
-import configPromise from '@/payload.config'
+import { getPayloadClient } from '@/lib/getPayloadClient'
 
 const formatPrice = (value: number) => `€${value.toFixed(2)}`
 
@@ -38,7 +36,7 @@ export default async function ShopPage({
   }
 
   const t = getDictionary(locale)
-  const payload = await getPayload({ config: await configPromise })
+  const payload = await getPayloadClient()
   const baseWhere = {
     active: {
       equals: true,
@@ -113,12 +111,7 @@ export default async function ShopPage({
     ),
   ).sort((a, b) => a.localeCompare(b))
 
-  const buildQuery = (next: {
-    page?: number
-    sort?: string
-    perPage?: number
-    view?: string
-  }) => {
+  const buildQuery = (next: { page?: number; sort?: string; perPage?: number; view?: string }) => {
     const params = new URLSearchParams()
     if (query) params.set('q', query)
     if (brand) params.set('brand', brand)
@@ -132,58 +125,66 @@ export default async function ShopPage({
 
   const totalPages = products.totalPages || 1
   const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1)
+  const isListView = view === 'list'
 
   return (
-    <div className="page shop-page">
-      <section className="shop-header">
-        <div className="breadcrumb">
+    <div className="min-h-screen flex flex-col gap-[var(--s32)] px-[8vw]">
+      <section className="grid grid-cols-[1fr_auto_1fr] items-center pt-4 max-[1100px]:grid-cols-1 max-[1100px]:gap-4 max-[1100px]:text-center">
+        <div className="flex gap-2 text-[0.8rem] uppercase tracking-[0.2em] max-[1100px]:justify-center">
           <span>Home</span>
           <span>/</span>
           <span>Negozio</span>
         </div>
-        <div className="shop-title">
-          <h1>{t.shop.title}</h1>
+        <div className="text-center">
+          <h1 className="text-[2.4rem]">{t.shop.title}</h1>
         </div>
       </section>
-      <section className="shop-layout">
-        <aside className="shop-filters">
+      <section className="grid grid-cols-[300px_1fr] gap-10 max-[1100px]:grid-cols-1">
+        <aside className="text-[0.85rem] uppercase tracking-[0.18em]">
           <h3>Filtra per:</h3>
-          <div className="filter-group">
+          <div className="border-t pb-6 pt-5">
             <h4>Brand</h4>
             {brandOptions.length ? (
               brandOptions.map((option) => (
                 <a
                   key={option}
-                  className={`filter-option filter-option-link${
-                    option === brand ? ' active' : ''
-                  }`}
+                  className="flex items-center gap-2 text-[0.75rem] tracking-[0.12em]"
                   href={`?brand=${encodeURIComponent(option)}`}
                 >
-                  <span className="fake-radio" />
+                  <span
+                    className={`relative inline-flex h-[14px] w-[14px] items-center justify-center rounded-full border ${ option === brand ? 'before:absolute before:h-[6px] before:w-[6px] before:rounded-full before:' : '' }`}
+                  />
                   <span>{option}</span>
                 </a>
               ))
             ) : (
-              <span className="filter-note">Nessun brand disponibile</span>
+              <span className="mt-3 block text-[0.75rem] tracking-[0.12em]">
+                Nessun brand disponibile
+              </span>
             )}
             {brand && (
-              <a className="filter-clear" href={query ? `?q=${encodeURIComponent(query)}` : '?'}>
+              <a
+                className="mt-2 inline-flex text-[0.7rem] uppercase tracking-[0.12em]"
+                href={query ? `?q=${encodeURIComponent(query)}` : '?'}
+              >
                 Rimuovi filtro
               </a>
             )}
           </div>
-          <div className="filter-group">
+          <div className="border-t pb-6 pt-5">
             <h4>Prezzo</h4>
-            <div className="price-range">
-              <div className="range-track" />
-              <div className="range-handles">
-                <span />
-                <span />
+            <div className="relative h-6">
+              <div className="mt-2 h-1 rounded-full" />
+              <div className="absolute left-0 right-0 top-0 flex justify-between">
+                <span className="h-4 w-4 rounded border" />
+                <span className="h-4 w-4 rounded border" />
               </div>
             </div>
-            <span className="filter-note">€ 0 - 200</span>
+            <span className="mt-3 block text-[0.75rem] tracking-[0.12em]">
+              € 0 - 200
+            </span>
           </div>
-          <div className="filter-group">
+          <div className="border-t pb-6 pt-5">
             <h4>Esigenze</h4>
             {[
               ['Age Care', 12],
@@ -195,64 +196,105 @@ export default async function ShopPage({
               ['Cellulite', 7],
               ['Doposole', 4],
             ].map(([label, count]) => (
-              <label key={label} className="filter-option">
-                <input type="checkbox" />
+              <label
+                key={label}
+                className="flex items-center gap-2 text-[0.75rem] tracking-[0.12em]"
+              >
+                <input type="checkbox" className="h-4 w-4" />
                 <span>{label}</span>
-                <span className="count">({count})</span>
+                <span className="">({count})</span>
               </label>
             ))}
           </div>
         </aside>
-        <div className="shop-results">
-          <div className="shop-toolbar">
-            <div className="shop-toolbar-left">
-              <details className="sort-dropdown">
-                <summary>Ordinamento</summary>
-                <div className="sort-options">
-                  <a href={buildQuery({ sort: 'recent', page: 1 })}>
+        <div>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <details className="relative">
+                <summary className="list-none cursor-pointer border px-3 py-2 text-[0.75rem] uppercase tracking-[0.18em]">
+                  Ordinamento
+                </summary>
+                <div className="absolute left-0 top-[calc(100%+6px)] z-10 flex min-w-[240px] flex-col border">
+                  <a
+                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ sort: 'recent', page: 1 })}
+                  >
                     Prodotti - dal più recente
                   </a>
-                  <a href={buildQuery({ sort: 'oldest', page: 1 })}>
+                  <a
+                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ sort: 'oldest', page: 1 })}
+                  >
                     Prodotti - dal meno recente
                   </a>
-                  <a href={buildQuery({ sort: 'priceAsc', page: 1 })}>
+                  <a
+                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ sort: 'priceAsc', page: 1 })}
+                  >
                     Prezzo - dal più basso
                   </a>
-                  <a href={buildQuery({ sort: 'priceDesc', page: 1 })}>
+                  <a
+                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ sort: 'priceDesc', page: 1 })}
+                  >
                     Prezzo - dal più alto
                   </a>
-                  <a href={buildQuery({ sort: 'alphaAsc', page: 1 })}>
+                  <a
+                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ sort: 'alphaAsc', page: 1 })}
+                  >
                     Ordine alfabetico A-Z
                   </a>
-                  <a href={buildQuery({ sort: 'alphaDesc', page: 1 })}>
+                  <a
+                    className="px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ sort: 'alphaDesc', page: 1 })}
+                  >
                     Ordine alfabetico Z-A
                   </a>
                 </div>
               </details>
-              <details className="sort-dropdown">
-                <summary>Prodotti per pagina</summary>
-                <div className="sort-options">
+              <details className="relative">
+                <summary className="list-none cursor-pointer border px-3 py-2 text-[0.75rem] uppercase tracking-[0.18em]">
+                  Prodotti per pagina
+                </summary>
+                <div className="absolute left-0 top-[calc(100%+6px)] z-10 flex min-w-[240px] flex-col border">
                   {perPageOptions.map((option) => (
-                    <a key={option} href={buildQuery({ perPage: option, page: 1 })}>
+                    <a
+                      key={option}
+                      className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em] last:border-b-0"
+                      href={buildQuery({ perPage: option, page: 1 })}
+                    >
                       {option}
                     </a>
                   ))}
                 </div>
               </details>
-              <details className="sort-dropdown">
-                <summary>Visualizza</summary>
-                <div className="sort-options">
-                  <a href={buildQuery({ view: 'grid', page: 1 })}>Griglia</a>
-                  <a href={buildQuery({ view: 'list', page: 1 })}>Lista</a>
+              <details className="relative">
+                <summary className="list-none cursor-pointer border px-3 py-2 text-[0.75rem] uppercase tracking-[0.18em]">
+                  Visualizza
+                </summary>
+                <div className="absolute left-0 top-[calc(100%+6px)] z-10 flex min-w-[240px] flex-col border">
+                  <a
+                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ view: 'grid', page: 1 })}
+                  >
+                    Griglia
+                  </a>
+                  <a
+                    className="px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
+                    href={buildQuery({ view: 'list', page: 1 })}
+                  >
+                    Lista
+                  </a>
                 </div>
               </details>
-              <div className="pagination">
+              <div className="flex gap-2 text-[0.8rem]">
                 {page > 1 && <a href={buildQuery({ page: page - 1 })}>‹</a>}
                 {pageNumbers.map((pageNumber) => (
                   <a
                     key={pageNumber}
                     href={buildQuery({ page: pageNumber })}
-                    className={pageNumber === page ? 'active' : undefined}
+                    className={`border px-2 py-1 ${ pageNumber === page ? '' : '' }`}
                   >
                     {pageNumber}
                   </a>
@@ -260,55 +302,89 @@ export default async function ShopPage({
                 {page < totalPages && <a href={buildQuery({ page: page + 1 })}>›</a>}
               </div>
             </div>
-            <div className="shop-toolbar-right">
-              <form method="get" className="filter-search">
+            <div className="ml-auto">
+              <form
+                method="get"
+                className="flex flex-row text-[0.7rem] uppercase tracking-[0.18em]"
+              >
                 <input
                   id="shop-search"
                   name="q"
                   type="search"
                   defaultValue={query}
                   placeholder="Cerca..."
+                  className="min-w-[220px] border px-3 py-2 text-[0.8rem]"
                 />
               </form>
             </div>
           </div>
-          <div className={view === 'list' ? 'shop-list' : 'shop-grid'}>
+          <div
+            className={
+              isListView
+                ? 'grid gap-2'
+                : 'grid grid-cols-3 gap-3 max-[1200px]:grid-cols-2 max-[700px]:grid-cols-1'
+            }
+          >
             {filteredProducts.map((product) => {
-              const image = product.images?.[0]
+              const image = product.coverImage ?? product.images?.[0]
               const imageData =
                 image && typeof image === 'object' && 'url' in image
                   ? {
                       url: image.url || '',
                       alt: image.alt || product.title || 'Product image',
+                      mimeType: image.mimeType || null,
                     }
                   : null
               return (
-                <div className={view === 'list' ? 'shop-card list' : 'shop-card'} key={product.id}>
-                  <div className="shop-image">
+                <div
+                  className={`flex w-full max-w-[320px] flex-col justify-self-center border /50 ${ isListView ? 'max-w-none flex-row items-center gap-6 p-4' : '' }`}
+                  key={product.id}
+                >
+                  <div
+                    className={`relative grid place-items-center overflow-hidden border-b /50 ${ isListView ? 'h-[160px] w-[160px] border-b-0' : 'h-[220px]' }`}
+                  >
                     {imageData?.url ? (
-                      <Image
-                        className="product-img"
-                        src={imageData.url}
-                        alt={imageData.alt}
-                        fill
-                        sizes="(max-width: 700px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
+                      imageData.mimeType?.startsWith('video/') ? (
+                        <video
+                          className="h-full w-full object-contain p-4"
+                          src={imageData.url}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                        />
+                      ) : (
+                        <Image
+                          className="object-contain p-4"
+                          src={imageData.url}
+                          alt={imageData.alt}
+                          fill
+                          sizes="(max-width: 700px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      )
                     ) : (
-                      <div className="shop-image-placeholder" />
+                      <div className="h-[70%] w-[70%] border" />
                     )}
                   </div>
-                  <div className="shop-info">
+                  <div className={`flex-1 p-5 text-center ${isListView ? 'p-0 text-left' : ''}`}>
                     <h3>{product.title || t.placeholders.productName}</h3>
-                    <p className="price">{formatPrice(product.price || 0)}</p>
+                    <p className="font-semibold">
+                      {formatPrice(product.price || 0)}
+                    </p>
                   </div>
-                  <button className="shop-cta" type="button">
+                  <button
+                    className={`border-0 px-4 py-3 text-[0.7rem] uppercase tracking-[0.16em] ${ isListView ? 'ml-auto self-stretch' : '' }`}
+                    type="button"
+                  >
                     Aggiungi al carrello
                   </button>
                 </div>
               )
             })}
           </div>
-          {!filteredProducts.length && <p className="note">{t.shop.note}</p>}
+          {!filteredProducts.length && (
+            <p className="text-[0.9rem]">{t.shop.note}</p>
+          )}
         </div>
       </section>
     </div>

@@ -1,0 +1,189 @@
+import Image from 'next/image'
+import Link from 'next/link'
+
+import { MenuLink } from '@/components/MenuLink'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { cn } from '@/lib/cn'
+import styles from './Header.module.css'
+
+type HeaderCategory = {
+  id: number | string
+  boxName?: string | null
+  dobGroup?: string | null
+  slug?: string | null
+}
+
+type HeaderProps = {
+  locale: string
+  locales: ReadonlyArray<string>
+  t: {
+    brand: string
+    nav: {
+      story: string
+      journal: string
+      location: string
+      services: string
+      shop: string
+    }
+    cta: {
+      appointment: string
+      whatsapp: string
+      call: string
+    }
+  }
+  categories: HeaderCategory[]
+  whatsappLink: string
+  phoneLink: string
+}
+
+export const Header = ({
+  locale,
+  locales,
+  t,
+  categories,
+  whatsappLink,
+  phoneLink,
+}: HeaderProps) => {
+  return (
+    <>
+      <input className={styles.menuToggle} id="menu-toggle" type="checkbox" />
+      <header className={styles.header}>
+        <div className="flex items-center gap-5">
+          <label className={styles.burger} htmlFor="menu-toggle" aria-label="Apri menu">
+            <span className={styles.burgerLine} />
+            <span className={styles.burgerLine} />
+            <span className={styles.burgerLine} />
+          </label>
+        </div>
+        <div className={styles.brand}>
+          <Link href={`/${locale}`} className={styles.brand}>
+            <span className={styles.brandMark}>
+              <Image
+                className={styles.logoDark}
+                src="/brand/logo-black.png"
+                alt=""
+                width={54}
+                height={54}
+                priority
+              />
+              <Image
+                className={styles.logoLight}
+                src="/brand/logo-white.png"
+                alt=""
+                width={54}
+                height={54}
+                priority
+              />
+            </span>
+            <h1 className={styles.brandTitle}>DOB</h1>
+            <span className="sr-only">{t.brand}</span>
+          </Link>
+        </div>
+        <div className={styles.right}>
+          <a className={styles.cta} href={whatsappLink}>
+            {t.cta.appointment}
+          </a>
+          <div className={styles.iconRow} aria-label="Account e carrello">
+            <Link
+              href={`/${locale}/account`}
+              className={styles.iconButton}
+              aria-label="Account"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 12c2.9 0 5-2.3 5-5s-2.1-5-5-5-5 2.3-5 5 2.1 5 5 5Zm0 2c-4 0-8 2.1-8 5v1h16v-1c0-2.9-4-5-8-5Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Link>
+            <Link
+              href={`/${locale}/cart`}
+              className={styles.iconButton}
+              aria-label="Carrello"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M7 18a2 2 0 1 0 .01 4A2 2 0 0 0 7 18Zm10 0a2 2 0 1 0 .01 4A2 2 0 0 0 17 18Zm-9.3-3h9.7a2 2 0 0 0 2-1.6l1.6-7.2H6.2L5.6 3H2v2h2l3 12Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Link>
+          </div>
+          <ThemeToggle />
+          <div className={styles.locale}>
+            <button className={styles.localeButton} type="button" aria-haspopup="true">
+              {locale.toUpperCase()}
+            </button>
+            <div className={styles.localeMenu} role="menu">
+              {locales.map((item) => (
+                <Link
+                  key={item}
+                  href={`/${item}`}
+                  className={cn(styles.localeLink, item === locale && styles.localeLinkActive)}
+                >
+                  {item.toUpperCase()}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </header>
+      <div className={styles.menuOverlay} aria-hidden="true">
+        <div className={styles.menuGrid}>
+          <div className={styles.menuLeft}>
+            <label className={styles.menuClose} htmlFor="menu-toggle" aria-label="Chiudi menu">
+              ×
+            </label>
+            <h2 className={styles.menuTitle}>Menu</h2>
+            <div className={styles.menuLinks}>
+              <MenuLink className="uppercase tracking-[0.18em]" external href="https://facebook.com">
+                Facebook
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" external href="https://instagram.com">
+                Instagram
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/our-story`}>
+                / {t.nav.story}
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/journal`}>
+                / {t.nav.journal}
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/location`}>
+                / {t.nav.location}
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/services`}>
+                / {t.nav.services}
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/shop`}>
+                / {t.nav.shop}
+              </MenuLink>
+            </div>
+            <div className={styles.menuBooking}>
+              <p className="m-0">For booking</p>
+              <MenuLink className="uppercase tracking-[0.18em]" external href={whatsappLink}>
+                / {t.cta.whatsapp}
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" external href={phoneLink}>
+                / {t.cta.call}
+              </MenuLink>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className={styles.menuServices}>
+              {categories.map((category, index) => (
+                <div className={styles.menuServiceItem} key={category.id}>
+                  <span className={styles.menuServiceMeta}>
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span>{category.boxName}</span>
+                  <span className={styles.menuServiceMeta}>{category.dobGroup || 'DOB'}</span>
+                  <span className="text-[1rem]">↗</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}

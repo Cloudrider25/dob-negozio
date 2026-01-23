@@ -2,11 +2,12 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
 
-export const ServiceCategories: CollectionConfig = {
-  slug: 'service-categories',
+export const Treatments: CollectionConfig = {
+  slug: 'treatments',
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'active'],
+    useAsTitle: 'boxName',
+    defaultColumns: ['boxName', 'active'],
+    group: 'Servizi',
   },
   access: {
     read: () => true,
@@ -16,10 +17,41 @@ export const ServiceCategories: CollectionConfig = {
   },
   fields: [
     {
-      name: 'title',
+      name: 'boxName',
       type: 'text',
       localized: true,
       required: true,
+    },
+    {
+      name: 'boxTagline',
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'cardName',
+      type: 'text',
+      localized: true,
+    },
+    {
+      name: 'cardTagline',
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'cardMedia',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
+      name: 'cardDescription',
+      type: 'richText',
+      localized: true,
+    },
+    {
+      name: 'reference',
+      type: 'relationship',
+      relationTo: ['objectives', 'areas'],
+      hasMany: true,
     },
     {
       name: 'description',

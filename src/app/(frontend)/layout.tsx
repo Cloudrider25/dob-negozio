@@ -1,5 +1,5 @@
 import React from 'react'
-import './styles.css'
+import '../../styles/globals.css'
 
 export const metadata = {
   description:
@@ -12,7 +12,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang="it">
-      <body className="site">
+      <body className="site dark">
         <main>{children}</main>
       </body>
     </html>

@@ -7,6 +7,7 @@ export const Services: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'serviceType', 'price', 'duration', 'active'],
+    group: 'Servizi',
   },
   access: {
     read: () => true,
@@ -24,7 +25,14 @@ export const Services: CollectionConfig = {
     {
       name: 'category',
       type: 'relationship',
-      relationTo: 'service-categories',
+      relationTo: 'treatments',
+      required: true,
+    },
+    {
+      name: 'treatments',
+      type: 'relationship',
+      relationTo: 'treatments',
+      hasMany: true,
       required: true,
     },
     {

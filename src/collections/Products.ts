@@ -7,6 +7,7 @@ export const Products: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'sku', 'price', 'active'],
+    group: 'Shop',
   },
   access: {
     read: () => true,
@@ -90,10 +91,16 @@ export const Products: CollectionConfig = {
       min: 0,
     },
     {
+      name: 'coverImage',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
       name: 'images',
       type: 'upload',
       relationTo: 'media',
       hasMany: true,
+      maxRows: 4,
     },
     {
       name: 'featured',

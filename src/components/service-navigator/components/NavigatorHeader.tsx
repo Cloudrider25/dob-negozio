@@ -1,0 +1,73 @@
+'use client'
+
+type NavigatorHeaderProps = {
+  activeView: "navigator" | "listino" | "consulenza";
+  onViewChange: (view: "navigator" | "listino" | "consulenza") => void;
+};
+
+export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderProps) {
+  return (
+    <div className="text-center mb-16">
+      <h1 className="text-4xl md:text-5xl font-light text-white mb-4 tracking-tight">
+        Scegli il risultato.{" "}
+        <span className="inline-block relative">
+          Al resto pensiamo noi.
+          <span className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50" />
+        </span>
+      </h1>
+
+      <p className="text-lg text-white/60 max-w-2xl mx-auto mb-6">
+        Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più
+        adatto.
+      </p>
+
+      <div className="flex items-center justify-center gap-3">
+        {/* Service Navigator - Default/Active */}
+        <button
+          onClick={() => onViewChange("navigator")}
+          className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border transition-all duration-300 ${
+            activeView === "navigator"
+              ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+              : "border-white/20 text-white/80 hover:bg-white/5 hover:text-white"
+          }`}
+        >
+          <span>Service Navigator</span>
+        </button>
+
+        {/* Listino Tradizionale */}
+        <button
+          onClick={() => onViewChange("listino")}
+          className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border transition-all duration-300 group ${
+            activeView === "listino"
+              ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+              : "border-white/20 text-white/80 hover:bg-white/5 hover:text-white"
+          }`}
+        >
+          <span>Listino Tradizionale</span>
+          {activeView !== "listino" && (
+            <span className="text-cyan-400 group-hover:translate-x-1 transition-transform duration-300">
+              →
+            </span>
+          )}
+        </button>
+
+        {/* Skin Analyzer */}
+        <button
+          onClick={() => onViewChange("consulenza")}
+          className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border transition-all duration-300 group ${
+            activeView === "consulenza"
+              ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+              : "border-white/20 text-white/80 hover:bg-white/5 hover:text-white"
+          }`}
+        >
+          <span>Skin Analyzer (Derma Test) & Consulenza</span>
+          {activeView !== "consulenza" && (
+            <span className="text-cyan-400 group-hover:translate-x-1 transition-transform duration-300">
+              →
+            </span>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}

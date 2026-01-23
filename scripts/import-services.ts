@@ -559,7 +559,7 @@ const run = async () => {
     if (!categoryId) {
       const categorySlug = slugify(service.category)
       const existingCategory = await payload.find({
-        collection: 'service-categories',
+        collection: 'treatments',
         overrideAccess: true,
         limit: 1,
         where: {
@@ -573,7 +573,7 @@ const run = async () => {
         categoryId = existingCategory.docs[0].id
       } else {
         const createdCategory = await payload.create({
-          collection: 'service-categories',
+          collection: 'treatments',
           overrideAccess: true,
           locale: 'it',
           data: {
@@ -596,6 +596,7 @@ const run = async () => {
     const dataPayload = {
       name: service.name,
       category: Number(categoryId),
+      treatments: [Number(categoryId)],
       duration: service.duration,
       price: price ?? 0,
       active: true,

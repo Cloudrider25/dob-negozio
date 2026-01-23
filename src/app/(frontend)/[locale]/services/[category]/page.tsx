@@ -1,12 +1,15 @@
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
-import { getPayload } from 'payload'
-
 import { getDictionary, isLocale } from '@/lib/i18n'
-import configPromise from '@/payload.config'
+import { getPayloadClient } from '@/lib/getPayloadClient'
+import { buildContactLinks } from '@/lib/contact'
+import { Hero } from '@/components/Hero'
 import { ServicesProtocol } from '@/components/ServicesProtocol'
 import { ServicesCarousel } from '@/components/ServicesCarousel'
 import { ServicesToggle } from '@/components/ServicesToggle'
+import { ButtonLink } from '@/components/ui/button-link'
+import styles from './services-category.module.css'
 
 const fallbackImage = '/media/493b3205c13b5f67b36cf794c2222583.jpg'
 const highlightFallbackLeft =
@@ -14,12 +17,6 @@ const highlightFallbackLeft =
 const highlightFallbackRight =
   'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=80'
 
-const formatPrice = (value: number) => `€${value.toFixed(2)}`
-const parseMinutes = (value?: string | null) => {
-  if (!value) return null
-  const match = value.match(/(\d+)/)
-  return match ? Number.parseInt(match[1], 10) : null
-}
 
 export default async function ServiceCategoryPage({
   params,
@@ -36,9 +33,18 @@ export default async function ServiceCategoryPage({
   }
 
   const t = getDictionary(locale)
-  const payload = await getPayload({ config: await configPromise })
+  const payload = await getPayloadClient()
+  const siteSettings = await payload.findGlobal({
+    slug: 'site-settings',
+    locale,
+    overrideAccess: false,
+  })
+  const { phoneLink, whatsappLink } = buildContactLinks({
+    phone: siteSettings?.phone,
+    whatsapp: siteSettings?.whatsapp,
+  })
   const categoryResult = await payload.find({
-    collection: 'service-categories',
+    collection: 'treatments',
     locale,
     overrideAccess: false,
     limit: 1,
@@ -56,24 +62,50 @@ export default async function ServiceCategoryPage({
     notFound()
   }
 
+  const categoryTitle = categoryDoc.boxName || categoryDoc.cardName || 'Service category'
+
   const categoryImage =
     categoryDoc.heroImage && typeof categoryDoc.heroImage === 'object' && 'url' in categoryDoc.heroImage
-      ? categoryDoc.heroImage.url || fallbackImage
-      : fallbackImage
+      ? {
+          url: categoryDoc.heroImage.url || fallbackImage,
+          alt: categoryDoc.heroImage.alt || categoryTitle,
+          mimeType: categoryDoc.heroImage.mimeType || null,
+        }
+      : {
+          url: fallbackImage,
+          alt: categoryTitle,
+          mimeType: null,
+        }
 
   const highlightImageLeft =
     categoryDoc.highlightImageLeft &&
     typeof categoryDoc.highlightImageLeft === 'object' &&
     'url' in categoryDoc.highlightImageLeft
-      ? categoryDoc.highlightImageLeft.url || highlightFallbackLeft
-      : highlightFallbackLeft
+      ? {
+          url: categoryDoc.highlightImageLeft.url || highlightFallbackLeft,
+          alt: categoryDoc.highlightImageLeft.alt || 'Detail texture',
+          mimeType: categoryDoc.highlightImageLeft.mimeType || null,
+        }
+      : {
+          url: highlightFallbackLeft,
+          alt: 'Detail texture',
+          mimeType: null,
+        }
 
   const highlightImageRight =
     categoryDoc.highlightImageRight &&
     typeof categoryDoc.highlightImageRight === 'object' &&
     'url' in categoryDoc.highlightImageRight
-      ? categoryDoc.highlightImageRight.url || highlightFallbackRight
-      : highlightFallbackRight
+      ? {
+          url: categoryDoc.highlightImageRight.url || highlightFallbackRight,
+          alt: categoryDoc.highlightImageRight.alt || 'Eye detail',
+          mimeType: categoryDoc.highlightImageRight.mimeType || null,
+        }
+      : {
+          url: highlightFallbackRight,
+          alt: 'Eye detail',
+          mimeType: null,
+        }
 
   const services = await payload.find({
     collection: 'services',
@@ -90,14 +122,6 @@ export default async function ServiceCategoryPage({
       },
     },
   })
-  const prices = services.docs.map((service) => service.price || 0)
-  const minPrice = prices.length ? Math.min(...prices) : 0
-  const durations = services.docs
-    .map((service) => parseMinutes(service.duration))
-    .filter((value): value is number => value !== null)
-  const minDuration = durations.length ? Math.min(...durations) : null
-  const maxDuration = durations.length ? Math.max(...durations) : null
-
   const matchesType = (value?: string | null) => {
     if (!typeFilter) return true
     return value === typeFilter
@@ -108,82 +132,89 @@ export default async function ServiceCategoryPage({
   })
 
   return (
-    <div className="page services-page services-category-page">
-      <section className="services-hero services-hero--full">
-        <div className="services-hero-text">
-          <div className="services-hero-meta">
-            <span className="services-hero-index">001</span>
-            <span className="services-hero-group">{categoryDoc.dobGroup || 'DOB'}</span>
-          </div>
-          <h1>{categoryDoc.title}</h1>
-          <div className="services-hero-proof">
-            <span>
-              Durata{' '}
-              {minDuration && maxDuration ? `${minDuration}-${maxDuration} min` : 'su misura'}
-            </span>
-            <span>Da {formatPrice(minPrice || 0)}</span>
-            <span>Tecnologia {categoryDoc.dobGroup || 'Avanzata'}</span>
-          </div>
-          {categoryDoc.description && (
-            <div className="services-hero-description">
-              <div className="services-hero-scrollline">
-                <span className="services-hero-scroll">Scroll</span>
-                <div className="services-hero-divider" />
-              </div>
-              <p>{categoryDoc.description}</p>
-            </div>
+    <div className="services-category-page flex flex-col gap-10">
+      <Hero
+        eyebrow={categoryDoc.dobGroup || t.services.title}
+        title={categoryTitle || t.services.title}
+        description={categoryDoc.description || ''}
+        variant="style1"
+        mediaDark={categoryImage}
+        ctas={[
+          { href: whatsappLink, label: 'Prenota', variant: 'primary', external: true },
+          { href: phoneLink, label: 'Consulenza', variant: 'outline', external: true },
+        ]}
+      />
+      <ServicesProtocol />
+      <section
+        className="grid grid-cols-[minmax(220px,320px)_1fr_minmax(220px,320px)] gap-10 px-[8vw] py-[var(--s120)] max-[1100px]:grid-cols-1"
+        data-header-theme="light"
+      >
+        <div className={styles.highlightMedia}>
+          {highlightImageLeft.mimeType?.startsWith('video/') ? (
+            <video src={highlightImageLeft.url} autoPlay muted loop playsInline />
+          ) : (
+            <Image
+              src={highlightImageLeft.url}
+              alt={highlightImageLeft.alt}
+              fill
+              sizes="(max-width: 1100px) 100vw, 320px"
+            />
           )}
-          <div className="services-hero-actions">
-            <a className="cta" href="https://wa.me/39XXXXXXXXXX">
-              Prenota
-            </a>
-            <a className="cta outline" href="tel:+39XXXXXXXXXX">
-              Consulenza
-            </a>
-          </div>
         </div>
-        <div className="services-hero-image">
-          <img src={categoryImage} alt={categoryDoc.title || 'Service category'} />
-        </div>
-      </section>
-      <section className="services-highlight">
-        <div className="services-highlight-media">
-          <img src={highlightImageLeft} alt="Detail texture" />
-        </div>
-        <div className="services-highlight-content">
-          <span className="services-highlight-eyebrow">{categoryDoc.dobGroup || 'DOB'}</span>
-          <h2>Perchè {categoryDoc.title} da DOB Milano?</h2>
-          <p className="services-highlight-lead">
+        <div className="flex flex-col items-start gap-6 text-left">
+          <span className="text-[0.75rem] uppercase tracking-[0.4em]">
+            {categoryDoc.dobGroup || 'DOB'}
+          </span>
+          <h2 className="text-[2.6rem] uppercase tracking-[0.12em]">
+            Perchè {categoryTitle} da DOB Milano?
+          </h2>
+          <p className="max-w-[520px]">
             {categoryDoc.highlightLead ||
               'Trattamenti studiati per risultati visibili, texture luminosa e cura profonda.'}
           </p>
-          <div className="services-highlight-grid">
+          <div className="grid w-full grid-cols-2 gap-8 max-[1100px]:grid-cols-1">
             <div>
-              <h3>{categoryDoc.highlightPointOneTitle || 'Powered by precision'}</h3>
-              <p>
+              <h3 className="mb-2 text-[1.2rem]">
+                {categoryDoc.highlightPointOneTitle || 'Powered by precision'}
+              </h3>
+              <p className="m-0">
                 {categoryDoc.highlightPointOneBody ||
                   'Protocolli mirati, manualità esperte e tecnologie avanzate per potenziare la naturale bellezza.'}
               </p>
             </div>
             <div>
-              <h3>{categoryDoc.highlightPointTwoTitle || 'Safe, gentle, lasting'}</h3>
-              <p>
+              <h3 className="mb-2 text-[1.2rem]">
+                {categoryDoc.highlightPointTwoTitle || 'Safe, gentle, lasting'}
+              </h3>
+              <p className="m-0">
                 {categoryDoc.highlightPointTwoBody ||
                   'Risultati progressivi e duraturi, con attenzione alla sensibilità della pelle e al comfort.'}
               </p>
             </div>
           </div>
         </div>
-        <div className="services-highlight-media right">
-          <img src={highlightImageRight} alt="Eye detail" />
+        <div className={styles.highlightMedia}>
+          {highlightImageRight.mimeType?.startsWith('video/') ? (
+            <video src={highlightImageRight.url} autoPlay muted loop playsInline />
+          ) : (
+            <Image
+              src={highlightImageRight.url}
+              alt={highlightImageRight.alt}
+              fill
+              sizes="(max-width: 1100px) 100vw, 320px"
+            />
+          )}
         </div>
       </section>
-      <ServicesProtocol />
-      <section className="services-category-list">
-        <div className="services-list">
-          <p className="services-eyebrow">{t.services.title}</p>
-          <h2>{categoryDoc.title}</h2>
-          <div className="services-tools">
+      <section className="px-[8vw] py-[var(--s120)]">
+        <div className="flex flex-col gap-6">
+          <p className="text-[1.5rem] uppercase tracking-[0.4em]">
+            {t.services.title}
+          </p>
+          <h2 className="text-[2.6rem] uppercase tracking-[0.08em]">
+            {categoryTitle}
+          </h2>
+          <div className="flex items-center justify-between">
             <ServicesToggle currentType={typeFilter} />
           </div>
           <ServicesCarousel
@@ -197,25 +228,29 @@ export default async function ServiceCategoryPage({
             imageRight={highlightImageRight}
             autoplayMs={5200}
           />
-          {!filteredServices.length && <p className="note">{t.services.note}</p>}
+          {!filteredServices.length && (
+            <p className="text-[0.9rem]">{t.services.note}</p>
+          )}
         </div>
       </section>
-      <section className="services-cta">
-        <div className="services-cta-card">
+      <section className="px-[8vw] py-[var(--s120)]">
+        <div className={`${styles.ctaCard} grid grid-cols-[1.5fr_1fr] gap-8 rounded-[28px] border p-10 max-[900px]:grid-cols-1`}>
           <div>
-            <p className="services-cta-eyebrow">Prenota ora</p>
+            <p className="text-[0.75rem] uppercase tracking-[0.4em]">
+              Prenota ora
+            </p>
             <h3>Il tuo percorso di bellezza inizia qui.</h3>
             <p>
               Contattaci su WhatsApp o telefono per una consulenza e un appuntamento su misura.
             </p>
           </div>
-          <div className="services-cta-actions">
-            <a className="cta" href="https://wa.me/39XXXXXXXXXX">
+          <div className="flex flex-col items-start justify-center gap-4">
+            <ButtonLink href={whatsappLink} variant="primary" external>
               Prenota via WhatsApp
-            </a>
-            <a className="cta outline" href="tel:+39XXXXXXXXXX">
+            </ButtonLink>
+            <ButtonLink href={phoneLink} variant="outline" external>
               Prenota via telefono
-            </a>
+            </ButtonLink>
           </div>
         </div>
       </section>

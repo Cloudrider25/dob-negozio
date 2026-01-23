@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 type ServiceItem = {
@@ -11,8 +12,8 @@ type ServiceItem = {
 type ServicesCarouselProps = {
   items: ServiceItem[]
   groupLabel: string
-  imageLeft: string
-  imageRight: string
+  imageLeft: { url: string; alt: string; mimeType?: string | null }
+  imageRight: { url: string; alt: string; mimeType?: string | null }
   autoplayMs?: number
 }
 
@@ -31,6 +32,8 @@ export const ServicesCarousel = ({
 }: ServicesCarouselProps) => {
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [perView, setPerView] = useState(3)
+  const [cardWidth, setCardWidth] = useState(320)
+  const [gap, setGap] = useState(28)
   const [page, setPage] = useState(0)
 
   const totalPages = Math.max(1, Math.ceil(items.length / perView))
@@ -42,8 +45,16 @@ export const ServicesCarousel = ({
     if (!el) return
 
     const update = () => {
-      const width = el.clientWidth
-      setPerView(getItemsPerView(width))
+      const width = el.getBoundingClientRect().width
+      if (!width) return
+      const viewport = window.innerWidth
+      const nextPerView = getItemsPerView(viewport)
+      const nextGap = viewport <= 768 ? 16 : viewport <= 1100 ? 19 : 28
+      const nextCardWidthRaw = (width - nextGap * (nextPerView - 1)) / nextPerView
+      const nextCardWidth = Number.isFinite(nextCardWidthRaw) ? nextCardWidthRaw : 320
+      setPerView(nextPerView)
+      setGap(nextGap)
+      setCardWidth(Math.max(nextCardWidth, 240))
     }
 
     update()
@@ -70,45 +81,94 @@ export const ServicesCarousel = ({
   useEffect(() => {
     const el = trackRef.current
     if (!el) return
-    el.scrollTo({ left: page * el.clientWidth, behavior: 'smooth' })
-  }, [page])
+    const offset = (cardWidth + gap) * perView
+    el.scrollTo({ left: page * offset, behavior: 'smooth' })
+  }, [page, cardWidth, gap, perView])
 
   const goPrev = () => setPage((current) => (current - 1 + totalPages) % totalPages)
   const goNext = () => setPage((current) => (current + 1) % totalPages)
 
   return (
-    <div className="services-carousel">
-      <div className="services-carousel-controls">
-        <button type="button" className="carousel-arrow" onClick={goPrev} aria-label="Previous">
+    <div className="relative">
+      <div className="absolute right-0 top-[calc(-1*var(--s32))] flex gap-2.5 max-[768px]:static max-[768px]:mb-4 max-[768px]:justify-end">
+        <button
+          type="button"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[rgba(255,255,255,0.08)] text-[color:var(--text-primary)] backdrop-blur transition hover:-translate-y-0.5 hover:border-[rgba(255,45,45,0.4)]"
+          onClick={goPrev}
+          aria-label="Previous"
+        >
           ←
         </button>
-        <button type="button" className="carousel-arrow" onClick={goNext} aria-label="Next">
+        <button
+          type="button"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[rgba(255,255,255,0.08)] text-[color:var(--text-primary)] backdrop-blur transition hover:-translate-y-0.5 hover:border-[rgba(255,45,45,0.4)]"
+          onClick={goNext}
+          aria-label="Next"
+        >
           →
         </button>
       </div>
-      <div className="services-carousel-track" ref={trackRef}>
-        {items.map((service, index) => {
-          const serviceImage = images[index % images.length]
-          return (
-            <article className="service-tile" key={service.id}>
-              <div className="service-tile-header">
-                <div className="service-tile-meta">
-                  <span className="service-tile-index">
-                    {String(index + 1).padStart(3, '0')}
-                  </span>
-                  <span className="service-tile-group">{groupLabel}</span>
+      <div className="overflow-x-auto scroll-smooth" ref={trackRef} style={{ overflowX: 'auto' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'nowrap',
+            gap: `${gap}px`,
+            width: 'max-content',
+          }}
+        >
+          {items.map((service, index) => {
+            const serviceImage = images[index % images.length]
+            const isVideo = serviceImage?.mimeType?.startsWith('video/')
+            return (
+              <article
+                className="relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[20px] border border-black/6 bg-[var(--pearl-grad)] shadow-[var(--shadow-lux)] before:absolute before:inset-0 before:bg-[var(--pearl-highlight)] before:content-['']"
+                style={{ width: `${cardWidth}px`, flex: '0 0 auto' }}
+                key={service.id}
+              >
+                <div className="relative z-[1] flex min-h-[260px] flex-1 flex-col gap-3 px-[2.2rem] pb-[1.6rem] pt-8">
+                  <div className="flex items-center gap-4 text-[0.75rem] uppercase tracking-[0.24em] text-black/60">
+                    <span className="font-semibold">
+                      {String(index + 1).padStart(3, '0')}
+                    </span>
+                    <span>{groupLabel}</span>
+                  </div>
+                  <h3 className="text-[1.5rem] tracking-[0.02em] text-[color:var(--obsidian)]">
+                    {service.name}
+                  </h3>
+                  <p className="m-0 text-[0.95rem] text-black/70">
+                    {service.description || 'Trattamento su misura.'}
+                  </p>
+                  <div className="mt-auto pt-4 text-[0.75rem] uppercase tracking-[0.18em] text-[color:var(--obsidian)]">
+                    Scopri →
+                  </div>
                 </div>
-                <h3 className="service-tile-title">{service.name}</h3>
-                <p className="service-tile-desc">
-                  {service.description || 'Trattamento su misura.'}
-                </p>
-              </div>
-              <div className="service-tile-media">
-                <img src={serviceImage} alt={service.name || 'Service image'} loading="lazy" />
-              </div>
-            </article>
-          )
-        })}
+                <div className="overflow-hidden border-t border-black/10">
+                  {isVideo ? (
+                    <video
+                      className="h-[250px] w-full object-cover"
+                      src={serviceImage.url}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    />
+                  ) : (
+                    <div className="relative h-[250px] w-full">
+                      <Image
+                        className="object-cover"
+                        src={serviceImage.url}
+                        alt={serviceImage.alt || service.name || 'Service image'}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
+                  )}
+                </div>
+              </article>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

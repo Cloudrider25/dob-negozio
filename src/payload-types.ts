@@ -70,10 +70,13 @@ export interface Config {
     users: User;
     media: Media;
     products: Product;
-    'service-categories': ServiceCategory;
+    areas: Area;
+    objectives: Objective;
+    treatments: Treatment;
     services: Service;
     promotions: Promotion;
     posts: Post;
+    pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,10 +87,13 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
-    'service-categories': ServiceCategoriesSelect<false> | ServiceCategoriesSelect<true>;
+    areas: AreasSelect<false> | AreasSelect<true>;
+    objectives: ObjectivesSelect<false> | ObjectivesSelect<true>;
+    treatments: TreatmentsSelect<false> | TreatmentsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     promotions: PromotionsSelect<false> | PromotionsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -194,6 +200,7 @@ export interface Product {
   lastCost?: number | null;
   residualTotal?: number | null;
   total?: number | null;
+  coverImage?: (number | null) | Media;
   images?: (number | Media)[] | null;
   featured?: boolean | null;
   active?: boolean | null;
@@ -204,11 +211,101 @@ export interface Product {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-categories".
+ * via the `definition` "areas".
  */
-export interface ServiceCategory {
+export interface Area {
   id: number;
-  title: string;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  cardDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectives".
+ */
+export interface Objective {
+  id: number;
+  boxName: string;
+  boxTagline?: string | null;
+  cardName?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  cardDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  area: number | Area;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "treatments".
+ */
+export interface Treatment {
+  id: number;
+  boxName: string;
+  boxTagline?: string | null;
+  cardName?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  cardDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  reference?:
+    | (
+        | {
+            relationTo: 'objectives';
+            value: number | Objective;
+          }
+        | {
+            relationTo: 'areas';
+            value: number | Area;
+          }
+      )[]
+    | null;
   description?: string | null;
   heroImage?: (number | null) | Media;
   image?: (number | null) | Media;
@@ -232,7 +329,8 @@ export interface ServiceCategory {
 export interface Service {
   id: number;
   name: string;
-  category: number | ServiceCategory;
+  category: number | Treatment;
+  treatments: (number | Treatment)[];
   slug: string;
   description?: string | null;
   price: number;
@@ -295,6 +393,24 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  /**
+   * Configura solo le pagine esistenti (no categorie).
+   */
+  pageKey: 'home' | 'services' | 'shop' | 'journal' | 'location' | 'our-story' | 'contact';
+  heroTitleMode: 'fixed' | 'dynamic';
+  heroStyle: 'style1' | 'style2';
+  heroTitle?: string | null;
+  heroDescription?: string | null;
+  heroMedia?: (number | Media)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -330,8 +446,16 @@ export interface PayloadLockedDocument {
         value: number | Product;
       } | null)
     | ({
-        relationTo: 'service-categories';
-        value: number | ServiceCategory;
+        relationTo: 'areas';
+        value: number | Area;
+      } | null)
+    | ({
+        relationTo: 'objectives';
+        value: number | Objective;
+      } | null)
+    | ({
+        relationTo: 'treatments';
+        value: number | Treatment;
       } | null)
     | ({
         relationTo: 'services';
@@ -344,6 +468,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -447,6 +575,7 @@ export interface ProductsSelect<T extends boolean = true> {
   lastCost?: T;
   residualTotal?: T;
   total?: T;
+  coverImage?: T;
   images?: T;
   featured?: T;
   active?: T;
@@ -457,10 +586,45 @@ export interface ProductsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-categories_select".
+ * via the `definition` "areas_select".
  */
-export interface ServiceCategoriesSelect<T extends boolean = true> {
-  title?: T;
+export interface AreasSelect<T extends boolean = true> {
+  name?: T;
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  cardDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectives_select".
+ */
+export interface ObjectivesSelect<T extends boolean = true> {
+  boxName?: T;
+  boxTagline?: T;
+  cardName?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  cardDescription?: T;
+  area?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "treatments_select".
+ */
+export interface TreatmentsSelect<T extends boolean = true> {
+  boxName?: T;
+  boxTagline?: T;
+  cardName?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  cardDescription?: T;
+  reference?: T;
   description?: T;
   heroImage?: T;
   image?: T;
@@ -484,6 +648,7 @@ export interface ServiceCategoriesSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   name?: T;
   category?: T;
+  treatments?: T;
   slug?: T;
   description?: T;
   price?: T;
@@ -522,6 +687,20 @@ export interface PostsSelect<T extends boolean = true> {
   status?: T;
   publishedAt?: T;
   coverImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  pageKey?: T;
+  heroTitleMode?: T;
+  heroStyle?: T;
+  heroTitle?: T;
+  heroDescription?: T;
+  heroMedia?: T;
   updatedAt?: T;
   createdAt?: T;
 }

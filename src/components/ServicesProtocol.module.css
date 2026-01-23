@@ -1,0 +1,330 @@
+.protocol {
+  padding: var(--s120) 8vw;
+  background: transparent;
+  color: var(--pearl-2);
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  --protocol-accent: rgba(255, 45, 45, 0.75);
+  --protocol-accent-strong: rgba(255, 45, 45, 0.95);
+  --protocol-accent-glow: rgba(255, 45, 45, 0.55);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  font-size: 0.75rem;
+  color: rgba(255, 45, 45, 0.7);
+}
+
+.title {
+  font-size: clamp(2.5rem, 4.8vw, 3.6rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.flow {
+  position: relative;
+  --protocol-bus-y: 0.4rem;
+  --protocol-bus-gap: 2.4rem;
+  padding-top: calc(var(--protocol-bus-y) + var(--protocol-bus-gap));
+  z-index: 1;
+  --protocol-badge-width: 130px;
+  --protocol-gap: 2.5rem;
+  --protocol-step-gap: 2rem;
+  --protocol-line-start: calc(var(--protocol-badge-width) / 2);
+  --protocol-steps-width: calc(100% - var(--protocol-line-start));
+  --protocol-line-trim: 24px;
+  --protocol-step-col: calc((var(--protocol-steps-width) - (2 * var(--protocol-step-gap))) / 3);
+  display: grid;
+  grid-template-columns: var(--protocol-badge-width) 1fr;
+  column-gap: var(--protocol-gap);
+  align-items: start;
+}
+
+.badge {
+  height: 100%;
+  min-height: 340px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 45, 45, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  font-size: 0.7rem;
+  color: var(--pearl-2);
+  background: rgba(20, 12, 16, 0.78);
+  box-shadow: 0 0 28px rgba(255, 45, 45, 0.5), 0 0 80px rgba(255, 45, 45, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.badge span {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.badgeGlow {
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(circle, rgba(255, 45, 45, 0.7), transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.line {
+  position: absolute;
+  top: var(--protocol-bus-y);
+  height: 2px;
+  background: rgba(255, 45, 45, 0.8);
+  box-shadow: 0 0 14px rgba(255, 45, 45, 0.6), 0 0 30px rgba(255, 45, 45, 0.35);
+  opacity: 1;
+}
+
+.lineLead {
+  left: var(--protocol-line-start);
+  width: calc(var(--protocol-gap) + (var(--protocol-step-col) / 2));
+}
+
+.lineSeg1 {
+  left: calc(
+    var(--protocol-line-start) + var(--protocol-gap) + (var(--protocol-step-col) / 2)
+  );
+  width: calc(var(--protocol-step-col) + var(--protocol-step-gap));
+}
+
+.lineSeg2 {
+  left: calc(
+    var(--protocol-line-start) + var(--protocol-gap) + (var(--protocol-step-col) / 2) +
+      var(--protocol-step-col) + var(--protocol-step-gap)
+  );
+  width: calc(var(--protocol-step-col) + var(--protocol-step-gap) - var(--protocol-line-trim));
+}
+
+.drop {
+  position: absolute;
+  top: var(--protocol-bus-y);
+  width: 2px;
+  height: var(--protocol-bus-gap);
+  background: rgba(255, 45, 45, 0.75);
+  opacity: 1;
+}
+
+.dropBadge {
+  left: calc(var(--protocol-badge-width) / 2);
+}
+
+.track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - var(--protocol-line-trim));
+  height: 100%;
+  background: transparent;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.runner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 45, 45, 0.8));
+  box-shadow: '0 0 38px rgba(255, 45, 45, 0.6)',
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--protocol-step-gap);
+  grid-column: 2 / 3;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stepTop {
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.dropStep {
+  top: calc(-1 * var(--protocol-bus-gap));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.node {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 45, 45, 0.85);
+  color: var(--pearl-2);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  background: rgba(20, 12, 16, 0.82);
+  box-shadow: 0 0 14px rgba(255, 45, 45, 0.45);
+}
+
+.card {
+  border: 1px solid rgba(255, 45, 45, 0.55);
+  padding: 1.8rem;
+  background: rgba(20, 12, 16, 0.78);
+  border-radius: 26px;
+  min-height: 260px;
+  box-shadow: 0 0 24px rgba(255, 45, 45, 0.35), 0 18px 50px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transform: perspective(1200px) translateZ(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+  transform: perspective(1200px) translateY(-8px) rotateX(1deg);
+  border-color: rgba(255, 45, 45, 0.95);
+  box-shadow: 0 0 34px rgba(255, 45, 45, 0.45), 0 28px 60px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 45, 45, 0.9);
+  display: inline-block;
+  position: relative;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 14px rgba(255, 45, 45, 0.5);
+}
+
+.icon::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 45, 45, 0.7);
+}
+
+.cardTitle {
+  margin: 0 0 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 1rem;
+}
+
+.cardBody {
+  margin: 0;
+  color: var(--pearl-2);
+}
+
+:global(body.light) .protocol {
+  color: var(--obsidian);
+  --protocol-accent: rgba(0, 120, 255, 0.75);
+  --protocol-accent-strong: rgba(0, 120, 255, 0.95);
+  --protocol-accent-glow: rgba(0, 160, 255, 0.45);
+}
+
+:global(body.light) .eyebrow {
+  color: rgba(0, 120, 255, 0.7);
+}
+
+:global(body.light) .badge,
+:global(body.light) .node {
+  background: var(--pearl-1);
+  color: var(--obsidian);
+  border-color: rgba(0, 120, 255, 0.75);
+  box-shadow: 0 0 16px rgba(0, 120, 255, 0.25);
+}
+
+:global(body.light) .badgeGlow {
+  background: radial-gradient(circle, rgba(0, 160, 255, 0.5), transparent 60%);
+}
+
+:global(body.light) .line,
+:global(body.light) .drop {
+  background: rgba(0, 120, 255, 0.85);
+  box-shadow: 0 0 12px rgba(0, 140, 255, 0.4);
+}
+
+:global(body.light) .runner {
+  background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(0, 120, 255, 0.45));
+  box-shadow: 0 0 18px rgba(0, 120, 255, 0.6), 0 0 32px rgba(0, 160, 255, 0.35);
+}
+
+:global(body.light) .card {
+  background: var(--pearl-1);
+  color: var(--obsidian);
+  border-color: rgba(0, 120, 255, 0.55);
+  box-shadow: 0 12px 30px rgba(0, 120, 255, 0.12);
+}
+
+:global(body.light) .icon {
+  border-color: rgba(0, 120, 255, 0.75);
+  box-shadow: 0 0 12px rgba(0, 140, 255, 0.35);
+}
+
+:global(body.light) .icon::after {
+  border-color: rgba(0, 120, 255, 0.55);
+}
+
+:global(body.light) .cardBody {
+  color: rgba(7, 7, 10, 0.7);
+}
+
+@media (max-width: 1100px) {
+  .intro {
+    align-items: flex-start;
+  }
+
+  .badge {
+    width: 100%;
+    height: 120px;
+    flex-direction: row;
+    letter-spacing: 0.3em;
+  }
+
+  .badge span {
+    writing-mode: horizontal-tb;
+  }
+
+  .track,
+  .line,
+  .drop {
+    display: none;
+  }
+
+  .flow {
+    grid-template-columns: 1fr;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+    grid-column: auto;
+  }
+}

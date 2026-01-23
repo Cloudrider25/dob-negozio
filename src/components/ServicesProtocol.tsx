@@ -2,6 +2,8 @@
 
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
+import { cn } from '@/lib/cn'
+import styles from './ServicesProtocol.module.css'
 
 type ServicesProtocolProps = {
   eyebrow?: string
@@ -180,26 +182,26 @@ export const ServicesProtocol = ({
   ])
 
   return (
-    <section className="services-protocol">
-      <div className="services-protocol-intro">
-        <span className="services-protocol-eyebrow">{eyebrow}</span>
-        <h2>{title}</h2>
+    <section className={styles.protocol}>
+      <div className={styles.intro}>
+        <span className={styles.eyebrow}>{eyebrow}</span>
+        <h2 className={styles.title}>{title}</h2>
       </div>
-      <div ref={flowRef} className="services-protocol-flow">
+      <div ref={flowRef} className={styles.flow}>
         <motion.div
           ref={badgeRef}
-          className="services-protocol-badge"
+          className={styles.badge}
           animate={badgeControls}
           variants={{
-            off: { borderColor: 'rgba(123, 180, 255, 0.35)', boxShadow: 'none' },
+            off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
             on: {
-              borderColor: 'rgba(123, 180, 255, 0.9)',
-              boxShadow: '0 0 28px rgba(123, 180, 255, 0.4)',
+              borderColor: 'var(--protocol-accent-strong)',
+              boxShadow: '0 0 28px var(--protocol-accent-glow)',
             },
           }}
         >
           <motion.span
-            className="services-protocol-badge-glow"
+            className={styles.badgeGlow}
             animate={badgeGlowControls}
             variants={{
               off: { opacity: 0 },
@@ -209,22 +211,12 @@ export const ServicesProtocol = ({
           <span>DOB</span>
           <span>PROTOCOL</span>
         </motion.div>
-        <span
-          ref={leadLineRef}
-          className="services-protocol-line services-protocol-line--lead"
-          aria-hidden="true"
-        />
-        <span
-          className="services-protocol-line services-protocol-line--seg services-protocol-line--seg1"
-          aria-hidden="true"
-        />
-        <span
-          className="services-protocol-line services-protocol-line--seg services-protocol-line--seg2"
-          aria-hidden="true"
-        />
-        <span className="services-protocol-drop services-protocol-drop--badge" aria-hidden="true" />
+        <span ref={leadLineRef} className={cn(styles.line, styles.lineLead)} aria-hidden="true" />
+        <span className={cn(styles.line, styles.lineSeg1)} aria-hidden="true" />
+        <span className={cn(styles.line, styles.lineSeg2)} aria-hidden="true" />
+        <span className={cn(styles.drop, styles.dropBadge)} aria-hidden="true" />
         <div
-          className="services-protocol-track"
+          className={styles.track}
           aria-hidden="true"
           style={{
             position: 'absolute',
@@ -236,36 +228,33 @@ export const ServicesProtocol = ({
           }}
         >
           <motion.span
-            className="services-protocol-runner"
+            className={styles.runner}
             animate={runnerOneControls}
             style={{ position: 'absolute', left: 0, top: 0 }}
           />
           <motion.span
-            className="services-protocol-runner"
+            className={styles.runner}
             animate={runnerTwoControls}
             style={{ position: 'absolute', left: 0, top: 0 }}
           />
           <motion.span
-            className="services-protocol-runner"
+            className={styles.runner}
             animate={runnerThreeControls}
             style={{ position: 'absolute', left: 0, top: 0 }}
           />
         </div>
-        <div className="services-protocol-steps">
-          <div className="services-protocol-step services-protocol-step--one">
-            <div className="services-protocol-step-top">
-              <span
-                className="services-protocol-drop services-protocol-drop--step"
-                aria-hidden="true"
-              />
+        <div className={styles.steps}>
+          <div className={styles.step}>
+            <div className={styles.stepTop}>
+              <span className={cn(styles.drop, styles.dropStep)} aria-hidden="true" />
               <motion.span
-                className="services-protocol-node"
+                className={styles.node}
                 animate={nodeOneControls}
                 variants={{
-                  off: { borderColor: 'rgba(123, 180, 255, 0.35)', boxShadow: 'none' },
+                  off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
                   on: {
-                    borderColor: 'rgba(123, 180, 255, 0.9)',
-                    boxShadow: '0 0 16px rgba(123, 180, 255, 0.45)',
+                    borderColor: 'var(--protocol-accent-strong)',
+                    boxShadow: '0 0 28px var(--protocol-accent-glow)',
                   },
                 }}
               >
@@ -274,41 +263,38 @@ export const ServicesProtocol = ({
             </div>
             <motion.div
               ref={cardOneRef}
-              className="services-protocol-card"
+              className={styles.card}
               animate={stepOneControls}
               variants={{
                 off: {
-                  borderColor: 'rgba(123, 180, 255, 0.2)',
+                  borderColor: 'var(--protocol-accent)',
                   boxShadow: '0 18px 40px rgba(0, 0, 0, 0.45)',
                 },
                 on: {
-                  borderColor: 'rgba(123, 180, 255, 0.85)',
-                  boxShadow: '0 22px 46px rgba(0, 0, 0, 0.5), 0 0 18px rgba(123, 180, 255, 0.35)',
+                  borderColor: 'var(--protocol-accent-strong)',
+                  boxShadow: '0 0 38px var(--protocol-accent-glow)',
                 },
               }}
             >
-              <span className="services-protocol-icon" aria-hidden="true" />
-              <h3>Analisi / consulenza</h3>
-              <p>
+              <span className={styles.icon} aria-hidden="true" />
+              <h3 className={styles.cardTitle}>Analisi / consulenza</h3>
+              <p className={styles.cardBody}>
                 Diagnosi personalizzata, ascolto e definizione degli obiettivi per costruire il
                 percorso più efficace.
               </p>
             </motion.div>
           </div>
-          <div className="services-protocol-step services-protocol-step--two">
-            <div className="services-protocol-step-top">
-              <span
-                className="services-protocol-drop services-protocol-drop--step"
-                aria-hidden="true"
-              />
+          <div className={styles.step}>
+            <div className={styles.stepTop}>
+              <span className={cn(styles.drop, styles.dropStep)} aria-hidden="true" />
               <motion.span
-                className="services-protocol-node"
+                className={styles.node}
                 animate={nodeTwoControls}
                 variants={{
-                  off: { borderColor: 'rgba(123, 180, 255, 0.35)', boxShadow: 'none' },
+                  off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
                   on: {
-                    borderColor: 'rgba(123, 180, 255, 0.9)',
-                    boxShadow: '0 0 16px rgba(123, 180, 255, 0.45)',
+                    borderColor: 'var(--protocol-accent-strong)',
+                    boxShadow: '0 0 28px var(--protocol-accent-glow)',
                   },
                 }}
               >
@@ -317,41 +303,38 @@ export const ServicesProtocol = ({
             </div>
             <motion.div
               ref={cardTwoRef}
-              className="services-protocol-card"
+              className={styles.card}
               animate={stepTwoControls}
               variants={{
                 off: {
-                  borderColor: 'rgba(123, 180, 255, 0.2)',
+                  borderColor: 'var(--protocol-accent)',
                   boxShadow: '0 18px 40px rgba(0, 0, 0, 0.45)',
                 },
                 on: {
-                  borderColor: 'rgba(123, 180, 255, 0.85)',
-                  boxShadow: '0 22px 46px rgba(0, 0, 0, 0.5), 0 0 18px rgba(123, 180, 255, 0.35)',
+                  borderColor: 'var(--protocol-accent-strong)',
+                  boxShadow: '0 0 38px var(--protocol-accent-glow)',
                 },
               }}
             >
-              <span className="services-protocol-icon" aria-hidden="true" />
-              <h3>Trattamento + tecnologia</h3>
-              <p>
+              <span className={styles.icon} aria-hidden="true" />
+              <h3 className={styles.cardTitle}>Trattamento + tecnologia</h3>
+              <p className={styles.cardBody}>
                 Manualità esperte e protocolli avanzati per massimizzare i risultati in tempi
                 misurabili.
               </p>
             </motion.div>
           </div>
-          <div className="services-protocol-step services-protocol-step--three">
-            <div className="services-protocol-step-top">
-              <span
-                className="services-protocol-drop services-protocol-drop--step"
-                aria-hidden="true"
-              />
+          <div className={styles.step}>
+            <div className={styles.stepTop}>
+              <span className={cn(styles.drop, styles.dropStep)} aria-hidden="true" />
               <motion.span
-                className="services-protocol-node"
+                className={styles.node}
                 animate={nodeThreeControls}
                 variants={{
-                  off: { borderColor: 'rgba(123, 180, 255, 0.35)', boxShadow: 'none' },
+                  off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
                   on: {
-                    borderColor: 'rgba(123, 180, 255, 0.9)',
-                    boxShadow: '0 0 16px rgba(123, 180, 255, 0.45)',
+                    borderColor: 'var(--protocol-accent-strong)',
+                    boxShadow: '0 0 28px var(--protocol-accent-glow)',
                   },
                 }}
               >
@@ -360,22 +343,22 @@ export const ServicesProtocol = ({
             </div>
             <motion.div
               ref={cardThreeRef}
-              className="services-protocol-card"
+              className={styles.card}
               animate={stepThreeControls}
               variants={{
                 off: {
-                  borderColor: 'rgba(123, 180, 255, 0.2)',
+                  borderColor: 'var(--protocol-accent)',
                   boxShadow: '0 18px 40px rgba(0, 0, 0, 0.45)',
                 },
                 on: {
-                  borderColor: 'rgba(123, 180, 255, 0.85)',
-                  boxShadow: '0 22px 46px rgba(0, 0, 0, 0.5), 0 0 18px rgba(123, 180, 255, 0.35)',
+                  borderColor: 'var(--protocol-accent-strong)',
+                  boxShadow: '0 0 38px var(--protocol-accent-glow)',
                 },
               }}
             >
-              <span className="services-protocol-icon" aria-hidden="true" />
-              <h3>Follow-up + mantenimento</h3>
-              <p>
+              <span className={styles.icon} aria-hidden="true" />
+              <h3 className={styles.cardTitle}>Follow-up + mantenimento</h3>
+              <p className={styles.cardBody}>
                 Piano di mantenimento e monitoraggio continuo per risultati duraturi e progressivi.
               </p>
             </motion.div>

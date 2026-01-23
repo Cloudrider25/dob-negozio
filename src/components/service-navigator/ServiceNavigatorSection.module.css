@@ -1,0 +1,102 @@
+.serviceNavigator {
+  color: var(--text-primary);
+}
+
+.cinematicBase {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg), var(--bg-2));
+}
+
+.cinematicVignette {
+  background: radial-gradient(circle at center, transparent 0%, var(--bg-2) 100%);
+}
+
+.cinematicGlow {
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      color-mix(in srgb, var(--tech-cyan) 8%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 80% 30%,
+      color-mix(in srgb, var(--neon-red) 6%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--pearl-1) 2%, transparent),
+      transparent 40%
+    );
+}
+
+.serviceNavigator :global(.text-white) {
+  color: var(--text-primary) !important;
+}
+
+.serviceNavigator :global(.text-white\/80),
+.serviceNavigator :global(.text-white\/70),
+.serviceNavigator :global(.text-white\/60) {
+  color: var(--text-secondary) !important;
+}
+
+.serviceNavigator :global(.text-white\/50),
+.serviceNavigator :global(.text-white\/40),
+.serviceNavigator :global(.text-white\/30),
+.serviceNavigator :global(.text-white\/20) {
+  color: var(--text-muted) !important;
+}
+
+.serviceNavigator :global(.text-black) {
+  color: var(--text-inverse) !important;
+}
+
+.serviceNavigator :global(.text-cyan-400),
+.serviceNavigator :global(.text-cyan-400\/80),
+.serviceNavigator :global(.text-cyan-400\/70),
+.serviceNavigator :global(.text-cyan-400\/60),
+.serviceNavigator :global(.text-blue-400),
+.serviceNavigator :global(.text-blue-600) {
+  color: var(--tech-cyan) !important;
+}
+
+.serviceNavigator :global(.text-red-400) {
+  color: var(--neon-red) !important;
+}
+
+.serviceNavigator :global(.bg-black\/95) {
+  background-color: var(--bg) !important;
+}
+
+.serviceNavigator :global(.bg-black\/90) {
+  background-color: var(--bg-2) !important;
+}
+
+.serviceNavigator :global(.bg-black\/60),
+.serviceNavigator :global(.bg-white\/5),
+.serviceNavigator :global(.bg-white\/8),
+.serviceNavigator :global(.bg-white\/10),
+.serviceNavigator :global(.bg-white\/20),
+.serviceNavigator :global(.bg-white\/40),
+.serviceNavigator :global(.bg-white\/\[0\.02\]) {
+  background-image: var(--pearl-grad), var(--pearl-highlight) !important;
+  background-blend-mode: screen;
+  border-color: color-mix(in srgb, var(--obsidian) 6%, transparent) !important;
+  box-shadow: var(--shadow-lux);
+}
+
+.serviceNavigator :global(.sn-card-shell) {
+  background-image: var(--pearl-grad), var(--pearl-highlight) !important;
+  background-blend-mode: screen;
+  border-color: color-mix(in srgb, var(--obsidian) 6%, transparent) !important;
+  box-shadow: var(--shadow-lux);
+}
+
+.serviceNavigator :global(.border-white\/10),
+.serviceNavigator :global(.border-white\/20),
+.serviceNavigator :global(.border-white\/30) {
+  border-color: var(--stroke) !important;
+}
+
+.serviceNavigator :global(.placeholder-white\/40)::placeholder {
+  color: var(--text-muted) !important;
+}

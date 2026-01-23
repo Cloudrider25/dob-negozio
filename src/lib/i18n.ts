@@ -21,7 +21,7 @@ export const dictionary = {
     cta: {
       whatsapp: 'Prenota via WhatsApp',
       call: 'Prenota via telefono',
-      appointment: 'Prenota appuntamento',
+      appointment: 'Prenota ora',
     },
     hero: {
       title: 'Estetica avanzata nel cuore di Milano',
@@ -86,7 +86,7 @@ export const dictionary = {
     cta: {
       whatsapp: 'Schedule via WhatsApp',
       call: 'Schedule via call',
-      appointment: 'Make an appointment',
+      appointment: 'Book now',
     },
     hero: {
       title: 'Advanced aesthetics in the heart of Milan',
@@ -151,7 +151,7 @@ export const dictionary = {
     cta: {
       whatsapp: 'Записаться через WhatsApp',
       call: 'Записаться по телефону',
-      appointment: 'Записаться на прием',
+      appointment: 'Записаться сейчас',
     },
     hero: {
       title: 'Продвинутая эстетика в самом сердце Милана',

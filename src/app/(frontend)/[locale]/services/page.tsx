@@ -1,17 +1,19 @@
 import { notFound } from 'next/navigation'
 
-import { getPayload } from 'payload'
-
 import { getDictionary, isLocale } from '@/lib/i18n'
-import configPromise from '@/payload.config'
+import { getPayloadClient } from '@/lib/getPayloadClient'
+import { Hero } from '@/components/Hero'
+import { ServiceNavigatorSection } from '@/components/service-navigator/ServiceNavigatorSection'
+import type { NavigatorData } from '@/components/service-navigator/data/navigator-data-context'
+import type {
+  AreaData,
+  GoalData,
+  ServiceFinal,
+  TreatmentData,
+} from '@/components/service-navigator/types/navigator'
+import { buildContactLinks } from '@/lib/contact'
 
-const heroImage = '/media/493b3205c13b5f67b36cf794c2222583.jpg'
-
-export default async function ServicesPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
 
   if (!isLocale(locale)) {
@@ -19,45 +21,277 @@ export default async function ServicesPage({
   }
 
   const t = getDictionary(locale)
-  const payload = await getPayload({ config: await configPromise })
-  const categories = await payload.find({
-    collection: 'service-categories',
+  const payload = await getPayloadClient()
+  const pageConfig = await payload.find({
+    collection: 'pages',
     locale,
     overrideAccess: false,
+    limit: 1,
+    depth: 1,
     where: {
-      active: {
-        equals: true,
+      pageKey: {
+        equals: 'services',
       },
     },
-    sort: 'title',
-    limit: 100,
+  })
+  const pageDoc = pageConfig.docs[0]
+  const heroMedia = Array.isArray(pageDoc?.heroMedia) ? pageDoc?.heroMedia : []
+  const resolveMedia = (media: unknown) => {
+    if (!media || typeof media !== 'object' || !('url' in media)) return null
+    const typed = media as { url?: string | null; alt?: string | null; mimeType?: string | null }
+    if (!typed.url) return null
+    return { url: typed.url, alt: typed.alt || t.services.title, mimeType: typed.mimeType || null }
+  }
+  const heroDark = resolveMedia(heroMedia?.[0])
+  const heroLight = resolveMedia(heroMedia?.[1])
+  const hasHero = Boolean(heroDark || heroLight)
+  const heroTitle =
+    pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle ? pageDoc.heroTitle : t.services.title
+  const heroDescription = pageDoc?.heroDescription || t.services.lead
+  const heroStyle = pageDoc?.heroStyle === 'style2' ? 'style2' : 'style1'
+
+  const extractText = (node: unknown, acc: string[]) => {
+    if (!node || typeof node !== 'object') return
+    const record = node as { text?: string; children?: unknown[] }
+    if (typeof record.text === 'string') {
+      acc.push(record.text)
+    }
+    if (Array.isArray(record.children)) {
+      record.children.forEach((child) => extractText(child, acc))
+    }
+  }
+
+  const extractBullets = (node: unknown, acc: string[]) => {
+    if (!node || typeof node !== 'object') return
+    const record = node as { type?: string; children?: unknown[] }
+    if (record.type === 'list' && Array.isArray(record.children)) {
+      record.children.forEach((child) => {
+        const parts: string[] = []
+        extractText(child, parts)
+        const text = parts.join(' ').replace(/\s+/g, ' ').trim()
+        if (text) acc.push(text)
+      })
+    }
+    if (Array.isArray(record.children)) {
+      record.children.forEach((child) => extractBullets(child, acc))
+    }
+  }
+
+  const normalizeRichText = (value: unknown) => {
+    if (!value || typeof value !== 'object') return { text: '', bullets: [] as string[] }
+    const root = (value as { root?: unknown }).root
+    if (!root) return { text: '', bullets: [] as string[] }
+    const textParts: string[] = []
+    const bullets: string[] = []
+    extractText(root, textParts)
+    extractBullets(root, bullets)
+    const text = textParts.join(' ').replace(/\s+/g, ' ').trim()
+    return { text, bullets }
+  }
+
+  const [areasResult, objectivesResult, treatmentsResult, servicesResult, siteSettings] =
+    await Promise.all([
+      payload.find({
+        collection: 'areas',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 200,
+        sort: 'createdAt',
+      }),
+      payload.find({
+        collection: 'objectives',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 200,
+        sort: 'createdAt',
+      }),
+      payload.find({
+        collection: 'treatments',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 200,
+        sort: 'createdAt',
+      }),
+      payload.find({
+        collection: 'services',
+        locale,
+        overrideAccess: false,
+        depth: 0,
+        limit: 500,
+        sort: 'price',
+        where: {
+          active: { equals: true },
+        },
+        select: {
+          id: true,
+          name: true,
+          duration: true,
+          slug: true,
+          description: true,
+          price: true,
+          treatments: true,
+        },
+      }),
+      payload.findGlobal({
+        slug: 'site-settings',
+        locale,
+        overrideAccess: false,
+      }),
+    ])
+
+  const areas: AreaData[] = areasResult.docs.map((area) => {
+    const media = resolveMedia(area.cardMedia)
+    const rich = normalizeRichText(area.cardDescription)
+    return {
+      id: String(area.id),
+      label: area.name || '',
+      description: area.boxTagline || '',
+      subtitle: area.cardTagline || undefined,
+      imageUrl: media?.url || undefined,
+      features: rich.bullets.length ? rich.bullets : undefined,
+      cardTitle: area.cardTitle || undefined,
+      cardTagline: area.cardTagline || undefined,
+      cardDescription: rich.text || undefined,
+    }
   })
 
+  const goals: GoalData[] = objectivesResult.docs.map((goal) => {
+    const media = resolveMedia(goal.cardMedia)
+    const rich = normalizeRichText(goal.cardDescription)
+    const areaId =
+      typeof goal.area === 'object' && goal.area && 'id' in goal.area
+        ? String(goal.area.id)
+        : goal.area
+          ? String(goal.area)
+          : undefined
+    return {
+      id: String(goal.id),
+      label: goal.boxName || '',
+      subtitle: goal.boxTagline || undefined,
+      description: goal.boxTagline || '',
+      benefits: rich.bullets.length ? rich.bullets : undefined,
+      areaId,
+      imageUrl: media?.url || undefined,
+      cardTitle: goal.cardName || goal.boxName || undefined,
+      cardTagline: goal.cardTagline || undefined,
+      cardDescription: rich.text || undefined,
+    }
+  })
+
+  const treatments: TreatmentData[] = treatmentsResult.docs.map((treatment) => {
+    const media = resolveMedia(treatment.cardMedia)
+    const rich = normalizeRichText(treatment.cardDescription)
+    const references = Array.isArray(treatment.reference) ? treatment.reference : []
+    const referenceIds = references
+      .map((ref) => {
+        if (ref && typeof ref === 'object' && 'value' in ref) {
+          const value = (ref as { value?: unknown }).value
+          if (value && typeof value === 'object' && 'id' in value) {
+            return String((value as { id?: string | number }).id)
+          }
+          if (typeof value === 'string' || typeof value === 'number') {
+            return String(value)
+          }
+        }
+        if (typeof ref === 'string' || typeof ref === 'number') return String(ref)
+        return ''
+      })
+      .filter(Boolean)
+
+    return {
+      id: String(treatment.id),
+      label: treatment.boxName || treatment.cardName || '',
+      description: treatment.boxTagline || '',
+      subtitle: treatment.cardTagline || undefined,
+      imageUrl: media?.url || undefined,
+      features: rich.bullets.length ? rich.bullets : undefined,
+      referenceIds,
+      cardTitle: treatment.cardName || treatment.boxName || undefined,
+      cardTagline: treatment.cardTagline || undefined,
+      cardDescription: rich.text || undefined,
+    }
+  })
+
+  const services: ServiceFinal[] = servicesResult.docs.map((service) => {
+    const durationMatch = service.duration ? String(service.duration).match(/(\d+)/) : null
+    const durationMin = durationMatch ? Number.parseInt(durationMatch[1], 10) : 0
+    const treatmentsList = Array.isArray(service.treatments) ? service.treatments : []
+    const treatmentIds = treatmentsList
+      .map((item) => {
+        if (item && typeof item === 'object' && 'id' in item) return String(item.id)
+        if (typeof item === 'string' || typeof item === 'number') return String(item)
+        return ''
+      })
+      .filter(Boolean)
+    return {
+      id: String(service.id),
+      title: service.name || '',
+      durationMin,
+      tags: service.slug ? [service.slug] : [],
+      treatmentIds,
+      description: service.description || undefined,
+      price: service.price || undefined,
+    }
+  })
+
+  const treatmentsWithServices = new Set<string>()
+  for (const service of services) {
+    for (const treatmentId of service.treatmentIds) {
+      treatmentsWithServices.add(treatmentId)
+    }
+  }
+
+  const filteredTreatments = treatments.filter((treatment) =>
+    treatmentsWithServices.has(treatment.id),
+  )
+
+  const goalsWithTreatments = new Set<string>()
+  for (const treatment of filteredTreatments) {
+    for (const referenceId of treatment.referenceIds) {
+      goalsWithTreatments.add(referenceId)
+    }
+  }
+
+  const filteredGoals = goals.filter((goal) => goalsWithTreatments.has(goal.id))
+
+  const areasWithChildren = new Set<string>()
+  for (const goal of filteredGoals) {
+    if (goal.areaId) areasWithChildren.add(goal.areaId)
+  }
+  for (const treatment of filteredTreatments) {
+    for (const referenceId of treatment.referenceIds) {
+      areasWithChildren.add(referenceId)
+    }
+  }
+
+  const filteredAreas = areas.filter((area) => areasWithChildren.has(area.id))
+
+  const navigatorData: NavigatorData = {
+    areas: filteredAreas,
+    goals: filteredGoals,
+    treatments: filteredTreatments,
+    services,
+  }
+  const contactLinks = buildContactLinks({
+    phone: siteSettings?.phone,
+    whatsapp: siteSettings?.whatsapp,
+  })
   return (
-    <div className="page services-page">
-      <section className="services-layout">
-        <div className="services-image">
-          <img src={heroImage} alt="Advanced aesthetics" />
-        </div>
-        <div className="services-list">
-          <p className="services-eyebrow">{t.services.title}</p>
-          <h1>{t.services.lead}</h1>
-          <div className="services-items">
-            {categories.docs.map((category, index) => (
-              <a
-                key={category.id}
-                className="services-item"
-                href={`/${locale}/services/${category.slug}`}
-              >
-                <span className="services-index">{String(index + 1).padStart(2, '0')}</span>
-                <span className="services-name">{category.title}</span>
-                <span className="services-arrow">↗</span>
-              </a>
-            ))}
-          </div>
-          {!categories.totalDocs && <p className="note">{t.services.note}</p>}
-        </div>
-      </section>
+    <div className="flex flex-col gap-10">
+      {hasHero && (
+        <Hero
+          eyebrow={t.services.title}
+          title={heroTitle}
+          description={heroDescription}
+          variant={heroStyle}
+          mediaDark={heroDark || undefined}
+          mediaLight={heroLight || undefined}
+        />
+      )}
+      <ServiceNavigatorSection data={navigatorData} contactLinks={contactLinks} />
     </div>
   )
 }
