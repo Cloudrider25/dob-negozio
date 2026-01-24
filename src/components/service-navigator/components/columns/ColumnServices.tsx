@@ -15,20 +15,8 @@ export function ServiceCard({ service, isSelected, onSelect }: ServiceCardProps)
       onClick={onSelect}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`
-        group relative p-5 rounded-lg border transition-all duration-300 w-full text-left
-        ${
-          isSelected
-            ? "bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-            : "bg-white/[0.02] border-white/10 hover:bg-white/5 hover:border-white/20"
-        }
-      `}
+      className="navigator-box group relative p-5 rounded-lg transition-all duration-300 w-full text-left"
     >
-      {/* Glow effect on selected */}
-      {isSelected && (
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-cyan-500/10 to-transparent pointer-events-none" />
-      )}
-
       <div className="relative">
         <div className="mb-3">
           <h4 className="text-lg font-medium text-white mb-1">
@@ -48,7 +36,7 @@ export function ServiceCard({ service, isSelected, onSelect }: ServiceCardProps)
           {service.tags.map((tag) => (
             <span
               key={tag}
-              className="px-2 py-1 text-xs rounded-full bg-white/5 text-white/60 border border-white/10"
+              className="px-2 py-1 text-xs rounded-full bg-[var(--paper)] text-[var(--text-muted)] border border-[var(--stroke)]"
             >
               {tag}
             </span>
@@ -76,9 +64,9 @@ export function ColumnServices({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col gap-3"
+      className="navigator-column"
     >
-      <div className="mb-2">
+      <div className="mb-1">
         <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">
           Servizio
         </h3>

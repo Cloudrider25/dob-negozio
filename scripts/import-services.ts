@@ -577,7 +577,8 @@ const run = async () => {
           overrideAccess: true,
           locale: 'it',
           data: {
-            title: service.category,
+            boxName: service.category,
+            cardName: service.category,
             slug: categorySlug,
             active: true,
           },

@@ -2,9 +2,25 @@
 @import "./themes.css";
 @import "./typography.css";
 
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
+
+@layer components {
+  .navigator-box {
+    background-color: var(--paper);
+    border: 1px solid var(--stroke);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .navigator-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
 
 *,
 *::before,

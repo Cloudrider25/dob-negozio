@@ -50,12 +50,9 @@ export function AreaHoverCard({
 
   const cardContent = (
     <div className="relative w-full h-full">
-      <div className="relative w-full h-full rounded-xl overflow-hidden sn-card-shell backdrop-blur-xl border border-white/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-red-500/5 pointer-events-none" />
-
-        <div className="absolute inset-0 opacity-40 pointer-events-none">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/20 blur-3xl rounded-full" />
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-red-500/10 blur-3xl rounded-full" />
+      <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-xl border border-white/10">
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full" />
         </div>
 
         <div className="relative h-full flex flex-col">
@@ -125,7 +122,7 @@ export function AreaHoverCard({
               onAnimationComplete()
             }
           }}
-          className="relative w-full h-full mt-[12px]"
+          className="relative w-full h-full"
         >
           <button
             type="button"

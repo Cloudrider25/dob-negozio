@@ -7,10 +7,8 @@ import type { NavigatorData } from "@/components/service-navigator/data/navigato
 import { NavigatorHeader } from "@/components/service-navigator/components/NavigatorHeader";
 import { NavigatorGrid } from "@/components/service-navigator/components/NavigatorGrid";
 import { MobileFlow } from "@/components/service-navigator/components/MobileFlow";
-import { CinematicBackground } from "@/components/service-navigator/components/CinematicBackground";
 import { ListinoTradizionale } from "@/components/service-navigator/components/ListinoTradizionale";
 import { ConsulenzaForm } from "@/components/service-navigator/components/ConsulenzaForm";
-import styles from "./ServiceNavigatorSection.module.css";
 import { NavigatorDataProvider } from "@/components/service-navigator/data/navigator-data-context";
 
 type ViewMode = "navigator" | "listino" | "consulenza";
@@ -60,10 +58,7 @@ export function ServiceNavigatorSection({
   };
 
   return (
-    <section className={`relative min-h-screen overflow-hidden ${styles.serviceNavigator}`}>
-      {/* Cinematic Background */}
-      <CinematicBackground />
-
+    <section className="service-navigator relative min-h-screen overflow-hidden">
       <NavigatorDataProvider data={data}>
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">

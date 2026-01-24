@@ -47,19 +47,19 @@ export function SidePreview({
   );
 
   return (
-    <div className="sticky top-8 space-y-3">
+    <div className="navigator-column">
       {/* Carrello Servizi */}
       {cart.length > 0 && (
         <div className="mb-6">
           {/* Titolo allineato con le colonne */}
-          <div className="mb-2">
+          <div className="mb-1">
             <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">
               Carrello
             </h3>
           </div>
 
-          <div className="relative top-[12px] w-full h-[calc(100%-12px)]">
-            <div className="p-6 rounded-lg border border-cyan-500/30 bg-cyan-500/5 backdrop-blur-sm h-full">
+          <div className="relative w-full">
+            <div className="navigator-box p-6 rounded-lg bg-cyan-500/5 backdrop-blur-sm h-full">
               <div className="flex items-center gap-2 mb-4">
                 <ShoppingBag className="w-4 h-4 text-cyan-400" />
                 <h3 className="text-sm font-medium text-cyan-400 uppercase tracking-wider">
@@ -73,7 +73,7 @@ export function SidePreview({
                   return (
                     <div
                       key={index}
-                      className="p-3 rounded-lg bg-white/5 border border-white/10 group hover:border-cyan-500/30 transition-all"
+                      className="navigator-box p-3 rounded-lg bg-white/5 group hover:border-cyan-500/30 transition-all"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
@@ -142,14 +142,14 @@ export function SidePreview({
       {/* Selezione Corrente */}
       <div className="mb-6">
         {/* Titolo allineato con le colonne */}
-        <div className="mb-2">
+        <div className="mb-1">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">
             Riepilogo
           </h3>
         </div>
 
-        <div className="relative top-[12px] w-full h-[calc(100%-12px)]">
-          <div className="p-6 rounded-lg border border-white/10 bg-white/[0.02] backdrop-blur-sm h-full">
+        <div className="relative w-full">
+          <div className="navigator-box p-6 rounded-lg bg-white/[0.02] backdrop-blur-sm h-full">
             <div className="space-y-3">
               {/* Area */}
               <div>

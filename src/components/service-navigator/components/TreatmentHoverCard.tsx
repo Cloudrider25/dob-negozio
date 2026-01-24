@@ -50,14 +50,10 @@ export function TreatmentHoverCard({
   const cardContent = (
     <div className="relative w-full h-full">
       {/* Card container */}
-      <div className="relative w-full h-full rounded-xl overflow-hidden sn-card-shell backdrop-blur-xl border border-white/10">
-        {/* Background gradient glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-red-500/5 pointer-events-none" />
-
+      <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-xl border border-white/10">
         {/* Subtle glow effect */}
-        <div className="absolute inset-0 opacity-40 pointer-events-none">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/20 blur-3xl rounded-full" />
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-red-500/10 blur-3xl rounded-full" />
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full" />
         </div>
 
         {/* Content */}
@@ -73,7 +69,7 @@ export function TreatmentHoverCard({
                 sizes="(max-width: 1024px) 100vw, 320px"
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/40 via-black/70 to-red-900/40" />
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/35 via-black/70 to-black/80" />
             )}
             {/* Overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/80" />
@@ -161,7 +157,7 @@ export function TreatmentHoverCard({
               onAnimationComplete()
             }
           }}
-          className="absolute left-0 top-[40px] w-full h-[calc(100%-40px)] pointer-events-auto z-10"
+          className="absolute left-0 top-0 w-full h-full pointer-events-auto z-10"
         >
           <button
             type="button"

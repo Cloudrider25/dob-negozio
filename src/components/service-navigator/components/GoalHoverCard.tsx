@@ -46,7 +46,7 @@ export function GoalHoverCard({
   }, [shouldSlideOut, currentGoal])
 
   const cardContent = (
-    <div className="relative w-full h-full rounded-xl overflow-hidden sn-card-shell backdrop-blur-xl border border-white/10">
+    <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-xl border border-white/10">
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 pointer-events-none" />
 
       <div className="absolute inset-0 opacity-40 pointer-events-none">
@@ -125,7 +125,7 @@ export function GoalHoverCard({
               onAnimationComplete()
             }
           }}
-          className="relative w-full h-full mt-[40px]"
+          className="relative w-full h-full"
         >
           <button
             type="button"
