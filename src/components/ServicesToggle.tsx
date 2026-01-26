@@ -26,21 +26,19 @@ export const ServicesToggle = ({ currentType }: ServicesToggleProps) => {
 
   return (
     <div
-      className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-[rgba(255,255,255,0.04)] p-1 backdrop-blur"
+      className="inline-flex items-center gap-2 rounded-full border border-stroke bg-paper p-1 backdrop-blur shadow-soft"
       role="tablist"
       aria-label="Tipologia servizi"
-      style={{ display: 'inline-flex', gap: '8px' }}
     >
       <button
         type="button"
         role="tab"
         aria-selected={!currentType}
         className={cn(
-          "relative appearance-none rounded-full border-0 bg-transparent px-5 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-[color:var(--text-secondary)] outline-none after:absolute after:left-4 after:right-4 after:bottom-1 after:h-[2px] after:bg-[var(--neon-red)] after:opacity-0 after:transition",
+          "relative appearance-none rounded-full border-0 bg-transparent px-5 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-text-secondary outline-none after:absolute after:left-4 after:right-4 after:bottom-1 after:h-[2px] after:bg-[var(--ui-accent)] after:opacity-0 after:transition",
           !currentType &&
-            "text-[color:var(--text-primary)] after:opacity-100",
+            "text-text-primary after:opacity-100",
         )}
-        style={{ border: 0, background: 'transparent' }}
         onClick={() => updateType()}
       >
         Tutti
@@ -50,11 +48,10 @@ export const ServicesToggle = ({ currentType }: ServicesToggleProps) => {
         role="tab"
         aria-selected={currentType === "single"}
         className={cn(
-          "relative appearance-none rounded-full border-0 bg-transparent px-5 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-[color:var(--text-secondary)] outline-none after:absolute after:left-4 after:right-4 after:bottom-1 after:h-[2px] after:bg-[var(--neon-red)] after:opacity-0 after:transition",
+          "relative appearance-none rounded-full border-0 bg-transparent px-5 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-text-secondary outline-none after:absolute after:left-4 after:right-4 after:bottom-1 after:h-[2px] after:bg-[var(--ui-accent)] after:opacity-0 after:transition",
           currentType === "single" &&
-            "text-[color:var(--text-primary)] after:opacity-100",
+            "text-text-primary after:opacity-100",
         )}
-        style={{ border: 0, background: 'transparent' }}
         onClick={() => updateType("single")}
       >
         Singolo
@@ -64,11 +61,10 @@ export const ServicesToggle = ({ currentType }: ServicesToggleProps) => {
         role="tab"
         aria-selected={currentType === "package"}
         className={cn(
-          "relative appearance-none rounded-full border-0 bg-transparent px-5 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-[color:var(--text-secondary)] outline-none after:absolute after:left-4 after:right-4 after:bottom-1 after:h-[2px] after:bg-[var(--neon-red)] after:opacity-0 after:transition",
+          "relative appearance-none rounded-full border-0 bg-transparent px-5 py-2 text-[0.7rem] uppercase tracking-[0.2em] text-text-secondary outline-none after:absolute after:left-4 after:right-4 after:bottom-1 after:h-[2px] after:bg-[var(--ui-accent)] after:opacity-0 after:transition",
           currentType === "package" &&
-            "text-[color:var(--text-primary)] after:opacity-100",
+            "text-text-primary after:opacity-100",
         )}
-        style={{ border: 0, background: 'transparent' }}
         onClick={() => updateType("package")}
       >
         Pacchetto

@@ -50,19 +50,19 @@ export function SidePreview({
     <div className="navigator-column">
       {/* Carrello Servizi */}
       {cart.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-6 navigator-column">
           {/* Titolo allineato con le colonne */}
           <div className="mb-1">
-            <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">
+            <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
               Carrello
             </h3>
           </div>
 
           <div className="relative w-full">
-            <div className="navigator-box p-6 rounded-lg bg-cyan-500/5 backdrop-blur-sm h-full">
+            <div className="navigator-box p-6 rounded-lg backdrop-blur-sm h-full">
               <div className="flex items-center gap-2 mb-4">
-                <ShoppingBag className="w-4 h-4 text-cyan-400" />
-                <h3 className="text-sm font-medium text-cyan-400 uppercase tracking-wider">
+                <ShoppingBag className="w-4 h-4 text-accent-cyan" />
+                <h3 className="text-sm font-medium text-accent-cyan uppercase tracking-wider">
                   Servizi Selezionati ({cart.length})
                 </h3>
               </div>
@@ -73,14 +73,14 @@ export function SidePreview({
                   return (
                     <div
                       key={index}
-                      className="navigator-box p-3 rounded-lg bg-white/5 group hover:border-cyan-500/30 transition-all"
+                      className="navigator-box p-3 rounded-lg group hover:border-cyan-500/30 transition-all"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm text-white font-medium mb-1 truncate">
+                          <div className="text-sm text-text-primary font-medium mb-1 truncate">
                             {item.service.title}
                           </div>
-                          <div className="text-xs text-white/50 space-y-0.5">
+                          <div className="text-xs text-text-muted space-y-0.5">
                             <div className="capitalize">
                               {itemAreaData?.label}
                               {item.goal &&
@@ -105,7 +105,7 @@ export function SidePreview({
                           onClick={() => onRemoveFromCart(index)}
                           className="p-1 rounded hover:bg-red-500/20 transition-colors opacity-0 group-hover:opacity-100"
                         >
-                          <X className="w-4 h-4 text-red-400" />
+                          <X className="w-4 h-4 text-accent-red" />
                         </button>
                       </div>
                     </div>
@@ -116,19 +116,19 @@ export function SidePreview({
               {/* Totali */}
               <div className="pt-4 border-t border-cyan-500/20 space-y-2">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/60">
+                  <span className="text-text-secondary">
                     Durata Totale
                   </span>
-                  <span className="text-cyan-400 font-medium">
+                  <span className="text-accent-cyan font-medium">
                     {totalDuration} min
                   </span>
                 </div>
                 {totalPrice > 0 && (
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-white/60">
+                    <span className="text-text-secondary">
                       Prezzo Totale
                     </span>
-                    <span className="text-cyan-400 font-medium">
+                    <span className="text-accent-cyan font-medium">
                       € {totalPrice}
                     </span>
                   </div>
@@ -140,23 +140,23 @@ export function SidePreview({
       )}
 
       {/* Selezione Corrente */}
-      <div className="mb-6">
+      <div className="mb-6 navigator-column">
         {/* Titolo allineato con le colonne */}
         <div className="mb-1">
-          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
             Riepilogo
           </h3>
         </div>
 
         <div className="relative w-full">
-          <div className="navigator-box p-6 rounded-lg bg-white/[0.02] backdrop-blur-sm h-full">
+          <div className="navigator-box p-6 rounded-lg backdrop-blur-sm h-full">
             <div className="space-y-3">
               {/* Area */}
               <div>
-                <div className="text-xs text-white/40 mb-1">
+                <div className="text-xs text-text-muted mb-1">
                   Area
                 </div>
-                <div className="text-base text-white">
+                <div className="text-base text-text-primary">
                   {areaData?.label || "—"}
                 </div>
               </div>
@@ -165,10 +165,10 @@ export function SidePreview({
               {(selectedArea === "viso" ||
                 selectedArea === "corpo") && (
                 <div>
-                  <div className="text-xs text-white/40 mb-1">
+                  <div className="text-xs text-text-muted mb-1">
                     Obiettivo
                   </div>
-                  <div className="text-base text-white capitalize">
+                  <div className="text-base text-text-primary capitalize">
                   {selectedGoal ? getGoalById(selectedGoal)?.label || selectedGoal : "—"}
                   </div>
                 </div>
@@ -176,20 +176,20 @@ export function SidePreview({
 
               {/* Treatment */}
               <div>
-                <div className="text-xs text-white/40 mb-1">
+                <div className="text-xs text-text-muted mb-1">
                   Trattamento
                 </div>
-                <div className="text-base text-white capitalize">
+                <div className="text-base text-text-primary capitalize">
                   {selectedTreatment ? getTreatmentById(selectedTreatment)?.label || selectedTreatment : "—"}
                 </div>
               </div>
 
               {/* Service */}
               <div>
-                <div className="text-xs text-white/40 mb-1">
+                <div className="text-xs text-text-muted mb-1">
                   Servizio
                 </div>
-                <div className="text-base text-white">
+                <div className="text-base text-text-primary">
                   {selectedService?.title || "—"}
                 </div>
               </div>
@@ -197,29 +197,29 @@ export function SidePreview({
 
             {/* Premium info sempre visibili */}
             {selectedService && (
-              <div className="mt-6 pt-6 border-t border-white/10 space-y-3">
+              <div className="mt-6 pt-6 border-t border-stroke space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-white/60">
+                  <span className="text-sm text-text-secondary">
                     Durata
                   </span>
-                  <span className="text-sm text-white font-medium">
+                  <span className="text-sm text-text-primary font-medium">
                     {selectedService.durationMin} min
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-white/60">
+                  <span className="text-sm text-text-secondary">
                     Tecnologia
                   </span>
-                  <span className="text-sm text-white font-medium capitalize">
+                  <span className="text-sm text-text-primary font-medium capitalize">
                     {selectedTreatment}
                   </span>
                 </div>
                 {selectedService.price && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-white/60">
+                    <span className="text-sm text-text-secondary">
                       Prezzo
                     </span>
-                    <span className="text-sm text-white font-medium">
+                    <span className="text-sm text-text-primary font-medium">
                       € {selectedService.price}
                     </span>
                   </div>
@@ -236,7 +236,7 @@ export function SidePreview({
         {canAddToCart && (
           <button
             onClick={onAddToCart}
-            className="w-full px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all duration-300 flex items-center justify-center gap-2"
+            className="button-base w-full px-6 py-3 font-medium bg-accent-cyan text-text-inverse border-transparent flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Aggiungi al Carrello
@@ -247,7 +247,7 @@ export function SidePreview({
         {cart.length > 0 && !canAddToCart && (
           <button
             onClick={onResetSelection}
-            className="w-full px-6 py-3 rounded-lg font-medium border border-white/20 text-white hover:bg-white/5 transition-all duration-300"
+            className="button-base w-full px-6 py-3 font-medium text-text-primary"
           >
             + Aggiungi Altro Servizio
           </button>
@@ -258,11 +258,11 @@ export function SidePreview({
           onClick={onBookNow}
           disabled={!canBook}
           className={`
-            w-full px-6 py-3 rounded-lg font-medium transition-all duration-300
+            button-base w-full px-6 py-3 font-medium
             ${
               canBook
-                ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:scale-[1.02]"
-                : "bg-white/5 text-white/30 cursor-not-allowed"
+                ? "bg-accent-cyan text-text-inverse"
+                : "bg-paper text-text-muted cursor-not-allowed"
             }
           `}
         >
@@ -274,12 +274,12 @@ export function SidePreview({
         {/* Secondary CTA - Skin Analyzer */}
         <button
           onClick={onSkinAnalyzer}
-          className="w-full px-6 py-3 rounded-lg font-medium border border-white/20 text-white hover:bg-white/5 transition-all duration-300"
+          className="button-base w-full px-6 py-3 font-medium text-text-primary"
         >
           <span className="block text-sm">
             Skin Analyzer (Derma Test)
           </span>
-          <span className="block text-xs text-white/50 mt-1">
+          <span className="block text-xs text-text-muted mt-1">
             & Consulenza Gratuita
           </span>
         </button>

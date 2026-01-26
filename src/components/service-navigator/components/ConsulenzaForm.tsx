@@ -105,7 +105,7 @@ export function ConsulenzaForm({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="text-3xl font-light text-white mb-3"
+          className="text-3xl font-light text-text-primary mb-3"
         >
           Skin Analyzer & Consulenza Personalizzata
         </motion.h2>
@@ -113,7 +113,7 @@ export function ConsulenzaForm({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-white/60 max-w-2xl mx-auto"
+          className="text-text-secondary max-w-2xl mx-auto"
         >
           Compila il form per richiedere un&apos;analisi professionale della tua
           pelle e ricevere una consulenza personalizzata con i nostri esperti.
@@ -130,11 +130,11 @@ export function ConsulenzaForm({
         {/* Chiamaci Button */}
         <a
           href={phoneLink}
-          className="group relative flex items-center gap-3 px-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/40 transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] w-full sm:w-auto justify-center"
+          className="navigator-box group relative flex items-center gap-3 px-6 py-3 rounded-lg transition-all duration-300 w-full sm:w-auto justify-center"
         >
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 group-hover:bg-cyan-500/20 transition-all duration-300">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-cyan/10 border border-accent-cyan/30 transition-all duration-300">
             <svg
-              className="w-5 h-5 text-cyan-400"
+            className="w-5 h-5 text-accent-cyan"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -148,8 +148,8 @@ export function ConsulenzaForm({
             </svg>
           </div>
           <div className="text-left">
-            <div className="text-sm text-white/50 font-medium">Chiamaci</div>
-            <div className="text-base text-white font-medium">{phoneDisplay}</div>
+            <div className="text-sm text-text-muted font-medium">Chiamaci</div>
+            <div className="text-base text-text-primary font-medium">{phoneDisplay}</div>
           </div>
         </a>
 
@@ -158,7 +158,7 @@ export function ConsulenzaForm({
           href={whatsappLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative flex items-center gap-3 px-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-green-500/40 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,197,94,0.15)] w-full sm:w-auto justify-center"
+          className="navigator-box group relative flex items-center gap-3 px-6 py-3 rounded-lg transition-all duration-300 w-full sm:w-auto justify-center"
         >
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-500/10 border border-green-500/30 group-hover:bg-green-500/20 transition-all duration-300">
             <svg
@@ -170,8 +170,8 @@ export function ConsulenzaForm({
             </svg>
           </div>
           <div className="text-left">
-            <div className="text-sm text-white/50 font-medium">Scrivici su</div>
-            <div className="text-base text-white font-medium">{whatsappDisplay}</div>
+            <div className="text-sm text-text-muted font-medium">Scrivici su</div>
+            <div className="text-base text-text-primary font-medium">{whatsappDisplay}</div>
           </div>
         </a>
       </motion.div>
@@ -184,10 +184,10 @@ export function ConsulenzaForm({
         className="relative mb-8"
       >
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/10"></div>
+          <div className="w-full border-t border-stroke"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="px-4 text-sm text-white/40 bg-[color:var(--sn-overlay-strong)]">oppure</span>
+          <span className="px-4 text-sm text-text-muted bg-paper">oppure</span>
         </div>
       </motion.div>
 
@@ -197,17 +197,17 @@ export function ConsulenzaForm({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         onSubmit={handleSubmit}
-        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 space-y-8"
+        className="navigator-box backdrop-blur-sm rounded-2xl p-8 space-y-8"
       >
         {/* Personal Information */}
         <div>
-          <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <h3 className="text-lg font-medium text-text-primary mb-4 flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-cyan" />
             Informazioni Personali
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-white/80 mb-2">
+              <label className="block text-sm text-text-secondary mb-2">
                 Nome *
               </label>
               <input
@@ -217,12 +217,12 @@ export function ConsulenzaForm({
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/8 focus:border-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                className="w-full px-4 py-3 rounded-lg bg-paper border border-stroke text-text-primary placeholder-text-muted focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan/20 transition-all duration-300"
                 placeholder="Il tuo nome"
               />
             </div>
             <div>
-              <label className="block text-sm text-white/80 mb-2">
+              <label className="block text-sm text-text-secondary mb-2">
                 Cognome *
               </label>
               <input
@@ -232,12 +232,12 @@ export function ConsulenzaForm({
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/8 focus:border-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                className="w-full px-4 py-3 rounded-lg bg-paper border border-stroke text-text-primary placeholder-text-muted focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan/20 transition-all duration-300"
                 placeholder="Il tuo cognome"
               />
             </div>
             <div>
-              <label className="block text-sm text-white/80 mb-2">
+              <label className="block text-sm text-text-secondary mb-2">
                 Email *
               </label>
               <input
@@ -247,12 +247,12 @@ export function ConsulenzaForm({
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/8 focus:border-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                className="w-full px-4 py-3 rounded-lg bg-paper border border-stroke text-text-primary placeholder-text-muted focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan/20 transition-all duration-300"
                 placeholder="email@esempio.com"
               />
             </div>
             <div>
-              <label className="block text-sm text-white/80 mb-2">
+              <label className="block text-sm text-text-secondary mb-2">
                 Telefono *
               </label>
               <input
@@ -262,7 +262,7 @@ export function ConsulenzaForm({
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/8 focus:border-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                className="w-full px-4 py-3 rounded-lg bg-paper border border-stroke text-text-primary placeholder-text-muted focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan/20 transition-all duration-300"
                 placeholder="+39 123 456 7890"
               />
             </div>
@@ -271,8 +271,8 @@ export function ConsulenzaForm({
 
         {/* Skin Type */}
         <div>
-          <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <h3 className="text-lg font-medium text-text-primary mb-4 flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-cyan" />
             Tipo di Pelle *
           </h3>
           <div className="flex flex-wrap gap-3">
@@ -281,10 +281,10 @@ export function ConsulenzaForm({
                 key={type.id}
                 type="button"
                 onClick={() => setFormData({ ...formData, skinType: type.id })}
-                className={`px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
+                className={`px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 border ${
                   formData.skinType === type.id
-                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-                    : "bg-white/5 text-white/80 border border-white/10 hover:bg-white/10 hover:text-white"
+                    ? "border-accent-cyan bg-paper text-accent-cyan shadow-soft"
+                    : "border-stroke bg-paper text-text-secondary"
                 }`}
               >
                 {type.label}
@@ -295,11 +295,11 @@ export function ConsulenzaForm({
 
         {/* Skin Concerns */}
         <div>
-          <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <h3 className="text-lg font-medium text-text-primary mb-4 flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-cyan" />
             Preoccupazioni della Pelle
           </h3>
-          <p className="text-sm text-white/60 mb-4">
+          <p className="text-sm text-text-secondary mb-4">
             Seleziona una o più problematiche (opzionale)
           </p>
           <div className="flex flex-wrap gap-2">
@@ -308,10 +308,10 @@ export function ConsulenzaForm({
                 key={concern}
                 type="button"
                 onClick={() => toggleConcern(concern)}
-                className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 border ${
                   formData.concerns.includes(concern)
-                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40"
-                    : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
+                    ? "border-accent-cyan bg-paper text-accent-cyan"
+                    : "border-stroke bg-paper text-text-muted"
                 }`}
               >
                 {concern}
@@ -322,8 +322,8 @@ export function ConsulenzaForm({
 
         {/* Message */}
         <div>
-          <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <h3 className="text-lg font-medium text-text-primary mb-4 flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-cyan" />
             Note Aggiuntive
           </h3>
           <textarea
@@ -332,7 +332,7 @@ export function ConsulenzaForm({
               setFormData({ ...formData, message: e.target.value })
             }
             rows={5}
-            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:bg-white/8 focus:border-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 resize-none"
+            className="w-full px-4 py-3 rounded-lg bg-paper border border-stroke text-text-primary placeholder-text-muted focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan/20 transition-all duration-300 resize-none"
             placeholder="Raccontaci di più sulle tue esigenze, obiettivi o domande specifiche..."
           />
         </div>
@@ -341,7 +341,7 @@ export function ConsulenzaForm({
         <div className="flex items-center justify-center pt-4">
           <button
             type="submit"
-            className="group relative px-12 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(6,182,212,0.4)]"
+            className="button-base group relative px-12 py-4 font-medium bg-accent-cyan text-text-inverse overflow-hidden"
           >
             <span className="relative z-10 flex items-center gap-2">
               Invia Richiesta di Consulenza
@@ -359,7 +359,7 @@ export function ConsulenzaForm({
                 />
               </svg>
             </span>
-            <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <span className="absolute inset-0 bg-accent-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
         </div>
       </motion.form>
@@ -369,7 +369,7 @@ export function ConsulenzaForm({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-8 text-center text-sm text-white/40"
+        className="mt-8 text-center text-sm text-text-muted"
       >
         <p>
           Riceverai una risposta entro 24 ore. I tuoi dati saranno trattati in

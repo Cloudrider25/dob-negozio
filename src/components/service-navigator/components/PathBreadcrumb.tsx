@@ -84,7 +84,7 @@ export function PathBreadcrumb({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-8 p-6 rounded-lg border border-cyan-500/20 bg-white/[0.02] backdrop-blur-sm min-h-[88px] flex items-center"
+      className="mb-8 p-6 rounded-lg border border-stroke shadow-soft backdrop-blur-sm min-h-[88px] flex items-center"
     >
       {nodes.length > 0 ? (
         <div className="w-full">
@@ -92,10 +92,10 @@ export function PathBreadcrumb({
             {/* Pulsante Indietro */}
             <button
               onClick={onBack}
-              className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300"
+              className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-stroke transition-all duration-300"
             >
-              <ChevronLeft className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm text-white">Indietro</span>
+              <ChevronLeft className="w-4 h-4 text-accent-cyan" />
+              <span className="text-sm text-text-primary">Indietro</span>
             </button>
             
             {/* Connector line dopo il pulsante indietro */}
@@ -106,10 +106,10 @@ export function PathBreadcrumb({
                 {/* Node */}
                 <button
                   onClick={() => onNavigateToStep(node.step)}
-                  className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300"
+                  className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-stroke transition-all duration-300"
                 >
-                  <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-                  <span className="text-sm text-white capitalize">{node.label}</span>
+                  <div className="w-2 h-2 rounded-full bg-accent-cyan shadow-[0_0_8px_color-mix(in_srgb,var(--tech-cyan)_60%,transparent)]" />
+                  <span className="text-sm text-text-primary capitalize">{node.label}</span>
                 </button>
 
                 {/* Connector line */}
@@ -123,7 +123,7 @@ export function PathBreadcrumb({
             {guideMessage !== "" && (
               <>
                 <div className="w-8 h-[2px] bg-gradient-to-r from-cyan-500/50 to-cyan-500/20" />
-                <span className="text-sm text-cyan-400/80">
+                <span className="text-sm text-accent-cyan">
                   {guideMessage}
                 </span>
               </>
@@ -132,7 +132,7 @@ export function PathBreadcrumb({
         </div>
       ) : (
         <div className="text-center w-full">
-          <p className="text-cyan-400/80 text-sm">
+          <p className="text-accent-cyan text-sm">
             {guideMessage}
           </p>
         </div>

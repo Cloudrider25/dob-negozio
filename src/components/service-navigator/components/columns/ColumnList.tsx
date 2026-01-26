@@ -35,44 +35,48 @@ export function ColumnList({
       className="navigator-column"
     >
       <div className="mb-1">
-        <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">
+        <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
           {title}
         </h3>
       </div>
 
       <div
-        className={
-          scrollable
-            ? 'space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10'
-            : 'space-y-3'
-        }
+        className={scrollable ? 'overflow-visible' : 'space-y-3'}
       >
         {items.length === 0 ? (
           emptyState ?? null
         ) : (
-          items.map((item) => (
-            <motion.button
-              key={item.id}
-              onClick={item.onClick}
-              onMouseEnter={() => item.onHover?.(true)}
-              onMouseLeave={() => item.onHover?.(false)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`navigator-box group relative p-4 rounded-lg transition-all duration-300 w-full min-h-[120px] ${item.className ?? ''}`}
-            >
-              <div className="relative flex items-start justify-between gap-4">
-                <div className="text-left flex-1">
-                  <div className="text-base font-medium text-white mb-1">
-                    {item.title}
+          <div
+            className={
+              scrollable
+                ? 'space-y-3 max-h-[600px] overflow-y-auto overflow-x-visible pr-1'
+                : 'space-y-3'
+            }
+          >
+            {items.map((item) => (
+              <motion.button
+                key={item.id}
+                onClick={item.onClick}
+                onMouseEnter={() => item.onHover?.(true)}
+                onMouseLeave={() => item.onHover?.(false)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`group relative p-4 rounded-lg transition-all duration-300 w-full min-h-[120px] ${item.className ?? ''} navigator-box`}
+              >
+                <div className="relative flex items-start justify-between gap-4">
+                  <div className="text-left flex-1">
+                    <div className="text-base font-medium text-text-primary mb-1">
+                      {item.title}
+                    </div>
+                    {item.description && (
+                      <div className="text-sm text-text-muted">{item.description}</div>
+                    )}
                   </div>
-                  {item.description && (
-                    <div className="text-sm text-white/50">{item.description}</div>
-                  )}
+                  {item.rightSlot}
                 </div>
-                {item.rightSlot}
-              </div>
-            </motion.button>
-          ))
+              </motion.button>
+            ))}
+          </div>
         )}
       </div>
     </motion.div>

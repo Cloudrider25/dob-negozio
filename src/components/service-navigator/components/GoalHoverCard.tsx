@@ -46,49 +46,49 @@ export function GoalHoverCard({
   }, [shouldSlideOut, currentGoal])
 
   const cardContent = (
-    <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-xl border border-white/10">
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+    <div className="relative w-full h-full rounded-xl overflow-hidden border border-stroke">
+      <div className="absolute inset-0 bg-gradient-to-br from-[color:color-mix(in_srgb,var(--tech-cyan)_5%,transparent)] via-transparent to-[color:color-mix(in_srgb,var(--tech-cyan)_5%,transparent)] pointer-events-none" />
 
       <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/20 blur-3xl rounded-full" />
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full" />
+        <div className="absolute top-0 left-0 w-32 h-32 bg-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] blur-3xl rounded-full" />
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-[color:color-mix(in_srgb,var(--tech-cyan)_10%,transparent)] blur-3xl rounded-full" />
       </div>
 
       <div className="relative h-full flex flex-col">
         <div className="relative px-6 pt-8 pb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 mb-4">
-            <Target className="w-8 h-8 text-cyan-400" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-[color:color-mix(in_srgb,var(--tech-cyan)_35%,transparent)] border border-[color:color-mix(in_srgb,var(--tech-cyan)_30%,transparent)] mb-4">
+            <Target className="w-8 h-8 text-accent-cyan" />
           </div>
 
-          <h3 className="text-xl font-semibold text-white mb-1">
+          <h3 className="text-xl font-semibold text-text-primary mb-1">
             {currentGoal?.title}
           </h3>
           {currentGoal?.subtitle && (
-            <p className="text-sm text-cyan-400">{currentGoal.subtitle}</p>
+            <p className="text-sm text-accent-cyan">{currentGoal.subtitle}</p>
           )}
 
-          <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+          <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_30%,transparent)] to-transparent" />
         </div>
 
         <div className="flex-1 px-6 py-4 flex flex-col gap-4">
           {currentGoal?.description && (
-            <p className="text-sm text-white/70 leading-relaxed">
+            <p className="text-sm text-text-muted leading-relaxed">
               {currentGoal.description}
             </p>
           )}
 
           {currentGoal?.benefits.length ? (
             <div>
-              <h4 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-3">
+              <h4 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
                 Benefici
               </h4>
               <div className="space-y-2">
                 {currentGoal.benefits.map((benefit, index) => (
                   <div
                     key={index}
-                    className="flex items-start gap-2.5 text-sm text-white/70"
+                    className="flex items-start gap-2.5 text-sm text-text-muted"
                   >
-                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-500/70 mt-1.5 shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[color:color-mix(in_srgb,var(--tech-cyan)_70%,transparent)] mt-1.5 shrink-0" />
                     <span>{benefit}</span>
                   </div>
                 ))}
@@ -97,7 +97,7 @@ export function GoalHoverCard({
           ) : null}
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-transparent" />
       </div>
     </div>
   )
@@ -143,7 +143,7 @@ export function GoalHoverCard({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[color:color-mix(in_srgb,var(--obsidian)_70%,transparent)] backdrop-blur"
           onClick={() => setIsOpen(false)}
         >
           <div
@@ -153,7 +153,7 @@ export function GoalHoverCard({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="absolute -top-10 right-0 text-sm uppercase tracking-[0.2em] text-white/70 hover:text-white"
+              className="absolute -top-10 right-0 text-sm uppercase tracking-[0.2em] text-text-secondary hover:text-text-primary"
             >
               Chiudi
             </button>

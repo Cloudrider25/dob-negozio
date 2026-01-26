@@ -6,11 +6,13 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+  letter-spacing: 0.24em;
 }
 
 :root {
   --font-display: 'DOB Display', 'Times New Roman', serif;
   --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --dob-letter-spacing: 0.2em;
 }
 
 body {
@@ -20,6 +22,12 @@ body {
 h1,
 h2 {
   font-family: var(--font-display);
+  letter-spacing: var(--dob-letter-spacing);
+}
+
+.dob-font {
+  font-family: var(--font-display);
+  letter-spacing: var(--dob-letter-spacing);
 }
 
 h3,

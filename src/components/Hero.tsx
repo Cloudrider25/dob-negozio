@@ -37,7 +37,10 @@ export const Hero = ({
   ctas = [],
 }: HeroProps) => {
   return (
-    <section className={cn(styles.hero, variant === 'style2' ? styles.heroStyle2 : styles.heroStyle1)}>
+    <section
+      data-hero="true"
+      className={cn(styles.hero, variant === 'style2' ? styles.heroStyle2 : styles.heroStyle1)}
+    >
       <div className={styles.mediaWrap}>
         {mediaDark &&
           (mediaDark.mimeType?.startsWith('video/') ? (
@@ -93,6 +96,7 @@ export const Hero = ({
                 href={cta.href}
                 variant={cta.variant || 'primary'}
                 external={cta.external}
+                className="pill"
               >
                 {cta.label}
               </ButtonLink>

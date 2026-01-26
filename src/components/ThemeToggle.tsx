@@ -17,16 +17,16 @@ export const ThemeToggle = () => {
     const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
     const next = stored === "light" || stored === "dark" ? stored : systemPrefersDark ? "dark" : "light"
     setTheme(next)
-    document.body.classList.remove("light", "dark")
-    document.body.classList.add(next)
+    document.body.dataset.theme = next
+    document.documentElement.dataset.theme = next
   }, [])
 
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light"
     setTheme(next)
     window.localStorage.setItem(storageKey, next)
-    document.body.classList.remove("light", "dark")
-    document.body.classList.add(next)
+    document.body.dataset.theme = next
+    document.documentElement.dataset.theme = next
   }
 
   return (

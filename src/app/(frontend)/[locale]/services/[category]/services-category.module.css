@@ -25,7 +25,7 @@
   position: relative;
   width: 1px;
   height: 140px;
-  background: rgba(123, 180, 255, 0.25);
+  background: color-mix(in srgb, var(--tech-cyan) 25%, transparent);
   overflow: hidden;
 }
 
@@ -36,7 +36,7 @@
   left: 0;
   width: 100%;
   height: 40%;
-  background: rgba(123, 180, 255, 0.85);
+  background: color-mix(in srgb, var(--tech-cyan) 85%, transparent);
   animation: scrollPulse 1.8s ease-in-out infinite;
 }
 
@@ -72,14 +72,22 @@
   inset: -40% auto auto -20%;
   width: 260px;
   height: 260px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.18), transparent 60%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--coral-red) 18%, transparent),
+    transparent 60%
+  );
   animation: pulseGlow 6s ease-in-out infinite;
 }
 
 .heroCta {
-  border-color: rgba(123, 180, 255, 0.5);
-  background: linear-gradient(120deg, rgba(123, 180, 255, 0.9), rgba(86, 137, 214, 0.9));
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+  border-color: color-mix(in srgb, var(--tech-cyan) 50%, transparent);
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--tech-cyan) 90%, transparent),
+    color-mix(in srgb, var(--tech-cyan) 70%, transparent)
+  );
+  box-shadow: var(--shadow-soft);
   position: relative;
   overflow: hidden;
 }
@@ -88,7 +96,11 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.35), transparent 55%);
+  background: radial-gradient(
+    circle at top,
+    color-mix(in srgb, var(--pearl-1) 35%, transparent),
+    transparent 55%
+  );
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -99,14 +111,14 @@
 
 .heroCtaOutline {
   background: transparent;
-  color: var(--pearl-2);
-  border-color: rgba(123, 180, 255, 0.35);
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--tech-cyan) 35%, transparent);
   box-shadow: none;
 }
 
 .heroCtaOutline:hover {
-  border-color: rgba(123, 180, 255, 0.7);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
+  border-color: color-mix(in srgb, var(--tech-cyan) 70%, transparent);
+  box-shadow: var(--shadow-soft);
 }
 
 @keyframes scrollPulse {

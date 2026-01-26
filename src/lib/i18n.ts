@@ -54,6 +54,11 @@ export const dictionary = {
       lead: 'Listino servizi e trattamenti avanzati.',
       note: 'Prenotazioni via WhatsApp o telefono.',
     },
+    cart: {
+      title: 'Carrello',
+      lead: 'Riepilogo dei prodotti selezionati.',
+      note: 'La funzionalità di checkout sarà disponibile a breve.',
+    },
     common: {
       discover: 'Scopri di piu',
       viewList: 'Vedi il listino',
@@ -119,6 +124,11 @@ export const dictionary = {
       lead: 'Service list and advanced treatments.',
       note: 'Bookings via WhatsApp or phone.',
     },
+    cart: {
+      title: 'Cart',
+      lead: 'Review the products you have selected.',
+      note: 'Checkout will be available soon.',
+    },
     common: {
       discover: 'Discover more',
       viewList: 'View the list',
@@ -183,6 +193,11 @@ export const dictionary = {
       title: 'Services',
       lead: 'Список услуг и передовые процедуры.',
       note: 'Запись через WhatsApp или по телефону.',
+    },
+    cart: {
+      title: 'Корзина',
+      lead: 'Просмотр выбранных товаров.',
+      note: 'Оформление заказа будет доступно в ближайшее время.',
     },
     common: {
       discover: 'Узнать больше',

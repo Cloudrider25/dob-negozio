@@ -11,6 +11,14 @@
   gap: 1.6rem;
 }
 
+.cardDelay1 {
+  animation-delay: 0.1s;
+}
+
+.cardDelay2 {
+  animation-delay: 0.15s;
+}
+
 @keyframes homeFadeUp {
   from {
     opacity: 0;

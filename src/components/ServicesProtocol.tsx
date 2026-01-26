@@ -215,33 +215,10 @@ export const ServicesProtocol = ({
         <span className={cn(styles.line, styles.lineSeg1)} aria-hidden="true" />
         <span className={cn(styles.line, styles.lineSeg2)} aria-hidden="true" />
         <span className={cn(styles.drop, styles.dropBadge)} aria-hidden="true" />
-        <div
-          className={styles.track}
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 50,
-          }}
-        >
-          <motion.span
-            className={styles.runner}
-            animate={runnerOneControls}
-            style={{ position: 'absolute', left: 0, top: 0 }}
-          />
-          <motion.span
-            className={styles.runner}
-            animate={runnerTwoControls}
-            style={{ position: 'absolute', left: 0, top: 0 }}
-          />
-          <motion.span
-            className={styles.runner}
-            animate={runnerThreeControls}
-            style={{ position: 'absolute', left: 0, top: 0 }}
-          />
+        <div className={styles.track} aria-hidden="true">
+          <motion.span className={styles.runner} animate={runnerOneControls} />
+          <motion.span className={styles.runner} animate={runnerTwoControls} />
+          <motion.span className={styles.runner} animate={runnerThreeControls} />
         </div>
         <div className={styles.steps}>
           <div className={styles.step}>
@@ -265,14 +242,14 @@ export const ServicesProtocol = ({
               ref={cardOneRef}
               className={styles.card}
               animate={stepOneControls}
-              variants={{
-                off: {
-                  borderColor: 'var(--protocol-accent)',
-                  boxShadow: '0 18px 40px rgba(0, 0, 0, 0.45)',
-                },
-                on: {
-                  borderColor: 'var(--protocol-accent-strong)',
-                  boxShadow: '0 0 38px var(--protocol-accent-glow)',
+                variants={{
+                  off: {
+                    borderColor: 'var(--protocol-accent)',
+                    boxShadow: 'var(--shadow-soft)',
+                  },
+                  on: {
+                    borderColor: 'var(--protocol-accent-strong)',
+                    boxShadow: '0 0 38px var(--protocol-accent-glow)',
                 },
               }}
             >
@@ -305,14 +282,14 @@ export const ServicesProtocol = ({
               ref={cardTwoRef}
               className={styles.card}
               animate={stepTwoControls}
-              variants={{
-                off: {
-                  borderColor: 'var(--protocol-accent)',
-                  boxShadow: '0 18px 40px rgba(0, 0, 0, 0.45)',
-                },
-                on: {
-                  borderColor: 'var(--protocol-accent-strong)',
-                  boxShadow: '0 0 38px var(--protocol-accent-glow)',
+                variants={{
+                  off: {
+                    borderColor: 'var(--protocol-accent)',
+                    boxShadow: 'var(--shadow-soft)',
+                  },
+                  on: {
+                    borderColor: 'var(--protocol-accent-strong)',
+                    boxShadow: '0 0 38px var(--protocol-accent-glow)',
                 },
               }}
             >
@@ -345,14 +322,14 @@ export const ServicesProtocol = ({
               ref={cardThreeRef}
               className={styles.card}
               animate={stepThreeControls}
-              variants={{
-                off: {
-                  borderColor: 'var(--protocol-accent)',
-                  boxShadow: '0 18px 40px rgba(0, 0, 0, 0.45)',
-                },
-                on: {
-                  borderColor: 'var(--protocol-accent-strong)',
-                  boxShadow: '0 0 38px var(--protocol-accent-glow)',
+                variants={{
+                  off: {
+                    borderColor: 'var(--protocol-accent)',
+                    boxShadow: 'var(--shadow-soft)',
+                  },
+                  on: {
+                    borderColor: 'var(--protocol-accent-strong)',
+                    boxShadow: '0 0 38px var(--protocol-accent-glow)',
                 },
               }}
             >

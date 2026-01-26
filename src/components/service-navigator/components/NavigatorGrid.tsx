@@ -268,7 +268,7 @@ export function NavigatorGrid({
         <div className="col-span-9 relative">
           {state.step === 'area' ? (
             // Initial step: Area selection with center image
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-6 items-stretch">
               {/* Column 1: Area selection */}
               <div>
                 <AnimatePresence mode="wait">
@@ -281,9 +281,13 @@ export function NavigatorGrid({
               </div>
 
               {/* Columns 2-3: Center Image Display */}
-              <div className="col-span-2">
-                <div className="h-5 mb-1" aria-hidden="true" />
-                <div className="h-[440px]">
+              <div className="col-span-2 navigator-column">
+                <div className="mb-1" aria-hidden="true">
+                  <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+                    Spacer
+                  </h3>
+                </div>
+                <div className="flex-1 min-h-[440px]">
                   <CenterImageDisplay
                     hoveredArea={hoveredArea}
                     shouldSlideOut={isSlideOutAnimating}
@@ -375,8 +379,12 @@ export function NavigatorGrid({
                 </AnimatePresence>
 
                 {/* Column 3: Hover Card Space */}
-                <div className="relative min-h-[440px]">
-                  <div className="h-5 mb-1" aria-hidden="true" />
+                <div className="relative min-h-[440px] navigator-column">
+                  <div className="mb-1" aria-hidden="true">
+                    <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+                      Spacer
+                    </h3>
+                  </div>
                   {state.step === 'goal' && state.selectedArea && (
                     <GoalHoverCard
                       goal={
@@ -478,7 +486,7 @@ export function NavigatorGrid({
         </div>
 
         {/* Side Preview - 3 cols */}
-        <div className="col-span-3">
+        <div className="col-span-3 navigator-column">
           <SidePreview
             state={state}
             onBookNow={onBookNow}

@@ -43,16 +43,16 @@ export function ColumnTreatment({
               shrink-0 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap
               ${
                 treatment.badge.type === 'best-seller'
-                  ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                  ? 'text-cyan-400 border border-cyan-500/30'
                   : treatment.badge.type === 'economico'
-                  ? 'bg-green-500/10 text-green-400 border border-green-500/30'
+                  ? 'text-green-400 border border-green-500/30'
                   : treatment.badge.type === 'duraturo'
-                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
+                  ? 'text-blue-400 border border-blue-500/30'
                   : treatment.badge.type === 'novita'
-                  ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
+                  ? 'text-purple-400 border border-purple-500/30'
                   : treatment.badge.type === 'premium'
-                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                  : 'bg-white/10 text-white/60 border border-white/20'
+                  ? 'text-amber-400 border border-amber-500/30'
+                  : 'text-text-muted border border-stroke'
               }
             `}
           >

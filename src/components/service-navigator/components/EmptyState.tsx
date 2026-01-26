@@ -11,12 +11,12 @@ interface EmptyStateProps {
 export function EmptyState({ title, description, icon }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center p-12 text-center">
-      <div className="mb-4 text-white/20">
+      <div className="mb-4 text-text-muted">
         {icon || <Sparkles className="w-12 h-12" />}
       </div>
-      <h3 className="text-lg font-medium text-white/60 mb-2">{title}</h3>
+      <h3 className="text-lg font-medium text-text-secondary mb-2">{title}</h3>
       {description && (
-        <p className="text-sm text-white/40 max-w-sm">{description}</p>
+        <p className="text-sm text-text-muted max-w-sm">{description}</p>
       )}
     </div>
   );

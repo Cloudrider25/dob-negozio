@@ -1,13 +1,27 @@
 "use client"
 
 import { useEffect } from "react"
+import { usePathname } from "next/navigation"
 
 export const HeaderThemeObserver = () => {
+  const pathname = usePathname()
+
   useEffect(() => {
-    const isHome = Boolean(document.querySelector(".home-page"))
-    const isServicesCategory = Boolean(document.querySelector(".services-category-page"))
-    document.body.classList.toggle("page-home", isHome)
-    document.body.classList.toggle("page-services-category", isServicesCategory)
+    const updateHeroState = () => {
+      const hasHero = Boolean(document.querySelector("[data-hero='true']"))
+      document.body.classList.toggle("header-over-hero", hasHero)
+    }
+
+    const updateScrollState = () => {
+      document.body.classList.toggle("header-scrolled", window.scrollY > 12)
+    }
+
+    const raf = window.requestAnimationFrame(() => {
+      updateHeroState()
+      updateScrollState()
+    })
+
+    window.addEventListener("scroll", updateScrollState, { passive: true })
 
     const sections = Array.from(
       document.querySelectorAll<HTMLElement>("[data-header-theme='light']"),
@@ -46,12 +60,14 @@ export const HeaderThemeObserver = () => {
     update()
 
     return () => {
+      window.cancelAnimationFrame(raf)
+      window.removeEventListener("scroll", updateScrollState)
       observer.disconnect()
-      document.body.classList.remove("page-home")
-      document.body.classList.remove("page-services-category")
+      document.body.classList.remove("header-over-hero")
+      document.body.classList.remove("header-scrolled")
       document.body.classList.remove("header-on-light")
     }
-  }, [])
+  }, [pathname])
 
   return null
 }

@@ -6,13 +6,6 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { cn } from '@/lib/cn'
 import styles from './Header.module.css'
 
-type HeaderCategory = {
-  id: number | string
-  boxName?: string | null
-  dobGroup?: string | null
-  slug?: string | null
-}
-
 type HeaderProps = {
   locale: string
   locales: ReadonlyArray<string>
@@ -31,7 +24,6 @@ type HeaderProps = {
       call: string
     }
   }
-  categories: HeaderCategory[]
   whatsappLink: string
   phoneLink: string
 }
@@ -40,7 +32,6 @@ export const Header = ({
   locale,
   locales,
   t,
-  categories,
   whatsappLink,
   phoneLink,
 }: HeaderProps) => {
@@ -48,7 +39,7 @@ export const Header = ({
     <>
       <input className={styles.menuToggle} id="menu-toggle" type="checkbox" />
       <header className={styles.header}>
-        <div className="flex items-center gap-5">
+        <div className={styles.menuTrigger}>
           <label className={styles.burger} htmlFor="menu-toggle" aria-label="Apri menu">
             <span className={styles.burgerLine} />
             <span className={styles.burgerLine} />
@@ -167,19 +158,53 @@ export const Header = ({
                 / {t.cta.call}
               </MenuLink>
             </div>
-          </div>
-          <div className="flex items-start">
-            <div className={styles.menuServices}>
-              {categories.map((category, index) => (
-                <div className={styles.menuServiceItem} key={category.id}>
-                  <span className={styles.menuServiceMeta}>
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span>{category.boxName}</span>
-                  <span className={styles.menuServiceMeta}>{category.dobGroup || 'DOB'}</span>
-                  <span className="text-[1rem]">↗</span>
+            <div className={styles.menuActions}>
+              <a className={styles.cta} href={whatsappLink}>
+                {t.cta.appointment}
+              </a>
+              <div className={styles.iconRow} aria-label="Account e carrello">
+                <Link
+                  href={`/${locale}/account`}
+                  className={styles.iconButton}
+                  aria-label="Account"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 12c2.9 0 5-2.3 5-5s-2.1-5-5-5-5 2.3-5 5 2.1 5 5 5Zm0 2c-4 0-8 2.1-8 5v1h16v-1c0-2.9-4-5-8-5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </Link>
+                <Link
+                  href={`/${locale}/cart`}
+                  className={styles.iconButton}
+                  aria-label="Carrello"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M7 18a2 2 0 1 0 .01 4A2 2 0 0 0 7 18Zm10 0a2 2 0 1 0 .01 4A2 2 0 0 0 17 18Zm-9.3-3h9.7a2 2 0 0 0 2-1.6l1.6-7.2H6.2L5.6 3H2v2h2l3 12Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </Link>
+              </div>
+              <ThemeToggle />
+              <div className={styles.locale}>
+                <button className={styles.localeButton} type="button" aria-haspopup="true">
+                  {locale.toUpperCase()}
+                </button>
+                <div className={styles.localeMenu} role="menu">
+                  {locales.map((item) => (
+                    <Link
+                      key={item}
+                      href={`/${item}`}
+                      className={cn(styles.localeLink, item === locale && styles.localeLinkActive)}
+                    >
+                      {item.toUpperCase()}
+                    </Link>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>

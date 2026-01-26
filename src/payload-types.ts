@@ -105,9 +105,11 @@ export interface Config {
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('it' | 'en' | 'ru') | ('it' | 'en' | 'ru')[];
   globals: {
     'site-settings': SiteSetting;
+    'instagram-settings': InstagramSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'instagram-settings': InstagramSettingsSelect<false> | InstagramSettingsSelect<true>;
   };
   locale: 'it' | 'en' | 'ru';
   user: User & {
@@ -763,6 +765,22 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "instagram-settings".
+ */
+export interface InstagramSetting {
+  id: number;
+  enabled?: boolean | null;
+  /**
+   * Instagram Basic Display access token.
+   */
+  accessToken?: string | null;
+  limit?: number | null;
+  revalidateSeconds?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -776,6 +794,19 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         facebook?: T;
         instagram?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "instagram-settings_select".
+ */
+export interface InstagramSettingsSelect<T extends boolean = true> {
+  enabled?: T;
+  accessToken?: T;
+  limit?: T;
+  revalidateSeconds?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

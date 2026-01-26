@@ -58,7 +58,7 @@ export function ServiceNavigatorSection({
   };
 
   return (
-    <section className="service-navigator relative min-h-screen overflow-hidden">
+    <section className="service-navigator relative min-h-screen overflow-hidden bg-bg-2">
       <NavigatorDataProvider data={data}>
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
@@ -96,7 +96,7 @@ export function ServiceNavigatorSection({
         <div className="lg:hidden">
           <button
             onClick={() => setShowMobileFlow(true)}
-            className="w-full px-6 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all duration-300"
+            className="w-full px-6 py-4 rounded-lg bg-accent-cyan text-text-inverse font-medium shadow-soft transition-all duration-300"
           >
             Inizia la Configurazione
           </button>

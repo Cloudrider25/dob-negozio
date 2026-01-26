@@ -90,27 +90,27 @@ export function MobileFlow({
       : [];
 
   return (
-    <div className="fixed inset-0 bg-black/95 z-50 flex flex-col">
+    <div className="fixed inset-0 bg-bg z-50 flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-black/90 backdrop-blur-lg border-b border-white/10">
+      <div className="sticky top-0 z-10 bg-bg-2 backdrop-blur-lg border-b border-stroke">
         <div className="flex items-center justify-between p-4">
           <button
             onClick={handleBack}
-            className="p-2 text-white/60 hover:text-white transition-colors"
+            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
             disabled={state.step === "area"}
           >
             {state.step !== "area" && <ChevronLeft className="w-5 h-5" />}
           </button>
 
           <div className="flex-1 text-center">
-            <div className="text-xs text-white/40 uppercase tracking-wider mb-1">
+            <div className="text-xs text-text-muted uppercase tracking-wider mb-1">
               {state.step === "area" && "Seleziona Area"}
               {state.step === "goal" && "Seleziona Obiettivo"}
               {state.step === "treatment" && "Seleziona Trattamento"}
               {state.step === "final" && "Scegli Servizio"}
             </div>
             {getBreadcrumb() && (
-              <div className="text-xs text-white/60 capitalize">
+              <div className="text-xs text-text-secondary capitalize">
                 {getBreadcrumb()}
               </div>
             )}
@@ -118,7 +118,7 @@ export function MobileFlow({
 
           <button
             onClick={onClose}
-            className="p-2 text-white/60 hover:text-white transition-colors"
+            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -147,13 +147,13 @@ export function MobileFlow({
                       step: needsGoal ? "goal" : "treatment",
                     });
                   }}
-                  className="w-full p-5 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/5 transition-all duration-300 text-left"
+                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
                 >
-                  <div className="text-lg font-medium text-white mb-1">
+                  <div className="text-lg font-medium text-text-primary mb-1">
                     {area.label}
                   </div>
                   {area.description && (
-                    <div className="text-sm text-white/50">
+                    <div className="text-sm text-text-muted">
                       {area.description}
                     </div>
                   )}
@@ -180,13 +180,13 @@ export function MobileFlow({
                       step: "treatment",
                     });
                   }}
-                  className="w-full p-5 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/5 transition-all duration-300 text-left"
+                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
                 >
-                  <div className="text-lg font-medium text-white mb-1">
+                  <div className="text-lg font-medium text-text-primary mb-1">
                     {goal.label}
                   </div>
                   {goal.description && (
-                    <div className="text-sm text-white/50">
+                    <div className="text-sm text-text-muted">
                       {goal.description}
                     </div>
                   )}
@@ -213,13 +213,13 @@ export function MobileFlow({
                       step: "final",
                     });
                   }}
-                  className="w-full p-5 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/5 transition-all duration-300 text-left"
+                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
                 >
-                  <div className="text-lg font-medium text-white mb-1">
+                  <div className="text-lg font-medium text-text-primary mb-1">
                     {treatment.label}
                   </div>
                   {treatment.description && (
-                    <div className="text-sm text-white/50">
+                    <div className="text-sm text-text-muted">
                       {treatment.description}
                     </div>
                   )}
@@ -243,24 +243,17 @@ export function MobileFlow({
                   onClick={() => {
                     onUpdateState({ selectedService: service });
                   }}
-                  className={`
-                    w-full p-5 rounded-lg border transition-all duration-300 text-left
-                    ${
-                      state.selectedService?.id === service.id
-                        ? "border-cyan-500/40 bg-white/5 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-                        : "border-white/10 bg-white/[0.02] hover:bg-white/5"
-                    }
-                  `}
+                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
                 >
-                  <div className="text-lg font-medium text-white mb-2">
+                  <div className="text-lg font-medium text-text-primary mb-2">
                     {service.title}
                   </div>
                   {service.description && (
-                    <div className="text-sm text-white/50 mb-3">
+                    <div className="text-sm text-text-muted mb-3">
                       {service.description}
                     </div>
                   )}
-                  <div className="flex items-center gap-4 text-sm text-white/40 mb-3">
+                  <div className="flex items-center gap-4 text-sm text-text-muted mb-3">
                     <span>{service.durationMin} min</span>
                     {service.price && <span>€ {service.price}</span>}
                   </div>
@@ -268,7 +261,7 @@ export function MobileFlow({
                     {service.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-2 py-1 text-xs rounded-full bg-white/5 text-white/60 border border-white/10"
+                        className="px-2 py-1 text-xs rounded-full text-text-muted border border-stroke"
                       >
                         {tag}
                       </span>
@@ -286,11 +279,11 @@ export function MobileFlow({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="sticky bottom-0 bg-black/95 backdrop-blur-lg border-t border-white/10 p-4"
+          className="sticky bottom-0 bg-bg backdrop-blur-lg border-t border-stroke p-4"
         >
           <button
             onClick={onBookNow}
-            className="w-full px-6 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all duration-300"
+            className="button-base w-full px-6 py-4 font-medium bg-accent-cyan text-text-inverse"
           >
             Prenota {state.selectedService.title}
           </button>

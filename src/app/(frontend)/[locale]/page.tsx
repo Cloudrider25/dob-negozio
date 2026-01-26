@@ -75,12 +75,12 @@ export default async function HomePage({
           <p className="">{t.story.lead}</p>
           <Link href={`/${locale}/our-story`}>{t.common.discover}</Link>
         </Card>
-        <Card variant="pearl" className={styles.card} style={{ animationDelay: '0.1s' }}>
+        <Card variant="pearl" className={`${styles.card} ${styles.cardDelay1}`}>
           <h2>{t.services.title}</h2>
           <p className="">{t.services.lead}</p>
           <Link href={`/${locale}/services`}>{t.common.viewList}</Link>
         </Card>
-        <Card variant="pearl" className={styles.card} style={{ animationDelay: '0.15s' }}>
+        <Card variant="pearl" className={`${styles.card} ${styles.cardDelay2}`}>
           <h2>{t.shop.title}</h2>
           <p className="">{t.shop.lead}</p>
           <Link href={`/${locale}/shop`}>{t.common.goToShop}</Link>

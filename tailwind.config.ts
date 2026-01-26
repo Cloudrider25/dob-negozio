@@ -6,12 +6,17 @@ const config: Config = {
     extend: {
       colors: {
         bg: "var(--bg)",
+        "bg-2": "var(--bg-2)",
         panel: "var(--panel)",
-        ivory: "var(--ivory)",
         paper: "var(--paper)",
         sand: "var(--sand)",
-        gold: "var(--gold)",
-        tech: "var(--tech-blue)",
+        stroke: "var(--stroke)",
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-secondary)",
+        "text-muted": "var(--text-muted)",
+        "text-inverse": "var(--text-inverse)",
+        "accent-cyan": "var(--tech-cyan)",
+        "accent-red": "var(--neon-red)",
       },
       borderRadius: {
         card: "var(--radius-card)",
@@ -19,6 +24,7 @@ const config: Config = {
       },
       boxShadow: {
         lux: "var(--shadow-lux)",
+        soft: "var(--shadow-soft)",
       },
       transitionTimingFunction: {
         lux: "var(--ease-lux)",

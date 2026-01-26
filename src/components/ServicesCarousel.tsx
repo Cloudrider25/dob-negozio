@@ -1,7 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+
+import styles from './ServicesCarousel.module.css'
 
 type ServiceItem = {
   id: number | string
@@ -37,6 +39,10 @@ export const ServicesCarousel = ({
   const [page, setPage] = useState(0)
 
   const totalPages = Math.max(1, Math.ceil(items.length / perView))
+  const trackStyle = {
+    '--carousel-gap': `${gap}px`,
+    '--carousel-card-width': `${cardWidth}px`,
+  } as CSSProperties
 
   const images = useMemo(() => [imageLeft, imageRight], [imageLeft, imageRight])
 
@@ -93,7 +99,7 @@ export const ServicesCarousel = ({
       <div className="absolute right-0 top-[calc(-1*var(--s32))] flex gap-2.5 max-[768px]:static max-[768px]:mb-4 max-[768px]:justify-end">
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[rgba(255,255,255,0.08)] text-[color:var(--text-primary)] backdrop-blur transition hover:-translate-y-0.5 hover:border-[rgba(255,45,45,0.4)]"
+          className="button-base inline-flex h-10 w-10 items-center justify-center rounded-full backdrop-blur transition hover:-translate-y-0.5 hover:border-accent-red"
           onClick={goPrev}
           aria-label="Previous"
         >
@@ -101,49 +107,41 @@ export const ServicesCarousel = ({
         </button>
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[rgba(255,255,255,0.08)] text-[color:var(--text-primary)] backdrop-blur transition hover:-translate-y-0.5 hover:border-[rgba(255,45,45,0.4)]"
+          className="button-base inline-flex h-10 w-10 items-center justify-center rounded-full backdrop-blur transition hover:-translate-y-0.5 hover:border-accent-red"
           onClick={goNext}
           aria-label="Next"
         >
           →
         </button>
       </div>
-      <div className="overflow-x-auto scroll-smooth" ref={trackRef} style={{ overflowX: 'auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'nowrap',
-            gap: `${gap}px`,
-            width: 'max-content',
-          }}
-        >
+      <div className="overflow-x-auto scroll-smooth" ref={trackRef}>
+        <div className={styles.track} style={trackStyle}>
           {items.map((service, index) => {
             const serviceImage = images[index % images.length]
             const isVideo = serviceImage?.mimeType?.startsWith('video/')
             return (
               <article
-                className="relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[20px] border border-black/6 bg-[var(--pearl-grad)] shadow-[var(--shadow-lux)] before:absolute before:inset-0 before:bg-[var(--pearl-highlight)] before:content-['']"
-                style={{ width: `${cardWidth}px`, flex: '0 0 auto' }}
+                className={`relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[20px] border border-stroke bg-[var(--pearl-grad)] shadow-lux before:absolute before:inset-0 before:bg-[var(--pearl-highlight)] before:content-[''] ${styles.card}`}
                 key={service.id}
               >
                 <div className="relative z-[1] flex min-h-[260px] flex-1 flex-col gap-3 px-[2.2rem] pb-[1.6rem] pt-8">
-                  <div className="flex items-center gap-4 text-[0.75rem] uppercase tracking-[0.24em] text-black/60">
+                  <div className="flex items-center gap-4 text-[0.75rem] uppercase tracking-[0.24em] text-text-secondary">
                     <span className="font-semibold">
                       {String(index + 1).padStart(3, '0')}
                     </span>
                     <span>{groupLabel}</span>
                   </div>
-                  <h3 className="text-[1.5rem] tracking-[0.02em] text-[color:var(--obsidian)]">
+                  <h3 className="text-[1.5rem] tracking-[0.02em] text-text-primary">
                     {service.name}
                   </h3>
-                  <p className="m-0 text-[0.95rem] text-black/70">
+                  <p className="m-0 text-[0.95rem] text-text-muted">
                     {service.description || 'Trattamento su misura.'}
                   </p>
-                  <div className="mt-auto pt-4 text-[0.75rem] uppercase tracking-[0.18em] text-[color:var(--obsidian)]">
+                  <div className="mt-auto pt-4 text-[0.75rem] uppercase tracking-[0.18em] text-text-primary">
                     Scopri →
                   </div>
                 </div>
-                <div className="overflow-hidden border-t border-black/10">
+                <div className="overflow-hidden border-t border-stroke">
                   {isVideo ? (
                     <video
                       className="h-[250px] w-full object-cover"

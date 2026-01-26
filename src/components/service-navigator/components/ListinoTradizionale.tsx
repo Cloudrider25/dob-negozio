@@ -122,8 +122,8 @@ export function ListinoTradizionale() {
           onClick={() => setActiveCategory("manicure")}
           className={`px-8 py-3 rounded-full text-sm font-medium tracking-wide transition-all duration-300 ${
             activeCategory === "manicure"
-              ? "bg-white text-black"
-              : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+              ? "button-base text-text-primary"
+              : "button-base text-text-secondary"
           }`}
         >
           MANICURE
@@ -132,8 +132,8 @@ export function ListinoTradizionale() {
           onClick={() => setActiveCategory("viso")}
           className={`px-8 py-3 rounded-full text-sm font-medium tracking-wide transition-all duration-300 ${
             activeCategory === "viso"
-              ? "bg-white text-black"
-              : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+              ? "button-base text-text-primary"
+              : "button-base text-text-secondary"
           }`}
         >
           TRATTAMENTI VISO
@@ -142,8 +142,8 @@ export function ListinoTradizionale() {
           onClick={() => setActiveCategory("epilazione")}
           className={`px-8 py-3 rounded-full text-sm font-medium tracking-wide transition-all duration-300 ${
             activeCategory === "epilazione"
-              ? "bg-white text-black"
-              : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+              ? "button-base text-text-primary"
+              : "button-base text-text-secondary"
           }`}
         >
           EPILAZIONE LASER
@@ -156,10 +156,10 @@ export function ListinoTradizionale() {
           <button
             key={tag}
             onClick={() => toggleTag(tag)}
-            className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${
+            className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all duration-300 border ${
               selectedTags.includes(tag)
-                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40"
-                : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
+                ? "border-accent-cyan text-accent-cyan"
+                : "border-stroke text-text-muted"
             }`}
           >
             {tag}
@@ -170,7 +170,7 @@ export function ListinoTradizionale() {
       {/* Services List */}
       <div className="max-w-4xl mx-auto space-y-4">
         {filteredServices.length === 0 ? (
-          <div className="text-center py-16 text-white/40">
+          <div className="text-center py-16 text-text-muted">
             Nessun servizio trovato per i filtri selezionati
           </div>
         ) : (
@@ -180,22 +180,22 @@ export function ListinoTradizionale() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/8 hover:border-white/20 transition-all duration-300"
+              className="group relative backdrop-blur-sm rounded-xl p-6 transition-all duration-300 border border-stroke shadow-soft"
             >
               <div className="flex items-start justify-between gap-6">
                 <div className="flex-1">
-                  <h3 className="text-lg font-medium text-white mb-2 group-hover:text-cyan-400 transition-colors duration-300">
+                  <h3 className="text-lg font-medium text-text-primary mb-2">
                     {service.title}
                   </h3>
-                  <p className="text-sm text-white/60 mb-3">
+                  <p className="text-sm text-text-secondary mb-3">
                     {service.description}
                   </p>
-                  <p className="text-sm text-white/40">
+                  <p className="text-sm text-text-muted">
                     €{service.price} • {service.duration}
                   </p>
                 </div>
 
-                <button className="shrink-0 px-6 py-2.5 rounded-lg border border-white/20 text-white/80 text-sm font-medium hover:bg-white/5 hover:text-white hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300">
+                <button className="button-base shrink-0 px-6 py-2.5 rounded-lg text-text-secondary text-sm font-medium transition-all duration-300">
                   Book from €{service.price}
                 </button>
               </div>

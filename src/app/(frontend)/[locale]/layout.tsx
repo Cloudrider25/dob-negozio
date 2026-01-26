@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 import { getDictionary, isLocale, locales } from '@/lib/i18n'
 import { HeaderThemeObserver } from '@/components/HeaderThemeObserver'
+import { HeroScrollSnap } from '@/components/HeroScrollSnap'
 import { Header } from '@/components/Header'
 import { buildContactLinks } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/getPayloadClient'
@@ -34,47 +35,20 @@ export default async function LocaleLayout({
       whatsapp: siteSettings?.whatsapp,
       address: siteSettings?.address,
     })
-  const serviceCategories = await payload.find({
-    collection: 'treatments',
-    locale,
-    overrideAccess: false,
-    depth: 0,
-    where: {
-      active: {
-        equals: true,
-      },
-    },
-    sort: 'boxName',
-    limit: 50,
-    select: {
-      id: true,
-      boxName: true,
-      dobGroup: true,
-      slug: true,
-    },
-  })
-  const sortedServiceCategories = [...serviceCategories.docs].sort((a, b) => {
-    const groupA = (a.dobGroup || '').toLowerCase()
-    const groupB = (b.dobGroup || '').toLowerCase()
-    if (groupA !== groupB) {
-      return groupA.localeCompare(groupB)
-    }
-    return (a.boxName || '').localeCompare(b.boxName || '')
-  })
 
   return (
     <div className="flex min-h-screen flex-col" data-locale={locale}>
       <HeaderThemeObserver />
+      <HeroScrollSnap />
       <Header
         locale={locale}
         locales={locales}
         t={t}
-        categories={sortedServiceCategories}
         whatsappLink={whatsappLink}
         phoneLink={phoneLink}
       />
       <div className="px-[5vw] pb-16">{children}</div>
-      <footer className="mt-auto grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6 border-t px-[5vw] py-10 text-[0.8rem] uppercase tracking-[0.12em]">
+      <footer className="mt-auto grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6 border-t border-stroke px-[5vw] py-10 text-[0.8rem] uppercase tracking-[0.12em] text-text-secondary">
         <div>
           <p className="m-0">{t.brand}</p>
           <p className="m-0">{addressDisplay}</p>

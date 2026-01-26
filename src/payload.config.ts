@@ -16,6 +16,7 @@ import { Promotions } from './collections/Promotions'
 import { Posts } from './collections/Posts'
 import { Pages } from './collections/Pages'
 import { SiteSettings } from './globals/SiteSettings'
+import { InstagramSettings } from './globals/InstagramSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -39,7 +40,7 @@ export default buildConfig({
     Posts,
     Pages,
   ],
-  globals: [SiteSettings],
+  globals: [SiteSettings, InstagramSettings],
   localization: {
     locales: ['it', 'en', 'ru'],
     defaultLocale: 'it',

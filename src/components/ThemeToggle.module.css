@@ -6,9 +6,9 @@
   height: 34px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--stroke);
   background: transparent;
-  color: rgba(16, 20, 24, 0.8);
+  color: var(--text-secondary);
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
@@ -18,8 +18,8 @@
 
 .toggleDark {
   background: transparent;
-  color: rgba(246, 242, 234, 0.9);
-  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: var(--stroke);
 }
 
 .label {
@@ -39,13 +39,13 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #ffffff;
+  background: var(--paper);
   transition: background 0.2s ease;
   order: 1;
 }
 
 .iconDark {
-  background: #f7f4ef;
+  background: var(--paper);
   order: 3;
   margin-left: auto;
 }

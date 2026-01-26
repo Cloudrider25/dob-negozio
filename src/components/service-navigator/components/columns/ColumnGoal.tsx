@@ -22,7 +22,6 @@ export function ColumnGoal({
   return (
     <ColumnList
       title="Obiettivo"
-      scrollable
       items={goals.map((goal) => ({
         id: goal.id,
         title: goal.label,

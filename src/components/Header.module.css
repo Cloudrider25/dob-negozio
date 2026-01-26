@@ -7,8 +7,14 @@
   align-items: center;
   gap: 2rem;
   padding: 1rem 5vw;
-  background: transparent;
+  background: var(--bg);
   color: var(--text-primary);
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+.menuTrigger {
+  display: flex;
+  align-items: center;
 }
 
 .menuToggle {
@@ -75,7 +81,7 @@
   margin: 0;
   font-size: 3rem;
   line-height: 1;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.2em;
 }
 
 .right {
@@ -155,22 +161,40 @@
   position: fixed;
   inset: 0;
   z-index: 40;
-  display: none;
   overflow: auto;
+  background: var(--bg);
+  color: var(--text-primary);
+  transform: translateX(100%);
+  transition: transform 0.45s ease;
+  pointer-events: none;
+}
+
+:global(body[data-theme="dark"]) .menuOverlay,
+:global(html[data-theme="dark"]) .menuOverlay,
+:global(body.dark) .menuOverlay {
+  background: var(--pearl-1);
+  color: var(--text-inverse);
+}
+
+:global(body[data-theme="light"]) .menuOverlay,
+:global(html[data-theme="light"]) .menuOverlay,
+:global(body.light) .menuOverlay {
   background: var(--graphite);
   color: var(--pearl-2);
 }
 
 .menuToggle:checked ~ .menuOverlay {
-  display: block;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 .menuGrid {
-  display: grid;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  grid-template-columns: minmax(260px, 1fr) 1.4fr;
-  gap: 4rem;
-  padding: 6rem 8vw;
+  gap: 2.5rem;
+  padding: 6rem 8vw 4rem;
 }
 
 .menuLeft {
@@ -183,9 +207,12 @@
 }
 
 .menuClose {
+  position: absolute;
+  top: 1rem;
+  right: 5vw;
   display: inline-flex;
-  height: 32px;
-  width: 32px;
+  height: 42px;
+  width: 42px;
   cursor: pointer;
   align-items: center;
   justify-content: center;
@@ -196,7 +223,7 @@
 .menuTitle {
   margin: 0;
   font-size: 4.5rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.2em;
 }
 
 .menuLinks,
@@ -207,73 +234,106 @@
   font-size: 0.75rem;
 }
 
-.menuServices {
-  display: grid;
-  width: 100%;
-  gap: 0.75rem;
-}
-
-.menuServices:hover .menuServiceItem {
-  opacity: 0.2;
-}
-
-.menuServiceItem {
-  display: grid;
-  grid-template-columns: 52px 1fr auto 24px;
-  align-items: center;
+.menuActions {
+  display: none;
+  flex-direction: column;
   gap: 1.5rem;
-  border-bottom: 1px solid rgba(249, 249, 246, 0.2);
-  padding: 1rem 0;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.85rem;
-  transition: opacity 0.2s ease;
-}
-
-.menuServiceItem:hover {
-  opacity: 1;
-}
-
-.menuServiceMeta {
-  opacity: 0.6;
+  padding-top: 1rem;
 }
 
 @media (max-width: 1100px) {
   .menuGrid {
-    grid-template-columns: 1fr;
     padding: 6rem 6vw;
   }
 }
 
-:global(body.page-home) .header,
-:global(body.page-services-category) .header {
+@media (min-width: 1101px) {
+  .menuOverlay {
+    inset: 0 auto 0 0;
+    width: min(460px, 80vw);
+    transform: translateX(-100%);
+    box-shadow: 24px 0 60px color-mix(in srgb, #000 40%, transparent);
+  }
+
+  .menuToggle:checked ~ .menuOverlay {
+    transform: translateX(0);
+  }
+
+  .menuClose {
+    left: 5vw;
+    right: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .brand {
+    grid-column: 1;
+    justify-self: start;
+    align-items: center;
+    order: 1;
+  }
+
+  .right {
+    display: none;
+  }
+
+  .menuTrigger {
+    grid-column: 2;
+    justify-self: end;
+    order: 2;
+  }
+
+  .menuOverlay {
+    transform: translateX(100%);
+  }
+
+  .menuToggle:checked ~ .menuOverlay {
+    transform: translateX(0);
+  }
+
+  .menuActions {
+    display: flex;
+  }
+}
+
+:global(body.header-over-hero) .header {
   position: fixed;
   inset: 0 0 auto 0;
   background: transparent;
-  color: #f9f9f6;
+  box-shadow: none;
 }
 
-:global(body.page-services-category) .header {
-  background: rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(6px);
+:global(body.header-scrolled) .header {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-soft);
 }
 
-:global(body:not(.page-home):not(.page-services-category)) .header {
-  background: #2a2d2c;
-  color: #f7f4f0;
-}
-
+:global(body[data-theme="light"]) .header,
+:global(html[data-theme="light"]) .header,
 :global(body.light) .header {
-  color: #1b1b1b;
-  background: transparent;
+  color: var(--text-primary);
 }
 
-:global(body.light) .logoLight,
+:global(body[data-theme="dark"]) .header,
+:global(html[data-theme="dark"]) .header,
+:global(body.dark) .header {
+  color: var(--text-primary);
+}
+
+:global(body[data-theme="light"]) .logoLight,
 :global(body.header-on-light) .logoLight {
   opacity: 0;
 }
 
-:global(body.light) .logoDark,
+:global(body[data-theme="light"]) .logoDark,
 :global(body.header-on-light) .logoDark {
   opacity: 1;
 }

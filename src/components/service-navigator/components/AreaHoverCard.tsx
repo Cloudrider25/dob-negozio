@@ -50,9 +50,9 @@ export function AreaHoverCard({
 
   const cardContent = (
     <div className="relative w-full h-full">
-      <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-xl border border-white/10">
+      <div className="relative w-full h-full rounded-xl overflow-hidden backdrop-blur-xl border border-stroke shadow-soft">
         <div className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full" />
+          <div className="absolute top-0 left-0 w-32 h-32 bg-[color:color-mix(in_srgb,var(--tech-cyan)_10%,transparent)] blur-3xl rounded-full" />
         </div>
 
         <div className="relative h-full flex flex-col">
@@ -66,26 +66,26 @@ export function AreaHoverCard({
                 sizes="(max-width: 1024px) 100vw, 320px"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[color:color-mix(in_srgb,var(--obsidian)_20%,transparent)] to-[color:color-mix(in_srgb,var(--obsidian)_80%,transparent)]" />
 
             <div className="absolute bottom-0 left-0 right-0 p-4">
-              <h3 className="text-lg font-semibold text-white mb-0.5">{currentArea?.title}</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-0.5">{currentArea?.title}</h3>
               {currentArea?.subtitle && (
-                <p className="text-sm text-cyan-400">{currentArea.subtitle}</p>
+                <p className="text-sm text-accent-cyan">{currentArea.subtitle}</p>
               )}
             </div>
           </div>
 
           <div className="flex-1 p-4 flex flex-col gap-3">
             {currentArea?.description && (
-              <p className="text-sm text-white/70 leading-relaxed">{currentArea.description}</p>
+              <p className="text-sm text-text-muted leading-relaxed">{currentArea.description}</p>
             )}
 
             {currentArea?.features && currentArea.features.length > 0 && (
               <div className="space-y-1.5">
                 {currentArea.features.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-2 text-xs text-white/60">
-                    <div className="w-1 h-1 rounded-full bg-cyan-500/60 mt-1.5 shrink-0" />
+                  <div key={index} className="flex items-start gap-2 text-xs text-text-muted">
+                    <div className="w-1 h-1 rounded-full bg-[color:color-mix(in_srgb,var(--tech-cyan)_60%,transparent)] mt-1.5 shrink-0" />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -93,7 +93,7 @@ export function AreaHoverCard({
             )}
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-transparent" />
         </div>
       </div>
     </div>
@@ -140,7 +140,7 @@ export function AreaHoverCard({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[color:color-mix(in_srgb,var(--obsidian)_70%,transparent)] backdrop-blur"
           onClick={() => setIsOpen(false)}
         >
           <div
@@ -150,7 +150,7 @@ export function AreaHoverCard({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="absolute -top-10 right-0 text-sm uppercase tracking-[0.2em] text-white/70 hover:text-white"
+              className="absolute -top-10 right-0 text-sm uppercase tracking-[0.2em] text-text-secondary hover:text-text-primary"
             >
               Chiudi
             </button>

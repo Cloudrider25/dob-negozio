@@ -2,6 +2,16 @@ import { notFound } from 'next/navigation'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { Hero } from '@/components/Hero'
+import styles from './journal.module.css'
+
+type InstagramMediaItem = {
+  id: string
+  caption?: string
+  media_url?: string
+  media_type?: string
+  permalink?: string
+  thumbnail_url?: string
+}
 
 export default async function JournalPage({
   params,
@@ -45,6 +55,39 @@ export default async function JournalPage({
       ? pageDoc.heroTitle
       : t.journal.title
   const heroDescription = pageDoc?.heroDescription || t.journal.lead
+  const instagramSettings = await payload.findGlobal({
+    slug: 'instagram-settings',
+    overrideAccess: true,
+  })
+
+  let instagramItems: InstagramMediaItem[] = []
+
+  if (instagramSettings?.enabled && instagramSettings?.accessToken) {
+    const limit = Math.min(Math.max(instagramSettings.limit || 12, 1), 50)
+    const revalidateSeconds = Math.max(instagramSettings.revalidateSeconds || 0, 0)
+    const url = new URL('https://graph.instagram.com/me/media')
+    url.searchParams.set(
+      'fields',
+      'id,caption,media_url,media_type,permalink,thumbnail_url,timestamp',
+    )
+    url.searchParams.set('access_token', instagramSettings.accessToken)
+    url.searchParams.set('limit', String(limit))
+
+    try {
+      const response = await fetch(url.toString(), {
+        next: revalidateSeconds > 0 ? { revalidate: revalidateSeconds } : undefined,
+        cache: revalidateSeconds > 0 ? 'force-cache' : 'no-store',
+      })
+      if (response.ok) {
+        const data = (await response.json()) as { data?: InstagramMediaItem[] }
+        if (Array.isArray(data.data)) {
+          instagramItems = data.data.filter((item) => item.media_url || item.thumbnail_url)
+        }
+      }
+    } catch {
+      instagramItems = []
+    }
+  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -58,20 +101,51 @@ export default async function JournalPage({
           mediaLight={heroLight || undefined}
         />
       )}
-      <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <article
-            className="relative rounded-[var(--r20)] border p-6 before:absolute before:inset-0 before:content-['']"
-            key={`post-${index}`}
-          >
-            <h3>{t.placeholders.journalTitle}</h3>
-            <p className="">{t.placeholders.journalExcerpt}</p>
-            <span className="text-[0.85rem] uppercase tracking-[0.08em]">
-              {t.placeholders.readMore}
-            </span>
-          </article>
-        ))}
-      </section>
+      {instagramItems.length > 0 ? (
+        <section className={styles.grid}>
+          {instagramItems.map((item) => {
+            const mediaUrl =
+              item.media_type === 'VIDEO' && item.thumbnail_url
+                ? item.thumbnail_url
+                : item.media_url
+            if (!mediaUrl) return null
+            return (
+              <a
+                key={item.id}
+                className={styles.card}
+                href={item.permalink || '#'}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  className={styles.media}
+                  src={mediaUrl}
+                  alt={item.caption || t.journal.title}
+                  loading="lazy"
+                />
+                {item.caption && (
+                  <span className={styles.caption}>{item.caption.slice(0, 120)}</span>
+                )}
+              </a>
+            )
+          })}
+        </section>
+      ) : (
+        <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <article
+              className="relative rounded-[var(--r20)] border p-6 before:absolute before:inset-0 before:content-['']"
+              key={`post-${index}`}
+            >
+              <h3>{t.placeholders.journalTitle}</h3>
+              <p className="">{t.placeholders.journalExcerpt}</p>
+              <span className="text-[0.85rem] uppercase tracking-[0.08em]">
+                {t.placeholders.readMore}
+              </span>
+            </article>
+          ))}
+        </section>
+      )}
     </div>
   )
 }
