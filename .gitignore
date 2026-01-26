@@ -57,3 +57,5 @@ node_modules/
 Service Navigator Layout Scaffold.zip
 public/media/hero_homepage_dark.png
 public/media/hero_homepage_light.png
+
+.nx/workspace-data/
