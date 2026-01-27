@@ -112,6 +112,55 @@
   transition: transform 0.2s ease;
 }
 
+.iconButtonGlass {
+  position: relative;
+  border-radius: 999px;
+  padding: 2px;
+  box-sizing: content-box;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0.35) 55%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 10px 24px rgba(12, 18, 30, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+}
+
+.iconButtonGlass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 120% at 20% 0%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 45%);
+  opacity: 0.8;
+}
+
+.iconButtonGlass::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(8px 60% at 0% 50%, rgba(205, 212, 220, 0.5), rgba(205, 212, 220, 0) 70%),
+    radial-gradient(8px 60% at 100% 50%, rgba(205, 212, 220, 0.3), rgba(205, 212, 220, 0) 70%);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+
+.iconButtonGlass svg {
+  width: 18px;
+  height: 18px;
+}
+
 .iconButton:hover {
   transform: translateY(-2px);
 }

@@ -28,7 +28,7 @@ export function CenterImageDisplay({
   }, [hoveredArea, shouldSlideOut])
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full flex items-center justify-center overflow-visible">
       <AreaHoverCard
         area={
           currentArea
@@ -38,6 +38,7 @@ export function CenterImageDisplay({
                   getAreaById(currentArea)?.cardTitle ||
                   getAreaById(currentArea)?.label ||
                   currentArea,
+                slug: getAreaById(currentArea)?.slug,
                 subtitle:
                   getAreaById(currentArea)?.cardTagline ||
                   getAreaById(currentArea)?.subtitle,

@@ -30,7 +30,7 @@ export function ColumnList({ title, items, emptyState, scrollable = false }: Col
       transition={{ duration: 0.3 }}
       className="navigator-column"
     >
-      <div className="mb-1">
+      <div className="mb-1 overflow-visible">
         <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
           {title}
         </h3>
@@ -43,7 +43,7 @@ export function ColumnList({ title, items, emptyState, scrollable = false }: Col
           <div
             className={
               scrollable
-                ? 'space-y-3 max-h-[600px] overflow-y-auto overflow-x-visible pr-1 bg-transparent'
+                ? 'space-y-3 max-h-[600px] overflow-visible pr-1 bg-transparent'
                 : 'space-y-3'
             }
           >

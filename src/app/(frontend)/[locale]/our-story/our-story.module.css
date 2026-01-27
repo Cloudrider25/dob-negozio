@@ -1,0 +1,76 @@
+.page {
+  background: #f1f0ec;
+  min-height: 100vh;
+  padding: 2.25vw;
+  margin: 0 -5vw -4rem;
+}
+
+.cover {
+  padding: 16px;
+}
+
+.cover :global(.Hero) {
+  position: relative;
+  height: calc(100vh - 2rem);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.cover :global(.Hero .swiper),
+.cover :global(.Hero .swiper-wrapper),
+.cover :global(.Hero .swiper-slide) {
+  height: 100%;
+}
+
+.cover :global(.Hero img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover :global(.Hero-content) {
+  position: absolute;
+  left: 2.5vw;
+  bottom: 2.5vw;
+  z-index: 2;
+  max-width: min(60ch, 80%);
+  color: #fff;
+}
+
+.cover :global(.Hero-content-wrapper) {
+  background: rgba(0, 0, 0, 0.85);
+  padding: clamp(14px, 1.4vw, 20px) clamp(16px, 2vw, 28px);
+  border-radius: 10px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cover :global(.Hero-content h1) {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 34px);
+  line-height: 1.1;
+  font-weight: 400;
+}
+
+.cover :global(.Button-container .Button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media only screen and (min-width: 760px) {
+  .cover {
+    padding: 2.25vw;
+  }
+}

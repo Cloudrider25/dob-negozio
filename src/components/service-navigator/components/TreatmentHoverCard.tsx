@@ -3,10 +3,14 @@
 import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { GlassCard } from '@/components/service-navigator/components/GlassCard'
 
 export interface TreatmentDetails {
   id: string
   title: string
+  slug?: string
   subtitle?: string
   description: string
   imageUrl?: string
@@ -27,7 +31,9 @@ export function TreatmentHoverCard({
 }: TreatmentHoverCardProps) {
   const [currentTreatment, setCurrentTreatment] = useState<TreatmentDetails | null>(null)
   const [cardKey, setCardKey] = useState(0)
-  const [isOpen, setIsOpen] = useState(false)
+  const params = useParams<{ locale?: string }>()
+  const locale = params?.locale ?? 'it'
+  const href = currentTreatment?.slug ? `/${locale}/services/treatment/${currentTreatment.slug}` : '#'
 
   useEffect(() => {
     if (treatment && !shouldSlideOut) {
@@ -50,7 +56,7 @@ export function TreatmentHoverCard({
   const cardContent = (
     <div className="relative w-full h-full">
       {/* Card container */}
-      <div className="relative w-full h-full rounded-xl overflow-hidden border border-stroke">
+      <GlassCard className="w-full h-full service-hover-card rounded-t-[12px]" paddingClassName="">
         {/* Subtle glow effect */}
         <div className="absolute inset-0 opacity-30 pointer-events-none">
           <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full" />
@@ -119,10 +125,22 @@ export function TreatmentHoverCard({
             ) : null}
           </div>
 
+          <div className="mt-auto flex justify-center pb-4">
+            <Link
+              href={href}
+              className="glass-pill text-xs h-8"
+              onClick={(event) => {
+                if (!currentTreatment?.slug) event.preventDefault()
+              }}
+            >
+              Scopri di più
+            </Link>
+          </div>
+
           {/* Subtle bottom glow */}
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-transparent" />
         </div>
-      </div>
+      </GlassCard>
     </div>
   )
 
@@ -151,38 +169,7 @@ export function TreatmentHoverCard({
           }}
           className="relative w-full h-full"
         >
-          <button
-            type="button"
-            className="w-full h-full text-left"
-            onClick={() => setIsOpen(true)}
-          >
-            {cardContent}
-          </button>
-        </motion.div>
-      )}
-
-      {isOpen && currentTreatment && (
-        <motion.div
-          key="treatment-modal"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[color:color-mix(in_srgb,var(--obsidian)_70%,transparent)] backdrop-blur"
-          onClick={() => setIsOpen(false)}
-        >
-          <div
-            className="relative w-[90vw] max-w-3xl h-[80vh]"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="absolute -top-10 right-0 text-sm uppercase tracking-[0.2em] text-text-secondary hover:text-text-primary"
-            >
-              Chiudi
-            </button>
-            {cardContent}
-          </div>
+          {cardContent}
         </motion.div>
       )}
     </AnimatePresence>

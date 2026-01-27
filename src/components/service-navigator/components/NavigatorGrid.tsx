@@ -6,6 +6,7 @@ import type {
   Area,
   Goal,
   NavigatorState,
+  SelectedServiceItem,
   ServiceFinal,
   Treatment,
 } from '@/components/service-navigator/types/navigator'
@@ -407,7 +408,7 @@ export function NavigatorGrid({
                 </AnimatePresence>
 
                 {/* Column 3: Hover Card Space */}
-                <div className="relative min-h-[440px] navigator-column">
+                <div className="relative navigator-column h-full overflow-visible">
                   <div className="mb-1" aria-hidden="true">
                     <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
                       Spacer
@@ -423,6 +424,7 @@ export function NavigatorGrid({
                                 getGoalById(hoveredGoal)?.cardTitle ||
                                 getGoalById(hoveredGoal)?.label ||
                                 hoveredGoal,
+                              slug: getGoalById(hoveredGoal)?.slug,
                               subtitle:
                                 getGoalById(hoveredGoal)?.cardTagline ||
                                 getGoalById(hoveredGoal)?.subtitle,
@@ -448,6 +450,7 @@ export function NavigatorGrid({
                                 getTreatmentById(hoveredTreatment)?.cardTitle ||
                                 getTreatmentById(hoveredTreatment)?.label ||
                                 hoveredTreatment,
+                              slug: getTreatmentById(hoveredTreatment)?.slug,
                               subtitle:
                                 getTreatmentById(hoveredTreatment)?.cardTagline ||
                                 getTreatmentById(hoveredTreatment)?.subtitle,

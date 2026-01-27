@@ -23,6 +23,13 @@ export const Objectives: CollectionConfig = {
       required: true,
     },
     {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      required: true,
+    },
+    {
       name: 'boxTagline',
       type: 'textarea',
       localized: true,

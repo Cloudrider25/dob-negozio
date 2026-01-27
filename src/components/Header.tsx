@@ -77,7 +77,7 @@ export const Header = ({
           <div className={styles.iconRow} aria-label="Account e carrello">
             <Link
               href={`/${locale}/account`}
-              className={styles.iconButton}
+              className={`${styles.iconButton} ${styles.iconButtonGlass}`}
               aria-label="Account"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -89,7 +89,7 @@ export const Header = ({
             </Link>
             <Link
               href={`/${locale}/cart`}
-              className={styles.iconButton}
+              className={`${styles.iconButton} ${styles.iconButtonGlass}`}
               aria-label="Carrello"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -165,7 +165,7 @@ export const Header = ({
               <div className={styles.iconRow} aria-label="Account e carrello">
                 <Link
                   href={`/${locale}/account`}
-                  className={styles.iconButton}
+                  className={`${styles.iconButton} ${styles.iconButtonGlass}`}
                   aria-label="Account"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -177,7 +177,7 @@ export const Header = ({
                 </Link>
                 <Link
                   href={`/${locale}/cart`}
-                  className={styles.iconButton}
+                  className={`${styles.iconButton} ${styles.iconButtonGlass}`}
                   aria-label="Carrello"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">

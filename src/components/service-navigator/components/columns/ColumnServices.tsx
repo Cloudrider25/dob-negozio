@@ -76,7 +76,7 @@ export function ServiceCard({ service, onSelect, onAddToCart }: ServiceCardProps
           <div className="flex flex-col items-end justify-center gap-2 pr-4">
             <Link
               href={serviceHref}
-              className="glass-pill text-xs text-text-primary"
+              className="glass-pill text-xs text-text-primary h-8 min-w-[147px]"
               onClick={(event) => {
                 event.stopPropagation()
                 if (!service.slug) event.preventDefault()
@@ -90,7 +90,7 @@ export function ServiceCard({ service, onSelect, onAddToCart }: ServiceCardProps
                 event.stopPropagation()
                 onAddToCart(service)
               }}
-              className="glass-pill text-xs text-text-primary"
+              className="glass-pill text-xs text-text-primary h-8 min-w-[100px]"
             >
               Aggiungi al carrello
             </button>

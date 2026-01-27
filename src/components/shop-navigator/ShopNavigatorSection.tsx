@@ -37,9 +37,13 @@ const CART_STORAGE_KEY = 'dob:cart'
 function ClassicShopView({
   products,
   params,
+  onAddToCart,
+  productBasePath,
 }: {
   products: ProductCard[]
   params: ClassicParams
+  onAddToCart: (product: ProductCard) => void
+  productBasePath: string
 }) {
   const filtered = useMemo(() => {
     const query = params.query.toLowerCase()
@@ -91,7 +95,12 @@ function ClassicShopView({
         }
       >
         {pageItems.map((product) => (
-          <ShopProductCard key={product.id} product={product} />
+          <ShopProductCard
+            key={product.id}
+            product={product}
+            onAddToCart={() => onAddToCart(product)}
+            href={`${productBasePath}/${product.slug ?? product.id}`}
+          />
         ))}
       </div>
     </div>
@@ -118,7 +127,8 @@ export function ShopNavigatorSection({
     setState((prev) => ({ ...prev, ...updates }))
   }
 
-  const handleAddToCart = (product: ProductCard) => {
+  const handleAddToCart = (product?: ProductCard) => {
+    if (!product) return
     if (typeof window === 'undefined') return
     const raw = window.localStorage.getItem(CART_STORAGE_KEY)
     const items: CartItem[] = raw ? (JSON.parse(raw) as CartItem[]) : []
@@ -158,14 +168,25 @@ export function ShopNavigatorSection({
                   productBasePath={productBasePath}
                 />
               ) : (
-                <ClassicShopView key="classic" products={data.products} params={initialClassicParams} />
+                <ClassicShopView
+                  key="classic"
+                  products={data.products}
+                  params={initialClassicParams}
+                  onAddToCart={handleAddToCart}
+                  productBasePath={productBasePath}
+                />
               )}
             </AnimatePresence>
           </div>
 
           <div className="lg:hidden">
             {viewMode === 'classic' ? (
-              <ClassicShopView products={data.products} params={initialClassicParams} />
+              <ClassicShopView
+                products={data.products}
+                params={initialClassicParams}
+                onAddToCart={handleAddToCart}
+                productBasePath={productBasePath}
+              />
             ) : (
               <button
                 onClick={() => setShowMobileFlow(true)}

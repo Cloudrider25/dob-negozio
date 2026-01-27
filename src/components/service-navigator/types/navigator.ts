@@ -50,6 +50,7 @@ export interface AreaData {
   cardTitle?: string;
   cardTagline?: string;
   cardDescription?: string;
+  slug?: string;
 }
 
 // Dati per i goals
@@ -64,6 +65,7 @@ export interface GoalData {
   cardTitle?: string;
   cardTagline?: string;
   cardDescription?: string;
+  slug?: string;
 }
 
 // Dati per i treatments
@@ -78,6 +80,7 @@ export interface TreatmentData {
   cardTitle?: string;
   cardTagline?: string;
   cardDescription?: string;
+  slug?: string;
   badge?: {
     label: string;
     type: "best-seller" | "economico" | "duraturo" | "novita" | "premium";

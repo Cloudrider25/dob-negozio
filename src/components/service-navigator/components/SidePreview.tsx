@@ -1,6 +1,6 @@
 'use client'
 
-import type { NavigatorState } from "@/components/service-navigator/types/navigator";
+import type { NavigatorState, SelectedServiceItem } from "@/components/service-navigator/types/navigator";
 import { useNavigatorData } from "@/components/service-navigator/data/navigator-data-context";
 import { Minus, Plus, ShoppingBag, Trash } from "@/components/service-navigator/icons";
 import { GlassCard } from "@/components/service-navigator/components/GlassCard";

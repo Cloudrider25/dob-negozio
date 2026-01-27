@@ -151,6 +151,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
       label: area.name || '',
       description: area.boxTagline || '',
       subtitle: area.cardTagline || undefined,
+      slug: area.slug || undefined,
       imageUrl: media?.url || undefined,
       features: rich.bullets.length ? rich.bullets : undefined,
       cardTitle: area.cardTitle || undefined,
@@ -173,6 +174,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
       label: goal.boxName || '',
       subtitle: goal.boxTagline || undefined,
       description: goal.boxTagline || '',
+      slug: goal.slug || undefined,
       benefits: rich.bullets.length ? rich.bullets : undefined,
       areaId,
       imageUrl: media?.url || undefined,
@@ -207,6 +209,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
       label: treatment.boxName || treatment.cardName || '',
       description: treatment.boxTagline || '',
       subtitle: treatment.cardTagline || undefined,
+      slug: treatment.slug || undefined,
       imageUrl: media?.url || undefined,
       features: rich.bullets.length ? rich.bullets : undefined,
       referenceIds,
@@ -284,7 +287,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
     whatsapp: siteSettings?.whatsapp,
   })
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-0">
       {hasHero && (
         <Hero
           eyebrow={t.services.title}

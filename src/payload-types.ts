@@ -343,6 +343,7 @@ export interface MakeupCollection {
 export interface Area {
   id: number;
   name: string;
+  slug: string;
   boxTagline?: string | null;
   cardTitle?: string | null;
   cardTagline?: string | null;
@@ -372,6 +373,7 @@ export interface Area {
 export interface Objective {
   id: number;
   boxName: string;
+  slug: string;
   boxTagline?: string | null;
   cardName?: string | null;
   cardTagline?: string | null;
@@ -849,6 +851,7 @@ export interface MakeupCollectionsSelect<T extends boolean = true> {
  */
 export interface AreasSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   boxTagline?: T;
   cardTitle?: T;
   cardTagline?: T;
@@ -863,6 +866,7 @@ export interface AreasSelect<T extends boolean = true> {
  */
 export interface ObjectivesSelect<T extends boolean = true> {
   boxName?: T;
+  slug?: T;
   boxTagline?: T;
   cardName?: T;
   cardTagline?: T;

@@ -58,10 +58,10 @@ export function ServiceNavigatorSection({
   };
 
   return (
-    <section className="service-navigator relative min-h-screen overflow-hidden bg-bg-2">
+    <section className="service-navigator relative min-h-screen w-full overflow-visible bg-bg">
       <NavigatorDataProvider data={data}>
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
+        <div className="relative z-10 w-full px-0 py-20">
           <NavigatorHeader 
             activeView={viewMode}
             onViewChange={setViewMode}
