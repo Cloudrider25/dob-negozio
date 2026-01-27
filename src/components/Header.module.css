@@ -6,10 +6,23 @@
   grid-template-columns: minmax(240px, 1fr) auto minmax(260px, 1fr);
   align-items: center;
   gap: 2rem;
-  padding: 1rem 5vw;
+  padding: 2rem 1rem 1rem 5vw; 
   background: var(--bg);
   color: var(--text-primary);
-  transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease;
+  border-radius: 0;
+}
+
+.topBar {
+  background: var(--bg);
+  color: var(--text-primary);
+  text-align: center;
+  padding: 0.5rem 5vw;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.65rem;
+    border-radius: 12px 12px 0 0;
+
 }
 
 .menuTrigger {
@@ -352,18 +365,38 @@
   }
 }
 
-:global(body.header-over-hero) .header {
-  position: fixed;
-  inset: 0 0 auto 0;
-  background: transparent;
-  box-shadow: none;
-}
-
 :global(body.header-scrolled) .header {
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(10px);
+  background: var(--bg);
+  backdrop-filter: none;
   box-shadow: var(--shadow-soft);
 }
+
+:global(body[data-theme="light"]) .header,
+:global(html[data-theme="light"]) .header,
+:global(body.light) .header {
+  background: #f1f0ec;
+}
+
+:global(body[data-theme="light"]) .topBar,
+:global(html[data-theme="light"]) .topBar,
+:global(body.light) .topBar {
+  background: #f1f0ec;
+}
+
+:global(body[data-theme="dark"]) .header,
+:global(html[data-theme="dark"]) .header,
+:global(body.dark) .header {
+  background: #1b1b1b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+:global(body[data-theme="dark"]) .topBar,
+:global(html[data-theme="dark"]) .topBar,
+:global(body.dark) .topBar {
+  background: #1b1b1b;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 
 :global(body[data-theme="light"]) .header,
 :global(html[data-theme="light"]) .header,

@@ -55,7 +55,7 @@ export default async function JournalPage({
     pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle
       ? pageDoc.heroTitle
       : t.journal.title
-  const heroDescription = pageDoc?.heroDescription || t.journal.lead
+  const heroDescription = pageDoc?.heroDescription ?? t.journal.lead
   const instagramSettings = await payload.findGlobal({
     slug: 'instagram-settings',
     overrideAccess: true,

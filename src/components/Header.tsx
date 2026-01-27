@@ -38,6 +38,7 @@ export const Header = ({
   return (
     <>
       <input className={styles.menuToggle} id="menu-toggle" type="checkbox" />
+      <div className={styles.topBar}>prenota una consulenza gratuita</div>
       <header className={styles.header}>
         <div className={styles.menuTrigger}>
           <label className={styles.burger} htmlFor="menu-toggle" aria-label="Apri menu">

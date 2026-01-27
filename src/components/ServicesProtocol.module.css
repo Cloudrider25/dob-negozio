@@ -1,9 +1,10 @@
 .protocol {
-  padding: var(--s120) 8vw;
-  background: transparent;
+  padding: 4.375rem;
+  background: #f1f0ec;
   color: var(--text-primary);
   position: relative;
   overflow: hidden;
+  border-radius: 12px;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
@@ -250,11 +251,53 @@
 
 :global(body[data-theme="light"]) .protocol {
   color: var(--text-primary);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  background: #f1f0ec;
   --protocol-accent: color-mix(in srgb, var(--tech-cyan) 75%, transparent);
   --protocol-accent-strong: color-mix(in srgb, var(--tech-cyan) 95%, transparent);
   --protocol-accent-glow: color-mix(in srgb, var(--tech-cyan) 45%, transparent);
   --protocol-surface: var(--paper);
   --protocol-surface-strong: var(--paper);
+}
+
+:global(body[data-theme="light"]) .card,
+:global(html[data-theme="light"]) .card,
+:global(body.light) .card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.62) 55%,
+    rgba(255, 255, 255, 0.52) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 22px 54px rgba(10, 18, 30, 0.22),
+    0 8px 18px rgba(10, 18, 30, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -12px 20px rgba(0, 0, 0, 0.07);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+:global(body[data-theme="light"]) .badge,
+:global(html[data-theme="light"]) .badge,
+:global(body.light) .badge {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.62) 55%,
+    rgba(255, 255, 255, 0.52) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 22px 54px rgba(10, 18, 30, 0.18),
+    0 8px 18px rgba(10, 18, 30, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -12px 20px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
 @media (max-width: 1100px) {

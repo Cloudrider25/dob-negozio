@@ -45,8 +45,8 @@ export default async function LocaleLayout({
         whatsappLink={whatsappLink}
         phoneLink={phoneLink}
       />
-      <div className="px-[5vw] pb-16">{children}</div>
-      <footer className="mt-auto grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6 border-t border-stroke px-[5vw] py-10 text-[0.8rem] uppercase tracking-[0.12em] text-text-secondary">
+      <div>{children}</div>
+      <footer className="mt-auto grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6 border-t border-stroke py-10 text-[0.8rem] uppercase tracking-[0.12em] text-text-secondary">
         <div>
           <p className="m-0">{t.brand}</p>
           <p className="m-0">{addressDisplay}</p>

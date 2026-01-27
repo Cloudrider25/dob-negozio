@@ -47,7 +47,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
   const hasHero = Boolean(heroDark || heroLight)
   const heroTitle =
     pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle ? pageDoc.heroTitle : t.services.title
-  const heroDescription = pageDoc?.heroDescription || t.services.lead
+  const heroDescription = pageDoc?.heroDescription ?? t.services.lead
   const heroStyle = pageDoc?.heroStyle === 'style2' ? 'style2' : 'style1'
 
   const extractText = (node: unknown, acc: string[]) => {

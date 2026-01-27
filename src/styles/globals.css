@@ -484,6 +484,7 @@ body {
 
 body {
   margin: 0;
+  padding: 15px 2.25vw;
   background: var(--bg);
   color: var(--text-primary);
   text-rendering: optimizeLegibility;
@@ -492,6 +493,21 @@ body {
 
 main {
   background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  row-gap: 2.25vw;
+}
+
+section {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+
+section[data-hero="true"] {
+  border-radius: 0 0 12px 12px;
 }
 
 body:has(#menu-toggle:checked) {

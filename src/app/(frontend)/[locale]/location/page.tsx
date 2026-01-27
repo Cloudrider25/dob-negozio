@@ -55,7 +55,7 @@ export default async function LocationPage({
     pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle
       ? pageDoc.heroTitle
       : t.location.title
-  const heroDescription = pageDoc?.heroDescription || t.location.lead
+  const heroDescription = pageDoc?.heroDescription ?? t.location.lead
 
   return (
     <div className="flex flex-col gap-10">

@@ -6,6 +6,7 @@ import { Hero } from '@/components/Hero'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Card } from '@/components/ui/card'
 import { ServicesProtocol } from '@/components/ServicesProtocol'
+import { ProtocolSplit } from '@/components/ProtocolSplit'
 import styles from './home.module.css'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 
@@ -50,7 +51,7 @@ export default async function HomePage({
     pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle
       ? pageDoc.heroTitle
       : t.hero.title
-  const heroDescription = pageDoc?.heroDescription || t.hero.subtitle
+  const heroDescription = pageDoc?.heroDescription ?? t.hero.subtitle
 
   return (
     <div className="home-page flex flex-col gap-10">
@@ -69,6 +70,7 @@ export default async function HomePage({
         />
       )}
       <ServicesProtocol />
+      <ProtocolSplit />
       <section className={styles.cardsGrid}>
         <Card variant="pearl" className={styles.card}>
           <h2>{t.story.title}</h2>
