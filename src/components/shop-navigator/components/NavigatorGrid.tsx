@@ -1,0 +1,876 @@
+'use client'
+
+import { AnimatePresence, motion } from 'framer-motion'
+import { useMemo, useState } from 'react'
+import type {
+  CategoryId,
+  LineId,
+  NavigatorState,
+  NeedId,
+  RoutineStepId,
+  TextureId,
+} from '@/components/shop-navigator/types/navigator'
+import { ColumnNeed } from '@/components/shop-navigator/components/columns/ColumnNeed'
+import { ColumnCategory } from '@/components/shop-navigator/components/columns/ColumnCategory'
+import { ColumnRoutineStep } from '@/components/shop-navigator/components/columns/ColumnRoutineStep'
+import { ColumnLine } from '@/components/shop-navigator/components/columns/ColumnLine'
+import { ColumnTexture } from '@/components/shop-navigator/components/columns/ColumnTexture'
+import { ColumnProducts } from '@/components/shop-navigator/components/columns/ColumnProducts'
+import { SidePreview } from '@/components/shop-navigator/components/SidePreview'
+import { PathBreadcrumb } from '@/components/shop-navigator/components/PathBreadcrumb'
+import { CenterImageDisplay } from '@/components/shop-navigator/components/CenterImageDisplay'
+import { CategoryHoverCard } from '@/components/shop-navigator/components/CategoryHoverCard'
+import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
+
+interface NavigatorGridProps {
+  state: NavigatorState
+  onUpdateState: (updates: Partial<NavigatorState>) => void
+  onAddToCart: (product: NavigatorState['selectedProduct']) => void
+  productBasePath: string
+}
+
+export function NavigatorGrid({
+  state,
+  onUpdateState,
+  onAddToCart,
+  productBasePath,
+}: NavigatorGridProps) {
+  const {
+    getRoutineStepsForFilters,
+    getLinesForFilters,
+    getTexturesForFilters,
+    getProductsForFilters,
+    getCategoryById,
+    getRoutineStepById,
+    getLineById,
+    getTextureById,
+  } = useShopNavigatorData()
+
+  const [hoveredNeed, setHoveredNeed] = useState<NeedId | undefined>(undefined)
+  const [clickedNeed, setClickedNeed] = useState<NeedId | undefined>(undefined)
+  const [isNeedSlideOutAnimating, setIsNeedSlideOutAnimating] = useState(false)
+
+  const [hoveredCategory, setHoveredCategory] = useState<CategoryId | null>(null)
+  const [clickedCategory, setClickedCategory] = useState<CategoryId | undefined>(undefined)
+  const [isCategorySlideOutAnimating, setIsCategorySlideOutAnimating] = useState(false)
+
+  const [hoveredRoutine, setHoveredRoutine] = useState<RoutineStepId | null>(null)
+  const [clickedRoutine, setClickedRoutine] = useState<RoutineStepId | undefined>(undefined)
+  const [isRoutineSlideOutAnimating, setIsRoutineSlideOutAnimating] = useState(false)
+
+  const [hoveredLine, setHoveredLine] = useState<LineId | null>(null)
+  const [clickedLine, setClickedLine] = useState<LineId | undefined>(undefined)
+  const [isLineSlideOutAnimating, setIsLineSlideOutAnimating] = useState(false)
+
+  const [hoveredTexture, setHoveredTexture] = useState<TextureId | null>(null)
+  const [clickedTexture, setClickedTexture] = useState<TextureId | undefined>(undefined)
+  const [isTextureSlideOutAnimating, setIsTextureSlideOutAnimating] = useState(false)
+
+  const getNextStepAfterCategory = (needId: NeedId, categoryId: CategoryId) => {
+    const routine = getRoutineStepsForFilters({ needId, categoryId })
+    if (routine.length > 0) return 'routine'
+    const lines = getLinesForFilters({ needId, categoryId })
+    if (lines.length > 0) return 'line'
+    const textures = getTexturesForFilters({ needId, categoryId })
+    if (textures.length > 0) return 'texture'
+    return 'products'
+  }
+
+  const getNextStepAfterRoutine = (
+    needId: NeedId,
+    categoryId: CategoryId,
+    routineStepId: RoutineStepId,
+  ) => {
+    const lines = getLinesForFilters({ needId, categoryId, routineStepId })
+    if (lines.length > 0) return 'line'
+    const textures = getTexturesForFilters({ needId, categoryId, routineStepId })
+    if (textures.length > 0) return 'texture'
+    return 'products'
+  }
+
+  const getNextStepAfterLine = (
+    needId: NeedId,
+    categoryId: CategoryId,
+    routineStepId: RoutineStepId | undefined,
+    lineId: LineId,
+  ) => {
+    const textures = getTexturesForFilters({ needId, categoryId, routineStepId, lineId })
+    if (textures.length > 0) return 'texture'
+    return 'products'
+  }
+
+  const handleSelectNeed = (need: NeedId) => {
+    if (need === state.selectedNeed) return
+    if (state.step === 'need') {
+      if (!hoveredNeed || hoveredNeed !== need) {
+        onUpdateState({
+          selectedNeed: need,
+          selectedCategory: undefined,
+          selectedRoutineStep: undefined,
+          selectedLine: undefined,
+          selectedTexture: undefined,
+          selectedProduct: undefined,
+          step: 'category',
+        })
+        return
+      }
+      setClickedNeed(need)
+      setIsNeedSlideOutAnimating(true)
+    } else {
+      onUpdateState({
+        selectedNeed: need,
+        selectedCategory: undefined,
+        selectedRoutineStep: undefined,
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+        step: 'category',
+      })
+    }
+  }
+
+  const handleNeedSlideOutComplete = () => {
+    setIsNeedSlideOutAnimating(false)
+    if (!clickedNeed) return
+    onUpdateState({
+      selectedNeed: clickedNeed,
+      selectedCategory: undefined,
+      selectedRoutineStep: undefined,
+      selectedLine: undefined,
+      selectedTexture: undefined,
+      selectedProduct: undefined,
+      step: 'category',
+    })
+    setClickedNeed(undefined)
+    setHoveredNeed(undefined)
+  }
+
+  const handleSelectCategory = (category: CategoryId) => {
+    if (category === state.selectedCategory) return
+    if (state.step === 'category') {
+      if (!hoveredCategory || hoveredCategory !== category) {
+        if (!state.selectedNeed) return
+        onUpdateState({
+          selectedCategory: category,
+          selectedRoutineStep: undefined,
+          selectedLine: undefined,
+          selectedTexture: undefined,
+          selectedProduct: undefined,
+          step: getNextStepAfterCategory(state.selectedNeed, category),
+        })
+        return
+      }
+      setClickedCategory(category)
+      setIsCategorySlideOutAnimating(true)
+    } else if (state.selectedNeed) {
+      onUpdateState({
+        selectedCategory: category,
+        selectedRoutineStep: undefined,
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+        step: getNextStepAfterCategory(state.selectedNeed, category),
+      })
+    }
+  }
+
+  const handleCategorySlideOutComplete = () => {
+    setIsCategorySlideOutAnimating(false)
+    if (!clickedCategory || !state.selectedNeed) return
+    onUpdateState({
+      selectedCategory: clickedCategory,
+      selectedRoutineStep: undefined,
+      selectedLine: undefined,
+      selectedTexture: undefined,
+      selectedProduct: undefined,
+      step: getNextStepAfterCategory(state.selectedNeed, clickedCategory),
+    })
+    setClickedCategory(undefined)
+  }
+
+  const handleSelectRoutineStep = (routine: RoutineStepId) => {
+    if (routine === state.selectedRoutineStep) return
+    if (state.step === 'routine') {
+      if (!hoveredRoutine || hoveredRoutine !== routine) {
+        if (!state.selectedNeed || !state.selectedCategory) return
+        onUpdateState({
+          selectedRoutineStep: routine,
+          selectedLine: undefined,
+          selectedTexture: undefined,
+          selectedProduct: undefined,
+          step: getNextStepAfterRoutine(state.selectedNeed, state.selectedCategory, routine),
+        })
+        return
+      }
+      setClickedRoutine(routine)
+      setIsRoutineSlideOutAnimating(true)
+    } else if (state.selectedNeed && state.selectedCategory) {
+      onUpdateState({
+        selectedRoutineStep: routine,
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+        step: getNextStepAfterRoutine(state.selectedNeed, state.selectedCategory, routine),
+      })
+    }
+  }
+
+  const handleRoutineSlideOutComplete = () => {
+    setIsRoutineSlideOutAnimating(false)
+    if (!clickedRoutine || !state.selectedNeed || !state.selectedCategory) return
+    onUpdateState({
+      selectedRoutineStep: clickedRoutine,
+      selectedLine: undefined,
+      selectedTexture: undefined,
+      selectedProduct: undefined,
+      step: getNextStepAfterRoutine(state.selectedNeed, state.selectedCategory, clickedRoutine),
+    })
+    setClickedRoutine(undefined)
+  }
+
+  const handleSelectLine = (line: LineId) => {
+    if (line === state.selectedLine) return
+    if (state.step === 'line') {
+      if (!hoveredLine || hoveredLine !== line) {
+        if (!state.selectedNeed || !state.selectedCategory) return
+        onUpdateState({
+          selectedLine: line,
+          selectedTexture: undefined,
+          selectedProduct: undefined,
+          step: getNextStepAfterLine(
+            state.selectedNeed,
+            state.selectedCategory,
+            state.selectedRoutineStep,
+            line,
+          ),
+        })
+        return
+      }
+      setClickedLine(line)
+      setIsLineSlideOutAnimating(true)
+    } else if (state.selectedNeed && state.selectedCategory) {
+      onUpdateState({
+        selectedLine: line,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+        step: getNextStepAfterLine(
+          state.selectedNeed,
+          state.selectedCategory,
+          state.selectedRoutineStep,
+          line,
+        ),
+      })
+    }
+  }
+
+  const handleLineSlideOutComplete = () => {
+    setIsLineSlideOutAnimating(false)
+    if (!clickedLine || !state.selectedNeed || !state.selectedCategory) return
+    onUpdateState({
+      selectedLine: clickedLine,
+      selectedTexture: undefined,
+      selectedProduct: undefined,
+      step: getNextStepAfterLine(
+        state.selectedNeed,
+        state.selectedCategory,
+        state.selectedRoutineStep,
+        clickedLine,
+      ),
+    })
+    setClickedLine(undefined)
+  }
+
+  const handleSelectTexture = (texture: TextureId) => {
+    if (texture === state.selectedTexture) return
+    if (state.step === 'texture') {
+      if (!hoveredTexture || hoveredTexture !== texture) {
+        onUpdateState({
+          selectedTexture: texture,
+          selectedProduct: undefined,
+          step: 'products',
+        })
+        return
+      }
+      setClickedTexture(texture)
+      setIsTextureSlideOutAnimating(true)
+    } else {
+      onUpdateState({
+        selectedTexture: texture,
+        selectedProduct: undefined,
+        step: 'products',
+      })
+    }
+  }
+
+  const handleTextureSlideOutComplete = () => {
+    setIsTextureSlideOutAnimating(false)
+    if (!clickedTexture) return
+    onUpdateState({
+      selectedTexture: clickedTexture,
+      selectedProduct: undefined,
+      step: 'products',
+    })
+    setClickedTexture(undefined)
+  }
+
+  const handleAddToCart = (product: NavigatorState['selectedProduct']) => {
+    if (!product) return
+    onAddToCart(product)
+  }
+
+  const handleNavigateToStep = (step: NavigatorState['step']) => {
+    if (step === 'need') {
+      onUpdateState({
+        step: 'need',
+        selectedNeed: undefined,
+        selectedCategory: undefined,
+        selectedRoutineStep: undefined,
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+      })
+      return
+    }
+
+    if (step === 'category') {
+      onUpdateState({
+        step: 'category',
+        selectedCategory: undefined,
+        selectedRoutineStep: undefined,
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+      })
+      return
+    }
+
+    if (step === 'routine') {
+      onUpdateState({
+        step: 'routine',
+        selectedRoutineStep: undefined,
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+      })
+      return
+    }
+
+    if (step === 'line') {
+      onUpdateState({
+        step: 'line',
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+      })
+      return
+    }
+
+    if (step === 'texture') {
+      onUpdateState({
+        step: 'texture',
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+      })
+    }
+  }
+
+  const handleBack = () => {
+    if (state.step === 'products') {
+      const textures = state.selectedNeed && state.selectedCategory
+        ? getTexturesForFilters({
+            needId: state.selectedNeed,
+            categoryId: state.selectedCategory,
+            routineStepId: state.selectedRoutineStep,
+            lineId: state.selectedLine,
+          })
+        : []
+      if (textures.length > 0) {
+        onUpdateState({ step: 'texture', selectedProduct: undefined })
+        return
+      }
+
+      const lines = state.selectedNeed && state.selectedCategory
+        ? getLinesForFilters({
+            needId: state.selectedNeed,
+            categoryId: state.selectedCategory,
+            routineStepId: state.selectedRoutineStep,
+          })
+        : []
+      if (lines.length > 0) {
+        onUpdateState({ step: 'line', selectedProduct: undefined })
+        return
+      }
+
+      const routines = state.selectedNeed && state.selectedCategory
+        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
+        : []
+      if (routines.length > 0) {
+        onUpdateState({ step: 'routine', selectedProduct: undefined })
+        return
+      }
+
+      onUpdateState({ step: 'category', selectedProduct: undefined })
+      return
+    }
+
+    if (state.step === 'texture') {
+      const lines = state.selectedNeed && state.selectedCategory
+        ? getLinesForFilters({
+            needId: state.selectedNeed,
+            categoryId: state.selectedCategory,
+            routineStepId: state.selectedRoutineStep,
+          })
+        : []
+      if (lines.length > 0) {
+        onUpdateState({ step: 'line', selectedTexture: undefined })
+        return
+      }
+
+      const routines = state.selectedNeed && state.selectedCategory
+        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
+        : []
+      if (routines.length > 0) {
+        onUpdateState({ step: 'routine', selectedTexture: undefined })
+        return
+      }
+
+      onUpdateState({ step: 'category', selectedTexture: undefined })
+      return
+    }
+
+    if (state.step === 'line') {
+      const routines = state.selectedNeed && state.selectedCategory
+        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
+        : []
+      if (routines.length > 0) {
+        onUpdateState({ step: 'routine', selectedLine: undefined })
+        return
+      }
+      onUpdateState({ step: 'category', selectedLine: undefined })
+      return
+    }
+
+    if (state.step === 'routine') {
+      onUpdateState({ step: 'category', selectedRoutineStep: undefined })
+      return
+    }
+
+    if (state.step === 'category') {
+      onUpdateState({
+        step: 'need',
+        selectedNeed: undefined,
+        selectedCategory: undefined,
+        selectedRoutineStep: undefined,
+        selectedLine: undefined,
+        selectedTexture: undefined,
+        selectedProduct: undefined,
+      })
+    }
+  }
+
+  const products = useMemo(
+    () =>
+      getProductsForFilters({
+        needId: state.selectedNeed,
+        categoryId: state.selectedCategory,
+        routineStepId: state.selectedRoutineStep,
+        lineId: state.selectedLine,
+        textureId: state.selectedTexture,
+      }),
+    [
+      getProductsForFilters,
+      state.selectedNeed,
+      state.selectedCategory,
+      state.selectedRoutineStep,
+      state.selectedLine,
+      state.selectedTexture,
+    ],
+  )
+
+  const hasRoutine = useMemo(() => {
+    if (!state.selectedNeed || !state.selectedCategory) return false
+    return (
+      getRoutineStepsForFilters({
+        needId: state.selectedNeed,
+        categoryId: state.selectedCategory,
+      }).length > 0
+    )
+  }, [getRoutineStepsForFilters, state.selectedCategory, state.selectedNeed])
+
+  const preProductStep = useMemo(() => {
+    if (!state.selectedNeed || !state.selectedCategory) return 'category'
+    const textures = getTexturesForFilters({
+      needId: state.selectedNeed,
+      categoryId: state.selectedCategory,
+      routineStepId: state.selectedRoutineStep,
+      lineId: state.selectedLine,
+    })
+    if (textures.length > 0) return 'texture'
+    const lines = getLinesForFilters({
+      needId: state.selectedNeed,
+      categoryId: state.selectedCategory,
+      routineStepId: state.selectedRoutineStep,
+    })
+    if (lines.length > 0) return 'line'
+    const routines = getRoutineStepsForFilters({
+      needId: state.selectedNeed,
+      categoryId: state.selectedCategory,
+    })
+    if (routines.length > 0) return 'routine'
+    return 'category'
+  }, [
+    getLinesForFilters,
+    getRoutineStepsForFilters,
+    getTexturesForFilters,
+    state.selectedCategory,
+    state.selectedLine,
+    state.selectedNeed,
+    state.selectedRoutineStep,
+  ])
+
+  return (
+    <div>
+      {/* Breadcrumb */}
+      <div className="mb-6">
+        <PathBreadcrumb state={state} onNavigateToStep={handleNavigateToStep} onBack={handleBack} />
+      </div>
+
+      {/* Grid Layout */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-9 relative">
+          {state.step === 'need' ? (
+            <div className="grid grid-cols-3 gap-6 items-stretch">
+              <div>
+                <AnimatePresence mode="wait">
+                  <ColumnNeed
+                    selectedNeed={state.selectedNeed}
+                    onSelectNeed={handleSelectNeed}
+                    onHoverNeed={setHoveredNeed}
+                  />
+                </AnimatePresence>
+              </div>
+
+              <div className="col-span-2 navigator-column">
+                <div className="mb-1" aria-hidden="true">
+                  <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+                    Spacer
+                  </h3>
+                </div>
+                <div className="flex-1 min-h-[440px]">
+                  <CenterImageDisplay
+                    hoveredNeed={hoveredNeed}
+                    shouldSlideOut={isNeedSlideOutAnimating}
+                    onAnimationComplete={handleNeedSlideOutComplete}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : state.step !== 'products' ? (
+            <div className="relative">
+              <div className="grid grid-cols-3 gap-6">
+                <div>
+                  {state.step === 'category' && state.selectedNeed && (
+                    <ColumnNeed
+                      selectedNeed={state.selectedNeed}
+                      onSelectNeed={handleSelectNeed}
+                      onHoverNeed={setHoveredNeed}
+                    />
+                  )}
+                  {state.step === 'routine' && state.selectedNeed && state.selectedCategory && (
+                    <ColumnCategory
+                      needId={state.selectedNeed}
+                      selectedCategory={state.selectedCategory}
+                      onSelectCategory={handleSelectCategory}
+                      onHoverCategory={setHoveredCategory}
+                    />
+                  )}
+                  {state.step === 'line' &&
+                    state.selectedNeed &&
+                    state.selectedCategory &&
+                    (hasRoutine ? (
+                      <ColumnRoutineStep
+                        needId={state.selectedNeed}
+                        categoryId={state.selectedCategory}
+                        selectedRoutineStep={state.selectedRoutineStep}
+                        onSelectRoutineStep={handleSelectRoutineStep}
+                        onHoverRoutineStep={setHoveredRoutine}
+                      />
+                    ) : (
+                      <ColumnCategory
+                        needId={state.selectedNeed}
+                        selectedCategory={state.selectedCategory}
+                        onSelectCategory={handleSelectCategory}
+                        onHoverCategory={setHoveredCategory}
+                      />
+                    ))}
+                  {state.step === 'texture' && state.selectedNeed && state.selectedCategory && (
+                    <ColumnLine
+                      needId={state.selectedNeed}
+                      categoryId={state.selectedCategory}
+                      routineStepId={state.selectedRoutineStep}
+                      selectedLine={state.selectedLine}
+                      onSelectLine={handleSelectLine}
+                      onHoverLine={setHoveredLine}
+                    />
+                  )}
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {state.step === 'category' && state.selectedNeed && (
+                    <motion.div
+                      key="category-column"
+                      initial={{ x: 400, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -400, opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: [0.25, 0.46, 0.45, 0.94],
+                      }}
+                    >
+                      <ColumnCategory
+                        needId={state.selectedNeed}
+                        selectedCategory={state.selectedCategory}
+                        onSelectCategory={handleSelectCategory}
+                        onHoverCategory={setHoveredCategory}
+                      />
+                    </motion.div>
+                  )}
+                  {state.step === 'routine' && state.selectedNeed && state.selectedCategory && (
+                    <motion.div
+                      key="routine-column"
+                      initial={{ x: 400, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -400, opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: [0.25, 0.46, 0.45, 0.94],
+                      }}
+                    >
+                      <ColumnRoutineStep
+                        needId={state.selectedNeed}
+                        categoryId={state.selectedCategory}
+                        selectedRoutineStep={state.selectedRoutineStep}
+                        onSelectRoutineStep={handleSelectRoutineStep}
+                        onHoverRoutineStep={setHoveredRoutine}
+                      />
+                    </motion.div>
+                  )}
+                  {state.step === 'line' && state.selectedNeed && state.selectedCategory && (
+                    <motion.div
+                      key="line-column"
+                      initial={{ x: 400, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -400, opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: [0.25, 0.46, 0.45, 0.94],
+                      }}
+                    >
+                      <ColumnLine
+                        needId={state.selectedNeed}
+                        categoryId={state.selectedCategory}
+                        routineStepId={state.selectedRoutineStep}
+                        selectedLine={state.selectedLine}
+                        onSelectLine={handleSelectLine}
+                        onHoverLine={setHoveredLine}
+                      />
+                    </motion.div>
+                  )}
+                  {state.step === 'texture' && state.selectedNeed && state.selectedCategory && (
+                    <motion.div
+                      key="texture-column"
+                      initial={{ x: 400, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -400, opacity: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: [0.25, 0.46, 0.45, 0.94],
+                      }}
+                    >
+                      <ColumnTexture
+                        needId={state.selectedNeed}
+                        categoryId={state.selectedCategory}
+                        routineStepId={state.selectedRoutineStep}
+                        lineId={state.selectedLine}
+                        selectedTexture={state.selectedTexture}
+                        onSelectTexture={handleSelectTexture}
+                        onHoverTexture={setHoveredTexture}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="relative min-h-[440px] navigator-column">
+                  <div className="mb-1" aria-hidden="true">
+                    <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+                      Spacer
+                    </h3>
+                  </div>
+
+                  {state.step === 'category' && state.selectedNeed && (
+                    <CategoryHoverCard
+                      item={
+                        hoveredCategory
+                          ? {
+                              id: hoveredCategory,
+                              title:
+                                getCategoryById(hoveredCategory)?.cardTitle ||
+                                getCategoryById(hoveredCategory)?.label ||
+                                hoveredCategory,
+                              tagline: getCategoryById(hoveredCategory)?.cardTagline,
+                              description: getCategoryById(hoveredCategory)?.description || '',
+                              imageUrl: getCategoryById(hoveredCategory)?.cardMedia?.url,
+                            }
+                          : null
+                      }
+                      shouldSlideOut={isCategorySlideOutAnimating}
+                      onAnimationComplete={handleCategorySlideOutComplete}
+                    />
+                  )}
+
+                  {state.step === 'routine' && (
+                    <CategoryHoverCard
+                      item={
+                        hoveredRoutine
+                          ? {
+                              id: hoveredRoutine,
+                              title:
+                                getRoutineStepById(hoveredRoutine)?.cardTitle ||
+                                getRoutineStepById(hoveredRoutine)?.label ||
+                                hoveredRoutine,
+                              tagline: getRoutineStepById(hoveredRoutine)?.cardTagline,
+                              description: getRoutineStepById(hoveredRoutine)?.description || '',
+                              imageUrl: getRoutineStepById(hoveredRoutine)?.cardMedia?.url,
+                            }
+                          : null
+                      }
+                      shouldSlideOut={isRoutineSlideOutAnimating}
+                      onAnimationComplete={handleRoutineSlideOutComplete}
+                    />
+                  )}
+
+                  {state.step === 'line' && (
+                    <CategoryHoverCard
+                      item={
+                        hoveredLine
+                          ? {
+                              id: hoveredLine,
+                              title:
+                                getLineById(hoveredLine)?.cardTitle ||
+                                getLineById(hoveredLine)?.label ||
+                                hoveredLine,
+                              tagline: getLineById(hoveredLine)?.cardTagline,
+                              description: getLineById(hoveredLine)?.description || '',
+                              imageUrl: getLineById(hoveredLine)?.cardMedia?.url,
+                            }
+                          : null
+                      }
+                      shouldSlideOut={isLineSlideOutAnimating}
+                      onAnimationComplete={handleLineSlideOutComplete}
+                    />
+                  )}
+
+                  {state.step === 'texture' && (
+                    <CategoryHoverCard
+                      item={
+                        hoveredTexture
+                          ? {
+                              id: hoveredTexture,
+                              title:
+                                getTextureById(hoveredTexture)?.cardTitle ||
+                                getTextureById(hoveredTexture)?.label ||
+                                hoveredTexture,
+                              tagline: getTextureById(hoveredTexture)?.cardTagline,
+                              description: getTextureById(hoveredTexture)?.description || '',
+                              imageUrl: getTextureById(hoveredTexture)?.cardMedia?.url,
+                            }
+                          : null
+                      }
+                      shouldSlideOut={isTextureSlideOutAnimating}
+                      onAnimationComplete={handleTextureSlideOutComplete}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="grid grid-cols-3 gap-6">
+                {state.selectedNeed && state.selectedCategory && preProductStep === 'texture' && (
+                  <div>
+                    <ColumnTexture
+                      needId={state.selectedNeed}
+                      categoryId={state.selectedCategory}
+                      routineStepId={state.selectedRoutineStep}
+                      lineId={state.selectedLine}
+                      selectedTexture={state.selectedTexture}
+                      onSelectTexture={handleSelectTexture}
+                      onHoverTexture={setHoveredTexture}
+                    />
+                  </div>
+                )}
+                {state.selectedNeed && state.selectedCategory && preProductStep === 'line' && (
+                  <div>
+                    <ColumnLine
+                      needId={state.selectedNeed}
+                      categoryId={state.selectedCategory}
+                      routineStepId={state.selectedRoutineStep}
+                      selectedLine={state.selectedLine}
+                      onSelectLine={handleSelectLine}
+                      onHoverLine={setHoveredLine}
+                    />
+                  </div>
+                )}
+                {state.selectedNeed && state.selectedCategory && preProductStep === 'routine' && (
+                  <div>
+                    <ColumnRoutineStep
+                      needId={state.selectedNeed}
+                      categoryId={state.selectedCategory}
+                      selectedRoutineStep={state.selectedRoutineStep}
+                      onSelectRoutineStep={handleSelectRoutineStep}
+                      onHoverRoutineStep={setHoveredRoutine}
+                    />
+                  </div>
+                )}
+                {state.selectedNeed && state.selectedCategory && preProductStep === 'category' && (
+                  <div>
+                    <ColumnCategory
+                      needId={state.selectedNeed}
+                      selectedCategory={state.selectedCategory}
+                      onSelectCategory={handleSelectCategory}
+                      onHoverCategory={setHoveredCategory}
+                    />
+                  </div>
+                )}
+
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key="products-column"
+                    className="col-span-2"
+                    initial={{ x: 400, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 400, opacity: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                    }}
+                  >
+                    <ColumnProducts
+                      products={products}
+                      onAddToCart={handleAddToCart}
+                      productBasePath={productBasePath}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="col-span-3 navigator-column">
+          <SidePreview state={state} />
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,10 +1,17 @@
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
-
-const formatPrice = (value: number) => `€${value.toFixed(2)}`
+import { ShopNavigatorSection } from '@/components/shop-navigator/ShopNavigatorSection'
+import type { ShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
+import type {
+  CategoryData,
+  LineData,
+  NeedData,
+  ProductCard,
+  RoutineStepData,
+  TextureData,
+} from '@/components/shop-navigator/types/navigator'
 
 export default async function ShopPage({
   params,
@@ -29,7 +36,6 @@ export default async function ShopPage({
   const pageRaw = (await searchParams)?.page?.trim() || '1'
   const page = Math.max(1, Number.parseInt(pageRaw, 10) || 1)
   const view = (await searchParams)?.view?.trim() || 'grid'
-  const perPageOptions = [12, 24, 48, 96]
 
   if (!isLocale(locale)) {
     notFound()
@@ -37,95 +43,249 @@ export default async function ShopPage({
 
   const t = getDictionary(locale)
   const payload = await getPayloadClient()
-  const baseWhere = {
-    active: {
-      equals: true,
-    },
+  const [productsResult, needsResult, categoriesResult, routineStepsResult, linesResult, texturesResult] =
+    await Promise.all([
+      payload.find({
+        collection: 'products',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 500,
+        sort: '-createdAt',
+        where: {
+          active: { equals: true },
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          price: true,
+          currency: true,
+          brand: true,
+          coverImage: true,
+          images: true,
+          needs: true,
+          categories: true,
+          routineSteps: true,
+          lines: true,
+          textures: true,
+          createdAt: true,
+        },
+      }),
+      payload.find({
+        collection: 'needs',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 200,
+        sort: 'order',
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          order: true,
+          boxTagline: true,
+          cardTitle: true,
+          cardTagline: true,
+          cardMedia: true,
+        },
+      }),
+      payload.find({
+        collection: 'categories',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 500,
+        sort: 'order',
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          parent: true,
+          isMakeupRoot: true,
+          order: true,
+          boxTagline: true,
+          cardTitle: true,
+          cardTagline: true,
+          cardMedia: true,
+        },
+      }),
+      payload.find({
+        collection: 'routine-steps',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 200,
+        sort: 'order',
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          order: true,
+          boxTagline: true,
+          cardTitle: true,
+          cardTagline: true,
+          cardMedia: true,
+        },
+      }),
+      payload.find({
+        collection: 'lines',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 200,
+        sort: 'order',
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          order: true,
+          boxTagline: true,
+          cardTitle: true,
+          cardTagline: true,
+          cardMedia: true,
+        },
+      }),
+      payload.find({
+        collection: 'textures',
+        locale,
+        overrideAccess: false,
+        depth: 1,
+        limit: 200,
+        sort: 'order',
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          order: true,
+          boxTagline: true,
+          cardTitle: true,
+          cardTagline: true,
+          cardMedia: true,
+        },
+      }),
+    ])
+
+  const resolveMedia = (media: unknown) => {
+    if (!media || typeof media !== 'object' || !('url' in media)) return null
+    const typed = media as { url?: string | null; alt?: string | null; mimeType?: string | null }
+    if (!typed.url) return null
+    return { url: typed.url, alt: typed.alt || null, mimeType: typed.mimeType || null }
   }
 
-  const sortMap: Record<string, string> = {
-    recent: '-createdAt',
-    oldest: 'createdAt',
-    priceAsc: 'price',
-    priceDesc: '-price',
-    alphaAsc: 'title',
-    alphaDesc: '-title',
-  }
-
-  const products = await payload.find({
-    collection: 'products',
-    locale,
-    overrideAccess: false,
-    limit: perPageOptions.includes(perPage) ? perPage : 12,
-    page,
-    sort: sortMap[sort] || '-createdAt',
-    depth: 1,
-    where: baseWhere,
-  })
-
-  const normalize = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-
-  const matchesQuery = (product: (typeof products.docs)[number]) => {
-    if (!query) return true
-    const haystack = [
-      product.title,
-      product.description,
-      product.slug,
-      product.sku,
-      product.lot,
-      product.brand,
-      product.price?.toString(),
-      product.stock?.toString(),
-      product.averageCost?.toString(),
-      product.lastCost?.toString(),
-      product.residualTotal?.toString(),
-      product.total?.toString(),
-    ]
+  const toIdArray = (value: unknown): string[] => {
+    if (!Array.isArray(value)) return []
+    return value
+      .map((item) => {
+        if (item && typeof item === 'object' && 'id' in item) return String(item.id)
+        if (typeof item === 'string' || typeof item === 'number') return String(item)
+        return ''
+      })
       .filter(Boolean)
-      .join(' ')
-
-    const hay = normalize(haystack)
-    const tokens = normalize(query).split(' ').filter(Boolean)
-    return tokens.every((token) => hay.includes(token))
   }
 
-  const matchesBrand = (product: (typeof products.docs)[number]) => {
-    if (!brand) return true
-    return (product.brand || '').toLowerCase() === brand.toLowerCase()
+  const toId = (value: unknown): string | undefined => {
+    if (value && typeof value === 'object' && 'id' in value) return String(value.id)
+    if (typeof value === 'string' || typeof value === 'number') return String(value)
+    return undefined
   }
 
-  const filteredProducts = products.docs.filter((product) => {
-    return matchesBrand(product) && matchesQuery(product)
-  })
+  const needs: NeedData[] = needsResult.docs.map((need) => ({
+    id: String(need.id),
+    label: need.name || '',
+    description: need.description || undefined,
+    slug: need.slug || undefined,
+    order: need.order ?? 0,
+    boxTagline: need.boxTagline || undefined,
+    cardTitle: need.cardTitle || undefined,
+    cardTagline: need.cardTagline || undefined,
+    cardMedia: resolveMedia(need.cardMedia),
+  }))
 
-  const brandOptions = Array.from(
-    new Set(
-      products.docs
-        .map((product) => product.brand)
-        .filter((brand): brand is string => Boolean(brand)),
-    ),
-  ).sort((a, b) => a.localeCompare(b))
+  const categories: CategoryData[] = categoriesResult.docs.map((category) => ({
+    id: String(category.id),
+    label: category.name || '',
+    description: category.description || undefined,
+    slug: category.slug || undefined,
+    parentId: toId(category.parent),
+    isMakeupRoot: Boolean(category.isMakeupRoot),
+    order: category.order ?? 0,
+    boxTagline: category.boxTagline || undefined,
+    cardTitle: category.cardTitle || undefined,
+    cardTagline: category.cardTagline || undefined,
+    cardMedia: resolveMedia(category.cardMedia),
+  }))
 
-  const buildQuery = (next: { page?: number; sort?: string; perPage?: number; view?: string }) => {
-    const params = new URLSearchParams()
-    if (query) params.set('q', query)
-    if (brand) params.set('brand', brand)
-    if (sort) params.set('sort', next.sort || sort)
-    if (perPage) params.set('perPage', String(next.perPage || perPage))
-    if (view) params.set('view', next.view || view)
-    if (next.page && next.page > 1) params.set('page', String(next.page))
-    const qs = params.toString()
-    return qs ? `?${qs}` : ''
+  const routineSteps: RoutineStepData[] = routineStepsResult.docs.map((step) => ({
+    id: String(step.id),
+    label: step.name || '',
+    description: step.description || undefined,
+    slug: step.slug || undefined,
+    order: step.order ?? 0,
+    boxTagline: step.boxTagline || undefined,
+    cardTitle: step.cardTitle || undefined,
+    cardTagline: step.cardTagline || undefined,
+    cardMedia: resolveMedia(step.cardMedia),
+  }))
+
+  const lines: LineData[] = linesResult.docs.map((line) => ({
+    id: String(line.id),
+    label: line.name || '',
+    description: line.description || undefined,
+    slug: line.slug || undefined,
+    order: line.order ?? 0,
+    boxTagline: line.boxTagline || undefined,
+    cardTitle: line.cardTitle || undefined,
+    cardTagline: line.cardTagline || undefined,
+    cardMedia: resolveMedia(line.cardMedia),
+  }))
+
+  const textures: TextureData[] = texturesResult.docs.map((texture) => ({
+    id: String(texture.id),
+    label: texture.name || '',
+    description: texture.description || undefined,
+    slug: texture.slug || undefined,
+    order: texture.order ?? 0,
+    boxTagline: texture.boxTagline || undefined,
+    cardTitle: texture.cardTitle || undefined,
+    cardTagline: texture.cardTagline || undefined,
+    cardMedia: resolveMedia(texture.cardMedia),
+  }))
+
+  const products: ProductCard[] = productsResult.docs.map((product) => ({
+    id: String(product.id),
+    title: product.title || '',
+    slug: product.slug || undefined,
+    price: product.price ?? undefined,
+    currency: product.currency || undefined,
+    brand: product.brand || undefined,
+    coverImage: resolveMedia(product.coverImage),
+    images: Array.isArray(product.images)
+      ? product.images
+          .map((media) => resolveMedia(media))
+          .filter((media): media is NonNullable<ReturnType<typeof resolveMedia>> => Boolean(media))
+      : [],
+    needIds: toIdArray(product.needs),
+    categoryIds: toIdArray(product.categories),
+    routineStepIds: toIdArray(product.routineSteps),
+    lineIds: toIdArray(product.lines),
+    textureIds: toIdArray(product.textures),
+    createdAt: typeof product.createdAt === 'string' ? product.createdAt : undefined,
+  }))
+
+  const navigatorData: ShopNavigatorData = {
+    needs,
+    categories,
+    routineSteps,
+    lines,
+    textures,
+    products,
   }
-
-  const totalPages = products.totalPages || 1
-  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1)
-  const isListView = view === 'list'
 
   return (
     <div className="min-h-screen flex flex-col gap-[var(--s32)] px-[8vw]">
@@ -139,254 +299,18 @@ export default async function ShopPage({
           <h1 className="text-[2.4rem]">{t.shop.title}</h1>
         </div>
       </section>
-      <section className="grid grid-cols-[300px_1fr] gap-10 max-[1100px]:grid-cols-1">
-        <aside className="text-[0.85rem] uppercase tracking-[0.18em]">
-          <h3>Filtra per:</h3>
-          <div className="border-t pb-6 pt-5">
-            <h4>Brand</h4>
-            {brandOptions.length ? (
-              brandOptions.map((option) => (
-                <a
-                  key={option}
-                  className="flex items-center gap-2 text-[0.75rem] tracking-[0.12em]"
-                  href={`?brand=${encodeURIComponent(option)}`}
-                >
-                  <span
-                    className={`relative inline-flex h-[14px] w-[14px] items-center justify-center rounded-full border ${ option === brand ? 'before:absolute before:h-[6px] before:w-[6px] before:rounded-full before:' : '' }`}
-                  />
-                  <span>{option}</span>
-                </a>
-              ))
-            ) : (
-              <span className="mt-3 block text-[0.75rem] tracking-[0.12em]">
-                Nessun brand disponibile
-              </span>
-            )}
-            {brand && (
-              <a
-                className="mt-2 inline-flex text-[0.7rem] uppercase tracking-[0.12em]"
-                href={query ? `?q=${encodeURIComponent(query)}` : '?'}
-              >
-                Rimuovi filtro
-              </a>
-            )}
-          </div>
-          <div className="border-t pb-6 pt-5">
-            <h4>Prezzo</h4>
-            <div className="relative h-6">
-              <div className="mt-2 h-1 rounded-full" />
-              <div className="absolute left-0 right-0 top-0 flex justify-between">
-                <span className="h-4 w-4 rounded border" />
-                <span className="h-4 w-4 rounded border" />
-              </div>
-            </div>
-            <span className="mt-3 block text-[0.75rem] tracking-[0.12em]">
-              € 0 - 200
-            </span>
-          </div>
-          <div className="border-t pb-6 pt-5">
-            <h4>Esigenze</h4>
-            {[
-              ['Age Care', 12],
-              ['Skin Longevity', 12],
-              ['Abbronzanti', 4],
-              ['Antiage', 23],
-              ['Azione Urto Globale', 3],
-              ['Benessere', 1],
-              ['Cellulite', 7],
-              ['Doposole', 4],
-            ].map(([label, count]) => (
-              <label
-                key={label}
-                className="flex items-center gap-2 text-[0.75rem] tracking-[0.12em]"
-              >
-                <input type="checkbox" className="h-4 w-4" />
-                <span>{label}</span>
-                <span className="">({count})</span>
-              </label>
-            ))}
-          </div>
-        </aside>
-        <div>
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <details className="relative">
-                <summary className="list-none cursor-pointer border px-3 py-2 text-[0.75rem] uppercase tracking-[0.18em]">
-                  Ordinamento
-                </summary>
-                <div className="absolute left-0 top-[calc(100%+6px)] z-10 flex min-w-[240px] flex-col border">
-                  <a
-                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ sort: 'recent', page: 1 })}
-                  >
-                    Prodotti - dal più recente
-                  </a>
-                  <a
-                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ sort: 'oldest', page: 1 })}
-                  >
-                    Prodotti - dal meno recente
-                  </a>
-                  <a
-                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ sort: 'priceAsc', page: 1 })}
-                  >
-                    Prezzo - dal più basso
-                  </a>
-                  <a
-                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ sort: 'priceDesc', page: 1 })}
-                  >
-                    Prezzo - dal più alto
-                  </a>
-                  <a
-                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ sort: 'alphaAsc', page: 1 })}
-                  >
-                    Ordine alfabetico A-Z
-                  </a>
-                  <a
-                    className="px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ sort: 'alphaDesc', page: 1 })}
-                  >
-                    Ordine alfabetico Z-A
-                  </a>
-                </div>
-              </details>
-              <details className="relative">
-                <summary className="list-none cursor-pointer border px-3 py-2 text-[0.75rem] uppercase tracking-[0.18em]">
-                  Prodotti per pagina
-                </summary>
-                <div className="absolute left-0 top-[calc(100%+6px)] z-10 flex min-w-[240px] flex-col border">
-                  {perPageOptions.map((option) => (
-                    <a
-                      key={option}
-                      className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em] last:border-b-0"
-                      href={buildQuery({ perPage: option, page: 1 })}
-                    >
-                      {option}
-                    </a>
-                  ))}
-                </div>
-              </details>
-              <details className="relative">
-                <summary className="list-none cursor-pointer border px-3 py-2 text-[0.75rem] uppercase tracking-[0.18em]">
-                  Visualizza
-                </summary>
-                <div className="absolute left-0 top-[calc(100%+6px)] z-10 flex min-w-[240px] flex-col border">
-                  <a
-                    className="border-b px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ view: 'grid', page: 1 })}
-                  >
-                    Griglia
-                  </a>
-                  <a
-                    className="px-4 py-2 text-[0.75rem] uppercase tracking-[0.12em]"
-                    href={buildQuery({ view: 'list', page: 1 })}
-                  >
-                    Lista
-                  </a>
-                </div>
-              </details>
-              <div className="flex gap-2 text-[0.8rem]">
-                {page > 1 && <a href={buildQuery({ page: page - 1 })}>‹</a>}
-                {pageNumbers.map((pageNumber) => (
-                  <a
-                    key={pageNumber}
-                    href={buildQuery({ page: pageNumber })}
-                    className={`border px-2 py-1 ${ pageNumber === page ? '' : '' }`}
-                  >
-                    {pageNumber}
-                  </a>
-                ))}
-                {page < totalPages && <a href={buildQuery({ page: page + 1 })}>›</a>}
-              </div>
-            </div>
-            <div className="ml-auto">
-              <form
-                method="get"
-                className="flex flex-row text-[0.7rem] uppercase tracking-[0.18em]"
-              >
-                <input
-                  id="shop-search"
-                  name="q"
-                  type="search"
-                  defaultValue={query}
-                  placeholder="Cerca..."
-                  className="min-w-[220px] border px-3 py-2 text-[0.8rem]"
-                />
-              </form>
-            </div>
-          </div>
-          <div
-            className={
-              isListView
-                ? 'grid gap-2'
-                : 'grid grid-cols-3 gap-3 max-[1200px]:grid-cols-2 max-[700px]:grid-cols-1'
-            }
-          >
-            {filteredProducts.map((product) => {
-              const image = product.coverImage ?? product.images?.[0]
-              const imageData =
-                image && typeof image === 'object' && 'url' in image
-                  ? {
-                      url: image.url || '',
-                      alt: image.alt || product.title || 'Product image',
-                      mimeType: image.mimeType || null,
-                    }
-                  : null
-              return (
-                <div
-                  className={`flex w-full max-w-[320px] flex-col justify-self-center border /50 ${ isListView ? 'max-w-none flex-row items-center gap-6 p-4' : '' }`}
-                  key={product.id}
-                >
-                  <div
-                    className={`relative grid place-items-center overflow-hidden border-b /50 ${ isListView ? 'h-[160px] w-[160px] border-b-0' : 'h-[220px]' }`}
-                  >
-                    {imageData?.url ? (
-                      imageData.mimeType?.startsWith('video/') ? (
-                        <video
-                          className="h-full w-full object-contain p-4"
-                          src={imageData.url}
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                        />
-                      ) : (
-                        <Image
-                          className="object-contain p-4"
-                          src={imageData.url}
-                          alt={imageData.alt}
-                          fill
-                          sizes="(max-width: 700px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      )
-                    ) : (
-                      <div className="h-[70%] w-[70%] border" />
-                    )}
-                  </div>
-                  <div className={`flex-1 p-5 text-center ${isListView ? 'p-0 text-left' : ''}`}>
-                    <h3>{product.title || t.placeholders.productName}</h3>
-                    <p className="font-semibold">
-                      {formatPrice(product.price || 0)}
-                    </p>
-                  </div>
-                  <button
-                    className={`border-0 px-4 py-3 text-[0.7rem] uppercase tracking-[0.16em] ${ isListView ? 'ml-auto self-stretch' : '' }`}
-                    type="button"
-                  >
-                    Aggiungi al carrello
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-          {!filteredProducts.length && (
-            <p className="text-[0.9rem]">{t.shop.note}</p>
-          )}
-        </div>
-      </section>
+      <ShopNavigatorSection
+        data={navigatorData}
+        initialClassicParams={{
+          query,
+          brand,
+          sort,
+          perPage,
+          page,
+          view,
+        }}
+        productBasePath={`/${locale}/shop`}
+      />
     </div>
   )
 }

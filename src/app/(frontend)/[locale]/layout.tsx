@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 import { getDictionary, isLocale, locales } from '@/lib/i18n'
 import { HeaderThemeObserver } from '@/components/HeaderThemeObserver'
-import { HeroScrollSnap } from '@/components/HeroScrollSnap'
 import { Header } from '@/components/Header'
 import { buildContactLinks } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/getPayloadClient'
@@ -39,7 +38,6 @@ export default async function LocaleLayout({
   return (
     <div className="flex min-h-screen flex-col" data-locale={locale}>
       <HeaderThemeObserver />
-      <HeroScrollSnap />
       <Header
         locale={locale}
         locales={locales}

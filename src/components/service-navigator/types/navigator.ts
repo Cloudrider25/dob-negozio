@@ -9,6 +9,7 @@ export type Step = "area" | "goal" | "treatment" | "final";
 export interface ServiceFinal {
   id: ServiceId;
   title: string;
+  slug?: string;
   durationMin: number;
   tags: string[];
   treatmentIds: Treatment[];
@@ -16,6 +17,7 @@ export interface ServiceFinal {
   bookingSlug?: string; // TODO: collegare con sistema booking
   description?: string;
   price?: number; // TODO: collegare con listino reale
+  imageUrl?: string;
 }
 
 // Servizio selezionato con contesto completo

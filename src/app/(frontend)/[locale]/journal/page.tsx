@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
+import Image from 'next/image'
 import { Hero } from '@/components/Hero'
 import styles from './journal.module.css'
 
@@ -117,11 +118,13 @@ export default async function JournalPage({
                 target="_blank"
                 rel="noreferrer"
               >
-                <img
+                <Image
                   className={styles.media}
                   src={mediaUrl}
                   alt={item.caption || t.journal.title}
-                  loading="lazy"
+                  width={640}
+                  height={640}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 {item.caption && (
                   <span className={styles.caption}>{item.caption.slice(0, 120)}</span>

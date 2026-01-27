@@ -2,14 +2,17 @@
 
 import type { NavigatorState } from "@/components/service-navigator/types/navigator";
 import { useNavigatorData } from "@/components/service-navigator/data/navigator-data-context";
-import { X, Plus, ShoppingBag } from "@/components/service-navigator/icons";
+import { Minus, Plus, ShoppingBag, Trash } from "@/components/service-navigator/icons";
+import { GlassCard } from "@/components/service-navigator/components/GlassCard";
 
 interface SidePreviewProps {
   state: NavigatorState;
   onBookNow: () => void;
   onSkinAnalyzer: () => void;
   onAddToCart: () => void;
+  onAddToCartItem: (item: SelectedServiceItem) => void;
   onRemoveFromCart: (index: number) => void;
+  onRemoveFromCartItem: (item: SelectedServiceItem) => void;
   onResetSelection: () => void;
 }
 
@@ -18,7 +21,9 @@ export function SidePreview({
   onBookNow,
   onSkinAnalyzer,
   onAddToCart,
+  onAddToCartItem,
   onRemoveFromCart,
+  onRemoveFromCartItem,
   onResetSelection,
 }: SidePreviewProps) {
   const { getAreaById, getGoalById, getTreatmentById } = useNavigatorData();
@@ -36,15 +41,22 @@ export function SidePreview({
     state.step === "final" && selectedService;
   const canBook = cart.length > 0;
 
-  // Calcola durata e prezzo totale del carrello
-  const totalDuration = cart.reduce(
-    (sum, item) => sum + item.service.durationMin,
-    0,
+  const groupedCart = cart.reduce<Record<string, { item: SelectedServiceItem; count: number }>>(
+    (acc, item) => {
+      const key = item.service.id;
+      if (!acc[key]) {
+        acc[key] = { item, count: 0 };
+      }
+      acc[key].count += 1;
+      return acc;
+    },
+    {},
   );
-  const totalPrice = cart.reduce(
-    (sum, item) => sum + (item.service.price || 0),
-    0,
-  );
+
+  const groupedItems = Object.values(groupedCart);
+
+  const totalDuration = cart.reduce((sum, item) => sum + item.service.durationMin, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + (item.service.price || 0), 0);
 
   return (
     <div className="navigator-column">
@@ -59,7 +71,7 @@ export function SidePreview({
           </div>
 
           <div className="relative w-full">
-            <div className="navigator-box p-6 rounded-lg backdrop-blur-sm h-full">
+            <GlassCard paddingClassName="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <ShoppingBag className="w-4 h-4 text-accent-cyan" />
                 <h3 className="text-sm font-medium text-accent-cyan uppercase tracking-wider">
@@ -68,13 +80,10 @@ export function SidePreview({
               </div>
 
               <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto">
-                {cart.map((item, index) => {
+                {groupedItems.map(({ item, count }) => {
                   const itemAreaData = getAreaById(item.area);
                   return (
-                    <div
-                      key={index}
-                      className="navigator-box p-3 rounded-lg group hover:border-cyan-500/30 transition-all"
-                    >
+                    <GlassCard key={item.service.id} paddingClassName="p-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-text-primary font-medium mb-1 truncate">
@@ -101,14 +110,32 @@ export function SidePreview({
                             </div>
                           </div>
                         </div>
-                        <button
-                          onClick={() => onRemoveFromCart(index)}
-                          className="p-1 rounded hover:bg-red-500/20 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <X className="w-4 h-4 text-accent-red" />
-                        </button>
+                        {count > 1 ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => onRemoveFromCartItem(item)}
+                              className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                            >
+                              <Minus className="w-4 h-4 text-accent-red" />
+                            </button>
+                            <span className="text-xs text-text-muted tabular-nums">{count}</span>
+                            <button
+                              onClick={() => onAddToCartItem(item)}
+                              className="p-1 rounded hover:bg-cyan-500/20 transition-colors"
+                            >
+                              <Plus className="w-4 h-4 text-accent-cyan" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => onRemoveFromCartItem(item)}
+                            className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                          >
+                            <Trash className="w-4 h-4 text-accent-red" />
+                          </button>
+                        )}
                       </div>
-                    </div>
+                    </GlassCard>
                   );
                 })}
               </div>
@@ -134,7 +161,7 @@ export function SidePreview({
                   </div>
                 )}
               </div>
-            </div>
+            </GlassCard>
           </div>
         </div>
       )}
@@ -149,7 +176,7 @@ export function SidePreview({
         </div>
 
         <div className="relative w-full">
-          <div className="navigator-box p-6 rounded-lg backdrop-blur-sm h-full">
+          <GlassCard paddingClassName="p-6">
             <div className="space-y-3">
               {/* Area */}
               <div>
@@ -226,28 +253,17 @@ export function SidePreview({
                 )}
               </div>
             )}
-          </div>
+          </GlassCard>
         </div>
       </div>
 
       {/* CTAs */}
       <div className="space-y-3">
-        {/* Add to Cart - Solo se c'è un servizio selezionato */}
-        {canAddToCart && (
-          <button
-            onClick={onAddToCart}
-            className="button-base w-full px-6 py-3 font-medium bg-accent-cyan text-text-inverse border-transparent flex items-center justify-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Aggiungi al Carrello
-          </button>
-        )}
-
         {/* Add Another Service - Solo se ci sono già servizi nel carrello */}
         {cart.length > 0 && !canAddToCart && (
           <button
             onClick={onResetSelection}
-            className="button-base w-full px-6 py-3 font-medium text-text-primary"
+            className="glass-pill w-full justify-center text-sm font-medium text-text-primary"
           >
             + Aggiungi Altro Servizio
           </button>
@@ -257,14 +273,9 @@ export function SidePreview({
         <button
           onClick={onBookNow}
           disabled={!canBook}
-          className={`
-            button-base w-full px-6 py-3 font-medium
-            ${
-              canBook
-                ? "bg-accent-cyan text-text-inverse"
-                : "bg-paper text-text-muted cursor-not-allowed"
-            }
-          `}
+          className={`glass-pill w-full justify-center text-sm font-medium ${
+            canBook ? 'text-text-primary' : 'text-text-muted cursor-not-allowed opacity-60'
+          }`}
         >
           Prenota Ora{" "}
           {cart.length > 0 &&

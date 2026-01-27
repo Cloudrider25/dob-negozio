@@ -4,6 +4,9 @@ import { withPayload } from '@payloadcms/next/withPayload'
 const nextConfig = {
   // Your Next.js config here
   staticPageGenerationTimeout: 180,
+  compiler: {
+    styledComponents: true,
+  },
   experimental: {
     cpus: 1,
     memoryBasedWorkersCount: true,

@@ -152,6 +152,19 @@ export function NavigatorGrid({
     })
   }
 
+  const handleAddServiceToCart = (service: ServiceFinal) => {
+    if (!state.selectedArea || !state.selectedTreatment) return
+    const newItem = {
+      area: state.selectedArea,
+      goal: state.selectedGoal,
+      treatment: state.selectedTreatment,
+      service,
+    }
+    onUpdateState({
+      cart: [...state.cart, newItem],
+    })
+  }
+
   const handleAddToCart = () => {
     // Aggiungi il servizio corrente al carrello
     if (state.selectedArea && state.selectedTreatment && state.selectedService) {
@@ -170,7 +183,22 @@ export function NavigatorGrid({
     }
   }
 
+  const handleAddToCartItem = (item: SelectedServiceItem) => {
+    onUpdateState({
+      cart: [...state.cart, item],
+    })
+  }
+
   const handleRemoveFromCart = (index: number) => {
+    const newCart = state.cart.filter((_, i) => i !== index)
+    onUpdateState({
+      cart: newCart,
+    })
+  }
+
+  const handleRemoveFromCartItem = (item: SelectedServiceItem) => {
+    const index = state.cart.findIndex((entry) => entry.service.id === item.service.id)
+    if (index < 0) return
     const newCart = state.cart.filter((_, i) => i !== index)
     onUpdateState({
       cart: newCart,
@@ -476,6 +504,7 @@ export function NavigatorGrid({
                         services={services}
                         selectedService={state.selectedService}
                         onSelectService={handleSelectService}
+                        onAddToCartService={handleAddServiceToCart}
                       />
                     </motion.div>
                   )}
@@ -492,7 +521,9 @@ export function NavigatorGrid({
             onBookNow={onBookNow}
             onSkinAnalyzer={onSkinAnalyzer}
             onAddToCart={handleAddToCart}
+            onAddToCartItem={handleAddToCartItem}
             onRemoveFromCart={handleRemoveFromCart}
+            onRemoveFromCartItem={handleRemoveFromCartItem}
             onResetSelection={handleResetSelection}
           />
         </div>

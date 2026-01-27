@@ -119,7 +119,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         collection: 'services',
         locale,
         overrideAccess: false,
-        depth: 0,
+        depth: 1,
         limit: 500,
         sort: 'price',
         where: {
@@ -133,6 +133,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
           description: true,
           price: true,
           treatments: true,
+          image: true,
         },
       }),
       payload.findGlobal({
@@ -219,6 +220,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
     const durationMatch = service.duration ? String(service.duration).match(/(\d+)/) : null
     const durationMin = durationMatch ? Number.parseInt(durationMatch[1], 10) : 0
     const treatmentsList = Array.isArray(service.treatments) ? service.treatments : []
+    const serviceMedia = resolveMedia(service.image)
     const treatmentIds = treatmentsList
       .map((item) => {
         if (item && typeof item === 'object' && 'id' in item) return String(item.id)
@@ -229,11 +231,13 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
     return {
       id: String(service.id),
       title: service.name || '',
+      slug: service.slug || undefined,
       durationMin,
       tags: service.slug ? [service.slug] : [],
       treatmentIds,
       description: service.description || undefined,
       price: service.price || undefined,
+      imageUrl: serviceMedia?.url || undefined,
     }
   })
 

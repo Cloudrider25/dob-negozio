@@ -8,6 +8,12 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Products } from './collections/Products'
+import { Needs } from './collections/Needs'
+import { Categories } from './collections/Categories'
+import { RoutineSteps } from './collections/RoutineSteps'
+import { Lines } from './collections/Lines'
+import { Textures } from './collections/Textures'
+import { MakeupCollections } from './collections/MakeupCollections'
 import { Services } from './collections/Services'
 import { Treatments } from './collections/Treatments'
 import { Areas } from './collections/Areas'
@@ -17,6 +23,7 @@ import { Posts } from './collections/Posts'
 import { Pages } from './collections/Pages'
 import { SiteSettings } from './globals/SiteSettings'
 import { InstagramSettings } from './globals/InstagramSettings'
+import { seedShopTaxonomies } from './seed/shop-seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -32,6 +39,12 @@ export default buildConfig({
     Users,
     Media,
     Products,
+    Needs,
+    Categories,
+    RoutineSteps,
+    Lines,
+    Textures,
+    MakeupCollections,
     Areas,
     Objectives,
     Treatments,
@@ -91,6 +104,12 @@ export default buildConfig({
           draft: false,
         })
       }
+    }
+
+    const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
+    const isProduction = process.env.NODE_ENV === 'production'
+    if (!disableShopSeed && !isProduction) {
+      await seedShopTaxonomies(payload)
     }
   },
 })

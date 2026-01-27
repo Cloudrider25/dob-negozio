@@ -70,6 +70,12 @@ export interface Config {
     users: User;
     media: Media;
     products: Product;
+    needs: Need;
+    categories: Category;
+    'routine-steps': RoutineStep;
+    lines: Line;
+    textures: Texture;
+    'makeup-collections': MakeupCollection;
     areas: Area;
     objectives: Objective;
     treatments: Treatment;
@@ -87,6 +93,12 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    needs: NeedsSelect<false> | NeedsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'routine-steps': RoutineStepsSelect<false> | RoutineStepsSelect<true>;
+    lines: LinesSelect<false> | LinesSelect<true>;
+    textures: TexturesSelect<false> | TexturesSelect<true>;
+    'makeup-collections': MakeupCollectionsSelect<false> | MakeupCollectionsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
     objectives: ObjectivesSelect<false> | ObjectivesSelect<true>;
     treatments: TreatmentsSelect<false> | TreatmentsSelect<true>;
@@ -191,6 +203,15 @@ export interface Product {
   title: string;
   slug: string;
   description?: string | null;
+  usage?: string | null;
+  activeIngredients?: string | null;
+  results?: string | null;
+  needs?: (number | Need)[] | null;
+  categories?: (number | Category)[] | null;
+  routineSteps?: (number | RoutineStep)[] | null;
+  lines?: (number | Line)[] | null;
+  textures?: (number | Texture)[] | null;
+  makeupCollection?: (number | null) | MakeupCollection;
   brand?: string | null;
   price: number;
   currency: 'EUR';
@@ -208,6 +229,110 @@ export interface Product {
   active?: boolean | null;
   stripeProductId?: string | null;
   stripePriceId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "needs".
+ */
+export interface Need {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  description?: string | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  description?: string | null;
+  parent?: (number | null) | Category;
+  isMakeupRoot?: boolean | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-steps".
+ */
+export interface RoutineStep {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  description?: string | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lines".
+ */
+export interface Line {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  description?: string | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textures".
+ */
+export interface Texture {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  description?: string | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "makeup-collections".
+ */
+export interface MakeupCollection {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  description?: string | null;
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -335,6 +460,7 @@ export interface Service {
   treatments: (number | Treatment)[];
   slug: string;
   description?: string | null;
+  image?: (number | null) | Media;
   price: number;
   /**
    * Es. 60 min
@@ -446,6 +572,30 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'needs';
+        value: number | Need;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'routine-steps';
+        value: number | RoutineStep;
+      } | null)
+    | ({
+        relationTo: 'lines';
+        value: number | Line;
+      } | null)
+    | ({
+        relationTo: 'textures';
+        value: number | Texture;
+      } | null)
+    | ({
+        relationTo: 'makeup-collections';
+        value: number | MakeupCollection;
       } | null)
     | ({
         relationTo: 'areas';
@@ -566,6 +716,15 @@ export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;
+  usage?: T;
+  activeIngredients?: T;
+  results?: T;
+  needs?: T;
+  categories?: T;
+  routineSteps?: T;
+  lines?: T;
+  textures?: T;
+  makeupCollection?: T;
   brand?: T;
   price?: T;
   currency?: T;
@@ -583,6 +742,104 @@ export interface ProductsSelect<T extends boolean = true> {
   active?: T;
   stripeProductId?: T;
   stripePriceId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "needs_select".
+ */
+export interface NeedsSelect<T extends boolean = true> {
+  name?: T;
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  slug?: T;
+  description?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  slug?: T;
+  description?: T;
+  parent?: T;
+  isMakeupRoot?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-steps_select".
+ */
+export interface RoutineStepsSelect<T extends boolean = true> {
+  name?: T;
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  slug?: T;
+  description?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lines_select".
+ */
+export interface LinesSelect<T extends boolean = true> {
+  name?: T;
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  slug?: T;
+  description?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textures_select".
+ */
+export interface TexturesSelect<T extends boolean = true> {
+  name?: T;
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  slug?: T;
+  description?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "makeup-collections_select".
+ */
+export interface MakeupCollectionsSelect<T extends boolean = true> {
+  name?: T;
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  slug?: T;
+  description?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -653,6 +910,7 @@ export interface ServicesSelect<T extends boolean = true> {
   treatments?: T;
   slug?: T;
   description?: T;
+  image?: T;
   price?: T;
   duration?: T;
   serviceType?: T;

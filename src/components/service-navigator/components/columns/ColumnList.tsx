@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { GlassCard } from '@/components/service-navigator/components/GlassCard'
 
 type ColumnListItem = {
   id: string
@@ -20,12 +21,7 @@ interface ColumnListProps {
   scrollable?: boolean
 }
 
-export function ColumnList({
-  title,
-  items,
-  emptyState,
-  scrollable = false,
-}: ColumnListProps) {
+export function ColumnList({ title, items, emptyState, scrollable = false }: ColumnListProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 24 }}
@@ -40,16 +36,14 @@ export function ColumnList({
         </h3>
       </div>
 
-      <div
-        className={scrollable ? 'overflow-visible' : 'space-y-3'}
-      >
+      <div className={scrollable ? 'overflow-visible' : 'space-y-3'}>
         {items.length === 0 ? (
-          emptyState ?? null
+          (emptyState ?? null)
         ) : (
           <div
             className={
               scrollable
-                ? 'space-y-3 max-h-[600px] overflow-y-auto overflow-x-visible pr-1'
+                ? 'space-y-3 max-h-[600px] overflow-y-auto overflow-x-visible pr-1 bg-transparent'
                 : 'space-y-3'
             }
           >
@@ -61,19 +55,21 @@ export function ColumnList({
                 onMouseLeave={() => item.onHover?.(false)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`group relative p-4 rounded-lg transition-all duration-300 w-full min-h-[120px] ${item.className ?? ''} navigator-box`}
+                className={`group relative rounded-lg transition-all duration-300 w-full min-h-[120px] ${item.className ?? ''}`}
               >
-                <div className="relative flex items-start justify-between gap-4">
-                  <div className="text-left flex-1">
-                    <div className="text-base font-medium text-text-primary mb-1">
-                      {item.title}
+                <GlassCard className="w-full min-h-[120px]" paddingClassName="p-4">
+                  <div className="relative flex items-start justify-between gap-4">
+                    <div className="text-left flex-1">
+                      <div className="text-base font-medium text-text-primary mb-1">
+                        {item.title}
+                      </div>
+                      {item.description && (
+                        <div className="text-sm text-text-muted">{item.description}</div>
+                      )}
                     </div>
-                    {item.description && (
-                      <div className="text-sm text-text-muted">{item.description}</div>
-                    )}
+                    {item.rightSlot}
                   </div>
-                  {item.rightSlot}
-                </div>
+                </GlassCard>
               </motion.button>
             ))}
           </div>

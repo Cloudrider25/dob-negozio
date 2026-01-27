@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { GlassCard } from "@/components/service-navigator/components/GlassCard";
 
 type Category = "manicure" | "viso" | "epilazione";
 
@@ -180,25 +181,26 @@ export function ListinoTradizionale() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="group relative backdrop-blur-sm rounded-xl p-6 transition-all duration-300 border border-stroke shadow-soft"
             >
-              <div className="flex items-start justify-between gap-6">
-                <div className="flex-1">
-                  <h3 className="text-lg font-medium text-text-primary mb-2">
-                    {service.title}
-                  </h3>
-                  <p className="text-sm text-text-secondary mb-3">
-                    {service.description}
-                  </p>
-                  <p className="text-sm text-text-muted">
-                    €{service.price} • {service.duration}
-                  </p>
-                </div>
+              <GlassCard className="w-full" paddingClassName="p-6">
+                <div className="flex items-start justify-between gap-6">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-medium text-text-primary mb-2">
+                      {service.title}
+                    </h3>
+                    <p className="text-sm text-text-secondary mb-3">
+                      {service.description}
+                    </p>
+                    <p className="text-sm text-text-muted">
+                      €{service.price} • {service.duration}
+                    </p>
+                  </div>
 
-                <button className="button-base shrink-0 px-6 py-2.5 rounded-lg text-text-secondary text-sm font-medium transition-all duration-300">
-                  Book from €{service.price}
-                </button>
-              </div>
+                  <button className="button-base shrink-0 px-6 py-2.5 rounded-lg text-text-secondary text-sm font-medium transition-all duration-300">
+                    Book from €{service.price}
+                  </button>
+                </div>
+              </GlassCard>
             </motion.div>
           ))
         )}

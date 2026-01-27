@@ -32,9 +32,213 @@
   }
 
   .card {
-    background-color: var(--paper);
-    border: 1px solid var(--stroke);
-    box-shadow: var(--shadow-soft);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.25));
+    border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+    box-shadow:
+      0 12px 30px rgba(8, 20, 40, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+  }
+
+  .glass-card {
+    position: relative;
+    border-radius: 18px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(255, 255, 255, 0.62) 55%,
+      rgba(255, 255, 255, 0.52) 100%
+    );
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow:
+      0 22px 54px rgba(10, 18, 30, 0.22),
+      0 8px 18px rgba(10, 18, 30, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -12px 20px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+  }
+
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 70% at 15% 10%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 55%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 38%);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .glass-card::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background:
+      radial-gradient(10px 70% at 0% 50%, rgba(205, 212, 220, 0.5), rgba(205, 212, 220, 0) 70%),
+      radial-gradient(10px 70% at 100% 50%, rgba(205, 212, 220, 0.32), rgba(205, 212, 220, 0) 70%);
+    opacity: 0.55;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+
+  .glass-card.is-dark {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.1) 55%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 18px 50px rgba(0, 0, 0, 0.45),
+      0 2px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .glass-card.glass-pill {
+    border-radius: 999px;
+  }
+
+  .glass-card.glass-pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(140% 120% at 20% 0%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 60%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 35%);
+    opacity: 0.8;
+  }
+
+  .glass-card.glass-pill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+      inset 0 1px 3px rgba(255, 255, 255, 0.9),
+      inset 0 -6px 12px rgba(0, 0, 0, 0.08),
+      0 16px 30px rgba(12, 18, 30, 0.12);
+  }
+
+  /* =========================================================
+     GLASS UI (effetto “capsule” come reference)
+     Usage:
+       <button class="glass-pill">...
+       <div class="glass-pill glass-pill--dark">...
+       <button class="glass-dot">...
+     ========================================================= */
+
+  .glass-pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.35rem;
+    border-radius: 999px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.58) 0%,
+      rgba(255, 255, 255, 0.22) 55%,
+      rgba(255, 255, 255, 0.14) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.62);
+    box-shadow:
+      0 18px 45px rgba(10, 18, 30, 0.18),
+      0 6px 16px rgba(10, 18, 30, 0.10),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      inset 0 -10px 18px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    overflow: hidden;
+    transform: translateZ(0);
+    transition:
+      transform 0.2s var(--ease-lux),
+      box-shadow 0.2s var(--ease-lux),
+      border-color 0.2s var(--ease-lux);
+  }
+
+  .glass-pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(140% 120% at 20% 0%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 60%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 42%);
+    opacity: 0.85;
+  }
+
+  .glass-pill::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(10px 70% at 0% 50%, rgba(205, 212, 220, 0.62), rgba(205, 212, 220, 0) 70%),
+      radial-gradient(10px 70% at 100% 50%, rgba(205, 212, 220, 0.42), rgba(205, 212, 220, 0) 70%);
+    opacity: 0.62;
+    mix-blend-mode: screen;
+  }
+
+  .glass-pill:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 22px 54px rgba(10, 18, 30, 0.22),
+      0 8px 18px rgba(10, 18, 30, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -12px 20px rgba(0, 0, 0, 0.07);
+  }
+
+  .glass-pill:focus-visible {
+    outline: 2px solid var(--tech-cyan);
+    outline-offset: 3px;
+  }
+
+  .glass-pill--dark {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.10) 55%,
+      rgba(255, 255, 255, 0.07) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    box-shadow:
+      0 22px 56px rgba(0, 0, 0, 0.42),
+      0 8px 18px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -10px 18px rgba(0, 0, 0, 0.18);
+  }
+
+  .glass-pill--dark::before {
+    opacity: 0.55;
+  }
+
+  .glass-pill--dark::after {
+    opacity: 0.45;
+  }
+
+  .glass-dot {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 999px;
+  }
+
+  body[data-theme="light"] .service-navigator,
+  html[data-theme="light"] .service-navigator,
+  body.light .service-navigator,
+  body:not([data-theme="dark"]) .service-navigator,
+  html:not([data-theme="dark"]) .service-navigator {
+    background: var(--pearl-1);
   }
 
   .tag {

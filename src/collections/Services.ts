@@ -48,6 +48,11 @@ export const Services: CollectionConfig = {
       localized: true,
     },
     {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
       name: 'price',
       type: 'number',
       min: 0,
