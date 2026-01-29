@@ -1,6 +1,6 @@
 'use client'
 
-import type { KeyboardEvent, MouseEvent, ReactNode } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import Image from 'next/image'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -14,10 +14,13 @@ type PanelContent = {
   imageUrl?: string | null
   imageAlt?: string
   imageLeft?: boolean
+  imageInCopy?: boolean
   href?: string
   railBody?: string[]
   fullWidth?: boolean
   mediaBody?: ReactNode
+  railAriaLabel?: string
+  mediaDescription?: ReactNode
 }
 
 function Panel({
@@ -27,11 +30,13 @@ function Panel({
   content: PanelContent
   onRailClick: (event: MouseEvent<HTMLButtonElement>) => void
 }) {
-  const panelInner = (
-    <div className={styles.treatmentPanel}>
-      <div className={`${styles.treatmentGrid} ${content.fullWidth ? styles.treatmentGridFull : ''}`}>
-        <div className={`${styles.treatmentCopy} ${content.fullWidth ? styles.treatmentCopyFull : ''}`}>
-          <h2 className={styles.treatmentTitle}>{content.title}</h2>
+  const copyContent = (
+    <>
+      {!content.imageInCopy ? (
+        <h2 className={styles.treatmentTitle}>{content.title}</h2>
+      ) : null}
+      {!content.imageInCopy ? (
+        <>
           {typeof content.body === 'string' ? (
             <p className={styles.treatmentText}>{content.body}</p>
           ) : (
@@ -39,25 +44,78 @@ function Panel({
           )}
           {content.railBody && content.railBody.length > 0 ? (
             <ul className={styles.treatmentRailList}>
-              {content.railBody.map((item) => (
-                <li key={item}>{item}</li>
+              {content.railBody.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
               ))}
             </ul>
           ) : null}
+        </>
+      ) : null}
+      {content.imageInCopy && content.imageUrl ? (
+        <div className={styles.treatmentCopyMedia}>
+          <Image
+            src={content.imageUrl}
+            alt={content.imageAlt || content.title}
+            width={220}
+            height={300}
+            sizes="(max-width: 768px) 60vw, 220px"
+            className={styles.treatmentDiagramThumbImage}
+          />
+        </div>
+      ) : null}
+    </>
+  )
+
+  return (
+    <div className={styles.treatmentPanel}>
+      <div
+        className={`${styles.treatmentGrid} ${content.fullWidth ? styles.treatmentGridFull : ''}`}
+      >
+        <div
+          className={`${styles.treatmentCopy} ${content.fullWidth ? styles.treatmentCopyFull : ''} ${
+            content.imageInCopy ? styles.treatmentCopyStretch : ''
+          }`}
+        >
+          {content.href ? (
+            <Link
+              href={content.href}
+              className={styles.treatmentPanelLink}
+              aria-label={content.title}
+            >
+              {copyContent}
+            </Link>
+          ) : (
+            copyContent
+          )}
         </div>
         <div
           className={`${styles.treatmentMedia} ${content.fullWidth ? styles.treatmentMediaFull : ''} ${
             content.imageLeft ? styles.treatmentMediaLeft : ''
           }`}
         >
+          {content.imageInCopy ? (
+            <div className={styles.treatmentMediaTitle}>
+              <h2 className={styles.treatmentTitle}>{content.title}</h2>
+            </div>
+          ) : null}
+          {content.imageInCopy && content.mediaDescription ? (
+            <div className={styles.treatmentMediaDescription}>
+              {typeof content.mediaDescription === 'string' ? (
+                <p className={styles.treatmentText}>{content.mediaDescription}</p>
+              ) : (
+                content.mediaDescription
+              )}
+            </div>
+          ) : null}
           {content.mediaBody ? (
             content.mediaBody
-          ) : content.imageUrl ? (
+          ) : content.imageUrl && !content.imageInCopy ? (
             <Image
               src={content.imageUrl}
               alt={content.imageAlt || content.title}
               width={220}
               height={300}
+              sizes="(max-width: 768px) 60vw, 220px"
               className={styles.treatmentDiagramThumbImage}
             />
           ) : null}
@@ -65,7 +123,7 @@ function Panel({
             type="button"
             className={styles.treatmentRailButton}
             onClick={onRailClick}
-            aria-label="Show alternative treatments"
+            aria-label={content.railAriaLabel || 'Show alternative treatments'}
           >
             <div className={styles.treatmentRail}>
               {content.rail.map((item, index) => {
@@ -77,7 +135,10 @@ function Panel({
                     ? styles.treatmentRailBottom
                     : styles.treatmentRailCenter
                 return (
-                  <span key={`${item}-${index}`} className={`${styles.treatmentRailText} ${railClass}`}>
+                  <span
+                    key={`${item}-${index}`}
+                    className={`${styles.treatmentRailText} ${railClass}`}
+                  >
                     {item}
                   </span>
                 )
@@ -88,16 +149,6 @@ function Panel({
       </div>
     </div>
   )
-
-  if (content.href) {
-    return (
-      <Link href={content.href} className={styles.treatmentPanelLink}>
-        {panelInner}
-      </Link>
-    )
-  }
-
-  return panelInner
 }
 
 type ServiceTreatmentRevealProps = {
@@ -112,29 +163,19 @@ export function ServiceTreatmentReveal({ primary, secondary }: ServiceTreatmentR
     setIsRevealed((prev) => !prev)
   }
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      toggle()
-    }
-  }
-
   const handleRailClick = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
     event.stopPropagation()
     toggle()
   }
 
   return (
-    <section className={styles.treatmentSection} aria-label="Sostenibilità packaging">
-      <div
-        className={styles.treatmentCard}
-        role="group"
-        onKeyDown={handleKeyDown}
-      >
+    <section className={styles.treatmentSection} aria-label={`${primary.title} options`}>
+      <div className={styles.treatmentCard}>
         <div className={styles.treatmentViewport}>
-          <div className={`${styles.treatmentSlider} ${isRevealed ? styles.treatmentSliderActive : ''}`}>
-            <Panel content={primary} onRailClick={handleRailClick} />
+          <div
+            className={`${styles.treatmentSlider} ${isRevealed ? styles.treatmentSliderActive : ''}`}
+          >
+            <Panel content={{ ...primary, imageInCopy: true }} onRailClick={handleRailClick} />
             <Panel content={secondary} onRailClick={handleRailClick} />
           </div>
         </div>

@@ -815,10 +815,12 @@
 }
 
 .treatmentPanelLink {
-  display: block;
+  display: flex;
+  flex-direction: column;
   color: inherit;
   text-decoration: none;
   height: 100%;
+  width: 100%;
 }
 
 .treatmentGrid {
@@ -839,6 +841,19 @@
   gap: 1rem;
   align-self: start;
   padding: 2.5vw;
+}
+
+.treatmentCopyStretch {
+  align-self: stretch;
+  height: 100%;
+}
+
+.treatmentCopyMedia {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 
@@ -875,26 +890,15 @@
 .treatmentCarousel {
   width: 100%;
   overflow: hidden;
-  max-width: 520px;
+  max-width: 480px;
   margin-left: auto;
-  margin-right: auto;
-  padding-bottom: 12px;
+  transform: translateX(-160px);
 }
 
 .altCarouselCard {
-  height: 520px !important;
-  padding: 12px !important;
+  height: 580px !important;
 }
 
-.altCarouselMedia {
-  min-height: 160px;
-  max-height: 160px;
-  overflow: hidden;
-}
-
-.altCarouselMedia :global(img) {
-  object-fit: cover;
-}
 
 .treatmentMedia {
   position: relative;
@@ -903,12 +907,30 @@
   padding: 2rem 4.5rem 2rem 2rem;
   z-index: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   border-radius: 16px;
 
   min-height: 360px;
   overflow: hidden;
+}
+
+.treatmentMediaTitle {
+  width: 70%;
+  margin-right: auto;
+  text-align: left;
+  margin-top: auto;
+  margin-bottom: 0.6rem;
+}
+
+.treatmentMediaDescription {
+  width: 70%;
+  margin-left: auto;
+  margin: 72px;
+
+  text-align: left;
+  padding-bottom: 1.5rem;
 }
 
 .treatmentCarousel {
@@ -932,7 +954,7 @@
   background: #4c4a46;
   color: #fff;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding: 0.8rem 0;

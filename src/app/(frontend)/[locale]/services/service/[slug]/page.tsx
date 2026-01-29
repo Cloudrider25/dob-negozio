@@ -789,6 +789,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
       <ServiceTreatmentReveal
         primary={{
           title: parentTitle || service.name || 'Protocol overview',
+          mediaDescription: parentDescription || service.description || '',
           body: (
             <p className={styles.treatmentText}>
               {parentTagline || parentDescription || ''}
@@ -801,14 +802,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
         }}
         secondary={{
           title: 'Trattamenti Alternativi',
-          body: (
-            <p className={styles.treatmentText}>
-              {parentCardTagline ||
-                parentTagline ||
-                parentDescription ||
-                'Trattamenti alternativi della stessa area.'}
-            </p>
-          ),
+          body: null,
           rail: ['Click here', 'Trattamenti alternativi'],
           href: treatmentHref,
           mediaBody: (

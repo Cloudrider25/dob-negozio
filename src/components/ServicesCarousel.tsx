@@ -1,7 +1,5 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
@@ -10,18 +8,10 @@ import 'swiper/css/navigation'
 import type { Swiper as SwiperInstance } from 'swiper/types'
 
 import styles from './ShopCarousel.module.css'
+import { ServiceCarouselCard } from './ServiceCarouselCard'
+import type { ServicesCarouselItem } from './service-carousel/types'
 
-export type ServicesCarouselItem = {
-  title: string
-  subtitle?: string | null
-  price?: string | null
-  duration?: string | null
-  image: { url: string; alt?: string | null }
-  tag?: string | null
-  badgeLeft?: string | null
-  badgeRight?: string | null
-  href?: string
-}
+export type { ServicesCarouselItem }
 
 export const ServicesCarousel = ({
   items,
@@ -66,54 +56,24 @@ export const ServicesCarousel = ({
           className={styles.carousel}
           modules={[Navigation]}
           slidesPerView={single ? 1 : 3}
-          spaceBetween={single ? 16 : 24}
+          spaceBetween={single ? 16 : 48}
           centeredSlides={false}
           loop={false}
           onSwiper={setSwiper}
           navigation
           breakpoints={{
-            0: { slidesPerView: single ? 1 : 1.1, spaceBetween: 16 },
-            700: { slidesPerView: single ? 1 : 2.1, spaceBetween: single ? 16 : 20 },
-            1100: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 24 },
+            0: { slidesPerView: single ? 1 : 1.1, spaceBetween: single ? 16 : 32 },
+            700: { slidesPerView: single ? 1 : 2.1, spaceBetween: single ? 16 : 40 },
+            1100: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 48 },
           }}
         >
           {items.map((item) => (
             <SwiperSlide key={item.title} className={styles.slide}>
-              <article className={`${styles.card} ${cardClassName ?? ''}`}>
-                <div className={`${styles.media} ${mediaClassName ?? ''}`}>
-                  {item.badgeLeft && <span className={styles.badgeLeft}>{item.badgeLeft}</span>}
-                  {(item.badgeRight || item.tag) && (
-                    <span className={styles.badgeRight}>{item.badgeRight || item.tag}</span>
-                  )}
-                  <Image
-                    src={item.image.url}
-                    alt={item.image.alt || item.title}
-                    fill
-                    sizes="(max-width: 900px) 70vw, 33vw"
-                  />
-                </div>
-                <div className={styles.titleBlock}>
-                  <div className={styles.titleRow}>
-                    <h3 className={styles.title}>{item.title}</h3>
-                    <span className={styles.price}>{item.price || ''}</span>
-                  </div>
-                  <p className={`${styles.meta} ${styles.subtitle}`}>{item.subtitle || ''}</p>
-                </div>
-                <div className={styles.bottomBlock}>
-                  <div className={`${styles.meta} ${styles.metaRow}`}>
-                    <span>{item.duration || ''}</span>
-                  </div>
-                  {item.href ? (
-                    <Link className={styles.cta} href={item.href}>
-                      Scopri {item.title}
-                    </Link>
-                  ) : (
-                    <button className={styles.cta} type="button">
-                      Scopri {item.title}
-                    </button>
-                  )}
-                </div>
-              </article>
+              <ServiceCarouselCard
+                item={item}
+                cardClassName={cardClassName}
+                mediaClassName={mediaClassName}
+              />
             </SwiperSlide>
           ))}
         </Swiper>
