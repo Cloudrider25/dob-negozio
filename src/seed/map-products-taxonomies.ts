@@ -8,7 +8,6 @@ type TaxonomyMaps = {
   categories: Map<string, number>
   lines: Map<string, number>
   textures: Map<string, number>
-  makeupCollections: Map<string, number>
 }
 
 const normalize = (value: string) =>
@@ -35,12 +34,11 @@ const buildCategorySlug = (parent: string, name: string) => `${slugify(parent)}-
 
 const getMaps = async (): Promise<TaxonomyMaps> => {
   const payload = await getPayload({ config })
-  const [needs, categories, lines, textures, makeupCollections] = await Promise.all([
+  const [needs, categories, lines, textures] = await Promise.all([
     payload.find({ collection: 'needs', depth: 0, limit: 500 }),
     payload.find({ collection: 'categories', depth: 0, limit: 1000 }),
     payload.find({ collection: 'lines', depth: 0, limit: 500 }),
     payload.find({ collection: 'textures', depth: 0, limit: 500 }),
-    payload.find({ collection: 'makeup-collections', depth: 0, limit: 200 }),
   ])
 
   const toMap = (docs: Array<{ id: number; slug: string }>) =>
@@ -51,7 +49,6 @@ const getMaps = async (): Promise<TaxonomyMaps> => {
     categories: toMap(categories.docs as Array<{ id: number; slug: string }>),
     lines: toMap(lines.docs as Array<{ id: number; slug: string }>),
     textures: toMap(textures.docs as Array<{ id: number; slug: string }>),
-    makeupCollections: toMap(makeupCollections.docs as Array<{ id: number; slug: string }>),
   }
 }
 
@@ -75,19 +72,6 @@ const toIdArray = (value: unknown): number[] => {
       return NaN
     })
     .filter((id) => Number.isFinite(id))
-}
-
-const toId = (value: unknown): number | undefined => {
-  if (typeof value === 'number') return value
-  if (typeof value === 'string') {
-    const parsed = Number.parseInt(value, 10)
-    return Number.isNaN(parsed) ? undefined : parsed
-  }
-  if (value && typeof value === 'object' && 'id' in value) {
-    const id = (value as { id?: number | string }).id
-    return typeof id === 'number' ? id : typeof id === 'string' ? Number.parseInt(id, 10) : undefined
-  }
-  return undefined
 }
 
 const getLocalizedString = (value: unknown): string => {
@@ -176,13 +160,6 @@ const lineRules = [
   'Ambra di Sicilia',
 ]
 
-const makeupCollectionRules = [
-  { slug: slugify('Basic'), keywords: ['basic'] },
-  { slug: slugify('Eva'), keywords: ['eva'] },
-  { slug: slugify('Grace'), keywords: ['grace'] },
-  { slug: slugify('Lucrezia'), keywords: ['lucrezia'] },
-]
-
 const needRules = [
   { slug: `${slugify('Viso')}-${slugify('Rughe di Espressione')}`, keywords: ['rughe di espressione', 'linee di espressione'] },
   { slug: `${slugify('Viso')}-${slugify('Anti-age')}`, keywords: ['anti age', 'anti-age', 'antiage'] },
@@ -219,7 +196,6 @@ const mapProduct = (
   categories: number[]
   lines: number[]
   textures: number[]
-  makeupCollection?: number
 } => {
   const categoryIds: number[] = []
   for (const rule of categoryRules) {
@@ -256,20 +232,11 @@ const mapProduct = (
     }
   }
 
-  let makeupCollectionId: number | undefined
-  for (const rule of makeupCollectionRules) {
-    if (hasAny(text, rule.keywords)) {
-      makeupCollectionId = maps.makeupCollections.get(rule.slug)
-      if (makeupCollectionId) break
-    }
-  }
-
   return {
     needs: Array.from(new Set(needIds)),
     categories: Array.from(new Set(categoryIds)),
     lines: Array.from(new Set(lineIds)),
     textures: Array.from(new Set(textureIds)),
-    makeupCollection: makeupCollectionId,
   }
 }
 
@@ -294,7 +261,6 @@ const sampleLogs: Array<{
   categories: number
   lines: number
   textures: number
-  makeup: boolean
 }> = []
 
 for (const product of productsResult.docs) {
@@ -314,8 +280,7 @@ for (const product of productsResult.docs) {
     mapping.needs.length +
     mapping.categories.length +
     mapping.lines.length +
-    mapping.textures.length +
-    (mapping.makeupCollection ? 1 : 0)
+    mapping.textures.length
   if (matchCount > 0) {
     withMatches += 1
     totalMatches += matchCount
@@ -327,7 +292,6 @@ for (const product of productsResult.docs) {
         categories: mapping.categories.length,
         lines: mapping.lines.length,
         textures: mapping.textures.length,
-        makeup: Boolean(mapping.makeupCollection),
       })
     }
   }
@@ -336,20 +300,17 @@ for (const product of productsResult.docs) {
   const existingCategories = toIdArray(product.categories)
   const existingLines = toIdArray(product.lines)
   const existingTextures = toIdArray(product.textures)
-  const existingMakeup = toId(product.makeupCollection)
 
   const nextNeeds = mapping.needs.reduce(addId, existingNeeds)
   const nextCategories = mapping.categories.reduce(addId, existingCategories)
   const nextLines = mapping.lines.reduce(addId, existingLines)
   const nextTextures = mapping.textures.reduce(addId, existingTextures)
-  const nextMakeup = mapping.makeupCollection ?? existingMakeup
 
   const hasChanges =
     nextNeeds.length !== existingNeeds.length ||
     nextCategories.length !== existingCategories.length ||
     nextLines.length !== existingLines.length ||
-    nextTextures.length !== existingTextures.length ||
-    nextMakeup !== existingMakeup
+    nextTextures.length !== existingTextures.length
 
   if (!hasChanges) {
     skipped += 1
@@ -364,10 +325,8 @@ for (const product of productsResult.docs) {
       data: {
         needs: nextNeeds,
         categories: nextCategories,
-        routineSteps: product.routineSteps,
         lines: nextLines,
         textures: nextTextures,
-        makeupCollection: nextMakeup,
       },
     })
   }

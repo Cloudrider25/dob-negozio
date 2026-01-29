@@ -1,8 +1,16 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
+import styles from './service-detail.module.css'
+import { ServiceAccordion } from './ServiceAccordion'
+import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
+import { ServiceTreatmentReveal } from '@/components/ServiceTreatmentReveal'
+import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
+import { HeroGallery } from './HeroGallery'
+import { FaqAccordion } from './FaqAccordion'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -32,40 +40,799 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     notFound()
   }
 
-  const media = service.image && typeof service.image === 'object' && 'url' in service.image ? service.image : null
-  const imageUrl = media && typeof media.url === 'string' ? media.url : null
-  const imageAlt = media && typeof media.alt === 'string' ? media.alt : service.name || t.services.title
+  const servicesResult = await payload.find({
+    collection: 'services',
+    locale,
+    overrideAccess: false,
+    depth: 1,
+    limit: 6,
+    where: {
+      active: { equals: true },
+    },
+    sort: '-createdAt',
+  })
+
+  const resolveMediaFromId = async (value: unknown) => {
+    if (!value) return null
+    if (typeof value === 'object' && 'url' in value) return value as { url?: string; alt?: string }
+    if (typeof value === 'string' || typeof value === 'number') {
+      try {
+        return await payload.findByID({
+          collection: 'media',
+          id: String(value),
+          depth: 0,
+          overrideAccess: false,
+        })
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
+  const resolveMedia = (value: unknown, fallbackAlt = '') => {
+    if (!value || typeof value !== 'object' || !('url' in value)) return null
+    const typed = value as { url?: string | null; alt?: string | null; mimeType?: string | null }
+    if (!typed.url) return null
+    return { url: typed.url, alt: typed.alt || fallbackAlt, mimeType: typed.mimeType || null }
+  }
+
+  const resolveGalleryItems = async (gallery: unknown, fallbackAlt: string) => {
+    if (!Array.isArray(gallery)) return []
+    const entries = gallery
+      .map((item) =>
+        item && typeof item === 'object'
+          ? (item as { media?: unknown; isCover?: boolean; mediaType?: string | null })
+          : null,
+      )
+      .filter(Boolean)
+    const resolved = await Promise.all(
+      entries.map(async (entry) => {
+        if (!entry?.media) return null
+        const mediaDoc = await resolveMediaFromId(entry.media)
+        const media = mediaDoc ? resolveMedia(mediaDoc, fallbackAlt) : null
+        if (!media) return null
+        const inferredType =
+          entry.mediaType ||
+          (media.mimeType && media.mimeType.startsWith('video/') ? 'video' : 'image')
+        return {
+          media,
+          isCover: Boolean(entry.isCover),
+          mediaType: inferredType,
+        }
+      }),
+    )
+    return resolved.filter(Boolean) as Array<{
+      media: { url: string; alt: string; mimeType: string | null }
+      isCover: boolean
+      mediaType: string | null
+    }>
+  }
+
+  const resolveGalleryCover = async (gallery: unknown, fallbackAlt: string) => {
+    const items = await resolveGalleryItems(gallery, fallbackAlt)
+    const cover = items.find((item) => item.isCover) ?? items[0]
+    return cover ? cover.media : null
+  }
+
+  let parentTreatment =
+    service.category && typeof service.category === 'object' ? service.category : null
+
+  if (!parentTreatment && (typeof service.category === 'string' || typeof service.category === 'number')) {
+    parentTreatment = await payload.findByID({
+      collection: 'treatments',
+      id: String(service.category),
+      locale,
+      depth: 1,
+      overrideAccess: false,
+    })
+  }
+  const parentTitle =
+    parentTreatment && typeof parentTreatment.boxName === 'string' ? parentTreatment.boxName : null
+  const parentCardTitle =
+    parentTreatment && typeof parentTreatment.cardName === 'string' ? parentTreatment.cardName : null
+  const parentDescription =
+    parentTreatment && typeof parentTreatment.description === 'string'
+      ? parentTreatment.description
+      : null
+  const parentTagline =
+    parentTreatment && typeof parentTreatment.boxTagline === 'string'
+      ? parentTreatment.boxTagline
+      : null
+  const parentCardTagline =
+    parentTreatment && typeof parentTreatment.cardTagline === 'string'
+      ? parentTreatment.cardTagline
+      : null
+  const parentNote =
+    parentTreatment && typeof parentTreatment.highlightLead === 'string'
+      ? parentTreatment.highlightLead
+      : null
+  const parentHighlightOneTitle =
+    parentTreatment && typeof parentTreatment.highlightPointOneTitle === 'string'
+      ? parentTreatment.highlightPointOneTitle
+      : null
+  const parentHighlightOneBody =
+    parentTreatment && typeof parentTreatment.highlightPointOneBody === 'string'
+      ? parentTreatment.highlightPointOneBody
+      : null
+  const parentHighlightTwoTitle =
+    parentTreatment && typeof parentTreatment.highlightPointTwoTitle === 'string'
+      ? parentTreatment.highlightPointTwoTitle
+      : null
+  const parentHighlightTwoBody =
+    parentTreatment && typeof parentTreatment.highlightPointTwoBody === 'string'
+      ? parentTreatment.highlightPointTwoBody
+      : null
+
+  const primaryMediaCandidates = [
+    parentTreatment && 'heroImage' in parentTreatment ? parentTreatment.heroImage : null,
+    parentTreatment && 'cardMedia' in parentTreatment ? parentTreatment.cardMedia : null,
+  ]
+
+  const secondaryMediaCandidates = [
+    parentTreatment && 'highlightImageRight' in parentTreatment ? parentTreatment.highlightImageRight : null,
+    parentTreatment && 'highlightImageLeft' in parentTreatment ? parentTreatment.highlightImageLeft : null,
+    parentTreatment && 'cardMedia' in parentTreatment ? parentTreatment.cardMedia : null,
+  ]
+
+  const resolveFirstMedia = async (candidates: Array<unknown>) => {
+    for (const candidate of candidates) {
+      const resolved = await resolveMediaFromId(candidate)
+      if (resolved && typeof resolved.url === 'string') return resolved
+    }
+    return null
+  }
+
+  const primaryMedia = await resolveFirstMedia(primaryMediaCandidates)
+  const secondaryMedia = await resolveFirstMedia(secondaryMediaCandidates)
+
+  const parentImageUrl =
+    primaryMedia && typeof primaryMedia.url === 'string' ? primaryMedia.url : null
+  const parentImageAlt =
+    primaryMedia && typeof primaryMedia.alt === 'string'
+      ? primaryMedia.alt
+      : parentTitle || service.name || t.services.title
+
+  const parentSecondaryImageUrl =
+    secondaryMedia && typeof secondaryMedia.url === 'string' ? secondaryMedia.url : parentImageUrl
+  const parentSecondaryImageAlt =
+    secondaryMedia && typeof secondaryMedia.alt === 'string'
+      ? secondaryMedia.alt
+      : parentCardTitle || parentTitle || service.name || t.services.title
+
+  const treatmentHref =
+    parentTreatment && typeof parentTreatment === 'object' && 'slug' in parentTreatment
+      ? `/${locale}/services/treatment/${String((parentTreatment as { slug?: string }).slug)}`
+      : undefined
+
+  const formatPrice = (value?: number | null) => {
+    if (typeof value !== 'number') return '—'
+    const formatter = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+    })
+    return formatter.format(value)
+  }
+
+  const formatServiceType = (value?: string | null) => {
+    if (value === 'package') return 'Pacchetto'
+    if (value === 'single') return 'Singolo'
+    return '—'
+  }
+
+  const formatDuration = (minutes?: number | null) => {
+    if (typeof minutes !== 'number' || Number.isNaN(minutes) || minutes <= 0) return undefined
+    return `${minutes} min`
+  }
+
+  const resolveRelationLabel = (value: unknown) => {
+    if (!value) return null
+    if (typeof value === 'object') {
+      const record = value as Record<string, unknown>
+      const label =
+        (typeof record.label === 'string' && record.label) ||
+        (typeof record.name === 'string' && record.name)
+      if (label) return label
+    }
+    return null
+  }
+
+  const renderRichText = (value: unknown) => {
+    if (!value) return null
+    if (typeof value === 'string') {
+      return { type: 'text', value }
+    }
+    if (typeof value === 'object') {
+      try {
+        const html = convertLexicalToHTML({ data: value })
+        return html ? { type: 'html', value: html } : null
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
+  const extractBullets = (node: unknown, acc: string[]) => {
+    if (!node || typeof node !== 'object') return
+    const record = node as { type?: string; children?: unknown[] }
+    if (record.type === 'list' && Array.isArray(record.children)) {
+      record.children.forEach((child) => {
+        const parts: string[] = []
+        extractText(child, parts)
+        const text = parts.join(' ').replace(/\s+/g, ' ').trim()
+        if (text) acc.push(text)
+      })
+    }
+    if (Array.isArray(record.children)) {
+      record.children.forEach((child) => extractBullets(child, acc))
+    }
+  }
+
+  const extractText = (node: unknown, acc: string[]) => {
+    if (!node || typeof node !== 'object') return
+    const record = node as { text?: string; children?: unknown[] }
+    if (typeof record.text === 'string') acc.push(record.text)
+    if (Array.isArray(record.children)) record.children.forEach((child) => extractText(child, acc))
+  }
+
+  const richTextBullets = (value: unknown) => {
+    if (!value || typeof value !== 'object') return []
+    const root = (value as { root?: unknown }).root
+    if (!root) return []
+    const bullets: string[] = []
+    extractBullets(root, bullets)
+    return bullets
+  }
+
+  const normalizeBullets = (value: unknown) => {
+    if (typeof value === 'string') {
+      return value
+        .split('\n')
+        .map((line) => line.replace(/^[\s•*-]+/, '').trim())
+        .filter(Boolean)
+    }
+    return richTextBullets(value)
+  }
+
+  const resolveTreatmentLabel = (value: unknown) => {
+    if (!value) return '—'
+    if (typeof value === 'string' || typeof value === 'number') return String(value)
+    if (typeof value === 'object') {
+      const record = value as Record<string, unknown>
+      const name =
+        (typeof record.boxName === 'string' && record.boxName) ||
+        (typeof record.cardName === 'string' && record.cardName) ||
+        (typeof record.name === 'string' && record.name)
+      if (name) return name
+      if (typeof record.id === 'string' || typeof record.id === 'number') return String(record.id)
+    }
+    return '—'
+  }
+
+  const categoryLabel = resolveTreatmentLabel(service.category)
+  const badgeLabel = resolveTreatmentLabel(service.badge)
+  const categoryId =
+    service.category && typeof service.category === 'object' && 'id' in service.category
+      ? String((service.category as { id?: string | number }).id ?? '')
+      : undefined
+
+  const resolveRelId = (value: unknown) => {
+    if (!value) return null
+    if (typeof value === 'string' || typeof value === 'number') return String(value)
+    if (typeof value === 'object' && 'id' in value) {
+      const idValue = (value as { id?: string | number }).id
+      return idValue ? String(idValue) : null
+    }
+    return null
+  }
+
+  const intentId = resolveRelId(service.intent)
+  const zoneId = resolveRelId(service.zone)
+  const genderValue = typeof service.gender === 'string' ? service.gender : null
+
+
+  const relatedResult = await payload.find({
+    collection: 'services',
+    locale,
+    overrideAccess: false,
+    depth: 0,
+    limit: 4,
+    where: {
+      and: [
+        { slug: { not_equals: service.slug } },
+        ...(categoryId ? [{ category: { equals: categoryId } }] : []),
+      ],
+    },
+  })
+
+  const relatedServices = relatedResult.docs
+    .map((doc) => ({
+      id: String(doc.id),
+      name: doc.name || '',
+      slug: doc.slug || '',
+    }))
+    .filter((doc) => doc.name && doc.slug)
+
+  const crossSellResult = await payload.find({
+    collection: 'services',
+    locale,
+    overrideAccess: false,
+    depth: 1,
+    limit: 1,
+    where: {
+      and: [
+        { slug: { not_equals: service.slug } },
+        ...(categoryId ? [{ category: { not_equals: categoryId } }] : []),
+      ],
+    },
+  })
+  const crossSell = crossSellResult.docs[0]
+  const crossSellThumb = crossSell
+    ? (await resolveGalleryCover(crossSell.gallery, crossSell.name || t.services.title))?.url ?? null
+    : null
+  const galleryItems = await resolveGalleryItems(service.gallery, service.name || t.services.title)
+  const coverMedia = await resolveGalleryCover(service.gallery, service.name || t.services.title)
+  const imageUrl = coverMedia?.url ?? null
+  const imageAlt = coverMedia?.alt ?? (service.name || t.services.title)
+
+  const galleryFallback =
+    (galleryItems.find((item) => !item.isCover)?.media ?? coverMedia) ?? null
+
+  const includedMedia = await resolveMediaFromId(service.includedMedia)
+  const includedResolved = includedMedia
+    ? resolveMedia(includedMedia, service.name || t.services.title)
+    : null
+  const includedContent = renderRichText(service.includedDescription)
+
+  const faqMedia = await resolveMediaFromId(service.faqMedia)
+  const faqResolved = faqMedia ? resolveMedia(faqMedia, service.name || t.services.title) : null
+
+  const videoUpload = await resolveMediaFromId(service.videoUpload)
+  const videoMedia = videoUpload ? resolveMedia(videoUpload, service.name || t.services.title) : null
+
+  const videoEmbed =
+    typeof service.videoEmbedUrl === 'string' && service.videoEmbedUrl
+      ? service.videoEmbedUrl
+      : service.slug === 'is-clinical-foaming-enzyme-treatment-90-min'
+        ? 'https://www.youtube.com/embed/HI7yqyPBEdA'
+        : ''
+
+  const fallbackImage = imageUrl
+    ? { url: imageUrl, alt: imageAlt }
+    : { url: '/media/493b3205c13b5f67b36cf794c2222583.jpg', alt: t.services.title }
+
+  let alternativeTreatments: string[] = []
+  let alternativeServiceItems: ServicesCarouselItem[] = []
+  if (intentId && zoneId && genderValue) {
+    const altResult = await payload.find({
+      collection: 'services',
+      locale,
+      overrideAccess: false,
+      depth: 1,
+      limit: 10,
+      where: {
+        and: [
+          { id: { not_equals: String(service.id) } },
+          { active: { equals: true } },
+          { intent: { equals: intentId } },
+          { zone: { equals: zoneId } },
+          { gender: { equals: genderValue } },
+        ],
+      },
+    })
+
+    alternativeTreatments = altResult.docs
+      .map((doc) => doc.name || '')
+      .filter(Boolean)
+      .slice(0, 4)
+
+    alternativeServiceItems = (
+      await Promise.all(
+        altResult.docs.map(async (doc) => {
+          const media = await resolveGalleryCover(doc.gallery, doc.name || t.services.title)
+          if (!doc.name || !doc.slug) return null
+          return {
+            title: doc.name,
+            subtitle: doc.description || undefined,
+            price: formatPrice(doc.price),
+            duration: formatDuration(doc.durationMinutes),
+            image: {
+              url: media?.url || fallbackImage.url,
+              alt: media?.alt || doc.name,
+            },
+            tag: formatServiceType(doc.serviceType),
+            badgeLeft: resolveRelationLabel(doc.intent),
+            badgeRight: resolveRelationLabel(doc.badge),
+            href: `/${locale}/services/service/${doc.slug}`,
+          }
+        }),
+      )
+    ).filter(Boolean) as ServicesCarouselItem[]
+  }
+
+  const serviceItems: ServicesCarouselItem[] = servicesResult.docs
+    .map((doc) => {
+      const galleryMedia =
+        Array.isArray(doc.gallery) && doc.gallery.length
+          ? resolveMedia(
+              (doc.gallery.find((item) => item?.isCover)?.media as unknown) ??
+                (doc.gallery[0]?.media as unknown),
+              doc.name || '',
+            )
+          : null
+      const media = galleryMedia || fallbackImage
+      return {
+        title: doc.name || '',
+        subtitle: doc.description || undefined,
+        price: formatPrice(doc.price),
+        duration: formatDuration(doc.durationMinutes),
+        image: { url: media.url, alt: media.alt },
+        tag: formatServiceType(doc.serviceType),
+        badgeLeft: resolveRelationLabel(doc.intent),
+        badgeRight: resolveRelationLabel(doc.badge),
+        href: doc.slug ? `/${locale}/services/service/${doc.slug}` : undefined,
+      }
+    })
+    .filter((item) => Boolean(item && item.title))
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 py-16">
-      <div className="flex flex-col gap-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-text-muted">{t.services.title}</p>
-        <h1 className="text-3xl md:text-4xl text-text-primary">{service.name}</h1>
-        {service.description && <p className="text-base text-text-secondary">{service.description}</p>}
-      </div>
+    <div className={styles.page}>
+      <section className={styles.hero}>
+        <HeroGallery
+          cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
+          items={galleryItems.map((item) => ({
+            media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
+            mediaType: item.mediaType,
+          }))}
+        />
 
-      {imageUrl && (
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stroke">
-          <Image src={imageUrl} alt={imageAlt} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 960px" />
-        </div>
-      )}
+        <div className={styles.heroPanel}>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>{service.name}</h1>
+            <span className={styles.badge}>
+              {badgeLabel !== '—' ? badgeLabel : formatServiceType(service.serviceType)}
+            </span>
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-xl border border-stroke bg-paper p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-text-muted">Durata</p>
-          <p className="text-lg text-text-primary">{service.duration || '—'}</p>
+          {service.tagline && <div className={styles.eyebrow}>{service.tagline}</div>}
+
+          <div className={styles.subtitleRow}>
+            <span className={styles.subtitle}>{categoryLabel}</span>
+            <span className={styles.rating}>★★★★★</span>
+            <span className={styles.ratingCount}>(1,858)</span>
+          </div>
+
+          {service.description && (
+            <p className={styles.description}>{service.description}</p>
+          )}
+
+          <div className={styles.divider} />
+
+          <div className={styles.relatedBlock}>
+            <div className={styles.label}>Servizi correlati</div>
+            <div className={styles.relatedList}>
+              {(relatedServices.length > 0 ? relatedServices : [
+                { id: 'placeholder-1', name: 'Laser viso totale', slug: '#' },
+                { id: 'placeholder-2', name: 'Laser viso donna', slug: '#' },
+                { id: 'placeholder-3', name: 'Laser viso uomo', slug: '#' },
+              ]).map((related) => (
+                <Link
+                  key={related.id}
+                  className={styles.relatedItem}
+                  href={
+                    related.slug === '#'
+                      ? `/${locale}/services`
+                      : `/${locale}/services/service/${related.slug}`
+                  }
+                >
+                  {related.name}
+                </Link>
+              ))}
+            </div>
+            <button className={styles.buyButton} type="button">
+              Prenota ora
+            </button>
+          </div>
+
+          <div className={styles.crossSell}>
+            <div className={styles.crossSellTitle}>Aggiungi</div>
+            <div className={styles.crossSellRow}>
+              <div className={styles.crossSellItem}>
+                <div className={styles.crossSellThumb}>
+                  {crossSellThumb ? (
+                    <Image src={crossSellThumb} alt={crossSell?.name || 'Servizio'} fill />
+                  ) : (
+                    <span />
+                  )}
+                </div>
+                <div>
+                  <div className={styles.crossSellName}>
+                    {crossSell?.name || 'Servizio complementare'}
+                  </div>
+                  <div className={styles.crossSellMeta}>Selezione consigliata</div>
+                </div>
+              </div>
+              <button className={styles.lineupButton} type="button">
+                Aggiungi
+              </button>
+            </div>
+          </div>
+
+          <ServiceAccordion
+            items={[
+              ...(service.results
+                ? [
+                    {
+                      id: 'benefits',
+                      title: 'Benefici',
+                      body: (() => {
+                        const bullets = normalizeBullets(service.results)
+                        if (bullets.length) {
+                          return (
+                            <ul>
+                              {bullets.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          )
+                        }
+                        const content = renderRichText(service.results)
+                        if (!content) return null
+                        return content.type === 'html' ? (
+                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                        ) : (
+                          <p>{content.value}</p>
+                        )
+                      })(),
+                    },
+                  ]
+                : []),
+              ...(service.indications
+                ? [
+                    {
+                      id: 'application',
+                      title: 'Aree trattate e indicazioni',
+                      body: (() => {
+                        const bullets = normalizeBullets(service.indications)
+                        if (bullets.length) {
+                          return (
+                            <ul>
+                              {bullets.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          )
+                        }
+                        const content = renderRichText(service.indications)
+                        if (!content) return null
+                        return content.type === 'html' ? (
+                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                        ) : (
+                          <p>{content.value}</p>
+                        )
+                      })(),
+                    },
+                  ]
+                : []),
+              ...(service.techProtocolShort
+                ? [
+                    {
+                      id: 'ingredients',
+                      title: 'Tecnologia e protocollo',
+                      body: (() => {
+                        const bullets = normalizeBullets(service.techProtocolShort)
+                        if (bullets.length) {
+                          return (
+                            <ul>
+                              {bullets.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          )
+                        }
+                        const content = renderRichText(service.techProtocolShort)
+                        if (!content) return null
+                        return content.type === 'html' ? (
+                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                        ) : (
+                          <p>{content.value}</p>
+                        )
+                      })(),
+                    },
+                  ]
+                : []),
+              ...(service.downtime
+                ? [
+                    {
+                      id: 'downtime',
+                      title: 'Downtime',
+                      body: (() => {
+                        const bullets = normalizeBullets(service.downtime)
+                        if (bullets.length) {
+                          return (
+                            <ul>
+                              {bullets.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          )
+                        }
+                        const content = renderRichText(service.downtime)
+                        if (!content) return null
+                        return content.type === 'html' ? (
+                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                        ) : (
+                          <p>{content.value}</p>
+                        )
+                      })(),
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </div>
-        <div className="rounded-xl border border-stroke bg-paper p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-text-muted">Prezzo</p>
-          <p className="text-lg text-text-primary">
-            {service.price ? `€ ${service.price}` : '—'}
-          </p>
+      </section>
+
+      <section className={styles.videoSection} aria-label="Service video">
+        <div className={styles.videoWrap}>
+          {videoMedia ? (
+            <video className={styles.video} src={videoMedia.url} controls playsInline />
+          ) : videoEmbed ? (
+            <iframe
+              className={styles.video}
+              src={videoEmbed}
+              title="Service video"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <div className={styles.videoPlaceholder}>
+              {imageUrl && (
+                <Image src={imageUrl} alt={imageAlt} fill className={styles.videoPoster} />
+              )}
+              <div className={styles.videoOverlay}>Video placeholder</div>
+            </div>
+          )}
         </div>
-        <div className="rounded-xl border border-stroke bg-paper p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-text-muted">Tipologia</p>
-          <p className="text-lg text-text-primary">{service.serviceType || '—'}</p>
+      </section>
+
+      <section className={styles.insideSection} aria-label="Cosa include il trattamento">
+        <div className={styles.insideGrid}>
+          <div className={styles.insideMedia}>
+            {includedResolved?.url || imageUrl ? (
+              <Image
+                src={includedResolved?.url || imageUrl || ''}
+                alt={includedResolved?.alt || imageAlt}
+                fill
+                className={styles.insideImage}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            ) : (
+              <div className={styles.insidePlaceholder} />
+            )}
+          </div>
+          <div className={styles.insideContent}>
+            <div className={styles.insideLabel}>what&apos;s included</div>
+            {includedContent ? (
+              includedContent.type === 'html' ? (
+                <div
+                  className={styles.insideRich}
+                  dangerouslySetInnerHTML={{ __html: includedContent.value }}
+                />
+              ) : (
+                <p className={styles.insideLead}>{includedContent.value}</p>
+              )
+            ) : (
+              <p className={styles.insideLead}>
+                {service.name ? `Scopri cosa include ${service.name}.` : ''}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section className={styles.faqSection} aria-label="FAQ">
+        <div className={styles.faqGrid}>
+          <div className={styles.faqCopy}>
+            <h2 className={styles.faqTitle}>{service.faqTitle || 'FAQ'}</h2>
+            <p className={styles.faqSubtitle}>
+              {service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
+            </p>
+            <div className={styles.faqList}>
+              {Array.isArray(service.faqItems) && service.faqItems.length ? (
+                <FaqAccordion
+                  items={service.faqItems
+                    .map((item) => {
+                      const question = typeof item?.q === 'string' ? item.q : ''
+                      if (!question) return null
+                      const answerContent = renderRichText(item?.a)
+                      if (!answerContent) {
+                        return { question, answerHtml: '' }
+                      }
+                      const html =
+                        answerContent.type === 'html'
+                          ? answerContent.value
+                          : `<p>${escapeHtml(answerContent.value)}</p>`
+                      return { question, answerHtml: html }
+                    })
+                    .filter(Boolean) as Array<{ question: string; answerHtml: string }>}
+                />
+              ) : null}
+            </div>
+          </div>
+          <div className={styles.faqMedia}>
+            {faqResolved?.url || galleryFallback?.url || imageUrl ? (
+              <Image
+                src={faqResolved?.url || galleryFallback?.url || imageUrl || ''}
+                alt={faqResolved?.alt || galleryFallback?.alt || imageAlt}
+                fill
+                className={styles.faqImage}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            ) : (
+              <div className={styles.faqPlaceholder} />
+            )}
+          </div>
+        </div>
+      </section>
+
+      <ServiceTreatmentReveal
+        primary={{
+          title: parentTitle || service.name || 'Protocol overview',
+          body: (
+            <p className={styles.treatmentText}>
+              {parentTagline || parentDescription || ''}
+            </p>
+          ),
+          imageUrl: parentImageUrl,
+          imageAlt: parentImageAlt || undefined,
+          rail: ['Click here', 'Trattamenti alternativi'],
+          href: treatmentHref,
+        }}
+        secondary={{
+          title: 'Trattamenti Alternativi',
+          body: (
+            <p className={styles.treatmentText}>
+              {parentCardTagline ||
+                parentTagline ||
+                parentDescription ||
+                'Trattamenti alternativi della stessa area.'}
+            </p>
+          ),
+          rail: ['Click here', 'Trattamenti alternativi'],
+          href: treatmentHref,
+          mediaBody: (
+            <div className={styles.treatmentCarousel}>
+              {alternativeServiceItems.length > 0 ? (
+                <ServicesCarousel
+                  items={alternativeServiceItems}
+                  single
+                  cardClassName={styles.altCarouselCard}
+                  mediaClassName={styles.altCarouselMedia}
+                />
+              ) : (
+                <p className={styles.treatmentText}>
+                  Il servizio scelto è unico nel suo genere e non ha alternative.
+                </p>
+              )}
+            </div>
+          ),
+        }}
+      />
+
+      <section aria-label="Altri servizi">
+        <ServicesCarousel items={serviceItems} />
+      </section>
     </div>
   )
 }

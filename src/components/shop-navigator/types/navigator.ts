@@ -1,11 +1,10 @@
 export type NeedId = string
 export type CategoryId = string
-export type RoutineStepId = string
 export type LineId = string
 export type TextureId = string
 export type ProductId = string
 
-export type Step = 'need' | 'category' | 'routine' | 'line' | 'texture' | 'products'
+export type Step = 'need' | 'category' | 'line' | 'texture' | 'products'
 
 export type MediaRef = {
   url: string
@@ -32,7 +31,6 @@ export type CategoryData = TaxonomyBase & {
   isMakeupRoot?: boolean
 }
 
-export type RoutineStepData = TaxonomyBase
 export type LineData = TaxonomyBase
 export type TextureData = TaxonomyBase
 
@@ -47,7 +45,6 @@ export type ProductCard = {
   images?: MediaRef[]
   needIds: NeedId[]
   categoryIds: CategoryId[]
-  routineStepIds: RoutineStepId[]
   lineIds: LineId[]
   textureIds: TextureId[]
   createdAt?: string
@@ -57,7 +54,6 @@ export type NavigatorState = {
   step: Step
   selectedNeed?: NeedId
   selectedCategory?: CategoryId
-  selectedRoutineStep?: RoutineStepId
   selectedLine?: LineId
   selectedTexture?: TextureId
   selectedProduct?: ProductCard

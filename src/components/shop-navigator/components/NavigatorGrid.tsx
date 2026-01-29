@@ -7,12 +7,10 @@ import type {
   LineId,
   NavigatorState,
   NeedId,
-  RoutineStepId,
   TextureId,
 } from '@/components/shop-navigator/types/navigator'
 import { ColumnNeed } from '@/components/shop-navigator/components/columns/ColumnNeed'
 import { ColumnCategory } from '@/components/shop-navigator/components/columns/ColumnCategory'
-import { ColumnRoutineStep } from '@/components/shop-navigator/components/columns/ColumnRoutineStep'
 import { ColumnLine } from '@/components/shop-navigator/components/columns/ColumnLine'
 import { ColumnTexture } from '@/components/shop-navigator/components/columns/ColumnTexture'
 import { ColumnProducts } from '@/components/shop-navigator/components/columns/ColumnProducts'
@@ -36,12 +34,10 @@ export function NavigatorGrid({
   productBasePath,
 }: NavigatorGridProps) {
   const {
-    getRoutineStepsForFilters,
     getLinesForFilters,
     getTexturesForFilters,
     getProductsForFilters,
     getCategoryById,
-    getRoutineStepById,
     getLineById,
     getTextureById,
   } = useShopNavigatorData()
@@ -54,10 +50,6 @@ export function NavigatorGrid({
   const [clickedCategory, setClickedCategory] = useState<CategoryId | undefined>(undefined)
   const [isCategorySlideOutAnimating, setIsCategorySlideOutAnimating] = useState(false)
 
-  const [hoveredRoutine, setHoveredRoutine] = useState<RoutineStepId | null>(null)
-  const [clickedRoutine, setClickedRoutine] = useState<RoutineStepId | undefined>(undefined)
-  const [isRoutineSlideOutAnimating, setIsRoutineSlideOutAnimating] = useState(false)
-
   const [hoveredLine, setHoveredLine] = useState<LineId | null>(null)
   const [clickedLine, setClickedLine] = useState<LineId | undefined>(undefined)
   const [isLineSlideOutAnimating, setIsLineSlideOutAnimating] = useState(false)
@@ -67,8 +59,6 @@ export function NavigatorGrid({
   const [isTextureSlideOutAnimating, setIsTextureSlideOutAnimating] = useState(false)
 
   const getNextStepAfterCategory = (needId: NeedId, categoryId: CategoryId) => {
-    const routine = getRoutineStepsForFilters({ needId, categoryId })
-    if (routine.length > 0) return 'routine'
     const lines = getLinesForFilters({ needId, categoryId })
     if (lines.length > 0) return 'line'
     const textures = getTexturesForFilters({ needId, categoryId })
@@ -76,25 +66,8 @@ export function NavigatorGrid({
     return 'products'
   }
 
-  const getNextStepAfterRoutine = (
-    needId: NeedId,
-    categoryId: CategoryId,
-    routineStepId: RoutineStepId,
-  ) => {
-    const lines = getLinesForFilters({ needId, categoryId, routineStepId })
-    if (lines.length > 0) return 'line'
-    const textures = getTexturesForFilters({ needId, categoryId, routineStepId })
-    if (textures.length > 0) return 'texture'
-    return 'products'
-  }
-
-  const getNextStepAfterLine = (
-    needId: NeedId,
-    categoryId: CategoryId,
-    routineStepId: RoutineStepId | undefined,
-    lineId: LineId,
-  ) => {
-    const textures = getTexturesForFilters({ needId, categoryId, routineStepId, lineId })
+  const getNextStepAfterLine = (needId: NeedId, categoryId: CategoryId, lineId: LineId) => {
+    const textures = getTexturesForFilters({ needId, categoryId, lineId })
     if (textures.length > 0) return 'texture'
     return 'products'
   }
@@ -106,7 +79,6 @@ export function NavigatorGrid({
         onUpdateState({
           selectedNeed: need,
           selectedCategory: undefined,
-          selectedRoutineStep: undefined,
           selectedLine: undefined,
           selectedTexture: undefined,
           selectedProduct: undefined,
@@ -120,7 +92,6 @@ export function NavigatorGrid({
       onUpdateState({
         selectedNeed: need,
         selectedCategory: undefined,
-        selectedRoutineStep: undefined,
         selectedLine: undefined,
         selectedTexture: undefined,
         selectedProduct: undefined,
@@ -135,7 +106,6 @@ export function NavigatorGrid({
     onUpdateState({
       selectedNeed: clickedNeed,
       selectedCategory: undefined,
-      selectedRoutineStep: undefined,
       selectedLine: undefined,
       selectedTexture: undefined,
       selectedProduct: undefined,
@@ -152,7 +122,6 @@ export function NavigatorGrid({
         if (!state.selectedNeed) return
         onUpdateState({
           selectedCategory: category,
-          selectedRoutineStep: undefined,
           selectedLine: undefined,
           selectedTexture: undefined,
           selectedProduct: undefined,
@@ -165,7 +134,6 @@ export function NavigatorGrid({
     } else if (state.selectedNeed) {
       onUpdateState({
         selectedCategory: category,
-        selectedRoutineStep: undefined,
         selectedLine: undefined,
         selectedTexture: undefined,
         selectedProduct: undefined,
@@ -179,53 +147,12 @@ export function NavigatorGrid({
     if (!clickedCategory || !state.selectedNeed) return
     onUpdateState({
       selectedCategory: clickedCategory,
-      selectedRoutineStep: undefined,
       selectedLine: undefined,
       selectedTexture: undefined,
       selectedProduct: undefined,
       step: getNextStepAfterCategory(state.selectedNeed, clickedCategory),
     })
     setClickedCategory(undefined)
-  }
-
-  const handleSelectRoutineStep = (routine: RoutineStepId) => {
-    if (routine === state.selectedRoutineStep) return
-    if (state.step === 'routine') {
-      if (!hoveredRoutine || hoveredRoutine !== routine) {
-        if (!state.selectedNeed || !state.selectedCategory) return
-        onUpdateState({
-          selectedRoutineStep: routine,
-          selectedLine: undefined,
-          selectedTexture: undefined,
-          selectedProduct: undefined,
-          step: getNextStepAfterRoutine(state.selectedNeed, state.selectedCategory, routine),
-        })
-        return
-      }
-      setClickedRoutine(routine)
-      setIsRoutineSlideOutAnimating(true)
-    } else if (state.selectedNeed && state.selectedCategory) {
-      onUpdateState({
-        selectedRoutineStep: routine,
-        selectedLine: undefined,
-        selectedTexture: undefined,
-        selectedProduct: undefined,
-        step: getNextStepAfterRoutine(state.selectedNeed, state.selectedCategory, routine),
-      })
-    }
-  }
-
-  const handleRoutineSlideOutComplete = () => {
-    setIsRoutineSlideOutAnimating(false)
-    if (!clickedRoutine || !state.selectedNeed || !state.selectedCategory) return
-    onUpdateState({
-      selectedRoutineStep: clickedRoutine,
-      selectedLine: undefined,
-      selectedTexture: undefined,
-      selectedProduct: undefined,
-      step: getNextStepAfterRoutine(state.selectedNeed, state.selectedCategory, clickedRoutine),
-    })
-    setClickedRoutine(undefined)
   }
 
   const handleSelectLine = (line: LineId) => {
@@ -237,12 +164,7 @@ export function NavigatorGrid({
           selectedLine: line,
           selectedTexture: undefined,
           selectedProduct: undefined,
-          step: getNextStepAfterLine(
-            state.selectedNeed,
-            state.selectedCategory,
-            state.selectedRoutineStep,
-            line,
-          ),
+          step: getNextStepAfterLine(state.selectedNeed, state.selectedCategory, line),
         })
         return
       }
@@ -253,12 +175,7 @@ export function NavigatorGrid({
         selectedLine: line,
         selectedTexture: undefined,
         selectedProduct: undefined,
-        step: getNextStepAfterLine(
-          state.selectedNeed,
-          state.selectedCategory,
-          state.selectedRoutineStep,
-          line,
-        ),
+        step: getNextStepAfterLine(state.selectedNeed, state.selectedCategory, line),
       })
     }
   }
@@ -270,12 +187,7 @@ export function NavigatorGrid({
       selectedLine: clickedLine,
       selectedTexture: undefined,
       selectedProduct: undefined,
-      step: getNextStepAfterLine(
-        state.selectedNeed,
-        state.selectedCategory,
-        state.selectedRoutineStep,
-        clickedLine,
-      ),
+      step: getNextStepAfterLine(state.selectedNeed, state.selectedCategory, clickedLine),
     })
     setClickedLine(undefined)
   }
@@ -324,7 +236,6 @@ export function NavigatorGrid({
         step: 'need',
         selectedNeed: undefined,
         selectedCategory: undefined,
-        selectedRoutineStep: undefined,
         selectedLine: undefined,
         selectedTexture: undefined,
         selectedProduct: undefined,
@@ -336,18 +247,6 @@ export function NavigatorGrid({
       onUpdateState({
         step: 'category',
         selectedCategory: undefined,
-        selectedRoutineStep: undefined,
-        selectedLine: undefined,
-        selectedTexture: undefined,
-        selectedProduct: undefined,
-      })
-      return
-    }
-
-    if (step === 'routine') {
-      onUpdateState({
-        step: 'routine',
-        selectedRoutineStep: undefined,
         selectedLine: undefined,
         selectedTexture: undefined,
         selectedProduct: undefined,
@@ -380,7 +279,6 @@ export function NavigatorGrid({
         ? getTexturesForFilters({
             needId: state.selectedNeed,
             categoryId: state.selectedCategory,
-            routineStepId: state.selectedRoutineStep,
             lineId: state.selectedLine,
           })
         : []
@@ -393,19 +291,10 @@ export function NavigatorGrid({
         ? getLinesForFilters({
             needId: state.selectedNeed,
             categoryId: state.selectedCategory,
-            routineStepId: state.selectedRoutineStep,
           })
         : []
       if (lines.length > 0) {
         onUpdateState({ step: 'line', selectedProduct: undefined })
-        return
-      }
-
-      const routines = state.selectedNeed && state.selectedCategory
-        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
-        : []
-      if (routines.length > 0) {
-        onUpdateState({ step: 'routine', selectedProduct: undefined })
         return
       }
 
@@ -418,19 +307,10 @@ export function NavigatorGrid({
         ? getLinesForFilters({
             needId: state.selectedNeed,
             categoryId: state.selectedCategory,
-            routineStepId: state.selectedRoutineStep,
           })
         : []
       if (lines.length > 0) {
         onUpdateState({ step: 'line', selectedTexture: undefined })
-        return
-      }
-
-      const routines = state.selectedNeed && state.selectedCategory
-        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
-        : []
-      if (routines.length > 0) {
-        onUpdateState({ step: 'routine', selectedTexture: undefined })
         return
       }
 
@@ -439,19 +319,7 @@ export function NavigatorGrid({
     }
 
     if (state.step === 'line') {
-      const routines = state.selectedNeed && state.selectedCategory
-        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
-        : []
-      if (routines.length > 0) {
-        onUpdateState({ step: 'routine', selectedLine: undefined })
-        return
-      }
       onUpdateState({ step: 'category', selectedLine: undefined })
-      return
-    }
-
-    if (state.step === 'routine') {
-      onUpdateState({ step: 'category', selectedRoutineStep: undefined })
       return
     }
 
@@ -460,7 +328,6 @@ export function NavigatorGrid({
         step: 'need',
         selectedNeed: undefined,
         selectedCategory: undefined,
-        selectedRoutineStep: undefined,
         selectedLine: undefined,
         selectedTexture: undefined,
         selectedProduct: undefined,
@@ -473,7 +340,6 @@ export function NavigatorGrid({
       getProductsForFilters({
         needId: state.selectedNeed,
         categoryId: state.selectedCategory,
-        routineStepId: state.selectedRoutineStep,
         lineId: state.selectedLine,
         textureId: state.selectedTexture,
       }),
@@ -481,51 +347,31 @@ export function NavigatorGrid({
       getProductsForFilters,
       state.selectedNeed,
       state.selectedCategory,
-      state.selectedRoutineStep,
       state.selectedLine,
       state.selectedTexture,
     ],
   )
-
-  const hasRoutine = useMemo(() => {
-    if (!state.selectedNeed || !state.selectedCategory) return false
-    return (
-      getRoutineStepsForFilters({
-        needId: state.selectedNeed,
-        categoryId: state.selectedCategory,
-      }).length > 0
-    )
-  }, [getRoutineStepsForFilters, state.selectedCategory, state.selectedNeed])
 
   const preProductStep = useMemo(() => {
     if (!state.selectedNeed || !state.selectedCategory) return 'category'
     const textures = getTexturesForFilters({
       needId: state.selectedNeed,
       categoryId: state.selectedCategory,
-      routineStepId: state.selectedRoutineStep,
       lineId: state.selectedLine,
     })
     if (textures.length > 0) return 'texture'
     const lines = getLinesForFilters({
       needId: state.selectedNeed,
       categoryId: state.selectedCategory,
-      routineStepId: state.selectedRoutineStep,
     })
     if (lines.length > 0) return 'line'
-    const routines = getRoutineStepsForFilters({
-      needId: state.selectedNeed,
-      categoryId: state.selectedCategory,
-    })
-    if (routines.length > 0) return 'routine'
     return 'category'
   }, [
     getLinesForFilters,
-    getRoutineStepsForFilters,
     getTexturesForFilters,
     state.selectedCategory,
     state.selectedLine,
     state.selectedNeed,
-    state.selectedRoutineStep,
   ])
 
   return (
@@ -576,38 +422,20 @@ export function NavigatorGrid({
                       onHoverNeed={setHoveredNeed}
                     />
                   )}
-                  {state.step === 'routine' && state.selectedNeed && state.selectedCategory && (
-                    <ColumnCategory
-                      needId={state.selectedNeed}
-                      selectedCategory={state.selectedCategory}
-                      onSelectCategory={handleSelectCategory}
-                      onHoverCategory={setHoveredCategory}
-                    />
-                  )}
                   {state.step === 'line' &&
                     state.selectedNeed &&
-                    state.selectedCategory &&
-                    (hasRoutine ? (
-                      <ColumnRoutineStep
-                        needId={state.selectedNeed}
-                        categoryId={state.selectedCategory}
-                        selectedRoutineStep={state.selectedRoutineStep}
-                        onSelectRoutineStep={handleSelectRoutineStep}
-                        onHoverRoutineStep={setHoveredRoutine}
-                      />
-                    ) : (
+                    state.selectedCategory && (
                       <ColumnCategory
                         needId={state.selectedNeed}
                         selectedCategory={state.selectedCategory}
                         onSelectCategory={handleSelectCategory}
                         onHoverCategory={setHoveredCategory}
                       />
-                    ))}
+                    )}
                   {state.step === 'texture' && state.selectedNeed && state.selectedCategory && (
                     <ColumnLine
                       needId={state.selectedNeed}
                       categoryId={state.selectedCategory}
-                      routineStepId={state.selectedRoutineStep}
                       selectedLine={state.selectedLine}
                       onSelectLine={handleSelectLine}
                       onHoverLine={setHoveredLine}
@@ -635,26 +463,6 @@ export function NavigatorGrid({
                       />
                     </motion.div>
                   )}
-                  {state.step === 'routine' && state.selectedNeed && state.selectedCategory && (
-                    <motion.div
-                      key="routine-column"
-                      initial={{ x: 400, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      exit={{ x: -400, opacity: 0 }}
-                      transition={{
-                        duration: 0.3,
-                        ease: [0.25, 0.46, 0.45, 0.94],
-                      }}
-                    >
-                      <ColumnRoutineStep
-                        needId={state.selectedNeed}
-                        categoryId={state.selectedCategory}
-                        selectedRoutineStep={state.selectedRoutineStep}
-                        onSelectRoutineStep={handleSelectRoutineStep}
-                        onHoverRoutineStep={setHoveredRoutine}
-                      />
-                    </motion.div>
-                  )}
                   {state.step === 'line' && state.selectedNeed && state.selectedCategory && (
                     <motion.div
                       key="line-column"
@@ -669,7 +477,6 @@ export function NavigatorGrid({
                       <ColumnLine
                         needId={state.selectedNeed}
                         categoryId={state.selectedCategory}
-                        routineStepId={state.selectedRoutineStep}
                         selectedLine={state.selectedLine}
                         onSelectLine={handleSelectLine}
                         onHoverLine={setHoveredLine}
@@ -690,7 +497,6 @@ export function NavigatorGrid({
                       <ColumnTexture
                         needId={state.selectedNeed}
                         categoryId={state.selectedCategory}
-                        routineStepId={state.selectedRoutineStep}
                         lineId={state.selectedLine}
                         selectedTexture={state.selectedTexture}
                         onSelectTexture={handleSelectTexture}
@@ -725,27 +531,6 @@ export function NavigatorGrid({
                       }
                       shouldSlideOut={isCategorySlideOutAnimating}
                       onAnimationComplete={handleCategorySlideOutComplete}
-                    />
-                  )}
-
-                  {state.step === 'routine' && (
-                    <CategoryHoverCard
-                      item={
-                        hoveredRoutine
-                          ? {
-                              id: hoveredRoutine,
-                              title:
-                                getRoutineStepById(hoveredRoutine)?.cardTitle ||
-                                getRoutineStepById(hoveredRoutine)?.label ||
-                                hoveredRoutine,
-                              tagline: getRoutineStepById(hoveredRoutine)?.cardTagline,
-                              description: getRoutineStepById(hoveredRoutine)?.description || '',
-                              imageUrl: getRoutineStepById(hoveredRoutine)?.cardMedia?.url,
-                            }
-                          : null
-                      }
-                      shouldSlideOut={isRoutineSlideOutAnimating}
-                      onAnimationComplete={handleRoutineSlideOutComplete}
                     />
                   )}
 
@@ -801,7 +586,6 @@ export function NavigatorGrid({
                     <ColumnTexture
                       needId={state.selectedNeed}
                       categoryId={state.selectedCategory}
-                      routineStepId={state.selectedRoutineStep}
                       lineId={state.selectedLine}
                       selectedTexture={state.selectedTexture}
                       onSelectTexture={handleSelectTexture}
@@ -814,21 +598,9 @@ export function NavigatorGrid({
                     <ColumnLine
                       needId={state.selectedNeed}
                       categoryId={state.selectedCategory}
-                      routineStepId={state.selectedRoutineStep}
                       selectedLine={state.selectedLine}
                       onSelectLine={handleSelectLine}
                       onHoverLine={setHoveredLine}
-                    />
-                  </div>
-                )}
-                {state.selectedNeed && state.selectedCategory && preProductStep === 'routine' && (
-                  <div>
-                    <ColumnRoutineStep
-                      needId={state.selectedNeed}
-                      categoryId={state.selectedCategory}
-                      selectedRoutineStep={state.selectedRoutineStep}
-                      onSelectRoutineStep={handleSelectRoutineStep}
-                      onHoverRoutineStep={setHoveredRoutine}
                     />
                   </div>
                 )}

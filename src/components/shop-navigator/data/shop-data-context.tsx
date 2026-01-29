@@ -10,8 +10,6 @@ import type {
   NeedData,
   NeedId,
   ProductCard,
-  RoutineStepData,
-  RoutineStepId,
   TextureData,
   TextureId,
 } from '@/components/shop-navigator/types/navigator'
@@ -19,7 +17,6 @@ import type {
 export type ShopNavigatorData = {
   needs: NeedData[]
   categories: CategoryData[]
-  routineSteps: RoutineStepData[]
   lines: LineData[]
   textures: TextureData[]
   products: ProductCard[]
@@ -28,7 +25,6 @@ export type ShopNavigatorData = {
 export type ShopFilters = {
   needId?: NeedId
   categoryId?: CategoryId
-  routineStepId?: RoutineStepId
   lineId?: LineId
   textureId?: TextureId
 }
@@ -39,8 +35,6 @@ type ShopDataContextValue = {
   getNeedById: (id?: NeedId) => NeedData | undefined
   getCategoriesForNeed: (needId: NeedId) => CategoryData[]
   getCategoryById: (id?: CategoryId) => CategoryData | undefined
-  getRoutineStepsForFilters: (filters: ShopFilters) => RoutineStepData[]
-  getRoutineStepById: (id?: RoutineStepId) => RoutineStepData | undefined
   getLinesForFilters: (filters: ShopFilters) => LineData[]
   getLineById: (id?: LineId) => LineData | undefined
   getTexturesForFilters: (filters: ShopFilters) => TextureData[]
@@ -104,7 +98,6 @@ export function ShopNavigatorDataProvider({
         const hasCategory = product.categoryIds.some((id) => descendants.has(id))
         if (!hasCategory) return false
       }
-      if (filters.routineStepId && !product.routineStepIds.includes(filters.routineStepId)) return false
       if (filters.lineId && !product.lineIds.includes(filters.lineId)) return false
       if (filters.textureId && !product.textureIds.includes(filters.textureId)) return false
       return true
@@ -130,16 +123,6 @@ export function ShopNavigatorDataProvider({
 
     const getCategoryById = (id?: CategoryId) => data.categories.find((category) => category.id === id)
 
-    const getRoutineStepsForFilters = (filters: ShopFilters) => {
-      const eligible = data.routineSteps.filter((step) =>
-        getProductCount({ ...filters, routineStepId: step.id }) > 0,
-      )
-      return sortByOrder(eligible)
-    }
-
-    const getRoutineStepById = (id?: RoutineStepId) =>
-      data.routineSteps.find((step) => step.id === id)
-
     const getLinesForFilters = (filters: ShopFilters) => {
       const eligible = data.lines.filter((line) =>
         getProductCount({ ...filters, lineId: line.id }) > 0,
@@ -164,8 +147,6 @@ export function ShopNavigatorDataProvider({
       getNeedById,
       getCategoriesForNeed,
       getCategoryById,
-      getRoutineStepsForFilters,
-      getRoutineStepById,
       getLinesForFilters,
       getLineById,
       getTexturesForFilters,

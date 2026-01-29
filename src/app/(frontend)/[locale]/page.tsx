@@ -5,8 +5,11 @@ import { getDictionary, isLocale } from '@/lib/i18n'
 import { Hero } from '@/components/Hero'
 import { ButtonLink } from '@/components/ui/button-link'
 import { Card } from '@/components/ui/card'
-import { ServicesProtocol } from '@/components/ServicesProtocol'
-import { ProtocolSplit } from '@/components/ProtocolSplit'
+import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
+import { ShopCarousel, type ShopCarouselItem } from '@/components/ShopCarousel'
+import { StoryHero } from '@/components/StoryHero'
+import { ValuesSection } from '@/components/ValuesSection'
+import { ProgramsSplitSection } from '@/components/ProgramsSplitSection'
 import styles from './home.module.css'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 
@@ -37,14 +40,14 @@ export default async function HomePage({
   })
   const pageDoc = pageConfig.docs[0]
   const heroMedia = Array.isArray(pageDoc?.heroMedia) ? pageDoc?.heroMedia : []
-  const resolveMedia = (media: unknown) => {
+  const resolveMedia = (media: unknown, fallbackAlt = '') => {
     if (!media || typeof media !== 'object' || !('url' in media)) return null
     const typed = media as { url?: string | null; alt?: string | null; mimeType?: string | null }
     if (!typed.url) return null
-    return { url: typed.url, alt: typed.alt || t.hero.title, mimeType: typed.mimeType || null }
+    return { url: typed.url, alt: typed.alt || fallbackAlt, mimeType: typed.mimeType || null }
   }
-  const darkHeroMedia = resolveMedia(heroMedia?.[0])
-  const lightHeroMedia = resolveMedia(heroMedia?.[1])
+  const darkHeroMedia = resolveMedia(heroMedia?.[0], t.hero.title)
+  const lightHeroMedia = resolveMedia(heroMedia?.[1], t.hero.title)
   const hasHero = Boolean(darkHeroMedia || lightHeroMedia)
   const heroStyle = pageDoc?.heroStyle === 'style2' ? 'style2' : 'style1'
   const heroTitle =
@@ -52,6 +55,106 @@ export default async function HomePage({
       ? pageDoc.heroTitle
       : t.hero.title
   const heroDescription = pageDoc?.heroDescription ?? t.hero.subtitle
+
+  const servicesResult = await payload.find({
+    collection: 'services',
+    locale,
+    overrideAccess: false,
+    limit: 6,
+    depth: 1,
+    where: {
+      active: { equals: true },
+    },
+    sort: '-createdAt',
+  })
+
+  const productsResult = await payload.find({
+    collection: 'products',
+    locale,
+    overrideAccess: false,
+    limit: 6,
+    depth: 1,
+    where: {
+      active: { equals: true },
+    },
+    sort: '-createdAt',
+  })
+
+  const formatPrice = (value?: number | null, currency?: string | null) => {
+    if (typeof value !== 'number') return ''
+    const formatter = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency || 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+    return formatter.format(value)
+  }
+
+  const fallbackImage = {
+    url: '/media/493b3205c13b5f67b36cf794c2222583.jpg',
+    alt: t.shop.title,
+  }
+
+  const formatServiceTag = (value?: string | null) => {
+    if (value === 'package') return 'Pacchetto'
+    if (value === 'single') return 'Singolo'
+    return null
+  }
+
+  const resolveGalleryCover = (gallery: unknown, fallbackAlt: string) => {
+    if (!Array.isArray(gallery)) return null
+    const entries = gallery
+      .map((item) =>
+        item && typeof item === 'object'
+          ? (item as { media?: unknown; isCover?: boolean })
+          : null,
+      )
+      .filter(Boolean)
+    const cover = entries.find((entry) => entry?.isCover) ?? entries[0]
+    return cover?.media ? resolveMedia(cover.media, fallbackAlt) : null
+  }
+
+  const formatDuration = (minutes?: number | null) => {
+    if (typeof minutes !== 'number' || Number.isNaN(minutes) || minutes <= 0) return undefined
+    return `${minutes} min`
+  }
+
+  const serviceItems: ServicesCarouselItem[] = servicesResult.docs
+    .map((service) => {
+      const media = resolveGalleryCover(service.gallery, service.name || '') || fallbackImage
+      return {
+        title: service.name || '',
+        subtitle: service.description || undefined,
+        price: formatPrice(service.price, 'EUR'),
+        duration: formatDuration(service.durationMinutes),
+        image: { url: media.url, alt: media.alt },
+        tag: formatServiceTag(service.serviceType),
+        badgeLeft:
+          service.intent && typeof service.intent === 'object' && 'label' in service.intent
+            ? String((service.intent as { label?: string }).label || '')
+            : null,
+        badgeRight:
+          service.badge && typeof service.badge === 'object' && 'name' in service.badge
+            ? String((service.badge as { name?: string }).name || '')
+            : null,
+        href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
+      }
+    })
+    .filter((item) => Boolean(item && item.title))
+
+  const carouselItems: ShopCarouselItem[] = productsResult.docs
+    .map((product) => {
+      const gallery = Array.isArray(product.images) ? product.images : []
+      const media = resolveMedia(product.coverImage || gallery[0], product.title || '') || fallbackImage
+      return {
+        title: product.title || '',
+        subtitle: product.description || undefined,
+        price: formatPrice(product.price, product.currency),
+        image: { url: media.url, alt: media.alt },
+      }
+    })
+    .filter((item) => Boolean(item && item.title))
 
   return (
     <div className="home-page flex flex-col gap-10">
@@ -69,34 +172,11 @@ export default async function HomePage({
           ]}
         />
       )}
-      <ServicesProtocol />
-      <ProtocolSplit />
-      <section className={styles.cardsGrid}>
-        <Card variant="pearl" className={styles.card}>
-          <h2>{t.story.title}</h2>
-          <p className="">{t.story.lead}</p>
-          <Link href={`/${locale}/our-story`}>{t.common.discover}</Link>
-        </Card>
-        <Card variant="pearl" className={`${styles.card} ${styles.cardDelay1}`}>
-          <h2>{t.services.title}</h2>
-          <p className="">{t.services.lead}</p>
-          <Link href={`/${locale}/services`}>{t.common.viewList}</Link>
-        </Card>
-        <Card variant="pearl" className={`${styles.card} ${styles.cardDelay2}`}>
-          <h2>{t.shop.title}</h2>
-          <p className="">{t.shop.lead}</p>
-          <Link href={`/${locale}/shop`}>{t.common.goToShop}</Link>
-        </Card>
-      </section>
-      <Card variant="pearl" className="flex flex-wrap items-center justify-between gap-6">
-        <div className="space-y-2">
-          <h2>{t.journal.title}</h2>
-          <p className="">{t.journal.lead}</p>
-        </div>
-        <ButtonLink href={`/${locale}/journal`} variant="outline">
-          {t.journal.title}
-        </ButtonLink>
-      </Card>
+      <ServicesCarousel items={serviceItems} />
+      <StoryHero locale={locale} />
+      <ProgramsSplitSection />
+      <ShopCarousel items={carouselItems} />
+      <ValuesSection locale={locale} />
     </div>
   )
 }

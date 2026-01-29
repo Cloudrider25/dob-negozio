@@ -11,7 +11,7 @@ interface ProgressIndicatorProps {
 }
 
 export function ProgressIndicator({ currentStep, totalSteps }: ProgressIndicatorProps) {
-  const stepOrder: Step[] = ['need', 'category', 'routine', 'line', 'texture', 'products']
+  const stepOrder: Step[] = ['need', 'category', 'line', 'texture', 'products']
   const currentIndex = stepOrder.indexOf(currentStep)
   const progress = ((currentIndex + 1) / totalSteps) * 100
   const progressStyle = { '--progress': `${progress}%` } as CSSProperties

@@ -17,7 +17,7 @@ export function ShopNavigatorHeader({ activeView, onViewChange }: NavigatorHeade
       </h1>
 
       <p className="text-lg text-text-secondary max-w-2xl mx-auto mb-6">
-        Seleziona esigenze, categorie e routine per arrivare al prodotto più adatto.
+        Seleziona esigenze, categorie e dettagli per arrivare al prodotto più adatto.
       </p>
 
       <div className="flex items-center justify-center gap-3">

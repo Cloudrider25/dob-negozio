@@ -10,15 +10,17 @@ import { Media } from './collections/Media'
 import { Products } from './collections/Products'
 import { Needs } from './collections/Needs'
 import { Categories } from './collections/Categories'
-import { RoutineSteps } from './collections/RoutineSteps'
 import { Lines } from './collections/Lines'
 import { Textures } from './collections/Textures'
-import { MakeupCollections } from './collections/MakeupCollections'
 import { Services } from './collections/Services'
 import { Treatments } from './collections/Treatments'
 import { Areas } from './collections/Areas'
 import { Objectives } from './collections/Objectives'
+import { Intents } from './collections/Intents'
+import { Zones } from './collections/Zones'
+import { Badges } from './collections/Badges'
 import { Promotions } from './collections/Promotions'
+import { Programs } from './collections/Programs'
 import { Posts } from './collections/Posts'
 import { Pages } from './collections/Pages'
 import { SiteSettings } from './globals/SiteSettings'
@@ -41,15 +43,17 @@ export default buildConfig({
     Products,
     Needs,
     Categories,
-    RoutineSteps,
     Lines,
     Textures,
-    MakeupCollections,
     Areas,
     Objectives,
+    Intents,
+    Zones,
+    Badges,
     Treatments,
     Services,
     Promotions,
+    Programs,
     Posts,
     Pages,
   ],

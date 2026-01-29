@@ -9,7 +9,6 @@ import type {
   LineData,
   NeedData,
   ProductCard,
-  RoutineStepData,
   TextureData,
 } from '@/components/shop-navigator/types/navigator'
 
@@ -43,7 +42,7 @@ export default async function ShopPage({
 
   const t = getDictionary(locale)
   const payload = await getPayloadClient()
-  const [productsResult, needsResult, categoriesResult, routineStepsResult, linesResult, texturesResult] =
+  const [productsResult, needsResult, categoriesResult, linesResult, texturesResult] =
     await Promise.all([
       payload.find({
         collection: 'products',
@@ -66,7 +65,6 @@ export default async function ShopPage({
           images: true,
           needs: true,
           categories: true,
-          routineSteps: true,
           lines: true,
           textures: true,
           createdAt: true,
@@ -105,25 +103,6 @@ export default async function ShopPage({
           description: true,
           parent: true,
           isMakeupRoot: true,
-          order: true,
-          boxTagline: true,
-          cardTitle: true,
-          cardTagline: true,
-          cardMedia: true,
-        },
-      }),
-      payload.find({
-        collection: 'routine-steps',
-        locale,
-        overrideAccess: false,
-        depth: 1,
-        limit: 200,
-        sort: 'order',
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
           order: true,
           boxTagline: true,
           cardTitle: true,
@@ -221,18 +200,6 @@ export default async function ShopPage({
     cardMedia: resolveMedia(category.cardMedia),
   }))
 
-  const routineSteps: RoutineStepData[] = routineStepsResult.docs.map((step) => ({
-    id: String(step.id),
-    label: step.name || '',
-    description: step.description || undefined,
-    slug: step.slug || undefined,
-    order: step.order ?? 0,
-    boxTagline: step.boxTagline || undefined,
-    cardTitle: step.cardTitle || undefined,
-    cardTagline: step.cardTagline || undefined,
-    cardMedia: resolveMedia(step.cardMedia),
-  }))
-
   const lines: LineData[] = linesResult.docs.map((line) => ({
     id: String(line.id),
     label: line.name || '',
@@ -272,7 +239,6 @@ export default async function ShopPage({
       : [],
     needIds: toIdArray(product.needs),
     categoryIds: toIdArray(product.categories),
-    routineStepIds: toIdArray(product.routineSteps),
     lineIds: toIdArray(product.lines),
     textureIds: toIdArray(product.textures),
     createdAt: typeof product.createdAt === 'string' ? product.createdAt : undefined,
@@ -281,7 +247,6 @@ export default async function ShopPage({
   const navigatorData: ShopNavigatorData = {
     needs,
     categories,
-    routineSteps,
     lines,
     textures,
     products,

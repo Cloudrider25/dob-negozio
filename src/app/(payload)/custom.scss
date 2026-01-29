@@ -1,0 +1,101 @@
+@layer payload {
+  :root {
+    --admin-sidebar-bg: #0f1624;
+    --admin-sidebar-panel: #151e30;
+    --admin-sidebar-card: #111827;
+    --admin-sidebar-text: #e7ebf4;
+    --admin-sidebar-text-muted: #9aa6bf;
+    --admin-sidebar-border: rgba(255, 255, 255, 0.08);
+    --admin-sidebar-accent: #1f78ff;
+    --admin-sidebar-accent-strong: #0b6cf3;
+  }
+
+  html[data-theme='light'] {
+    --admin-sidebar-bg: #f6f7fb;
+    --admin-sidebar-panel: #ffffff;
+    --admin-sidebar-card: #f0f3fb;
+    --admin-sidebar-text: #2d3342;
+    --admin-sidebar-text-muted: #6c7487;
+    --admin-sidebar-border: rgba(15, 23, 42, 0.1);
+    --admin-sidebar-accent: #1f78ff;
+    --admin-sidebar-accent-strong: #0b6cf3;
+  }
+
+  .nav {
+    background: linear-gradient(180deg, var(--admin-sidebar-panel) 0%, var(--admin-sidebar-bg) 100%);
+    border-radius: 20px;
+    margin: 16px;
+    box-shadow: 0 24px 50px rgba(4, 10, 24, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--admin-sidebar-border);
+    overflow: hidden;
+  }
+
+  .nav__scroll {
+    padding: 18px 16px 22px;
+    gap: 6px;
+  }
+
+  .nav__link,
+  .nav a,
+  .nav button {
+    color: var(--admin-sidebar-text);
+  }
+
+  .nav__link,
+  .nav-group__toggle {
+    border-radius: 12px;
+    padding: 9px 12px;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .nav__link:hover,
+  .nav-group__toggle:hover {
+    background: var(--admin-sidebar-card);
+    color: var(--admin-sidebar-text);
+  }
+
+  .nav__link--active,
+  .nav-group__toggle--active,
+  .nav__link:focus-visible,
+  .nav-group__toggle:focus-visible {
+    background: var(--admin-sidebar-accent);
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(13, 108, 243, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .nav__group-label,
+  .nav-group__label {
+    color: var(--admin-sidebar-text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    margin-top: 14px;
+  }
+
+  .nav__icon {
+    color: inherit;
+    opacity: 0.9;
+  }
+
+  .nav-group__content {
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid var(--admin-sidebar-border);
+  }
+
+  .nav-group__content .nav__link {
+    background: transparent;
+    color: var(--admin-sidebar-text-muted);
+  }
+
+  .nav-group__content .nav__link--active {
+    background: var(--admin-sidebar-accent-strong);
+    color: #ffffff;
+  }
+
+  .nav__link:focus-visible,
+  .nav-group__toggle:focus-visible {
+    outline: 2px solid rgba(31, 120, 255, 0.5);
+    outline-offset: 2px;
+  }
+}

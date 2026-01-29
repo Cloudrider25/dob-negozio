@@ -15,13 +15,11 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
   const {
     getNeeds,
     getCategoriesForNeed,
-    getRoutineStepsForFilters,
     getLinesForFilters,
     getTexturesForFilters,
     getProductsForFilters,
     getNeedById,
     getCategoryById,
-    getRoutineStepById,
     getLineById,
     getTextureById,
   } = useShopNavigatorData()
@@ -29,8 +27,6 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
   const needs = getNeeds()
 
   const getNextStepAfterCategory = (needId: string, categoryId: string) => {
-    const routines = getRoutineStepsForFilters({ needId, categoryId })
-    if (routines.length > 0) return 'routine'
     const lines = getLinesForFilters({ needId, categoryId })
     if (lines.length > 0) return 'line'
     const textures = getTexturesForFilters({ needId, categoryId })
@@ -38,21 +34,8 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
     return 'products'
   }
 
-  const getNextStepAfterRoutine = (needId: string, categoryId: string, routineStepId: string) => {
-    const lines = getLinesForFilters({ needId, categoryId, routineStepId })
-    if (lines.length > 0) return 'line'
-    const textures = getTexturesForFilters({ needId, categoryId, routineStepId })
-    if (textures.length > 0) return 'texture'
-    return 'products'
-  }
-
-  const getNextStepAfterLine = (
-    needId: string,
-    categoryId: string,
-    routineStepId: string | undefined,
-    lineId: string,
-  ) => {
-    const textures = getTexturesForFilters({ needId, categoryId, routineStepId, lineId })
+  const getNextStepAfterLine = (needId: string, categoryId: string, lineId: string) => {
+    const textures = getTexturesForFilters({ needId, categoryId, lineId })
     if (textures.length > 0) return 'texture'
     return 'products'
   }
@@ -63,7 +46,6 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
         ? getTexturesForFilters({
             needId: state.selectedNeed,
             categoryId: state.selectedCategory,
-            routineStepId: state.selectedRoutineStep,
             lineId: state.selectedLine,
           })
         : []
@@ -76,19 +58,10 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
         ? getLinesForFilters({
             needId: state.selectedNeed,
             categoryId: state.selectedCategory,
-            routineStepId: state.selectedRoutineStep,
           })
         : []
       if (lines.length > 0) {
         onUpdateState({ step: 'line', selectedProduct: undefined })
-        return
-      }
-
-      const routines = state.selectedNeed && state.selectedCategory
-        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
-        : []
-      if (routines.length > 0) {
-        onUpdateState({ step: 'routine', selectedProduct: undefined })
         return
       }
 
@@ -101,19 +74,10 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
         ? getLinesForFilters({
             needId: state.selectedNeed,
             categoryId: state.selectedCategory,
-            routineStepId: state.selectedRoutineStep,
           })
         : []
       if (lines.length > 0) {
         onUpdateState({ step: 'line', selectedTexture: undefined })
-        return
-      }
-
-      const routines = state.selectedNeed && state.selectedCategory
-        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
-        : []
-      if (routines.length > 0) {
-        onUpdateState({ step: 'routine', selectedTexture: undefined })
         return
       }
 
@@ -122,19 +86,7 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
     }
 
     if (state.step === 'line') {
-      const routines = state.selectedNeed && state.selectedCategory
-        ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
-        : []
-      if (routines.length > 0) {
-        onUpdateState({ step: 'routine', selectedLine: undefined })
-        return
-      }
       onUpdateState({ step: 'category', selectedLine: undefined })
-      return
-    }
-
-    if (state.step === 'routine') {
-      onUpdateState({ step: 'category', selectedRoutineStep: undefined })
       return
     }
 
@@ -143,7 +95,6 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
         step: 'need',
         selectedNeed: undefined,
         selectedCategory: undefined,
-        selectedRoutineStep: undefined,
         selectedLine: undefined,
         selectedTexture: undefined,
         selectedProduct: undefined,
@@ -155,24 +106,17 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
     const parts: string[] = []
     if (state.selectedNeed) parts.push(getNeedById(state.selectedNeed)?.label || '')
     if (state.selectedCategory) parts.push(getCategoryById(state.selectedCategory)?.label || '')
-    if (state.selectedRoutineStep)
-      parts.push(getRoutineStepById(state.selectedRoutineStep)?.label || '')
     if (state.selectedLine) parts.push(getLineById(state.selectedLine)?.label || '')
     if (state.selectedTexture) parts.push(getTextureById(state.selectedTexture)?.label || '')
     return parts.filter(Boolean).join(' → ')
   }
 
   const categories = state.selectedNeed ? getCategoriesForNeed(state.selectedNeed) : []
-  const routines =
-    state.selectedNeed && state.selectedCategory
-      ? getRoutineStepsForFilters({ needId: state.selectedNeed, categoryId: state.selectedCategory })
-      : []
   const lines =
     state.selectedNeed && state.selectedCategory
       ? getLinesForFilters({
           needId: state.selectedNeed,
           categoryId: state.selectedCategory,
-          routineStepId: state.selectedRoutineStep,
         })
       : []
   const textures =
@@ -180,14 +124,12 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
       ? getTexturesForFilters({
           needId: state.selectedNeed,
           categoryId: state.selectedCategory,
-          routineStepId: state.selectedRoutineStep,
           lineId: state.selectedLine,
         })
       : []
   const products = getProductsForFilters({
     needId: state.selectedNeed,
     categoryId: state.selectedCategory,
-    routineStepId: state.selectedRoutineStep,
     lineId: state.selectedLine,
     textureId: state.selectedTexture,
   })
@@ -208,7 +150,6 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
             <div className="text-xs text-text-muted uppercase tracking-wider mb-1">
               {state.step === 'need' && 'Seleziona Esigenza'}
               {state.step === 'category' && 'Seleziona Categoria'}
-              {state.step === 'routine' && 'Seleziona Routine'}
               {state.step === 'line' && 'Seleziona Linea'}
               {state.step === 'texture' && 'Seleziona Texture'}
               {state.step === 'products' && 'Scegli Prodotto'}
@@ -288,41 +229,6 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
             </motion.div>
           )}
 
-          {state.step === 'routine' && (
-            <motion.div
-              key="routine"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
-            >
-              {routines.map((routine) => (
-                <button
-                  key={routine.id}
-                  onClick={() => {
-                    if (!state.selectedNeed || !state.selectedCategory) return
-                    onUpdateState({
-                      selectedRoutineStep: routine.id,
-                      step: getNextStepAfterRoutine(
-                        state.selectedNeed,
-                        state.selectedCategory,
-                        routine.id,
-                      ),
-                    })
-                  }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
-                >
-                  <div className="text-lg font-medium text-text-primary mb-1">
-                    {routine.label}
-                  </div>
-                  {routine.boxTagline && (
-                    <div className="text-sm text-text-muted">{routine.boxTagline}</div>
-                  )}
-                </button>
-              ))}
-            </motion.div>
-          )}
-
           {state.step === 'line' && (
             <motion.div
               key="line"
@@ -338,12 +244,7 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
                     if (!state.selectedNeed || !state.selectedCategory) return
                     onUpdateState({
                       selectedLine: line.id,
-                      step: getNextStepAfterLine(
-                        state.selectedNeed,
-                        state.selectedCategory,
-                        state.selectedRoutineStep,
-                        line.id,
-                      ),
+                      step: getNextStepAfterLine(state.selectedNeed, state.selectedCategory, line.id),
                     })
                   }}
                   className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"

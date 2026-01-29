@@ -1,173 +1,126 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import type { Swiper as SwiperInstance } from 'swiper/types'
 
-import styles from './ServicesCarousel.module.css'
+import styles from './ShopCarousel.module.css'
 
-type ServiceItem = {
-  id: number | string
-  name?: string | null
-  description?: string | null
-}
-
-type ServicesCarouselProps = {
-  items: ServiceItem[]
-  groupLabel: string
-  imageLeft: { url: string; alt: string; mimeType?: string | null }
-  imageRight: { url: string; alt: string; mimeType?: string | null }
-  autoplayMs?: number
-}
-
-const getItemsPerView = (width: number) => {
-  if (width <= 700) return 1
-  if (width <= 1200) return 2
-  return 3
+export type ServicesCarouselItem = {
+  title: string
+  subtitle?: string | null
+  price?: string | null
+  duration?: string | null
+  image: { url: string; alt?: string | null }
+  tag?: string | null
+  badgeLeft?: string | null
+  badgeRight?: string | null
+  href?: string
 }
 
 export const ServicesCarousel = ({
   items,
-  groupLabel,
-  imageLeft,
-  imageRight,
-  autoplayMs = 5000,
-}: ServicesCarouselProps) => {
-  const trackRef = useRef<HTMLDivElement | null>(null)
-  const [perView, setPerView] = useState(3)
-  const [cardWidth, setCardWidth] = useState(320)
-  const [gap, setGap] = useState(28)
-  const [page, setPage] = useState(0)
+  single = false,
+  cardClassName,
+  mediaClassName,
+}: {
+  items: ServicesCarouselItem[]
+  single?: boolean
+  cardClassName?: string
+  mediaClassName?: string
+}) => {
+  const prevRef = useRef<HTMLButtonElement | null>(null)
+  const nextRef = useRef<HTMLButtonElement | null>(null)
+  const [swiper, setSwiper] = useState<SwiperInstance | null>(null)
 
-  const totalPages = Math.max(1, Math.ceil(items.length / perView))
-  const trackStyle = {
-    '--carousel-gap': `${gap}px`,
-    '--carousel-card-width': `${cardWidth}px`,
-  } as CSSProperties
-
-  const images = useMemo(() => [imageLeft, imageRight], [imageLeft, imageRight])
-
-  useEffect(() => {
-    const el = trackRef.current
-    if (!el) return
-
-    const update = () => {
-      const width = el.getBoundingClientRect().width
-      if (!width) return
-      const viewport = window.innerWidth
-      const nextPerView = getItemsPerView(viewport)
-      const nextGap = viewport <= 768 ? 16 : viewport <= 1100 ? 19 : 28
-      const nextCardWidthRaw = (width - nextGap * (nextPerView - 1)) / nextPerView
-      const nextCardWidth = Number.isFinite(nextCardWidthRaw) ? nextCardWidthRaw : 320
-      setPerView(nextPerView)
-      setGap(nextGap)
-      setCardWidth(Math.max(nextCardWidth, 240))
-    }
-
-    update()
-    const observer = new ResizeObserver(update)
-    observer.observe(el)
-    window.addEventListener('resize', update)
-    return () => {
-      observer.disconnect()
-      window.removeEventListener('resize', update)
-    }
-  }, [])
+  if (items.length === 0) {
+    return (
+      <section className={styles.section} aria-label="Services carousel">
+        <div className={styles.empty}>Nessun servizio disponibile.</div>
+      </section>
+    )
+  }
 
   useEffect(() => {
-    const el = trackRef.current
-    if (!el || totalPages <= 1) return
-
-    const id = window.setInterval(() => {
-      setPage((current) => (current + 1) % totalPages)
-    }, autoplayMs)
-
-    return () => window.clearInterval(id)
-  }, [autoplayMs, totalPages])
-
-  useEffect(() => {
-    const el = trackRef.current
-    if (!el) return
-    const offset = (cardWidth + gap) * perView
-    el.scrollTo({ left: page * offset, behavior: 'smooth' })
-  }, [page, cardWidth, gap, perView])
-
-  const goPrev = () => setPage((current) => (current - 1 + totalPages) % totalPages)
-  const goNext = () => setPage((current) => (current + 1) % totalPages)
+    if (!swiper || !prevRef.current || !nextRef.current) return
+    const navigation = swiper.params.navigation
+    if (!navigation || typeof navigation === 'boolean') return
+    navigation.prevEl = prevRef.current
+    navigation.nextEl = nextRef.current
+    swiper.navigation.init()
+    swiper.navigation.update()
+  }, [swiper])
 
   return (
-    <div className="relative">
-      <div className="absolute right-0 top-[calc(-1*var(--s32))] flex gap-2.5 max-[768px]:static max-[768px]:mb-4 max-[768px]:justify-end">
-        <button
-          type="button"
-          className="button-base inline-flex h-10 w-10 items-center justify-center rounded-full backdrop-blur transition hover:-translate-y-0.5 hover:border-accent-red"
-          onClick={goPrev}
-          aria-label="Previous"
-        >
-          ←
+    <section className={styles.section} aria-label="Services carousel">
+      <div className={styles.wrap}>
+        <button ref={prevRef} className={`${styles.nav} ${styles.prev}`} aria-label="Previous">
+          ‹
         </button>
-        <button
-          type="button"
-          className="button-base inline-flex h-10 w-10 items-center justify-center rounded-full backdrop-blur transition hover:-translate-y-0.5 hover:border-accent-red"
-          onClick={goNext}
-          aria-label="Next"
+        <Swiper
+          className={styles.carousel}
+          modules={[Navigation]}
+          slidesPerView={single ? 1 : 3}
+          spaceBetween={single ? 16 : 24}
+          centeredSlides={false}
+          loop={false}
+          onSwiper={setSwiper}
+          navigation
+          breakpoints={{
+            0: { slidesPerView: single ? 1 : 1.1, spaceBetween: 16 },
+            700: { slidesPerView: single ? 1 : 2.1, spaceBetween: single ? 16 : 20 },
+            1100: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 24 },
+          }}
         >
-          →
-        </button>
-      </div>
-      <div className="overflow-x-auto scroll-smooth" ref={trackRef}>
-        <div className={styles.track} style={trackStyle}>
-          {items.map((service, index) => {
-            const serviceImage = images[index % images.length]
-            const isVideo = serviceImage?.mimeType?.startsWith('video/')
-            return (
-              <article
-                className={`relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[20px] border border-stroke bg-[var(--pearl-grad)] shadow-lux before:absolute before:inset-0 before:bg-[var(--pearl-highlight)] before:content-[''] ${styles.card}`}
-                key={service.id}
-              >
-                <div className="relative z-[1] flex min-h-[260px] flex-1 flex-col gap-3 px-[2.2rem] pb-[1.6rem] pt-8">
-                  <div className="flex items-center gap-4 text-[0.75rem] uppercase tracking-[0.24em] text-text-secondary">
-                    <span className="font-semibold">
-                      {String(index + 1).padStart(3, '0')}
-                    </span>
-                    <span>{groupLabel}</span>
-                  </div>
-                  <h3 className="text-[1.5rem] tracking-[0.02em] text-text-primary">
-                    {service.name}
-                  </h3>
-                  <p className="m-0 text-[0.95rem] text-text-muted">
-                    {service.description || 'Trattamento su misura.'}
-                  </p>
-                  <div className="mt-auto pt-4 text-[0.75rem] uppercase tracking-[0.18em] text-text-primary">
-                    Scopri →
-                  </div>
+          {items.map((item) => (
+            <SwiperSlide key={item.title} className={styles.slide}>
+              <article className={`${styles.card} ${cardClassName ?? ''}`}>
+                <div className={`${styles.media} ${mediaClassName ?? ''}`}>
+                  {item.badgeLeft && <span className={styles.badgeLeft}>{item.badgeLeft}</span>}
+                  {(item.badgeRight || item.tag) && (
+                    <span className={styles.badgeRight}>{item.badgeRight || item.tag}</span>
+                  )}
+                  <Image
+                    src={item.image.url}
+                    alt={item.image.alt || item.title}
+                    fill
+                    sizes="(max-width: 900px) 70vw, 33vw"
+                  />
                 </div>
-                <div className="overflow-hidden border-t border-stroke">
-                  {isVideo ? (
-                    <video
-                      className="h-[250px] w-full object-cover"
-                      src={serviceImage.url}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
+                <div className={styles.titleBlock}>
+                  <div className={styles.titleRow}>
+                    <h3 className={styles.title}>{item.title}</h3>
+                    <span className={styles.price}>{item.price || ''}</span>
+                  </div>
+                  <p className={`${styles.meta} ${styles.subtitle}`}>{item.subtitle || ''}</p>
+                </div>
+                <div className={styles.bottomBlock}>
+                  <div className={`${styles.meta} ${styles.metaRow}`}>
+                    <span>{item.duration || ''}</span>
+                  </div>
+                  {item.href ? (
+                    <Link className={styles.cta} href={item.href}>
+                      Scopri {item.title}
+                    </Link>
                   ) : (
-                    <div className="relative h-[250px] w-full">
-                      <Image
-                        className="object-cover"
-                        src={serviceImage.url}
-                        alt={serviceImage.alt || service.name || 'Service image'}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    </div>
+                    <button className={styles.cta} type="button">
+                      Scopri {item.title}
+                    </button>
                   )}
                 </div>
               </article>
-            )
-          })}
-        </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+        <button ref={nextRef} className={`${styles.nav} ${styles.next}`} aria-label="Next">
+          ›
+        </button>
       </div>
-    </div>
+    </section>
   )
 }

@@ -16,6 +16,7 @@ const GlassBase = CustomCard as unknown as React.FC<{
   blur?: number
   borderRadius?: number
   color?: string
+  boxShadow?: string
   className?: string
   style?: CSSProperties
   children?: ReactNode
@@ -34,7 +35,7 @@ export function GlassCard({
       blur={18}
       borderRadius={12}
       color="inherit"
-      box-shadow="0 22px 54px rgba(10, 18, 30, 0.22), 0 8px 18px rgba(10, 18, 30, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -12px 20px rgba(0, 0, 0, 0.07)"
+      boxShadow="0 22px 54px rgba(10, 18, 30, 0.22), 0 8px 18px rgba(10, 18, 30, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -12px 20px rgba(0, 0, 0, 0.07)"
       className={`glass-card ${variant === 'pill' ? 'glass-pill' : ''} ${className ?? ''}`}
       style={{ padding: 0, width: '100%', ...style }}
     >

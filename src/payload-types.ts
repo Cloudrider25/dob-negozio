@@ -72,15 +72,17 @@ export interface Config {
     products: Product;
     needs: Need;
     categories: Category;
-    'routine-steps': RoutineStep;
     lines: Line;
     textures: Texture;
-    'makeup-collections': MakeupCollection;
     areas: Area;
     objectives: Objective;
+    intents: Intent;
+    zones: Zone;
+    badges: Badge;
     treatments: Treatment;
     services: Service;
     promotions: Promotion;
+    programs: Program;
     posts: Post;
     pages: Page;
     'payload-kv': PayloadKv;
@@ -95,15 +97,17 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     needs: NeedsSelect<false> | NeedsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    'routine-steps': RoutineStepsSelect<false> | RoutineStepsSelect<true>;
     lines: LinesSelect<false> | LinesSelect<true>;
     textures: TexturesSelect<false> | TexturesSelect<true>;
-    'makeup-collections': MakeupCollectionsSelect<false> | MakeupCollectionsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
     objectives: ObjectivesSelect<false> | ObjectivesSelect<true>;
+    intents: IntentsSelect<false> | IntentsSelect<true>;
+    zones: ZonesSelect<false> | ZonesSelect<true>;
+    badges: BadgesSelect<false> | BadgesSelect<true>;
     treatments: TreatmentsSelect<false> | TreatmentsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     promotions: PromotionsSelect<false> | PromotionsSelect<true>;
+    programs: ProgramsSelect<false> | ProgramsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -208,10 +212,8 @@ export interface Product {
   results?: string | null;
   needs?: (number | Need)[] | null;
   categories?: (number | Category)[] | null;
-  routineSteps?: (number | RoutineStep)[] | null;
   lines?: (number | Line)[] | null;
   textures?: (number | Texture)[] | null;
-  makeupCollection?: (number | null) | MakeupCollection;
   brand?: string | null;
   price: number;
   currency: 'EUR';
@@ -224,6 +226,15 @@ export interface Product {
   residualTotal?: number | null;
   total?: number | null;
   coverImage?: (number | null) | Media;
+  metaLine?: string | null;
+  metaNeeds?: string | null;
+  metaCategories?: string | null;
+  metaZones?: string | null;
+  metaTexture?: string | null;
+  metaDescription?: string | null;
+  metaHowToUse?: string | null;
+  metaActiveIngredients?: string | null;
+  metaResults?: string | null;
   images?: (number | Media)[] | null;
   featured?: boolean | null;
   active?: boolean | null;
@@ -270,23 +281,6 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-steps".
- */
-export interface RoutineStep {
-  id: number;
-  name: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  slug: string;
-  description?: string | null;
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lines".
  */
 export interface Line {
@@ -307,23 +301,6 @@ export interface Line {
  * via the `definition` "textures".
  */
 export interface Texture {
-  id: number;
-  name: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  slug: string;
-  description?: string | null;
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "makeup-collections".
- */
-export interface MakeupCollection {
   id: number;
   name: string;
   boxTagline?: string | null;
@@ -399,6 +376,39 @@ export interface Objective {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intents".
+ */
+export interface Intent {
+  id: number;
+  code: string;
+  label: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "zones".
+ */
+export interface Zone {
+  id: number;
+  code: string;
+  label: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges".
+ */
+export interface Badge {
+  id: number;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "treatments".
  */
 export interface Treatment {
@@ -458,18 +468,128 @@ export interface Treatment {
 export interface Service {
   id: number;
   name: string;
-  category: number | Treatment;
-  treatments: (number | Treatment)[];
+  active?: boolean | null;
+  legacyName?: string | null;
   slug: string;
   description?: string | null;
-  image?: (number | null) | Media;
   price: number;
-  /**
-   * Es. 60 min
-   */
-  duration?: string | null;
+  durationMinutes?: number | null;
   serviceType: 'single' | 'package';
-  active?: boolean | null;
+  gallery?:
+    | {
+        media: number | Media;
+        isCover?: boolean | null;
+        mediaType?: ('image' | 'video') | null;
+        id?: string | null;
+      }[]
+    | null;
+  tagline?: string | null;
+  badge?: (number | null) | Badge;
+  results?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  indications?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  techProtocolShort?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  downtime?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * URL embed (YouTube/Vimeo)
+   */
+  videoEmbedUrl?: string | null;
+  videoUpload?: (number | null) | Media;
+  /**
+   * Seleziona un media dalla gallery del servizio.
+   */
+  includedMedia?: (number | null) | Media;
+  includedDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  faqMedia?: (number | null) | Media;
+  faqTitle?: string | null;
+  faqSubtitle?: string | null;
+  faqItems?:
+    | {
+        q?: string | null;
+        a?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  category: number | Treatment;
+  treatments: (number | Treatment)[];
+  treatment?: (number | null) | Treatment;
+  objective?: (number | null) | Objective;
+  area?: (number | null) | Area;
+  intent?: (number | null) | Intent;
+  zone?: (number | null) | Zone;
+  gender?: ('unisex' | 'female' | 'male') | null;
+  modality?: ('device' | 'manual' | 'laser' | 'consultation' | 'wax') | null;
+  intentCode?: string | null;
+  zoneCode?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -487,6 +607,66 @@ export interface Promotion {
   startsAt?: string | null;
   endsAt?: string | null;
   active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs".
+ */
+export interface Program {
+  id: number;
+  title: string;
+  description?: string | null;
+  items?:
+    | {
+        entry:
+          | {
+              relationTo: 'services';
+              value: number | Service;
+            }
+          | {
+              relationTo: 'treatments';
+              value: number | Treatment;
+            }
+          | {
+              relationTo: 'areas';
+              value: number | Area;
+            }
+          | {
+              relationTo: 'objectives';
+              value: number | Objective;
+            }
+          | {
+              relationTo: 'promotions';
+              value: number | Promotion;
+            }
+          | {
+              relationTo: 'products';
+              value: number | Product;
+            }
+          | {
+              relationTo: 'needs';
+              value: number | Need;
+            }
+          | {
+              relationTo: 'categories';
+              value: number | Category;
+            }
+          | {
+              relationTo: 'lines';
+              value: number | Line;
+            }
+          | {
+              relationTo: 'textures';
+              value: number | Texture;
+            };
+        itemImage?: (number | null) | Media;
+        itemTitle?: string | null;
+        itemDescription?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -584,10 +764,6 @@ export interface PayloadLockedDocument {
         value: number | Category;
       } | null)
     | ({
-        relationTo: 'routine-steps';
-        value: number | RoutineStep;
-      } | null)
-    | ({
         relationTo: 'lines';
         value: number | Line;
       } | null)
@@ -596,16 +772,24 @@ export interface PayloadLockedDocument {
         value: number | Texture;
       } | null)
     | ({
-        relationTo: 'makeup-collections';
-        value: number | MakeupCollection;
-      } | null)
-    | ({
         relationTo: 'areas';
         value: number | Area;
       } | null)
     | ({
         relationTo: 'objectives';
         value: number | Objective;
+      } | null)
+    | ({
+        relationTo: 'intents';
+        value: number | Intent;
+      } | null)
+    | ({
+        relationTo: 'zones';
+        value: number | Zone;
+      } | null)
+    | ({
+        relationTo: 'badges';
+        value: number | Badge;
       } | null)
     | ({
         relationTo: 'treatments';
@@ -618,6 +802,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'promotions';
         value: number | Promotion;
+      } | null)
+    | ({
+        relationTo: 'programs';
+        value: number | Program;
       } | null)
     | ({
         relationTo: 'posts';
@@ -723,10 +911,8 @@ export interface ProductsSelect<T extends boolean = true> {
   results?: T;
   needs?: T;
   categories?: T;
-  routineSteps?: T;
   lines?: T;
   textures?: T;
-  makeupCollection?: T;
   brand?: T;
   price?: T;
   currency?: T;
@@ -739,6 +925,15 @@ export interface ProductsSelect<T extends boolean = true> {
   residualTotal?: T;
   total?: T;
   coverImage?: T;
+  metaLine?: T;
+  metaNeeds?: T;
+  metaCategories?: T;
+  metaZones?: T;
+  metaTexture?: T;
+  metaDescription?: T;
+  metaHowToUse?: T;
+  metaActiveIngredients?: T;
+  metaResults?: T;
   images?: T;
   featured?: T;
   active?: T;
@@ -783,22 +978,6 @@ export interface CategoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-steps_select".
- */
-export interface RoutineStepsSelect<T extends boolean = true> {
-  name?: T;
-  boxTagline?: T;
-  cardTitle?: T;
-  cardTagline?: T;
-  cardMedia?: T;
-  slug?: T;
-  description?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lines_select".
  */
 export interface LinesSelect<T extends boolean = true> {
@@ -818,22 +997,6 @@ export interface LinesSelect<T extends boolean = true> {
  * via the `definition` "textures_select".
  */
 export interface TexturesSelect<T extends boolean = true> {
-  name?: T;
-  boxTagline?: T;
-  cardTitle?: T;
-  cardTagline?: T;
-  cardMedia?: T;
-  slug?: T;
-  description?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "makeup-collections_select".
- */
-export interface MakeupCollectionsSelect<T extends boolean = true> {
   name?: T;
   boxTagline?: T;
   cardTitle?: T;
@@ -878,6 +1041,36 @@ export interface ObjectivesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intents_select".
+ */
+export interface IntentsSelect<T extends boolean = true> {
+  code?: T;
+  label?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "zones_select".
+ */
+export interface ZonesSelect<T extends boolean = true> {
+  code?: T;
+  label?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges_select".
+ */
+export interface BadgesSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "treatments_select".
  */
 export interface TreatmentsSelect<T extends boolean = true> {
@@ -910,15 +1103,52 @@ export interface TreatmentsSelect<T extends boolean = true> {
  */
 export interface ServicesSelect<T extends boolean = true> {
   name?: T;
-  category?: T;
-  treatments?: T;
+  active?: T;
+  legacyName?: T;
   slug?: T;
   description?: T;
-  image?: T;
   price?: T;
-  duration?: T;
+  durationMinutes?: T;
   serviceType?: T;
-  active?: T;
+  gallery?:
+    | T
+    | {
+        media?: T;
+        isCover?: T;
+        mediaType?: T;
+        id?: T;
+      };
+  tagline?: T;
+  badge?: T;
+  results?: T;
+  indications?: T;
+  techProtocolShort?: T;
+  downtime?: T;
+  videoEmbedUrl?: T;
+  videoUpload?: T;
+  includedMedia?: T;
+  includedDescription?: T;
+  faqMedia?: T;
+  faqTitle?: T;
+  faqSubtitle?: T;
+  faqItems?:
+    | T
+    | {
+        q?: T;
+        a?: T;
+        id?: T;
+      };
+  category?: T;
+  treatments?: T;
+  treatment?: T;
+  objective?: T;
+  area?: T;
+  intent?: T;
+  zone?: T;
+  gender?: T;
+  modality?: T;
+  intentCode?: T;
+  zoneCode?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -935,6 +1165,25 @@ export interface PromotionsSelect<T extends boolean = true> {
   startsAt?: T;
   endsAt?: T;
   active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs_select".
+ */
+export interface ProgramsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  items?:
+    | T
+    | {
+        entry?: T;
+        itemImage?: T;
+        itemTitle?: T;
+        itemDescription?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,6 +1,6 @@
 .section {
-  background: #f1f0ec;
-  padding: 4.375rem;
+  background: transparent;
+
   border-radius: 12px 12px 0 0;
 }
 
@@ -19,7 +19,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: clamp(320px, 32vw, 480px);
+  min-height: clamp(420px, 42vw, 80px);
+  height: 100vh;
 }
 
 .textSlider {

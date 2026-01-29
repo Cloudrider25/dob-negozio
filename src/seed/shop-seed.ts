@@ -31,10 +31,8 @@ const buildOrderedItems = (items: string[], prefix?: string) =>
 type SeedCollectionSlug =
   | 'needs'
   | 'categories'
-  | 'routine-steps'
   | 'lines'
   | 'textures'
-  | 'makeup-collections'
 
 const seedSimpleCollection = async (
   payload: Payload,
@@ -263,8 +261,6 @@ export const seedShopTaxonomies = async (payload: Payload) => {
 
   const categories: SeedCategory[] = [...rootCategoryItems, ...childCategories]
 
-  const routineSteps = buildOrderedItems(['Fondamentali', 'Specifico'])
-
   const lines = buildOrderedItems([
     '75.15',
     '75.25',
@@ -305,12 +301,8 @@ export const seedShopTaxonomies = async (payload: Payload) => {
     'Spray',
   ])
 
-  const makeupCollections = buildOrderedItems(['Basic', 'Eva', 'Grace', 'Lucrezia'])
-
   await seedSimpleCollection(payload, 'needs', needs)
   await seedCategories(payload, categories)
-  await seedSimpleCollection(payload, 'routine-steps', routineSteps)
   await seedSimpleCollection(payload, 'lines', lines)
   await seedSimpleCollection(payload, 'textures', textures)
-  await seedSimpleCollection(payload, 'makeup-collections', makeupCollections)
 }

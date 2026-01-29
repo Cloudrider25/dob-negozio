@@ -15,16 +15,13 @@ export function PathBreadcrumb({ state, onNavigateToStep, onBack }: PathBreadcru
   const {
     getNeedById,
     getCategoryById,
-    getRoutineStepById,
     getLineById,
     getTextureById,
-    getRoutineStepsForFilters,
   } = useShopNavigatorData()
 
   const {
     selectedNeed,
     selectedCategory,
-    selectedRoutineStep,
     selectedLine,
     selectedTexture,
   } = state
@@ -40,12 +37,6 @@ export function PathBreadcrumb({ state, onNavigateToStep, onBack }: PathBreadcru
       step: 'category',
     })
   }
-  if (selectedRoutineStep) {
-    nodes.push({
-      label: getRoutineStepById(selectedRoutineStep)?.label || selectedRoutineStep,
-      step: 'routine',
-    })
-  }
   if (selectedLine) {
     nodes.push({ label: getLineById(selectedLine)?.label || selectedLine, step: 'line' })
   }
@@ -59,9 +50,6 @@ export function PathBreadcrumb({ state, onNavigateToStep, onBack }: PathBreadcru
   const getGuideMessage = () => {
     if (!selectedNeed) return 'Seleziona un’esigenza per iniziare'
     if (!selectedCategory) return 'Scegli una categoria'
-    const hasRoutine =
-      getRoutineStepsForFilters({ needId: selectedNeed, categoryId: selectedCategory }).length > 0
-    if (!selectedRoutineStep && hasRoutine) return 'Seleziona lo step della routine'
     if (!selectedLine) return 'Seleziona una linea'
     if (!selectedTexture) return 'Scegli una texture'
     return ''

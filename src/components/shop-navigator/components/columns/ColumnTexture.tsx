@@ -1,10 +1,4 @@
-import type {
-  CategoryId,
-  LineId,
-  NeedId,
-  RoutineStepId,
-  TextureId,
-} from '@/components/shop-navigator/types/navigator'
+import type { CategoryId, LineId, NeedId, TextureId } from '@/components/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { EmptyState } from '@/components/shop-navigator/components/EmptyState'
 import { ColumnList } from '@/components/shop-navigator/components/columns/ColumnList'
@@ -12,7 +6,6 @@ import { ColumnList } from '@/components/shop-navigator/components/columns/Colum
 interface ColumnTextureProps {
   needId: NeedId
   categoryId: CategoryId
-  routineStepId?: RoutineStepId
   lineId?: LineId
   selectedTexture?: TextureId
   onSelectTexture: (texture: TextureId) => void
@@ -22,14 +15,13 @@ interface ColumnTextureProps {
 export function ColumnTexture({
   needId,
   categoryId,
-  routineStepId,
   lineId,
   selectedTexture,
   onSelectTexture,
   onHoverTexture,
 }: ColumnTextureProps) {
   const { getTexturesForFilters, getProductCount } = useShopNavigatorData()
-  const textures = getTexturesForFilters({ needId, categoryId, routineStepId, lineId })
+  const textures = getTexturesForFilters({ needId, categoryId, lineId })
 
   return (
     <ColumnList
@@ -43,7 +35,7 @@ export function ColumnTexture({
         onHover: (active) => onHoverTexture?.(active ? texture.id : null),
         rightSlot: (
           <div className="text-sm text-text-muted">
-            ({getProductCount({ needId, categoryId, routineStepId, lineId, textureId: texture.id })})
+            ({getProductCount({ needId, categoryId, lineId, textureId: texture.id })})
           </div>
         ),
       }))}

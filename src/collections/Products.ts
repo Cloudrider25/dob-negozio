@@ -65,12 +65,6 @@ export const Products: CollectionConfig = {
       hasMany: true,
     },
     {
-      name: 'routineSteps',
-      type: 'relationship',
-      relationTo: 'routine-steps',
-      hasMany: true,
-    },
-    {
       name: 'lines',
       type: 'relationship',
       relationTo: 'lines',
@@ -81,11 +75,6 @@ export const Products: CollectionConfig = {
       type: 'relationship',
       relationTo: 'textures',
       hasMany: true,
-    },
-    {
-      name: 'makeupCollection',
-      type: 'relationship',
-      relationTo: 'makeup-collections',
     },
     {
       name: 'brand',
@@ -147,6 +136,51 @@ export const Products: CollectionConfig = {
       name: 'coverImage',
       type: 'upload',
       relationTo: 'media',
+    },
+    {
+      name: 'metaLine',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaNeeds',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaCategories',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaZones',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaTexture',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaDescription',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaHowToUse',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaActiveIngredients',
+      type: 'textarea',
+      admin: { hidden: true },
+    },
+    {
+      name: 'metaResults',
+      type: 'textarea',
+      admin: { hidden: true },
     },
     {
       name: 'images',

@@ -36,11 +36,23 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
   })
   const pageDoc = pageConfig.docs[0]
   const heroMedia = Array.isArray(pageDoc?.heroMedia) ? pageDoc?.heroMedia : []
-  const resolveMedia = (media: unknown) => {
+  const resolveMedia = (media: unknown, fallbackAlt = t.services.title) => {
     if (!media || typeof media !== 'object' || !('url' in media)) return null
     const typed = media as { url?: string | null; alt?: string | null; mimeType?: string | null }
     if (!typed.url) return null
-    return { url: typed.url, alt: typed.alt || t.services.title, mimeType: typed.mimeType || null }
+    return { url: typed.url, alt: typed.alt || fallbackAlt, mimeType: typed.mimeType || null }
+  }
+  const resolveGalleryCover = (gallery: unknown, fallbackAlt: string) => {
+    if (!Array.isArray(gallery)) return null
+    const entries = gallery
+      .map((item) =>
+        item && typeof item === 'object'
+          ? (item as { media?: unknown; isCover?: boolean })
+          : null,
+      )
+      .filter(Boolean)
+    const cover = entries.find((entry) => entry?.isCover) ?? entries[0]
+    return cover?.media ? resolveMedia(cover.media, fallbackAlt) : null
   }
   const heroDark = resolveMedia(heroMedia?.[0])
   const heroLight = resolveMedia(heroMedia?.[1])
@@ -220,10 +232,9 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
   })
 
   const services: ServiceFinal[] = servicesResult.docs.map((service) => {
-    const durationMatch = service.duration ? String(service.duration).match(/(\d+)/) : null
-    const durationMin = durationMatch ? Number.parseInt(durationMatch[1], 10) : 0
+    const durationMin = typeof service.durationMinutes === 'number' ? service.durationMinutes : 0
     const treatmentsList = Array.isArray(service.treatments) ? service.treatments : []
-    const serviceMedia = resolveMedia(service.image)
+    const serviceMedia = resolveGalleryCover(service.gallery, service.name || t.services.title)
     const treatmentIds = treatmentsList
       .map((item) => {
         if (item && typeof item === 'object' && 'id' in item) return String(item.id)

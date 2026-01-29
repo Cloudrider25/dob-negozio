@@ -13,7 +13,6 @@ export function SidePreview({ state }: SidePreviewProps) {
   const {
     getNeedById,
     getCategoryById,
-    getRoutineStepById,
     getLineById,
     getTextureById,
     getProductsForFilters,
@@ -22,7 +21,6 @@ export function SidePreview({ state }: SidePreviewProps) {
   const filters = {
     needId: state.selectedNeed,
     categoryId: state.selectedCategory,
-    routineStepId: state.selectedRoutineStep,
     lineId: state.selectedLine,
     textureId: state.selectedTexture,
   }
@@ -215,15 +213,6 @@ export function SidePreview({ state }: SidePreviewProps) {
                 <div className="text-base text-text-primary capitalize">
                   {state.selectedCategory
                     ? getCategoryById(state.selectedCategory)?.label || '—'
-                    : '—'}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-xs text-text-muted mb-1">Routine</div>
-                <div className="text-base text-text-primary capitalize">
-                  {state.selectedRoutineStep
-                    ? getRoutineStepById(state.selectedRoutineStep)?.label || '—'
                     : '—'}
                 </div>
               </div>
