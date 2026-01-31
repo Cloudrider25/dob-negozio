@@ -14,6 +14,39 @@ export const Programs: CollectionConfig = {
     update: isAdmin,
     delete: isAdmin,
   },
+  hooks: {
+    beforeValidate: [
+      ({ data, req }) => {
+        if (!data || data.slug) return data
+        const rawTitle = data.title
+        let value = ''
+        if (typeof rawTitle === 'string') {
+          value = rawTitle
+        } else if (rawTitle && typeof rawTitle === 'object') {
+          const localized = rawTitle as Record<string, unknown>
+          const preferredLocale = req.locale || 'it'
+          const preferred = localized[preferredLocale]
+          if (typeof preferred === 'string') {
+            value = preferred
+          } else {
+            const first = Object.values(localized).find((item) => typeof item === 'string')
+            if (typeof first === 'string') value = first
+          }
+        }
+        if (!value) return data
+        const slug = value
+          .toLowerCase()
+          .normalize('NFKD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)+/g, '')
+        if (slug) {
+          data.slug = slug
+        }
+        return data
+      },
+    ],
+  },
   fields: [
     {
       name: 'title',
@@ -22,48 +55,114 @@ export const Programs: CollectionConfig = {
       required: true,
     },
     {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: {
+        hidden: true,
+      },
+    },
+    {
+      name: 'price',
+      type: 'number',
+      min: 0,
+    },
+    {
+      name: 'currency',
+      type: 'select',
+      defaultValue: 'EUR',
+      options: [
+        { label: 'EUR', value: 'EUR' },
+        { label: 'USD', value: 'USD' },
+      ],
+    },
+    {
       name: 'description',
       type: 'textarea',
       localized: true,
     },
     {
-      name: 'items',
+      name: 'heroMedia',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
+      name: 'steps',
       type: 'array',
       maxRows: 10,
       fields: [
         {
-          name: 'entry',
-          type: 'relationship',
-          relationTo: [
-            'services',
-            'treatments',
-            'areas',
-            'objectives',
-            'promotions',
-            'products',
-            'needs',
-            'categories',
-            'lines',
-            'textures',
+          name: 'stepType',
+          type: 'select',
+          defaultValue: 'manual',
+          options: [
+            { label: 'Manuale', value: 'manual' },
+            { label: 'Servizio', value: 'service' },
+            { label: 'Prodotto', value: 'product' },
           ],
           required: true,
         },
         {
-          name: 'itemImage',
-          label: 'Immagine aggiuntiva',
+          name: 'stepService',
+          label: 'Servizio',
+          type: 'relationship',
+          relationTo: 'services',
+          admin: {
+            condition: (_data, siblingData) => siblingData?.stepType === 'service',
+            description: 'Media, titolo e sottotitolo vengono presi dal servizio selezionato.',
+          },
+        },
+        {
+          name: 'stepProduct',
+          label: 'Prodotto',
+          type: 'relationship',
+          relationTo: 'products',
+          admin: {
+            condition: (_data, siblingData) => siblingData?.stepType === 'product',
+            description: 'Media, titolo e sottotitolo vengono presi dal prodotto selezionato.',
+          },
+        },
+        {
+          name: 'stepHeroMedia',
+          label: 'Hero / Cover (sinistra)',
           type: 'upload',
           relationTo: 'media',
+          admin: {
+            condition: (_data, siblingData) => siblingData?.stepType === 'manual',
+          },
         },
         {
-          name: 'itemTitle',
-          label: 'Titolo aggiuntivo',
+          name: 'stepDetailMedia',
+          label: 'Media dettaglio (destra)',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            condition: (_data, siblingData) => siblingData?.stepType === 'manual',
+          },
+        },
+        {
+          name: 'stepTitle',
+          label: 'Titolo step',
           type: 'text',
           localized: true,
+          admin: {
+            condition: (_data, siblingData) => siblingData?.stepType === 'manual',
+          },
         },
         {
-          name: 'itemDescription',
-          label: 'Descrizione aggiuntiva',
+          name: 'stepSubtitle',
+          label: 'Sottotitolo step',
           type: 'textarea',
+          localized: true,
+          admin: {
+            condition: (_data, siblingData) => siblingData?.stepType === 'manual',
+          },
+        },
+        {
+          name: 'stepBadge',
+          label: 'Badge step',
+          type: 'text',
           localized: true,
         },
       ],

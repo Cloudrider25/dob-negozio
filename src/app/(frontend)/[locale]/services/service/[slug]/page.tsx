@@ -9,8 +9,10 @@ import { ServiceAccordion } from './ServiceAccordion'
 import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
 import { ServiceTreatmentReveal } from '@/components/ServiceTreatmentReveal'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
+import type { SerializedEditorState } from 'lexical'
 import { HeroGallery } from './HeroGallery'
 import { FaqAccordion } from './FaqAccordion'
+import type { Treatment } from '@/payload-types'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -115,18 +117,24 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     return cover ? cover.media : null
   }
 
-  let parentTreatment =
-    service.category && typeof service.category === 'object' ? service.category : null
-
-  if (!parentTreatment && (typeof service.category === 'string' || typeof service.category === 'number')) {
-    parentTreatment = await payload.findByID({
-      collection: 'treatments',
-      id: String(service.category),
-      locale,
-      depth: 1,
-      overrideAccess: false,
-    })
+  const resolveTreatmentFromValue = async (value: unknown): Promise<Treatment | null> => {
+    if (!value) return null
+    if (typeof value === 'object') return value as Treatment
+    if (typeof value === 'string' || typeof value === 'number') {
+      return payload.findByID({
+        collection: 'treatments',
+        id: String(value),
+        locale,
+        depth: 1,
+        overrideAccess: false,
+      }) as Promise<Treatment>
+    }
+    return null
   }
+
+  const treatmentsList = Array.isArray(service.treatments) ? service.treatments : []
+  const primaryTreatmentValue = treatmentsList[0] ?? service.treatment
+  const parentTreatment = await resolveTreatmentFromValue(primaryTreatmentValue)
   const parentTitle =
     parentTreatment && typeof parentTreatment.boxName === 'string' ? parentTreatment.boxName : null
   const parentCardTitle =
@@ -245,7 +253,12 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     }
     if (typeof value === 'object') {
       try {
-        const html = convertLexicalToHTML({ data: value })
+        const data =
+          value && typeof value === 'object' && 'root' in value
+            ? (value as SerializedEditorState)
+            : null
+        if (!data) return null
+        const html = convertLexicalToHTML({ data })
         return html ? { type: 'html', value: html } : null
       } catch {
         return null
@@ -319,11 +332,11 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     return '—'
   }
 
-  const categoryLabel = resolveTreatmentLabel(service.category)
+  const categoryLabel = resolveTreatmentLabel(parentTreatment)
   const badgeLabel = resolveTreatmentLabel(service.badge)
   const categoryId =
-    service.category && typeof service.category === 'object' && 'id' in service.category
-      ? String((service.category as { id?: string | number }).id ?? '')
+    parentTreatment && typeof parentTreatment === 'object' && 'id' in parentTreatment
+      ? String((parentTreatment as { id?: string | number }).id ?? '')
       : undefined
 
   const resolveRelId = (value: unknown) => {
@@ -350,7 +363,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     where: {
       and: [
         { slug: { not_equals: service.slug } },
-        ...(categoryId ? [{ category: { equals: categoryId } }] : []),
+        ...(categoryId ? [{ treatments: { in: [categoryId] } }] : []),
       ],
     },
   })
@@ -372,7 +385,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     where: {
       and: [
         { slug: { not_equals: service.slug } },
-        ...(categoryId ? [{ category: { not_equals: categoryId } }] : []),
+        ...(categoryId ? [{ treatments: { not_in: [categoryId] } }] : []),
       ],
     },
   })

@@ -12,9 +12,10 @@
 body[data-theme="dark"],
 html[data-theme="dark"],
 body.dark {
-  --bg: var(--obsidian);
-  --bg-2: var(--graphite);
-  --paper: #121521;
+  --bg: var(--graphite);
+  --bg-2: var(--obsidian);
+  --page-bg: var(--obsidian);
+  --paper: var(--panel);
   --sand: rgba(255, 255, 255, 0.08);
   --text-primary: rgba(246, 242, 234, 0.92);
   --text-secondary: rgba(246, 242, 234, 0.7);
@@ -27,9 +28,10 @@ body.dark {
 body[data-theme="light"],
 html[data-theme="light"],
 body.light {
-  --bg: var( --pearl-1);
+  --bg: var(--pearl-5);
   --bg-2: var(--pearl-2);
-  --paper: var(--pearl-1);
+  --page-bg: var(--pearl-1);
+  --paper: var(--neutral-100);
   --sand: #E9E2D6;
   --text-primary: rgba(7, 7, 10, 0.92);
   --text-secondary: rgba(7, 7, 10, 0.7);

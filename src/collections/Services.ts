@@ -193,17 +193,13 @@ export const Services: CollectionConfig = {
               name: 'results',
               type: 'richText',
               localized: true,
-              admin: {
-                label: 'Benefits / Results',
-              },
+              label: 'Benefits / Results',
             },
             {
               name: 'indications',
               type: 'richText',
               localized: true,
-              admin: {
-                label: 'Areas & Use Cases',
-              },
+              label: 'Areas & Use Cases',
             },
             {
               name: 'techProtocolShort',
@@ -262,7 +258,7 @@ export const Services: CollectionConfig = {
               type: 'relationship',
               relationTo: 'media',
               filterOptions: ({ siblingData }) => {
-                const gallery = siblingData?.gallery
+                const gallery = (siblingData as { gallery?: unknown })?.gallery
                 if (!Array.isArray(gallery)) return false
                 const ids = gallery
                   .map((item) => item?.media)
@@ -306,7 +302,7 @@ export const Services: CollectionConfig = {
               type: 'relationship',
               relationTo: 'media',
               filterOptions: ({ siblingData }) => {
-                const gallery = siblingData?.gallery
+                const gallery = (siblingData as { gallery?: unknown })?.gallery
                 if (!Array.isArray(gallery)) return false
                 const ids = gallery
                   .map((item) => item?.media)
@@ -347,15 +343,6 @@ export const Services: CollectionConfig = {
         {
           label: 'Relazioni',
           fields: [
-            {
-              name: 'category',
-              type: 'relationship',
-              relationTo: 'treatments',
-              required: true,
-              admin: {
-                label: 'Treatment (parent)',
-              },
-            },
             {
               name: 'treatments',
               type: 'relationship',

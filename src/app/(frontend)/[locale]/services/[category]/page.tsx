@@ -34,6 +34,51 @@ export default async function ServiceCategoryPage({
 
   const t = getDictionary(locale)
   const payload = await getPayloadClient()
+  const fallbackMedia = {
+    url: fallbackImage,
+    alt: t.services.title,
+  }
+
+  const resolveMedia = (media: unknown, fallbackAlt: string = t.services.title) => {
+    if (!media || typeof media !== 'object' || !('url' in media)) return null
+    const typed = media as { url?: string | null; alt?: string | null; mimeType?: string | null }
+    if (!typed.url) return null
+    return { url: typed.url, alt: typed.alt || fallbackAlt, mimeType: typed.mimeType || null }
+  }
+
+  const resolveGalleryCover = (gallery: unknown, fallbackAlt: string) => {
+    if (!Array.isArray(gallery)) return null
+    const entries = gallery
+      .map((item) =>
+        item && typeof item === 'object'
+          ? (item as { media?: unknown; isCover?: boolean })
+          : null,
+      )
+      .filter(Boolean)
+    const cover = entries.find((entry) => entry?.isCover) ?? entries[0]
+    return cover?.media ? resolveMedia(cover.media, fallbackAlt) : null
+  }
+
+  const formatServiceTag = (value?: string | null) => {
+    if (value === 'package') return 'Pacchetto'
+    if (value === 'single') return 'Singolo'
+    return null
+  }
+
+  const formatPrice = (value?: number | null, currency = 'EUR') => {
+    if (typeof value !== 'number' || Number.isNaN(value)) return null
+    const formatter = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    })
+    return formatter.format(value)
+  }
+
+  const formatDuration = (minutes?: number | null) => {
+    if (typeof minutes !== 'number' || Number.isNaN(minutes) || minutes <= 0) return undefined
+    return `${minutes} min`
+  }
   const siteSettings = await payload.findGlobal({
     slug: 'site-settings',
     locale,
@@ -114,8 +159,8 @@ export default async function ServiceCategoryPage({
     limit: 200,
     sort: 'price',
     where: {
-      category: {
-        equals: categoryDoc.id,
+      treatments: {
+        in: [categoryDoc.id],
       },
       active: {
         equals: true,
@@ -219,14 +264,23 @@ export default async function ServiceCategoryPage({
           </div>
           <ServicesCarousel
             items={filteredServices.map((service) => ({
-              id: service.id,
-              name: service.name,
-              description: service.description || categoryDoc.description || 'Trattamento su misura.',
+              title: service.name || categoryTitle,
+              subtitle: service.description || categoryDoc.description || 'Trattamento su misura.',
+              price: formatPrice(service.price, 'EUR'),
+              duration: formatDuration(service.durationMinutes),
+              image:
+                resolveGalleryCover(service.gallery, service.name || categoryTitle) || fallbackMedia,
+              tag: formatServiceTag(service.serviceType),
+              badgeLeft:
+                service.intent && typeof service.intent === 'object' && 'label' in service.intent
+                  ? String((service.intent as { label?: string }).label || '')
+                  : null,
+              badgeRight:
+                service.badge && typeof service.badge === 'object' && 'name' in service.badge
+                  ? String((service.badge as { name?: string }).name || '')
+                  : null,
+              href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
             }))}
-            groupLabel={categoryDoc.dobGroup || 'DOB'}
-            imageLeft={highlightImageLeft}
-            imageRight={highlightImageRight}
-            autoplayMs={5200}
           />
           {!filteredServices.length && (
             <p className="text-[0.9rem]">{t.services.note}</p>

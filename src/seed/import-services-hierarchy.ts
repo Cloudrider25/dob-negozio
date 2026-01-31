@@ -59,16 +59,6 @@ const ensureRelationEntry = (
   }
 }
 
-const payload = await getPayload({ config: configPromise })
-try {
-  await runImport(payload)
-} catch (err) {
-  console.error(err)
-  process.exit(1)
-} finally {
-  await payload.destroy()
-}
-
 const runImport = async (payload: { [key: string]: any }) => {
   const locale = 'it'
 
@@ -398,6 +388,16 @@ const runImport = async (payload: { [key: string]: any }) => {
       locale,
     })
   }
+}
+
+const payload = await getPayload({ config: configPromise })
+try {
+  await runImport(payload)
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+} finally {
+  await payload.destroy()
 }
 
 export default async function importServices({ payload }: { payload: any }) {

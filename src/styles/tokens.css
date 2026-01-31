@@ -5,10 +5,16 @@
   --obsidian: #07070A;
   --graphite: #1b1b1b;
   --panel: #121521;
+  
 
   --pearl-1: #FFFFFF;
   --pearl-2: #F5F2ED;
   --pearl-3: #F0ECE6;
+
+  /* Palette pearl */
+  --pearl-4: #F6F4F1;
+  --pearl-5: #E9E2D6;
+  --neutral-100: #EEE;
 
   --steel: #AEB6C2;
   --titanium: #6F7785;

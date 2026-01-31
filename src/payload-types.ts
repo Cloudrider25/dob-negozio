@@ -579,7 +579,6 @@ export interface Service {
         id?: string | null;
       }[]
     | null;
-  category: number | Treatment;
   treatments: (number | Treatment)[];
   treatment?: (number | null) | Treatment;
   objective?: (number | null) | Objective;
@@ -617,53 +616,27 @@ export interface Promotion {
 export interface Program {
   id: number;
   title: string;
+  slug?: string | null;
+  price?: number | null;
+  currency?: ('EUR' | 'USD') | null;
   description?: string | null;
-  items?:
+  heroMedia?: (number | null) | Media;
+  steps?:
     | {
-        entry:
-          | {
-              relationTo: 'services';
-              value: number | Service;
-            }
-          | {
-              relationTo: 'treatments';
-              value: number | Treatment;
-            }
-          | {
-              relationTo: 'areas';
-              value: number | Area;
-            }
-          | {
-              relationTo: 'objectives';
-              value: number | Objective;
-            }
-          | {
-              relationTo: 'promotions';
-              value: number | Promotion;
-            }
-          | {
-              relationTo: 'products';
-              value: number | Product;
-            }
-          | {
-              relationTo: 'needs';
-              value: number | Need;
-            }
-          | {
-              relationTo: 'categories';
-              value: number | Category;
-            }
-          | {
-              relationTo: 'lines';
-              value: number | Line;
-            }
-          | {
-              relationTo: 'textures';
-              value: number | Texture;
-            };
-        itemImage?: (number | null) | Media;
-        itemTitle?: string | null;
-        itemDescription?: string | null;
+        stepType: 'manual' | 'service' | 'product';
+        /**
+         * Media, titolo e sottotitolo vengono presi dal servizio selezionato.
+         */
+        stepService?: (number | null) | Service;
+        /**
+         * Media, titolo e sottotitolo vengono presi dal prodotto selezionato.
+         */
+        stepProduct?: (number | null) | Product;
+        stepHeroMedia?: (number | null) | Media;
+        stepDetailMedia?: (number | null) | Media;
+        stepTitle?: string | null;
+        stepSubtitle?: string | null;
+        stepBadge?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -716,6 +689,33 @@ export interface Page {
   heroTitle?: string | null;
   heroDescription?: string | null;
   heroMedia?: (number | Media)[] | null;
+  servicesCarousel?: {
+    limit?: number | null;
+    serviceTypes?: ('single' | 'package')[] | null;
+    gender?: ('unisex' | 'female' | 'male')[] | null;
+    modality?: ('device' | 'manual' | 'laser' | 'consultation' | 'wax')[] | null;
+    treatments?: (number | Treatment)[] | null;
+    objective?: (number | Objective)[] | null;
+    area?: (number | Area)[] | null;
+    intent?: (number | Intent)[] | null;
+    zone?: (number | Zone)[] | null;
+  };
+  storyHeroTitle?: string | null;
+  storyHeroBody?: string | null;
+  storyHeroCtaLabel?: string | null;
+  storyHeroCtaHref?: string | null;
+  storyHeroMedia?: (number | null) | Media;
+  /**
+   * Seleziona il programma da mostrare in homepage.
+   */
+  homeProgram?: (number | null) | Program;
+  productsCarousel?: {
+    limit?: number | null;
+    categories?: (number | Category)[] | null;
+    needs?: (number | Need)[] | null;
+    lines?: (number | Line)[] | null;
+    textures?: (number | Texture)[] | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1138,7 +1138,6 @@ export interface ServicesSelect<T extends boolean = true> {
         a?: T;
         id?: T;
       };
-  category?: T;
   treatments?: T;
   treatment?: T;
   objective?: T;
@@ -1174,14 +1173,22 @@ export interface PromotionsSelect<T extends boolean = true> {
  */
 export interface ProgramsSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
+  price?: T;
+  currency?: T;
   description?: T;
-  items?:
+  heroMedia?: T;
+  steps?:
     | T
     | {
-        entry?: T;
-        itemImage?: T;
-        itemTitle?: T;
-        itemDescription?: T;
+        stepType?: T;
+        stepService?: T;
+        stepProduct?: T;
+        stepHeroMedia?: T;
+        stepDetailMedia?: T;
+        stepTitle?: T;
+        stepSubtitle?: T;
+        stepBadge?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -1214,6 +1221,34 @@ export interface PagesSelect<T extends boolean = true> {
   heroTitle?: T;
   heroDescription?: T;
   heroMedia?: T;
+  servicesCarousel?:
+    | T
+    | {
+        limit?: T;
+        serviceTypes?: T;
+        gender?: T;
+        modality?: T;
+        treatments?: T;
+        objective?: T;
+        area?: T;
+        intent?: T;
+        zone?: T;
+      };
+  storyHeroTitle?: T;
+  storyHeroBody?: T;
+  storyHeroCtaLabel?: T;
+  storyHeroCtaHref?: T;
+  storyHeroMedia?: T;
+  homeProgram?: T;
+  productsCarousel?:
+    | T
+    | {
+        limit?: T;
+        categories?: T;
+        needs?: T;
+        lines?: T;
+        textures?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

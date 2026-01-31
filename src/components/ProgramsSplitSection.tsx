@@ -1,81 +1,84 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import styles from './ProgramsSplitSection.module.css'
+import serviceCardStyles from './ServiceCarouselCard.module.css'
 
-type ProgramItem = {
+type ProgramStep = {
   id: string
-  title: string
-  subtitle: string
-  price: string
-  rating: string
-  cta: string
-  image: string
-  alt: string
+  title?: string | null
+  subtitle?: string | null
+  badge?: string | null
+  heroMedia?: { url: string; alt?: string | null } | null
+  detailMedia?: { url: string; alt?: string | null } | null
 }
 
-const items: ProgramItem[] = [
-  {
-    id: 'barrier',
-    title: 'Barrier Restore Cream',
-    subtitle: 'Comforting daily moisturizer',
-    price: '€42,00',
-    rating: '★★★★☆ (3,566)',
-    cta: 'Buy BRC - €42,00',
-    image: '/media/hero_homepage_light.png',
-    alt: 'Barrier Restore Cream',
-  },
-  {
-    id: 'glow',
-    title: 'Glaze Serum',
-    subtitle: 'Hydrating glow serum',
-    price: '€38,00',
-    rating: '★★★★☆ (2,410)',
-    cta: 'Buy Glaze - €38,00',
-    image: '/media/hero_homepage_light.png',
-    alt: 'Glaze Serum',
-  },
-]
+type ProgramData = {
+  title?: string | null
+  description?: string | null
+  price?: string | null
+  slug?: string | null
+  heroMedia?: { url: string; alt?: string | null } | null
+  steps: ProgramStep[]
+}
 
-export const ProgramsSplitSection = () => {
+export const ProgramsSplitSection = ({
+  program,
+  locale,
+}: {
+  program?: ProgramData | null
+  locale: string
+}) => {
+  const steps = program?.steps ?? []
+  const total = steps.length
   const [activeIndex, setActiveIndex] = useState(0)
-  const active = items[activeIndex]
+  const [direction, setDirection] = useState<'next' | 'prev'>('next')
+  const activeStep = steps[activeIndex]
+  const maxIndex = Math.max(total - 1, 0)
+  const counter = useMemo(() => `${activeIndex}/${maxIndex}`, [activeIndex, maxIndex])
 
-  const total = items.length
-  const counter = useMemo(() => `${activeIndex + 1}/${total}`, [activeIndex, total])
+  if (!program || total === 0) return null
+
+  const leftMedia =
+    activeIndex === 0 ? program.heroMedia : activeStep?.heroMedia || program.heroMedia
+  const programHref = program.slug ? `/${locale}/programs/${program.slug}` : undefined
 
   return (
     <section className={styles.section} aria-label="Programmi DOB">
       <div className={styles.left}>
-        <Image
-          src="/media/hero_homepage_light.png"
-          alt="DOB program"
-          fill
-          sizes="(max-width: 900px) 100vw, 48vw"
-        />
+        {leftMedia?.url && (
+          <Image
+            src={leftMedia.url}
+            alt={leftMedia.alt || 'Program media'}
+            fill
+            sizes="(max-width: 900px) 100vw, 48vw"
+            className={direction === 'next' ? styles.slideNext : styles.slidePrev}
+          />
+        )}
         <div className={styles.dots}>
-          {items.map((item, index) => (
+          {steps.map((item, index) => (
             <button
               key={item.id}
               className={`${styles.dot} ${index === activeIndex ? styles.dotActive : ''}`}
               onClick={() => setActiveIndex(index)}
               type="button"
-              aria-label={`Vai a ${item.title}`}
+              aria-label={`Vai a ${item.title || `Step ${index}`}`}
             />
           ))}
         </div>
       </div>
-      <div className={styles.right}>
-        <div className={styles.productMedia}>
-          <Image src={active.image} alt={active.alt} fill sizes="40vw" />
-        </div>
+      <div className={`${styles.right} ${activeIndex === 0 ? styles.stepZero : ''}`}>
         <div className={styles.controls}>
           <button
             className={styles.arrow}
             type="button"
-            onClick={() => setActiveIndex((i) => (i - 1 + total) % total)}
+            onClick={() => {
+              setDirection('prev')
+              setActiveIndex((i) => (i - 1 + total) % total)
+            }}
             aria-label="Previous"
           >
             ‹
@@ -83,22 +86,71 @@ export const ProgramsSplitSection = () => {
           <button
             className={styles.arrow}
             type="button"
-            onClick={() => setActiveIndex((i) => (i + 1) % total)}
+            onClick={() => {
+              setDirection('next')
+              setActiveIndex((i) => (i + 1) % total)
+            }}
             aria-label="Next"
           >
             ›
           </button>
         </div>
-        <div className={styles.meta}>
-          <span>{active.rating}</span>
-          <span className={styles.price}>{active.price}</span>
-        </div>
-        <h3 className={styles.title}>{active.title}</h3>
-        <p className={styles.subtitle}>{active.subtitle}</p>
-        <button className={styles.cta} type="button">
-          {active.cta}
-        </button>
-        <span className={styles.counter}>{counter}</span>
+        {activeIndex === 0 ? (
+          <>
+            <h3 className={styles.title}>{program.title}</h3>
+            <p className={`${styles.subtitle} ${styles.subtitleCentered}`}>{program.description}</p>
+            <div className={styles.metaRow}>
+              {programHref ? (
+                <Link className={serviceCardStyles.cta} href={programHref}>
+                  Scopri {program.title}
+                  {program.price ? ` - ${program.price}` : ''}
+                </Link>
+              ) : (
+                <button className={serviceCardStyles.cta} type="button">
+                  Scopri {program.title}
+                  {program.price ? ` - ${program.price}` : ''}
+                </button>
+              )}
+              <span className={`${styles.counter} ${styles.counterLarge}`}>{counter}</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className={styles.title}>{program.title}</h3>
+            <div className={styles.stepMediaRow}>
+              {activeStep?.badge && <span className={styles.stepBadge}>{activeStep.badge}</span>}
+              <div className={styles.stepMedia}>
+                {activeStep?.detailMedia?.url && (
+                  <Image
+                    src={activeStep.detailMedia.url}
+                    alt={activeStep.detailMedia.alt || ''}
+                    fill
+                    sizes="40vw"
+                    className={direction === 'next' ? styles.slideNext : styles.slidePrev}
+                  />
+                )}
+              </div>
+            </div>
+            <div className={styles.stepFooter}>
+              <div className={styles.stepInfo}>
+                <p className={styles.stepTitle}>{activeStep?.title}</p>
+                <p className={styles.stepSubtitle}>{activeStep?.subtitle}</p>
+                {programHref ? (
+                  <Link className={serviceCardStyles.cta} href={programHref}>
+                    Scopri {program.title}
+                    {program.price ? ` - ${program.price}` : ''}
+                  </Link>
+                ) : (
+                  <button className={serviceCardStyles.cta} type="button">
+                    Scopri {program.title}
+                    {program.price ? ` - ${program.price}` : ''}
+                  </button>
+                )}
+              </div>
+              <span className={styles.counter}>{counter}</span>
+            </div>
+          </>
+        )}
       </div>
     </section>
   )

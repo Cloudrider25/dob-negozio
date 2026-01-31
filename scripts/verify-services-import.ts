@@ -31,19 +31,27 @@ const main = async () => {
     collection: 'services',
     depth: 1,
     limit: 5,
-    sort: 'externalId',
+    sort: '-createdAt',
     overrideAccess: true,
     locale,
   })
 
   console.log('\nSample services:')
   for (const doc of sample.docs) {
+    const treatmentsList = Array.isArray(doc.treatments) ? doc.treatments : []
+    const primaryTreatment = treatmentsList[0] ?? doc.treatment
     console.log('-', {
-      id: doc.externalId,
+      id: doc.id,
       name: doc.name,
       area: typeof doc.area === 'object' && doc.area ? doc.area.name : doc.area,
       objective: typeof doc.objective === 'object' && doc.objective ? doc.objective.boxName : doc.objective,
-      treatment: typeof doc.category === 'object' && doc.category ? doc.category.boxName : doc.category,
+      treatment:
+        typeof primaryTreatment === 'object' && primaryTreatment
+          ? (primaryTreatment as { boxName?: string; cardName?: string; name?: string; id?: number | string }).boxName ||
+            (primaryTreatment as { boxName?: string; cardName?: string; name?: string; id?: number | string }).cardName ||
+            (primaryTreatment as { boxName?: string; cardName?: string; name?: string; id?: number | string }).name ||
+            (primaryTreatment as { boxName?: string; cardName?: string; name?: string; id?: number | string }).id
+          : primaryTreatment,
       intent: typeof doc.intent === 'object' && doc.intent ? doc.intent.code : doc.intent,
       zone: typeof doc.zone === 'object' && doc.zone ? doc.zone.code : doc.zone,
       gender: doc.gender,

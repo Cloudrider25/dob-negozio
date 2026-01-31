@@ -100,7 +100,7 @@
 }
 
 .heroPanel {
-  background: #f6f4f1;
+  background: var(--bg);
   border-radius: 22px;
   padding: 2.5rem 2.6rem;
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
@@ -569,7 +569,7 @@
 }
 
 .insideContent {
-  background: #f6f4f1;
+  background: var(--bg);
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding: 2.2rem 3.2rem 2.2rem 2.4rem;
@@ -662,7 +662,7 @@
 }
 
 .faqCopy {
-  background: #f6f4f1;
+  background: var(--bg);
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding: 2.2rem 2.4rem;
@@ -780,7 +780,7 @@
 }
 
 .treatmentCard {
-  background: #f6f4f1;
+  background: var(--bg);
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   height: 640px;

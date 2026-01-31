@@ -6,7 +6,7 @@
   overflow: hidden;
   display: grid;
   place-items: center;
-  background: #f2f0ed;
+  background: var(--bg);
 }
 
 .media {

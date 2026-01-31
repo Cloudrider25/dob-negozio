@@ -51,18 +51,27 @@ export default async function LocaleLayout({
         phoneLink={phoneLink}
       />
       <div className="pb-[2.5vw]">{children}</div>
-      <footer className="mt-auto border-t border-stroke bg-[#f2f0ed] text-[#6b6761]">
+      <footer className="mt-auto border-t border-stroke bg-[var(--bg)] text-[#6b6761]">
         <div className="px-[2.25vw] py-12">
           <div className="mb-8 flex justify-center">
             <Link href={`/${locale}`} className="flex items-center justify-center gap-6 text-center">
-              <Image
-                src="/brand/logo-black.png"
-                alt={siteName}
-                width={256}
-                height={256}
-                className="h-[16rem] w-[16rem]"
-              />
-              <span className="dob-font text-[16rem] font-semibold uppercase tracking-[0.28em] text-[#000]">
+              <span className="footer-brand-mark">
+                <Image
+                  src="/brand/logo-black.png"
+                  alt=""
+                  width={256}
+                  height={256}
+                  className="footer-logo-dark h-[16rem] w-[16rem]"
+                />
+                <Image
+                  src="/brand/logo-white.png"
+                  alt=""
+                  width={256}
+                  height={256}
+                  className="footer-logo-light h-[16rem] w-[16rem]"
+                />
+              </span>
+              <span className="footer-title dob-font text-[16rem] font-semibold uppercase tracking-[0.28em]">
                 DOB
               </span>
             </Link>

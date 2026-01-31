@@ -36,7 +36,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
   })
   const pageDoc = pageConfig.docs[0]
   const heroMedia = Array.isArray(pageDoc?.heroMedia) ? pageDoc?.heroMedia : []
-  const resolveMedia = (media: unknown, fallbackAlt = t.services.title) => {
+  const resolveMedia = (media: unknown, fallbackAlt: string = t.services.title) => {
     if (!media || typeof media !== 'object' || !('url' in media)) return null
     const typed = media as { url?: string | null; alt?: string | null; mimeType?: string | null }
     if (!typed.url) return null

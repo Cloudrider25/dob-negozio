@@ -26,7 +26,7 @@
   }
 
   .panel {
-    background-color: var(--paper);
+    background-color: var(--bg);
     border: 1px solid var(--stroke);
     box-shadow: var(--shadow-soft);
   }
@@ -479,20 +479,20 @@ body.dark .chip-filled {
 html,
 body {
   height: 100%;
-  background: var(--bg);
+  background: var(--page-bg);
 }
 
 body {
   margin: 0;
   padding: 15px 2.25vw;
-  background: var(--bg);
+  background: var(--page-bg);
   color: var(--text-primary);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
 main {
-  background: var(--bg);
+  background: var(--page-bg);
   display: flex;
   flex-direction: column;
   row-gap: 2.25vw;
@@ -502,6 +502,7 @@ section {
   margin: 0;
   padding: 0;
   width: 100%;
+  background: var(--page-bg);
   border-radius: 12px 12px 0 0;
   overflow: hidden;
 }
@@ -517,6 +518,44 @@ body:has(#menu-toggle:checked) {
 img {
   max-width: 100%;
   display: block;
+}
+
+.footer-brand-mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-logo-dark,
+.footer-logo-light {
+  transition: opacity 0.2s ease;
+}
+
+.footer-logo-dark {
+  opacity: 1;
+}
+
+.footer-logo-light {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.footer-title {
+  color: var(--text-primary);
+}
+
+body[data-theme="dark"] .footer-logo-dark,
+html[data-theme="dark"] .footer-logo-dark,
+body.dark .footer-logo-dark {
+  opacity: 0;
+}
+
+body[data-theme="dark"] .footer-logo-light,
+html[data-theme="dark"] .footer-logo-light,
+body.dark .footer-logo-light {
+  opacity: 1;
 }
 
 ::selection {

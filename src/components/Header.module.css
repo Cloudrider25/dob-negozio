@@ -368,19 +368,19 @@
 :global(body.header-scrolled) .header {
   background: var(--bg);
   backdrop-filter: none;
-  box-shadow: var(--shadow-soft);
+  box-shadow: none;
 }
 
 :global(body[data-theme="light"]) .header,
 :global(html[data-theme="light"]) .header,
 :global(body.light) .header {
-  background: #f1f0ec;
+  background: var(--bg);
 }
 
 :global(body[data-theme="light"]) .topBar,
 :global(html[data-theme="light"]) .topBar,
 :global(body.light) .topBar {
-  background: #f1f0ec;
+  background: var(--bg);
 }
 
 :global(body[data-theme="dark"]) .header,

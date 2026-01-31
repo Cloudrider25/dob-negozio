@@ -1,17 +1,16 @@
 .section {
   display: grid;
-  gap: 1.5rem;
-  padding: 2.5rem min(4vw, 2.5rem);
-  background: #f2f0ed;
-  border-radius: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  min-height: calc(100vh - 120px);
-  height: calc(100vh - 120px);
+  gap: 2.5vw;
+  background: transparent;
+  border-radius: 16px;
+  grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+  min-height: calc(80vh - 120px);
+  height: calc(90vh - 120px);
 }
 
 .left {
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   min-height: 420px;
   background: #d9d6d2;
@@ -23,8 +22,9 @@
 
 .dots {
   position: absolute;
-  bottom: 16px;
-  left: 20px;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 8px;
 }
@@ -44,19 +44,20 @@
 
 .right {
   position: relative;
-  border-radius: 12px;
-  padding: clamp(1.5rem, 2vw, 2.4rem);
-  background: #f6f4f1;
+  border-radius: 16px;
+  padding: clamp(1.8rem, 2.2vw, 2.6rem);
+  background: var(--bg);
   min-height: 420px;
   display: grid;
-  gap: 0.75rem;
-  align-content: start;
+  gap: 1rem;
+  align-content: stretch;
+  grid-template-rows: auto 1fr auto;
 }
 
 .productMedia {
   position: relative;
   aspect-ratio: 4 / 5;
-  background: #eee;
+  background: transparent;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -71,7 +72,7 @@
   inset-inline: 0;
   display: flex;
   justify-content: space-between;
-  padding: 0 0.75rem;
+  padding: 0 1.2rem;
   pointer-events: none;
 }
 
@@ -88,13 +89,6 @@
   color: #6b6761;
 }
 
-.meta {
-  display: flex;
-  justify-content: space-between;
-  color: #7a756f;
-  font-size: 0.85rem;
-}
-
 .price {
   color: #5a5651;
   font-weight: 600;
@@ -102,38 +96,145 @@
 
 .title {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 2.2rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #6b6761;
+  max-width: 24rem;
+  grid-row: 1;
 }
 
 .subtitle {
   margin: 0;
   color: #7a756f;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
 }
 
-.cta {
-  margin-top: 0.5rem;
-  width: fit-content;
-  border-radius: 999px;
-  border: 1px solid #c9c4bf;
-  padding: 0.45rem 1.1rem;
+.subtitleCentered {
+  align-self: center;
+}
+
+.stepMediaRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 4fr);
+  gap: 0;
+  align-items: center;
+  justify-items: center;
+  grid-row: 2;
+}
+
+.stepMedia {
+  position: relative;
+  aspect-ratio: 8/6;
+  background: transparent;
+  border-radius: 16px;
+  overflow: hidden;
+  width: min(85%, 480px);
+  justify-self: flex-start;
+  align-self: stretch;
+}
+
+.stepMedia img {
+  object-fit: cover;
+}
+
+.slideNext {
+  animation: slideNext 0.45s ease;
+}
+
+.slidePrev {
+  animation: slidePrev 0.45s ease;
+}
+
+@keyframes slideNext {
+  from {
+    transform: translateX(12%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slidePrev {
+  from {
+    transform: translateX(-12%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.stepFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  align-self: end;
+  grid-row: 3;
+  width: 100%;
+}
+
+.stepBadge {
+  font-size: 2.8rem;
+  font-size: clamp(1rem, 1.8vw, 2.8rem);
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  color: var(--text-muted);
+  background: transparent;
+  pointer-events: none;
+  transform: rotate(-90deg);
+  justify-self: self-start;
+  white-space: nowrap;
+}
+
+.stepTitle {
+  margin: 0;
+  font-size: 1.05rem;
   letter-spacing: 0.12em;
-  font-size: 0.7rem;
-  background: #fff;
+  text-transform: uppercase;
   color: #6b6761;
-  cursor: pointer;
+}
+
+.stepSubtitle {
+  margin: 0.35rem 0 0;
+  color: #7a756f;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  align-self: end;
+  grid-row: 3;
+  width: 100%;
+}
+
+.stepInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-width: 70%;
 }
 
 .counter {
-  position: absolute;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-weight: 600;
   color: #7a756f;
+}
+
+.counterLarge {
+  font-size: 2.6rem;
+}
+
+.stepZero .subtitle {
+  overflow: auto;
 }
 
 @media (max-width: 900px) {
