@@ -81,7 +81,24 @@ export const ProgramsSplitSection = ({
             }}
             aria-label="Previous"
           >
-            ‹
+            <svg className={styles.arrowIcon} viewBox="0 0 48 48" aria-hidden="true">
+              <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path
+                d="M26 16L18 24L26 32"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M19 24H30"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
           <button
             className={styles.arrow}
@@ -92,7 +109,24 @@ export const ProgramsSplitSection = ({
             }}
             aria-label="Next"
           >
-            ›
+            <svg className={styles.arrowIcon} viewBox="0 0 48 48" aria-hidden="true">
+              <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path
+                d="M22 16L30 24L22 32"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M18 24H29"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         </div>
         {activeIndex === 0 ? (

@@ -5,7 +5,16 @@ import { useState } from 'react'
 
 import styles from './ProtocolSplit.module.css'
 
-const steps = [
+export type ProtocolSplitStep = {
+  id: string
+  label: string
+  title: string
+  subtitle: string
+  image: string
+  imageAlt: string
+}
+
+const defaultSteps: ProtocolSplitStep[] = [
   {
     id: '01',
     label: 'Diagnosi',
@@ -32,15 +41,21 @@ const steps = [
   },
 ]
 
-export const ProtocolSplit = () => {
+type ProtocolSplitProps = {
+  eyebrow?: string
+  steps?: ProtocolSplitStep[]
+}
+
+export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplitProps) => {
+  const resolvedSteps = steps && steps.length > 0 ? steps : defaultSteps
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
-  const activeStep = steps[activeIndex]
+  const activeStep = resolvedSteps[activeIndex]
 
   const getSlideState = (index: number) => {
     if (index === activeIndex) return styles.slideActive
-    const prevIndex = (activeIndex - 1 + steps.length) % steps.length
-    const nextIndex = (activeIndex + 1) % steps.length
+    const prevIndex = (activeIndex - 1 + resolvedSteps.length) % resolvedSteps.length
+    const nextIndex = (activeIndex + 1) % resolvedSteps.length
     if (direction === 'forward') {
       return index === prevIndex ? styles.slidePrev : styles.slideNext
     }
@@ -52,9 +67,9 @@ export const ProtocolSplit = () => {
       <div className={styles.grid}>
         <div className={styles.panel}>
           <div>
-            <p className={styles.eyebrow}>DOB protocol</p>
+            <p className={styles.eyebrow}>{eyebrow}</p>
             <div className={styles.textSlider}>
-              {steps.map((step, index) => (
+              {resolvedSteps.map((step, index) => (
                 <div
                   key={step.id}
                   className={`${styles.slide} ${styles.textSlide} ${getSlideState(index)}`}
@@ -65,8 +80,11 @@ export const ProtocolSplit = () => {
               ))}
             </div>
           </div>
-          <div className={styles.steps}>
-            {steps.map((step, index) => (
+          <div
+            className={styles.steps}
+            style={{ gridTemplateColumns: `repeat(${resolvedSteps.length}, minmax(0, 1fr))` }}
+          >
+            {resolvedSteps.map((step, index) => (
               <div key={step.id} className={styles.step}>
                 <button
                   className={`${styles.stepBtn} ${index === activeIndex ? styles.stepBtnActive : ''}`}
@@ -90,7 +108,7 @@ export const ProtocolSplit = () => {
         </div>
         <div className={styles.media}>
           <div className={styles.imageSlider}>
-            {steps.map((step, index) => (
+            {resolvedSteps.map((step, index) => (
               <div key={step.id} className={`${styles.slide} ${getSlideState(index)}`}>
                 <Image
                   src={step.image}

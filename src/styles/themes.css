@@ -28,7 +28,7 @@ body.dark {
 body[data-theme="light"],
 html[data-theme="light"],
 body.light {
-  --bg: var(--pearl-5);
+  --bg: #EDF2F2;
   --bg-2: var(--pearl-2);
   --page-bg: var(--pearl-1);
   --paper: var(--neutral-100);

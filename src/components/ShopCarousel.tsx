@@ -1,7 +1,6 @@
 'use client'
 
-import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
@@ -9,6 +8,8 @@ import 'swiper/css/navigation'
 import type { Swiper as SwiperInstance } from 'swiper/types'
 
 import styles from './ShopCarousel.module.css'
+import { ServiceCarouselCard } from './ServiceCarouselCard'
+import type { ServicesCarouselItem } from './service-carousel/types'
 
 export type ShopCarouselItem = {
   title: string
@@ -17,14 +18,30 @@ export type ShopCarouselItem = {
   rating?: string | null
   image: { url: string; alt?: string | null }
   tag?: string | null
+  href?: string
 }
 
 export const ShopCarousel = ({ items }: { items: ShopCarouselItem[] }) => {
   const prevRef = useRef<HTMLButtonElement | null>(null)
   const nextRef = useRef<HTMLButtonElement | null>(null)
   const [swiper, setSwiper] = useState<SwiperInstance | null>(null)
+  const mappedItems = useMemo<ServicesCarouselItem[]>(
+    () =>
+      items.map((item) => ({
+        title: item.title,
+        subtitle: item.subtitle ?? null,
+        price: item.price ?? null,
+        duration: null,
+        image: item.image,
+        tag: item.tag ?? null,
+        badgeLeft: null,
+        badgeRight: null,
+        href: item.href,
+      })),
+    [items],
+  )
 
-  if (items.length === 0) {
+  if (mappedItems.length === 0) {
     return (
       <section className={styles.section} aria-label="Shop carousel">
         <div className={styles.empty}>Nessun prodotto disponibile.</div>
@@ -52,41 +69,20 @@ export const ShopCarousel = ({ items }: { items: ShopCarouselItem[] }) => {
           className={styles.carousel}
           modules={[Navigation]}
           slidesPerView={3}
-          spaceBetween={24}
+          spaceBetween={48}
           centeredSlides={false}
           loop={false}
           onSwiper={setSwiper}
           navigation
           breakpoints={{
-            0: { slidesPerView: 1.1, spaceBetween: 16 },
-            700: { slidesPerView: 2.1, spaceBetween: 20 },
-            1100: { slidesPerView: 3, spaceBetween: 24 },
+            0: { slidesPerView: 1.1, spaceBetween: 32 },
+            700: { slidesPerView: 2.1, spaceBetween: 40 },
+            1100: { slidesPerView: 3, spaceBetween: 48 },
           }}
         >
-          {items.map((item) => (
+          {mappedItems.map((item) => (
             <SwiperSlide key={item.title} className={styles.slide}>
-              <article className={styles.card}>
-                <div className={styles.media}>
-                  {item.tag && <span className={styles.tag}>{item.tag}</span>}
-                  <Image
-                    src={item.image.url}
-                    alt={item.image.alt || item.title}
-                    fill
-                    sizes="(max-width: 900px) 70vw, 33vw"
-                  />
-                </div>
-                <div>
-                  <h3 className={styles.title}>{item.title}</h3>
-                  {item.subtitle && <p className={styles.meta}>{item.subtitle}</p>}
-                </div>
-                <div>
-                  <div className={styles.meta}>
-                    <span>{item.rating || ''}</span>
-                    <span className={styles.price}>{item.price || ''}</span>
-                  </div>
-                  <button className={styles.cta}>Buy {item.title}</button>
-                </div>
-              </article>
+              <ServiceCarouselCard item={item} />
             </SwiperSlide>
           ))}
         </Swiper>

@@ -1,20 +1,23 @@
-import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
-import { ProductPurchase } from '@/components/shop/ProductPurchase'
-import { ProductTabs } from '@/components/shop/ProductTabs'
+import { getDictionary, isLocale } from '@/lib/i18n'
+import styles from './product-detail.module.css'
+import { HeroGallery } from './HeroGallery'
 
-type PageProps = {
-  params: Promise<{ locale: string; slug: string }>
-}
+type PageParams = Promise<{ locale: string; slug: string }>
 
-export default async function ProductPage({ params }: PageProps) {
+export default async function ProductDetailPage({ params }: { params: PageParams }) {
   const { locale, slug } = await params
-  if (!isLocale(locale)) notFound()
+
+  if (!isLocale(locale)) {
+    notFound()
+  }
 
   const payload = await getPayloadClient()
+  const t = getDictionary(locale)
+
   const result = await payload.find({
     collection: 'products',
     locale,
@@ -22,111 +25,110 @@ export default async function ProductPage({ params }: PageProps) {
     depth: 1,
     limit: 1,
     where: {
-      or: [{ slug: { equals: slug } }, { id: { equals: slug } }],
+      slug: { equals: slug },
     },
   })
 
   const product = result.docs[0]
-  if (!product) notFound()
-
-  const t = getDictionary(locale)
-
-  const resolveMedia = (media: unknown) => {
-    if (!media || typeof media !== 'object' || !('url' in media)) return null
-    const typed = media as { url?: string | null; alt?: string | null }
-    if (!typed.url) return null
-    return { url: typed.url, alt: typed.alt || product.title || '' }
+  if (!product) {
+    notFound()
   }
 
-  const cover = resolveMedia(product.coverImage)
-  const gallery = Array.isArray(product.images)
-    ? product.images.map(resolveMedia).filter(Boolean)
-    : []
-  const mainImage = cover ?? gallery[0] ?? null
-  const isRemote = (url?: string | null) => Boolean(url && /^https?:\/\//i.test(url))
+  const resolveMediaFromId = async (value: unknown) => {
+    if (!value) return null
+    if (typeof value === 'object' && 'url' in value) return value as { url?: string; alt?: string }
+    if (typeof value === 'string' || typeof value === 'number') {
+      try {
+        return await payload.findByID({
+          collection: 'media',
+          id: String(value),
+          depth: 0,
+          overrideAccess: false,
+        })
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
+  const resolveMedia = (value: unknown, fallbackAlt = '') => {
+    if (!value || typeof value !== 'object' || !('url' in value)) return null
+    const typed = value as { url?: string | null; alt?: string | null; mimeType?: string | null }
+    if (!typed.url) return null
+    return { url: typed.url, alt: typed.alt || fallbackAlt, mimeType: typed.mimeType || null }
+  }
+
+  const resolveGalleryItems = async (gallery: unknown, fallbackAlt: string) => {
+    if (!Array.isArray(gallery)) return []
+    const resolved = await Promise.all(
+      gallery.map(async (entry) => {
+        const mediaDoc = await resolveMediaFromId(entry)
+        const media = mediaDoc ? resolveMedia(mediaDoc, fallbackAlt) : null
+        if (!media) return null
+        return {
+          media,
+          mediaType: media.mimeType && media.mimeType.startsWith('video/') ? 'video' : 'image',
+        }
+      }),
+    )
+    return resolved.filter(Boolean) as Array<{
+      media: { url: string; alt: string; mimeType: string | null }
+      mediaType: string | null
+    }>
+  }
+
+  const coverMedia = resolveMedia(product.coverImage, product.title || '')
+  const galleryItems = await resolveGalleryItems(product.images, product.title || '')
+
+  const formatPrice = (value?: number | null, currency?: string | null) => {
+    if (typeof value !== 'number') return ''
+    const formatter = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency || 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+    return formatter.format(value)
+  }
 
   return (
-    <div className="min-h-screen flex flex-col gap-[var(--s32)] px-[8vw] pb-16">
-      <section className="grid grid-cols-[1fr_auto_1fr] items-center pt-4 max-[1100px]:grid-cols-1 max-[1100px]:gap-4 max-[1100px]:text-center">
-        <div className="flex gap-2 text-[0.8rem] uppercase tracking-[0.2em] max-[1100px]:justify-center">
-          <span>Home</span>
-          <span>/</span>
-          <span>{t.shop.title}</span>
-        </div>
-        <div className="text-center">
-          <h1 className="text-[2.2rem]">{product.title}</h1>
-        </div>
-      </section>
+    <div className={styles.page}>
+      <section className={styles.hero}>
+        <HeroGallery
+          cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
+          items={galleryItems.map((item) => ({
+            media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
+            mediaType: item.mediaType,
+          }))}
+        />
 
-      <section className="grid grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1fr)] gap-8 max-[1200px]:grid-cols-1">
-        <div className="space-y-4">
-          <div className="relative aspect-square rounded-xl overflow-hidden bg-paper">
-            {mainImage ? (
-              <Image
-                src={mainImage.url}
-                alt={mainImage.alt || product.title}
-                fill
-                className="object-contain"
-                sizes="(max-width: 1200px) 100vw, 40vw"
-                unoptimized={isRemote(mainImage.url)}
-              />
-            ) : (
-              <div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--paper)_60%,transparent)]" />
-            )}
+        <div className={styles.heroPanel}>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>{product.title}</h1>
+            <span className={styles.badge}>{product.brand || 'DOB'}</span>
           </div>
-          {gallery.length > 1 && (
-            <div className="grid grid-cols-5 gap-3">
-              {gallery.slice(0, 5).map((image, index) =>
-                image ? (
-                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-paper">
-                    <Image
-                      src={image.url}
-                      alt={image.alt || product.title}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 1200px) 20vw, 6vw"
-                      unoptimized={isRemote(image.url)}
-                    />
-                  </div>
-                ) : null,
-              )}
+
+          {product.description && <p className={styles.description}>{product.description}</p>}
+
+          <div className={styles.divider} />
+
+          <div className={styles.metaRow}>
+            <span>{product.sku ? `SKU ${product.sku}` : t.shop.title}</span>
+            <span className={styles.price}>{formatPrice(product.price, product.currency)}</span>
+          </div>
+
+          <div className={styles.relatedBlock}>
+            <div className={styles.label}>Dettagli prodotto</div>
+            <div className={styles.relatedList}>
+              {product.usage ? <p>{product.usage}</p> : null}
+              {product.activeIngredients ? <p>{product.activeIngredients}</p> : null}
+              {product.results ? <p>{product.results}</p> : null}
             </div>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            {product.brand && (
-              <div className="text-sm uppercase tracking-[0.2em] text-text-muted">
-                {product.brand}
-              </div>
-            )}
-            <h2 className="text-2xl font-semibold text-text-primary">{product.title}</h2>
-            {product.description && (
-              <p className="text-sm text-text-secondary">{product.description}</p>
-            )}
+            <Link className={styles.buyButton} href={`/${locale}/shop`}>
+              Torna allo shop
+            </Link>
           </div>
-
-          <ProductPurchase
-            product={{
-              id: String(product.id),
-              title: product.title || '',
-              slug: product.slug || undefined,
-              price: typeof product.price === 'number' ? product.price : undefined,
-              currency: product.currency || undefined,
-              brand: product.brand || undefined,
-              coverImage: cover?.url ?? null,
-            }}
-          />
-        </div>
-
-        <div>
-          <ProductTabs
-            description={product.description || null}
-            usage={product.usage || null}
-            activeIngredients={product.activeIngredients || null}
-            results={product.results || null}
-          />
         </div>
       </section>
     </div>

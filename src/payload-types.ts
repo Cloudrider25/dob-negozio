@@ -683,7 +683,7 @@ export interface Page {
   /**
    * Configura solo le pagine esistenti (no categorie).
    */
-  pageKey: 'home' | 'services' | 'shop' | 'journal' | 'location' | 'our-story' | 'contact';
+  pageKey: 'home' | 'services' | 'shop' | 'journal' | 'location' | 'our-story' | 'dob-protocol' | 'contact';
   heroTitleMode: 'fixed' | 'dynamic';
   heroStyle: 'style1' | 'style2';
   heroTitle?: string | null;
@@ -700,11 +700,33 @@ export interface Page {
     intent?: (number | Intent)[] | null;
     zone?: (number | Zone)[] | null;
   };
+  protocolSplit?: {
+    eyebrow?: string | null;
+    steps?:
+      | {
+          label?: string | null;
+          title?: string | null;
+          subtitle?: string | null;
+          media?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  storyHeroHomeTitle?: string | null;
+  storyHeroHomeBody?: string | null;
+  storyHeroHomeCtaLabel?: string | null;
+  storyHeroHomeCtaHref?: string | null;
+  storyHeroHomeMedia?: (number | null) | Media;
   storyHeroTitle?: string | null;
   storyHeroBody?: string | null;
   storyHeroCtaLabel?: string | null;
   storyHeroCtaHref?: string | null;
   storyHeroMedia?: (number | null) | Media;
+  storyNoteLabel?: string | null;
+  storyNoteBody?: string | null;
+  storyNoteCtaLabel?: string | null;
+  storyNoteCtaHref?: string | null;
+  storyNoteMedia?: (number | null) | Media;
   /**
    * Seleziona il programma da mostrare in homepage.
    */
@@ -715,6 +737,42 @@ export interface Page {
     needs?: (number | Need)[] | null;
     lines?: (number | Line)[] | null;
     textures?: (number | Texture)[] | null;
+  };
+  valuesSection?: {
+    items?:
+      | {
+          label?: string | null;
+          title?: string | null;
+          ctaLabel?: string | null;
+          ctaHref?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    media?: (number | null) | Media;
+  };
+  storyValues?: {
+    items?:
+      | {
+          label?: string | null;
+          title?: string | null;
+          description?: string | null;
+          media?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  storyTeam?: {
+    title?: string | null;
+    description?: string | null;
+    items?:
+      | {
+          name?: string | null;
+          role?: string | null;
+          bio?: string | null;
+          image?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -1234,11 +1292,35 @@ export interface PagesSelect<T extends boolean = true> {
         intent?: T;
         zone?: T;
       };
+  protocolSplit?:
+    | T
+    | {
+        eyebrow?: T;
+        steps?:
+          | T
+          | {
+              label?: T;
+              title?: T;
+              subtitle?: T;
+              media?: T;
+              id?: T;
+            };
+      };
+  storyHeroHomeTitle?: T;
+  storyHeroHomeBody?: T;
+  storyHeroHomeCtaLabel?: T;
+  storyHeroHomeCtaHref?: T;
+  storyHeroHomeMedia?: T;
   storyHeroTitle?: T;
   storyHeroBody?: T;
   storyHeroCtaLabel?: T;
   storyHeroCtaHref?: T;
   storyHeroMedia?: T;
+  storyNoteLabel?: T;
+  storyNoteBody?: T;
+  storyNoteCtaLabel?: T;
+  storyNoteCtaHref?: T;
+  storyNoteMedia?: T;
   homeProgram?: T;
   productsCarousel?:
     | T
@@ -1248,6 +1330,48 @@ export interface PagesSelect<T extends boolean = true> {
         needs?: T;
         lines?: T;
         textures?: T;
+      };
+  valuesSection?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              label?: T;
+              title?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              id?: T;
+            };
+        media?: T;
+      };
+  storyValues?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              label?: T;
+              title?: T;
+              description?: T;
+              media?: T;
+              id?: T;
+            };
+      };
+  storyTeam?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        items?:
+          | T
+          | {
+              name?: T;
+              role?: T;
+              bio?: T;
+              image?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

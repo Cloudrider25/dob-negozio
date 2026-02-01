@@ -29,6 +29,7 @@ export const Pages: CollectionConfig = {
         { label: 'Journal', value: 'journal' },
         { label: 'Location', value: 'location' },
         { label: 'Our Story', value: 'our-story' },
+        { label: 'DOB Protocol', value: 'dob-protocol' },
         { label: 'Contact', value: 'contact' },
       ],
       admin: {
@@ -41,7 +42,7 @@ export const Pages: CollectionConfig = {
         {
           label: 'Sezione 1',
           admin: {
-            condition: (data) => data?.pageKey === 'home',
+            condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'our-story',
           },
           fields: [
             {
@@ -220,7 +221,97 @@ export const Pages: CollectionConfig = {
         {
           label: 'Sezione 3',
           admin: {
+            condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'protocolSplit',
+              type: 'group',
+              fields: [
+                {
+                  name: 'eyebrow',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'steps',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'label',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'title',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'subtitle',
+                      type: 'textarea',
+                      localized: true,
+                    },
+                    {
+                      name: 'media',
+                      type: 'upload',
+                      relationTo: 'media',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 4',
+          admin: {
             condition: (data) => data?.pageKey === 'home',
+          },
+          fields: [
+            {
+              name: 'storyHeroHomeTitle',
+              type: 'text',
+              localized: true,
+            },
+            {
+              name: 'storyHeroHomeBody',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'storyHeroHomeCtaLabel',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+                {
+                  name: 'storyHeroHomeCtaHref',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'storyHeroHomeMedia',
+              type: 'upload',
+              relationTo: 'media',
+            },
+          ],
+        },
+        {
+          label: 'Sezione 2',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
           },
           fields: [
             {
@@ -262,7 +353,51 @@ export const Pages: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 4',
+          label: 'Sezione 3',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
+          },
+          fields: [
+            {
+              name: 'storyNoteLabel',
+              type: 'text',
+              localized: true,
+            },
+            {
+              name: 'storyNoteBody',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'storyNoteCtaLabel',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+                {
+                  name: 'storyNoteCtaHref',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'storyNoteMedia',
+              type: 'upload',
+              relationTo: 'media',
+            },
+          ],
+        },
+        {
+          label: 'Sezione 5',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
@@ -278,7 +413,7 @@ export const Pages: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 5',
+          label: 'Sezione 6',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
@@ -345,6 +480,144 @@ export const Pages: CollectionConfig = {
                       admin: {
                         width: '50%',
                       },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 7',
+          admin: {
+            condition: (data) => data?.pageKey === 'home',
+          },
+          fields: [
+            {
+              name: 'valuesSection',
+              type: 'group',
+              fields: [
+                {
+                  name: 'items',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'label',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'title',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'ctaLabel',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'ctaHref',
+                      type: 'text',
+                      localized: true,
+                    },
+                  ],
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 4',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
+          },
+          fields: [
+            {
+              name: 'storyValues',
+              type: 'group',
+              fields: [
+                {
+                  name: 'items',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'label',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'title',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'description',
+                      type: 'textarea',
+                      localized: true,
+                    },
+                    {
+                      name: 'media',
+                      type: 'upload',
+                      relationTo: 'media',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 5',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
+          },
+          fields: [
+            {
+              name: 'storyTeam',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'items',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'name',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'role',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'bio',
+                      type: 'textarea',
+                      localized: true,
+                    },
+                    {
+                      name: 'image',
+                      type: 'upload',
+                      relationTo: 'media',
                     },
                   ],
                 },

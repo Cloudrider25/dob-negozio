@@ -8,8 +8,9 @@ import { Card } from '@/components/ui/card'
 import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
 import { ShopCarousel, type ShopCarouselItem } from '@/components/ShopCarousel'
 import { StoryHero } from '@/components/StoryHero'
-import { ValuesSection } from '@/components/ValuesSection'
+import { ValuesSection, type ValuesSectionItem } from '@/components/ValuesSection'
 import { ProgramsSplitSection } from '@/components/ProgramsSplitSection'
+import { ProtocolSplit, type ProtocolSplitStep } from '@/components/ProtocolSplit'
 import styles from './home.module.css'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 
@@ -70,9 +71,59 @@ export default async function HomePage({
       : t.hero.title
   const heroDescription = pageDoc?.heroDescription ?? t.hero.subtitle
   const storyHeroMedia = await resolveMediaValue(
-    pageDoc?.storyHeroMedia,
-    pageDoc?.storyHeroTitle || '',
+    pageDoc?.storyHeroHomeMedia,
+    pageDoc?.storyHeroHomeTitle || '',
   )
+  const valuesMedia = await resolveMediaValue(pageDoc?.valuesSection?.media, t.story.title)
+  const valuesItemsRaw = Array.isArray(pageDoc?.valuesSection?.items)
+    ? pageDoc?.valuesSection?.items
+    : []
+  const valuesItems = valuesItemsRaw
+    .map((item, index) => {
+      if (!item || typeof item !== 'object') return null
+      const record = item as {
+        label?: string | null
+        title?: string | null
+        ctaLabel?: string | null
+        ctaHref?: string | null
+      }
+      const label = record.label || record.title || `value-${index + 1}`
+      return {
+        id: label.toLowerCase().replace(/\s+/g, '-'),
+        label,
+        title: record.title || '',
+        ctaLabel: record.ctaLabel || undefined,
+        ctaHref: record.ctaHref || undefined,
+      } satisfies ValuesSectionItem
+    })
+    .filter(Boolean) as ValuesSectionItem[]
+
+  const protocolStepsRaw = Array.isArray(pageDoc?.protocolSplit?.steps)
+    ? pageDoc?.protocolSplit?.steps
+    : []
+  const protocolSteps = (
+    await Promise.all(
+      protocolStepsRaw.map(async (step, index) => {
+        if (!step || typeof step !== 'object') return null
+        const record = step as {
+          label?: string | null
+          title?: string | null
+          subtitle?: string | null
+          media?: unknown
+        }
+        const media = await resolveMediaValue(record.media, record.title || record.label || '')
+        if (!record.title || !record.subtitle) return null
+        return {
+          id: String(index + 1).padStart(2, '0'),
+          label: record.label || `0${index + 1}`,
+          title: record.title,
+          subtitle: record.subtitle,
+          image: media?.url || '/media/hero_homepage_light.png',
+          imageAlt: media?.alt || record.title,
+        } satisfies ProtocolSplitStep
+      }),
+    )
+  ).filter(Boolean) as ProtocolSplitStep[]
 
   const servicesResult = await payload.find({
     collection: 'services',
@@ -235,6 +286,7 @@ export default async function HomePage({
         subtitle: product.description || undefined,
         price: formatPrice(product.price, product.currency),
         image: { url: media.url, alt: media.alt },
+        href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
       }
     })
     .filter((item) => Boolean(item && item.title))
@@ -324,17 +376,25 @@ export default async function HomePage({
         />
       )}
       <ServicesCarousel items={serviceItems} />
+      <ProtocolSplit
+        eyebrow={pageDoc?.protocolSplit?.eyebrow || 'DOB protocol'}
+        steps={protocolSteps.length > 0 ? protocolSteps : undefined}
+      />
       <StoryHero
         locale={locale}
-        title={pageDoc?.storyHeroTitle || undefined}
-        body={pageDoc?.storyHeroBody || undefined}
-        ctaLabel={pageDoc?.storyHeroCtaLabel || undefined}
-        ctaHref={pageDoc?.storyHeroCtaHref || undefined}
+        title={pageDoc?.storyHeroHomeTitle || undefined}
+        body={pageDoc?.storyHeroHomeBody || undefined}
+        ctaLabel={pageDoc?.storyHeroHomeCtaLabel || undefined}
+        ctaHref={pageDoc?.storyHeroHomeCtaHref || undefined}
         media={storyHeroMedia || undefined}
       />
       <ProgramsSplitSection program={programData} locale={locale} />
       <ShopCarousel items={carouselItems} />
-      <ValuesSection locale={locale} />
+      <ValuesSection
+        locale={locale}
+        items={valuesItems.length > 0 ? valuesItems : undefined}
+        media={valuesMedia ? { url: valuesMedia.url, alt: valuesMedia.alt } : undefined}
+      />
     </div>
   )
 }

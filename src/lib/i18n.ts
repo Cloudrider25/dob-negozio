@@ -13,6 +13,7 @@ export const dictionary = {
     brand: 'DOB — Department of Beauty',
     nav: {
       story: 'Our Story',
+      protocol: 'DOB Protocol',
       shop: 'Shop',
       journal: 'Journal',
       location: 'Location',
@@ -83,6 +84,7 @@ export const dictionary = {
     brand: 'DOB — Department of Beauty',
     nav: {
       story: 'Our Story',
+      protocol: 'DOB Protocol',
       shop: 'Shop',
       journal: 'Journal',
       location: 'Location',
@@ -153,6 +155,7 @@ export const dictionary = {
     brand: 'DOB — Department of Beauty',
     nav: {
       story: 'Our Story',
+      protocol: 'DOB Protocol',
       shop: 'Shop',
       journal: 'Journal',
       location: 'Location',

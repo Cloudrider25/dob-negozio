@@ -1,11 +1,12 @@
 .section {
   background: transparent;
-  overflow: visible;
+  overflow: hidden;
 
 }
 
 .wrap {
   position: relative;
+  overflow: hidden;
 }
 
 .carousel {

@@ -13,6 +13,7 @@ type HeaderProps = {
     brand: string
     nav: {
       story: string
+      protocol: string
       journal: string
       location: string
       services: string
@@ -136,6 +137,9 @@ export const Header = ({
               </MenuLink>
               <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/our-story`}>
                 / {t.nav.story}
+              </MenuLink>
+              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/dob-protocol`}>
+                / {t.nav.protocol}
               </MenuLink>
               <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/journal`}>
                 / {t.nav.journal}

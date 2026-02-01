@@ -83,6 +83,7 @@ export default buildConfig({
       'journal',
       'location',
       'our-story',
+      'dob-protocol',
       'contact',
     ] as const
     const existing = await payload.find({

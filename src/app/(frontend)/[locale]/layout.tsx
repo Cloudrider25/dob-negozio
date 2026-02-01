@@ -108,6 +108,9 @@ export default async function LocaleLayout({
               <Link href={`/${locale}/our-story`} className="block">
                 Our Story
               </Link>
+              <Link href={`/${locale}/dob-protocol`} className="block">
+                DOB Protocol
+              </Link>
               <span className="block text-[#8c8781]">Futures (placeholder)</span>
               <span className="block text-[#8c8781]">Impact (placeholder)</span>
               <Link href={`/${locale}/journal`} className="block">
