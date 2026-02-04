@@ -4,6 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { ProductCard } from '@/components/shop-navigator/types/navigator'
+import shared from './columns-shared.module.css'
+import styles from './ColumnProducts.module.css'
 
 interface ShopProductCardProps {
   product: ProductCard
@@ -18,50 +20,48 @@ export function ShopProductCard({ product, onAddToCart, href }: ShopProductCardP
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="navigator-box group relative p-4 rounded-lg transition-all duration-300 w-full text-left"
+      className={`${styles.card} ${shared.box}`}
     >
-      <div className="flex flex-col gap-3">
-        <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden">
+      <div className={styles.cardBody}>
+        <div className={styles.media}>
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={product.coverImage?.alt || product.images?.[0]?.alt || product.title}
               fill
-              className="object-cover object-center"
+              className={styles.mediaImage}
               sizes="(max-width: 1024px) 100vw, 320px"
               unoptimized={isRemote}
             />
           ) : (
-            <div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--paper)_50%,transparent)]" />
+            <div className={styles.mediaFallback} />
           )}
         </div>
 
-        <div className="space-y-1">
-          <h4 className="text-base font-medium text-text-primary leading-tight">
-            {product.title}
-          </h4>
-          {product.brand && <p className="text-xs text-text-muted">{product.brand}</p>}
+        <div className={styles.textBlock}>
+          <h4 className={styles.productTitle}>{product.title}</h4>
+          {product.brand && <p className={styles.productBrand}>{product.brand}</p>}
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-text-muted">
+        <div className={styles.priceRow}>
           {typeof product.price === 'number' && (
-            <span className="text-text-primary font-medium">
+            <span className={styles.price}>
               {product.currency ?? '€'} {product.price}
             </span>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 pt-2">
+        <div className={styles.actions}>
           <button
             type="button"
             onClick={onAddToCart}
-            className="px-4 py-2 rounded-full border border-stroke text-sm text-text-primary hover:border-accent-cyan hover:text-accent-cyan transition-colors"
+            className={styles.actionButton}
           >
             Aggiungi al carrello
           </button>
           <Link
             href={href}
-            className="px-4 py-2 rounded-full border border-stroke text-sm text-text-primary hover:border-accent-cyan hover:text-accent-cyan transition-colors"
+            className={styles.actionButton}
           >
             Scopri di più
           </Link>
@@ -84,16 +84,14 @@ export function ColumnProducts({ products, onAddToCart, productBasePath }: Colum
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.3 }}
-      className="navigator-column"
+      className={styles.column}
     >
-      <div className="mb-1">
-        <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-          Prodotti
-        </h3>
+      <div className={styles.heading}>
+        <h3 className={styles.title}>Prodotti</h3>
       </div>
 
       {products.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 max-h-[600px] overflow-y-auto overflow-x-visible">
+        <div className={styles.grid}>
           {products.map((product) => (
             <ShopProductCard
               key={product.id}
@@ -104,7 +102,7 @@ export function ColumnProducts({ products, onAddToCart, productBasePath }: Colum
           ))}
         </div>
       ) : (
-        <div className="p-6 text-center text-text-muted text-sm">
+        <div className={styles.empty}>
           Nessun prodotto disponibile per questa selezione
         </div>
       )}

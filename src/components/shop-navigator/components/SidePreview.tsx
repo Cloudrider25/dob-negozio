@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import type { NavigatorState } from '@/components/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { Minus, Plus, ShoppingBag, Trash } from '@/components/shop-navigator/icons'
+import styles from './SidePreview.module.css'
+import shared from './columns/columns-shared.module.css'
 
 interface SidePreviewProps {
   state: NavigatorState
@@ -101,37 +103,33 @@ export function SidePreview({ state }: SidePreviewProps) {
   }
 
   return (
-    <div className="navigator-column">
+    <div className={styles.column}>
       {cartItems.length > 0 && (
-        <div className="mb-6 navigator-column">
-          <div className="mb-1">
-            <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-              Carrello
-            </h3>
+        <div className={styles.section}>
+          <div className={styles.heading}>
+            <h3 className={styles.headingText}>Carrello</h3>
           </div>
-          <div className="relative w-full">
-            <div className="navigator-box p-6 rounded-lg backdrop-blur-sm h-full">
-              <div className="flex items-center gap-2 mb-4">
-                <ShoppingBag className="w-4 h-4 text-accent-cyan" />
-                <h3 className="text-sm font-medium text-accent-cyan uppercase tracking-wider">
+          <div className={styles.panel}>
+            <div className={`${styles.panelCard} ${shared.box}`}>
+              <div className={styles.cartHeader}>
+                <ShoppingBag className={styles.cartHeaderIcon} />
+                <h3 className={styles.cartHeaderText}>
                   Prodotti Selezionati ({cartTotals.totalItems})
                 </h3>
               </div>
 
-              <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto">
+              <div className={styles.cartList}>
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
-                    className="navigator-box p-3 rounded-lg group hover:border-cyan-500/30 transition-all"
+                    className={`${styles.cartItem} ${shared.box}`}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-text-primary font-medium mb-1 truncate">
-                          {item.title}
-                        </div>
-                        <div className="text-xs text-text-muted space-y-0.5">
+                    <div className={styles.cartItemRow}>
+                      <div className={`${styles.cartMetaStack} ${styles.cartText}`}>
+                        <div className={styles.cartItemTitle}>{item.title}</div>
+                        <div className={styles.cartMeta}>
                           {item.brand && <div>{item.brand}</div>}
-                          <div className="flex items-center gap-3 mt-1">
+                          <div className={styles.cartMetaRow}>
                             <span>Qty {item.quantity}</span>
                             {typeof item.price === 'number' && (
                               <span>
@@ -142,29 +140,29 @@ export function SidePreview({ state }: SidePreviewProps) {
                         </div>
                       </div>
                       {item.quantity > 1 ? (
-                        <div className="flex items-center gap-1">
+                        <div className={styles.cartControls}>
                           <button
                             onClick={() => handleDecrement(item.id)}
-                            className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                            className={`${styles.iconButton} ${styles.iconButtonDanger}`}
                           >
-                            <Minus className="w-4 h-4 text-accent-red" />
+                            <Minus className={`${styles.iconSmall} ${styles.iconDanger}`} />
                           </button>
-                          <span className="text-xs text-text-muted tabular-nums">
+                          <span className={styles.qtyText}>
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => handleIncrement(item.id)}
-                            className="p-1 rounded hover:bg-cyan-500/20 transition-colors"
+                            className={`${styles.iconButton} ${styles.iconButtonAccent}`}
                           >
-                            <Plus className="w-4 h-4 text-accent-cyan" />
+                            <Plus className={`${styles.iconSmall} ${styles.iconAccent}`} />
                           </button>
                         </div>
                       ) : (
                         <button
                           onClick={() => handleRemoveFromCart(item.id)}
-                          className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                          className={`${styles.iconButton} ${styles.iconButtonDanger}`}
                         >
-                          <Trash className="w-4 h-4 text-accent-red" />
+                          <Trash className={`${styles.iconSmall} ${styles.iconDanger}`} />
                         </button>
                       )}
                     </div>
@@ -172,15 +170,15 @@ export function SidePreview({ state }: SidePreviewProps) {
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-cyan-500/20 space-y-2">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-text-secondary">Totale prodotti</span>
-                  <span className="text-accent-cyan font-medium">{cartTotals.totalItems}</span>
+              <div className={styles.cartTotals}>
+                <div className={styles.totalRow}>
+                  <span className={styles.totalLabel}>Totale prodotti</span>
+                  <span className={styles.totalValue}>{cartTotals.totalItems}</span>
                 </div>
                 {cartTotals.totalPrice > 0 && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-text-secondary">Totale</span>
-                    <span className="text-accent-cyan font-medium">
+                  <div className={styles.totalRow}>
+                    <span className={styles.totalLabel}>Totale</span>
+                    <span className={styles.totalValue}>
                       € {cartTotals.totalPrice}
                     </span>
                   </div>
@@ -191,26 +189,24 @@ export function SidePreview({ state }: SidePreviewProps) {
         </div>
       )}
 
-      <div className="mb-6 navigator-column">
-        <div className="mb-1">
-          <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-            Riepilogo
-          </h3>
+      <div className={styles.section}>
+        <div className={styles.heading}>
+          <h3 className={styles.headingText}>Riepilogo</h3>
         </div>
 
-        <div className="relative w-full">
-          <div className="navigator-box p-6 rounded-lg backdrop-blur-sm h-full">
-            <div className="space-y-3">
+        <div className={styles.panel}>
+          <div className={`${styles.panelCard} ${shared.box}`}>
+            <div className={styles.summaryList}>
               <div>
-                <div className="text-xs text-text-muted mb-1">Esigenza</div>
-                <div className="text-base text-text-primary">
+                <div className={styles.summaryLabel}>Esigenza</div>
+                <div className={styles.summaryValue}>
                   {state.selectedNeed ? getNeedById(state.selectedNeed)?.label || '—' : '—'}
                 </div>
               </div>
 
               <div>
-                <div className="text-xs text-text-muted mb-1">Categoria</div>
-                <div className="text-base text-text-primary capitalize">
+                <div className={styles.summaryLabel}>Categoria</div>
+                <div className={styles.summaryValue}>
                   {state.selectedCategory
                     ? getCategoryById(state.selectedCategory)?.label || '—'
                     : '—'}
@@ -218,15 +214,15 @@ export function SidePreview({ state }: SidePreviewProps) {
               </div>
 
               <div>
-                <div className="text-xs text-text-muted mb-1">Linea</div>
-                <div className="text-base text-text-primary capitalize">
+                <div className={styles.summaryLabel}>Linea</div>
+                <div className={styles.summaryValue}>
                   {state.selectedLine ? getLineById(state.selectedLine)?.label || '—' : '—'}
                 </div>
               </div>
 
               <div>
-                <div className="text-xs text-text-muted mb-1">Texture</div>
-                <div className="text-base text-text-primary capitalize">
+                <div className={styles.summaryLabel}>Texture</div>
+                <div className={styles.summaryValue}>
                   {state.selectedTexture
                     ? getTextureById(state.selectedTexture)?.label || '—'
                     : '—'}
@@ -237,19 +233,15 @@ export function SidePreview({ state }: SidePreviewProps) {
         </div>
       </div>
 
-      <div className="navigator-column">
-        <div className="mb-1">
-          <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-            Risultati
-          </h3>
+      <div className={styles.column}>
+        <div className={styles.heading}>
+          <h3 className={styles.headingText}>Risultati</h3>
         </div>
-        <div className="relative w-full">
-          <div className="navigator-box p-6 rounded-lg backdrop-blur-sm h-full flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-xs text-text-muted uppercase tracking-wider mb-2">
-                Prodotti
-              </div>
-              <div className="text-3xl font-semibold text-text-primary">{resultCount}</div>
+        <div className={styles.panel}>
+          <div className={`${styles.panelCard} ${styles.resultCard} ${shared.box}`}>
+            <div className={styles.resultCenter}>
+              <div className={styles.resultLabel}>Prodotti</div>
+              <div className={styles.resultValue}>{resultCount}</div>
             </div>
           </div>
         </div>

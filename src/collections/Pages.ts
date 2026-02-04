@@ -31,6 +31,7 @@ export const Pages: CollectionConfig = {
         { label: 'Our Story', value: 'our-story' },
         { label: 'DOB Protocol', value: 'dob-protocol' },
         { label: 'Contact', value: 'contact' },
+        { label: 'Checkout', value: 'checkout' },
       ],
       admin: {
         description: 'Configura solo le pagine esistenti (no categorie).',
@@ -215,6 +216,19 @@ export const Pages: CollectionConfig = {
                   ],
                 },
               ],
+            },
+          ],
+        },
+        {
+          label: 'Checkout',
+          admin: {
+            condition: (data) => data?.pageKey === 'checkout',
+          },
+          fields: [
+            {
+              name: 'checkoutNotice',
+              type: 'textarea',
+              localized: true,
             },
           ],
         },

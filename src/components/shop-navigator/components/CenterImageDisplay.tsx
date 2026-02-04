@@ -6,6 +6,7 @@ import type { NeedId } from '@/components/shop-navigator/types/navigator'
 
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { NeedsHoverCard } from './NeedsHoverCard'
+import styles from './CenterImageDisplay.module.css'
 
 interface CenterImageDisplayProps {
   hoveredNeed?: NeedId
@@ -30,7 +31,7 @@ export function CenterImageDisplay({
   const currentNeedData = currentNeed ? getNeedById(currentNeed) : undefined
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+    <div className={styles.wrapper}>
       <NeedsHoverCard
         need={
           currentNeedData

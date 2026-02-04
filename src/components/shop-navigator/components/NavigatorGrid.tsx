@@ -19,6 +19,7 @@ import { PathBreadcrumb } from '@/components/shop-navigator/components/PathBread
 import { CenterImageDisplay } from '@/components/shop-navigator/components/CenterImageDisplay'
 import { CategoryHoverCard } from '@/components/shop-navigator/components/CategoryHoverCard'
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
+import styles from './NavigatorGrid.module.css'
 
 interface NavigatorGridProps {
   state: NavigatorState
@@ -375,17 +376,17 @@ export function NavigatorGrid({
   ])
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       {/* Breadcrumb */}
-      <div className="mb-6">
+      <div className={styles.topSpacing}>
         <PathBreadcrumb state={state} onNavigateToStep={handleNavigateToStep} onBack={handleBack} />
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-9 relative">
+      <div className={styles.grid}>
+        <div className={styles.mainCol}>
           {state.step === 'need' ? (
-            <div className="grid grid-cols-3 gap-6 items-stretch">
+            <div className={styles.columnsGrid}>
               <div>
                 <AnimatePresence mode="wait">
                   <ColumnNeed
@@ -396,13 +397,13 @@ export function NavigatorGrid({
                 </AnimatePresence>
               </div>
 
-              <div className="col-span-2 navigator-column">
-                <div className="mb-1" aria-hidden="true">
-                  <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+              <div className={`${styles.splitCol} navigator-column`}>
+                <div className={styles.hiddenTitleWrap} aria-hidden="true">
+                  <h3 className={styles.hiddenTitle}>
                     Spacer
                   </h3>
                 </div>
-                <div className="flex-1 min-h-[440px]">
+                <div className={styles.mainContent}>
                   <CenterImageDisplay
                     hoveredNeed={hoveredNeed}
                     shouldSlideOut={isNeedSlideOutAnimating}
@@ -412,8 +413,8 @@ export function NavigatorGrid({
               </div>
             </div>
           ) : state.step !== 'products' ? (
-            <div className="relative">
-              <div className="grid grid-cols-3 gap-6">
+            <div className={styles.relative}>
+              <div className={styles.columnsGrid}>
                 <div>
                   {state.step === 'category' && state.selectedNeed && (
                     <ColumnNeed
@@ -506,9 +507,9 @@ export function NavigatorGrid({
                   )}
                 </AnimatePresence>
 
-                <div className="relative min-h-[440px] navigator-column">
-                  <div className="mb-1" aria-hidden="true">
-                    <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+                <div className={`${styles.relative} ${styles.minHeight} navigator-column`}>
+                  <div className={styles.hiddenTitleWrap} aria-hidden="true">
+                    <h3 className={styles.hiddenTitle}>
                       Spacer
                     </h3>
                   </div>
@@ -579,8 +580,8 @@ export function NavigatorGrid({
               </div>
             </div>
           ) : (
-            <div className="relative">
-              <div className="grid grid-cols-3 gap-6">
+            <div className={styles.relative}>
+              <div className={styles.columnsGrid}>
                 {state.selectedNeed && state.selectedCategory && preProductStep === 'texture' && (
                   <div>
                     <ColumnTexture
@@ -618,7 +619,7 @@ export function NavigatorGrid({
                 <AnimatePresence mode="wait">
                   <motion.div
                     key="products-column"
-                    className="col-span-2"
+                    className={styles.splitCol}
                     initial={{ x: 400, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: 400, opacity: 0 }}
@@ -639,7 +640,7 @@ export function NavigatorGrid({
           )}
         </div>
 
-        <div className="col-span-3 navigator-column">
+        <div className={`${styles.sideCol} navigator-column`}>
           <SidePreview state={state} />
         </div>
       </div>

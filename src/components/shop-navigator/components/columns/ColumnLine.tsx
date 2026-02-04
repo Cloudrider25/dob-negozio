@@ -2,6 +2,7 @@ import type { CategoryId, LineId, NeedId } from '@/components/shop-navigator/typ
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { EmptyState } from '@/components/shop-navigator/components/EmptyState'
 import { ColumnList } from '@/components/shop-navigator/components/columns/ColumnList'
+import metaStyles from '@/components/shop-navigator/components/columns/column-meta.module.css'
 
 interface ColumnLineProps {
   needId: NeedId
@@ -32,7 +33,7 @@ export function ColumnLine({
         onClick: () => onSelectLine(line.id),
         onHover: (active) => onHoverLine?.(active ? line.id : null),
         rightSlot: (
-          <div className="text-sm text-text-muted">
+          <div className={metaStyles.count}>
             ({getProductCount({ needId, categoryId, lineId: line.id })})
           </div>
         ),

@@ -10,6 +10,7 @@ import { MobileFlow } from "@/components/service-navigator/components/MobileFlow
 import { ListinoTradizionale } from "@/components/service-navigator/components/ListinoTradizionale";
 import { ConsulenzaForm } from "@/components/service-navigator/components/ConsulenzaForm";
 import { NavigatorDataProvider } from "@/components/service-navigator/data/navigator-data-context";
+import styles from "./ServiceNavigatorSection.module.css";
 
 type ViewMode = "navigator" | "listino" | "consulenza";
 
@@ -58,17 +59,17 @@ export function ServiceNavigatorSection({
   };
 
   return (
-    <section className="service-navigator relative min-h-screen w-full overflow-visible bg-bg">
+    <section className={`service-navigator ${styles.section}`}>
       <NavigatorDataProvider data={data}>
         {/* Content */}
-        <div className="relative z-10 w-full px-0 py-20">
+        <div className={styles.content}>
           <NavigatorHeader 
             activeView={viewMode}
             onViewChange={setViewMode}
           />
 
         {/* Desktop View */}
-        <div className="hidden lg:block">
+        <div className={styles.desktopOnly}>
           <AnimatePresence mode="wait">
             {viewMode === "navigator" ? (
               <NavigatorGrid
@@ -93,10 +94,10 @@ export function ServiceNavigatorSection({
         </div>
 
         {/* Mobile CTA */}
-        <div className="lg:hidden">
+        <div className={styles.mobileOnly}>
           <button
             onClick={() => setShowMobileFlow(true)}
-            className="w-full px-6 py-4 rounded-lg bg-accent-cyan text-text-inverse font-medium shadow-soft transition-all duration-300"
+            className={styles.mobileCta}
           >
             Inizia la Configurazione
           </button>

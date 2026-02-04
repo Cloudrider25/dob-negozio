@@ -1,6 +1,7 @@
 'use client'
 
 import { Sparkles } from "@/components/service-navigator/icons";
+import styles from "@/components/service-navigator/components/EmptyState.module.css";
 
 interface EmptyStateProps {
   title: string;
@@ -10,14 +11,12 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, icon }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center">
-      <div className="mb-4 text-text-muted">
-        {icon || <Sparkles className="w-12 h-12" />}
+    <div className={styles.empty}>
+      <div className={styles.icon}>
+        {icon || <Sparkles className={styles.iconSvg} />}
       </div>
-      <h3 className="text-lg font-medium text-text-secondary mb-2">{title}</h3>
-      {description && (
-        <p className="text-sm text-text-muted max-w-sm">{description}</p>
-      )}
+      <h3 className={styles.title}>{title}</h3>
+      {description && <p className={styles.description}>{description}</p>}
     </div>
   );
 }

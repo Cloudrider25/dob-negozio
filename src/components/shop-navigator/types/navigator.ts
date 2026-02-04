@@ -37,6 +37,7 @@ export type TextureData = TaxonomyBase
 export type ProductCard = {
   id: ProductId
   title: string
+  description?: string
   slug?: string
   price?: number
   currency?: string

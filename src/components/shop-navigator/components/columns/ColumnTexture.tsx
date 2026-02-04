@@ -2,6 +2,7 @@ import type { CategoryId, LineId, NeedId, TextureId } from '@/components/shop-na
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { EmptyState } from '@/components/shop-navigator/components/EmptyState'
 import { ColumnList } from '@/components/shop-navigator/components/columns/ColumnList'
+import metaStyles from '@/components/shop-navigator/components/columns/column-meta.module.css'
 
 interface ColumnTextureProps {
   needId: NeedId
@@ -34,7 +35,7 @@ export function ColumnTexture({
         onClick: () => onSelectTexture(texture.id),
         onHover: (active) => onHoverTexture?.(active ? texture.id : null),
         rightSlot: (
-          <div className="text-sm text-text-muted">
+          <div className={metaStyles.count}>
             ({getProductCount({ needId, categoryId, lineId, textureId: texture.id })})
           </div>
         ),

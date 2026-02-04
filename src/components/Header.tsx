@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { MenuLink } from '@/components/MenuLink'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { cn } from '@/lib/cn'
+import { CartDrawerTrigger } from '@/components/cart/CartDrawerTrigger'
 import styles from './Header.module.css'
 
 type HeaderProps = {
@@ -89,10 +90,9 @@ export const Header = ({
                 />
               </svg>
             </Link>
-            <Link
-              href={`/${locale}/cart`}
+            <CartDrawerTrigger
               className={`${styles.iconButton} ${styles.iconButtonGlass}`}
-              aria-label="Carrello"
+              ariaLabel="Carrello"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -100,7 +100,7 @@ export const Header = ({
                   fill="currentColor"
                 />
               </svg>
-            </Link>
+            </CartDrawerTrigger>
           </div>
           <ThemeToggle />
           <div className={styles.locale}>
@@ -180,10 +180,9 @@ export const Header = ({
                     />
                   </svg>
                 </Link>
-                <Link
-                  href={`/${locale}/cart`}
+                <CartDrawerTrigger
                   className={`${styles.iconButton} ${styles.iconButtonGlass}`}
-                  aria-label="Carrello"
+                  ariaLabel="Carrello"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path
@@ -191,7 +190,7 @@ export const Header = ({
                       fill="currentColor"
                     />
                   </svg>
-                </Link>
+                </CartDrawerTrigger>
               </div>
               <ThemeToggle />
               <div className={styles.locale}>

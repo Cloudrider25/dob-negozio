@@ -29,6 +29,7 @@ const buildOrderedItems = (items: string[], prefix?: string) =>
   }))
 
 type SeedCollectionSlug =
+  | 'product-areas'
   | 'needs'
   | 'categories'
   | 'lines'
@@ -127,6 +128,7 @@ const seedCategories = async (payload: Payload, categories: SeedCategory[]) => {
 }
 
 export const seedShopTaxonomies = async (payload: Payload) => {
+  const productAreaMap = await fetchBySlugs(payload, 'product-areas', ['viso', 'corpo'])
   const needsGroups = [
     {
       group: 'Viso',
@@ -171,13 +173,17 @@ export const seedShopTaxonomies = async (payload: Payload) => {
     },
   ]
 
-  const needs = needsGroups.flatMap((group, groupIndex) =>
-    group.items.map((name, index) => ({
+  const needs = needsGroups.flatMap((group, groupIndex) => {
+    const areaSlug = slugify(group.group)
+    const productAreaId = productAreaMap.get(areaSlug)
+    if (!productAreaId) return []
+    return group.items.map((name, index) => ({
       name,
-      slug: `${slugify(group.group)}-${slugify(name)}`,
+      slug: `${areaSlug}-${slugify(name)}`,
       order: groupIndex * 100 + index,
-    })),
-  )
+      productArea: productAreaId,
+    }))
+  })
 
   const rootCategories = [
     'Bestseller',
@@ -301,7 +307,31 @@ export const seedShopTaxonomies = async (payload: Payload) => {
     'Spray',
   ])
 
-  await seedSimpleCollection(payload, 'needs', needs)
+  if (needs.length) {
+    const slugs = needs.map((item) => item.slug)
+    const existing = await payload.find({
+      collection: 'needs',
+      depth: 0,
+      limit: slugs.length,
+      where: { slug: { in: slugs } },
+    })
+    const existingSlugs = new Set(existing.docs.map((doc) => doc.slug))
+
+    for (const item of needs) {
+      if (existingSlugs.has(item.slug)) continue
+      await payload.create({
+        collection: 'needs',
+        locale: 'it',
+        overrideAccess: true,
+        data: {
+          name: item.name,
+          slug: item.slug,
+          order: item.order ?? 0,
+          productArea: Number(item.productArea),
+        },
+      })
+    }
+  }
   await seedCategories(payload, categories)
   await seedSimpleCollection(payload, 'lines', lines)
   await seedSimpleCollection(payload, 'textures', textures)

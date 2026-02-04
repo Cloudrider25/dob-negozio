@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { GlassCard } from '@/components/service-navigator/components/GlassCard'
+import styles from '@/components/service-navigator/components/columns/ColumnList.module.css'
 
 type ColumnListItem = {
   id: string
@@ -28,23 +29,21 @@ export function ColumnList({ title, items, emptyState, scrollable = false }: Col
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.3 }}
-      className="navigator-column"
+      className={styles.column}
     >
-      <div className="mb-1 overflow-visible">
-        <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-          {title}
-        </h3>
+      <div className={styles.heading}>
+        <h3 className={styles.title}>{title}</h3>
       </div>
 
-      <div className={scrollable ? 'overflow-visible' : 'space-y-3'}>
+      <div className={scrollable ? styles.list : styles.listCompact}>
         {items.length === 0 ? (
           (emptyState ?? null)
         ) : (
           <div
             className={
               scrollable
-                ? 'space-y-3 max-h-[600px] overflow-visible pr-1 bg-transparent'
-                : 'space-y-3'
+                ? `${styles.items} ${styles.itemsScrollable}`
+                : styles.items
             }
           >
             {items.map((item) => (
@@ -55,16 +54,14 @@ export function ColumnList({ title, items, emptyState, scrollable = false }: Col
                 onMouseLeave={() => item.onHover?.(false)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`group relative rounded-lg transition-all duration-300 w-full min-h-[120px] ${item.className ?? ''}`}
+                className={`${styles.itemButton} ${item.className ?? ''}`}
               >
-                <GlassCard className="w-full min-h-[120px]" paddingClassName="p-4">
-                  <div className="relative flex items-start justify-between gap-4">
-                    <div className="text-left flex-1">
-                      <div className="text-base font-medium text-text-primary mb-1">
-                        {item.title}
-                      </div>
+                <GlassCard className={styles.card} paddingClassName={styles.cardPadding}>
+                  <div className={styles.itemContent}>
+                    <div className={styles.itemText}>
+                      <div className={styles.itemTitle}>{item.title}</div>
                       {item.description && (
-                        <div className="text-sm text-text-muted">{item.description}</div>
+                        <div className={styles.itemDescription}>{item.description}</div>
                       )}
                     </div>
                     {item.rightSlot}

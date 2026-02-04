@@ -20,6 +20,7 @@ import { CenterImageDisplay } from '@/components/service-navigator/components/Ce
 import { TreatmentHoverCard } from '@/components/service-navigator/components/TreatmentHoverCard'
 import { GoalHoverCard } from '@/components/service-navigator/components/GoalHoverCard'
 import { useNavigatorData } from '@/components/service-navigator/data/navigator-data-context'
+import styles from '@/components/service-navigator/components/NavigatorGrid.module.css'
 
 interface NavigatorGridProps {
   state: NavigatorState
@@ -285,19 +286,19 @@ export function NavigatorGrid({
       : []
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       {/* Breadcrumb */}
-      <div className="mb-6">
+      <div className={styles.breadcrumb}>
         <PathBreadcrumb state={state} onNavigateToStep={handleNavigateToStep} onBack={handleBack} />
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className={styles.grid}>
         {/* Columns area - 9 cols */}
-        <div className="col-span-9 relative">
+        <div className={styles.mainCol}>
           {state.step === 'area' ? (
             // Initial step: Area selection with center image
-            <div className="grid grid-cols-3 gap-6 items-stretch">
+            <div className={styles.columnsGrid}>
               {/* Column 1: Area selection */}
               <div>
                 <AnimatePresence mode="wait">
@@ -310,13 +311,13 @@ export function NavigatorGrid({
               </div>
 
               {/* Columns 2-3: Center Image Display */}
-              <div className="col-span-2 navigator-column">
-                <div className="mb-1" aria-hidden="true">
-                  <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+              <div className={`${styles.splitCol} navigator-column`}>
+                <div className={styles.hiddenTitleWrap} aria-hidden="true">
+                  <h3 className={styles.hiddenTitle}>
                     Spacer
                   </h3>
                 </div>
-                <div className="flex-1 min-h-[440px]">
+                <div className={styles.mainContent}>
                   <CenterImageDisplay
                     hoveredArea={hoveredArea}
                     shouldSlideOut={isSlideOutAnimating}
@@ -327,8 +328,8 @@ export function NavigatorGrid({
             </div>
           ) : state.step !== 'final' ? (
             // Normal navigation grid (3 columns) senza layout animations
-            <div className="relative">
-              <div className="grid grid-cols-3 gap-6">
+            <div className={styles.relative}>
+              <div className={styles.columnsGrid}>
                 {/* Column 1: dinamica in base allo step */}
                 {state.step === 'goal' ? (
                   // Step GOAL: mostra Area in col 1
@@ -408,9 +409,9 @@ export function NavigatorGrid({
                 </AnimatePresence>
 
                 {/* Column 3: Hover Card Space */}
-                <div className="relative navigator-column h-full overflow-visible">
-                  <div className="mb-1" aria-hidden="true">
-                    <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider opacity-0 select-none">
+                <div className={`${styles.hoverColumn} navigator-column`}>
+                  <div className={styles.hiddenTitleWrap} aria-hidden="true">
+                    <h3 className={styles.hiddenTitle}>
                       Spacer
                     </h3>
                   </div>
@@ -474,8 +475,8 @@ export function NavigatorGrid({
             </div>
           ) : (
             // Final step: Services list con animazione coordinata
-            <div className="relative">
-              <div className="grid grid-cols-3 gap-6">
+            <div className={styles.relative}>
+              <div className={styles.columnsGrid}>
                 {/* Column 1: Treatment (no animation, just appears) */}
                 {state.selectedArea && state.selectedTreatment && (
                   <div>
@@ -494,7 +495,7 @@ export function NavigatorGrid({
                   {state.selectedTreatment && (
                     <motion.div
                       key="col2-services"
-                      className="col-span-2"
+                      className={styles.splitCol}
                       initial={{ x: 400, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       exit={{ x: 400, opacity: 0 }}
@@ -518,7 +519,7 @@ export function NavigatorGrid({
         </div>
 
         {/* Side Preview - 3 cols */}
-        <div className="col-span-3 navigator-column">
+        <div className={`${styles.sideCol} navigator-column`}>
           <SidePreview
             state={state}
             onBookNow={onBookNow}

@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 
 import type { Area } from '@/components/service-navigator/types/navigator'
 import { GlassCard } from '@/components/service-navigator/components/GlassCard'
+import styles from '@/components/service-navigator/components/AreaHoverCard.module.css'
 
 export interface AreaDetails {
   id: Area
@@ -55,64 +56,67 @@ export function AreaHoverCard({
   }, [shouldSlideOut, currentArea])
 
   const cardContent = (
-    <GlassCard className="w-full h-full service-hover-card rounded-t-[12px]" paddingClassName="">
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-0 left-0 w-32 h-32 bg-[color:color-mix(in_srgb,var(--tech-cyan)_10%,transparent)] blur-3xl rounded-full" />
+    <GlassCard
+      className={`${styles.card} service-hover-card`}
+      paddingClassName=""
+    >
+      <div className={styles.glow}>
+        <div className={styles.glowBlob} />
       </div>
 
-      <div className="relative h-full flex flex-col overflow-hidden">
-        <div className="relative h-60 overflow-hidden">
+      <div className={styles.content}>
+        <div className={styles.media}>
           {currentArea?.imageUrl && (
             <Image
               src={currentArea.imageUrl}
               alt={currentArea.title}
               fill
-              className="object-cover object-center"
+              className={styles.mediaImage}
               sizes="(max-width: 1024px) 100vw, 320px"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[color:color-mix(in_srgb,var(--obsidian)_20%,transparent)] to-[color:color-mix(in_srgb,var(--obsidian)_80%,transparent)]" />
+          <div className={styles.mediaOverlay} />
 
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <h3 className="text-lg font-semibold text-text-primary mb-0.5">{currentArea?.title}</h3>
+          <div className={styles.mediaText}>
+            <h3 className={styles.title}>{currentArea?.title}</h3>
             {currentArea?.subtitle && (
-              <p className="text-sm text-accent-cyan">{currentArea.subtitle}</p>
+              <p className={styles.subtitle}>{currentArea.subtitle}</p>
             )}
           </div>
         </div>
 
-          <div className="flex-1 p-4 flex flex-col gap-3">
-            {currentArea?.description && (
-              <p className="text-sm text-text-muted leading-relaxed">{currentArea.description}</p>
-            )}
+        <div className={styles.body}>
+          {currentArea?.description && (
+            <p className={styles.description}>{currentArea.description}</p>
+          )}
 
-            {currentArea?.features && currentArea.features.length > 0 && (
-            <div className="space-y-1.5">
+          {currentArea?.features && currentArea.features.length > 0 && (
+            <div className={styles.featureList}>
               {currentArea.features.map((feature, index) => (
-                <div key={index} className="flex items-start gap-2 text-xs text-text-muted">
-                  <div className="w-1 h-1 rounded-full bg-[color:color-mix(in_srgb,var(--tech-cyan)_60%,transparent)] mt-1.5 shrink-0" />
+                <div key={index} className={styles.featureItem}>
+                  <div className={styles.featureDot} />
                   <span>{feature}</span>
                 </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-auto flex justify-center pb-4">
-            <Link
-              href={href}
-              className="glass-pill text-xs h-8"
-              onClick={(event) => {
-                if (!currentArea?.slug) event.preventDefault()
-              }}
-            >
-              Scopri di più
-            </Link>
-          </div>
-
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-transparent" />
+              ))}
+            </div>
+          )}
         </div>
-      </GlassCard>
+
+        <div className={styles.actions}>
+          <Link
+            href={href}
+            className={`glass-pill ${styles.pill}`}
+            onClick={(event) => {
+              if (!currentArea?.slug) event.preventDefault()
+            }}
+          >
+            Scopri di più
+          </Link>
+        </div>
+
+        <div className={styles.divider} />
+      </div>
+    </GlassCard>
   )
 
   return (
@@ -138,7 +142,7 @@ export function AreaHoverCard({
               onAnimationComplete()
             }
           }}
-          className="relative w-full h-full"
+          className={styles.wrapper}
         >
           {cardContent}
         </motion.div>

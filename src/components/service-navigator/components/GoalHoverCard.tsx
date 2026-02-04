@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation'
 import { Target } from '@/components/service-navigator/icons'
 import { GlassCard } from '@/components/service-navigator/components/GlassCard'
 import type { Goal } from '@/components/service-navigator/types/navigator'
+import styles from '@/components/service-navigator/components/GoalHoverCard.module.css'
 
 export interface GoalDetails {
   id: Goal
@@ -52,42 +53,43 @@ export function GoalHoverCard({
   }, [shouldSlideOut, currentGoal])
 
   const cardContent = (
-    <GlassCard className="w-full h-full service-hover-card rounded-t-[12px] overflow-visible" paddingClassName="">
-      <div className="absolute inset-0 bg-gradient-to-br from-[color:color-mix(in_srgb,var(--tech-cyan)_5%,transparent)] via-transparent to-[color:color-mix(in_srgb,var(--tech-cyan)_5%,transparent)] pointer-events-none" />
+    <GlassCard
+      className={`${styles.card} service-hover-card`}
+      paddingClassName=""
+    >
+      <div className={styles.gradient} />
 
-      <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <div className="absolute top-0 left-0 w-32 h-32 bg-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] blur-3xl rounded-full" />
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-[color:color-mix(in_srgb,var(--tech-cyan)_10%,transparent)] blur-3xl rounded-full" />
+      <div className={styles.glow}>
+        <div className={styles.glowTop} />
+        <div className={styles.glowBottom} />
       </div>
 
-      <div className="relative h-full flex flex-col">
-        <div className="relative px-6 pt-8 pb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-[color:color-mix(in_srgb,var(--tech-cyan)_35%,transparent)] border border-[color:color-mix(in_srgb,var(--tech-cyan)_30%,transparent)] mb-4">
-            <Target className="w-8 h-8 text-accent-cyan" />
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <div className={styles.iconWrap}>
+            <Target className={styles.icon} />
           </div>
 
-          <h3 className="text-xl font-semibold text-text-primary mb-1">{currentGoal?.title}</h3>
+          <h3 className={styles.title}>{currentGoal?.title}</h3>
           {currentGoal?.subtitle && (
-            <p className="text-sm text-accent-cyan">{currentGoal.subtitle}</p>
+            <p className={styles.subtitle}>{currentGoal.subtitle}</p>
           )}
 
-          <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_30%,transparent)] to-transparent" />
+          <div className={styles.headerDivider} />
         </div>
 
-        <div className="flex-1 px-6 py-4 flex flex-col gap-4">
+        <div className={styles.body}>
           {currentGoal?.description && (
-            <p className="text-sm text-text-muted leading-relaxed">{currentGoal.description}</p>
+            <p className={styles.description}>{currentGoal.description}</p>
           )}
 
           {currentGoal?.benefits.length ? (
             <div>
-              <h4 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
-                Benefici
-              </h4>
-              <div className="space-y-2">
+              <h4 className={styles.benefitsTitle}>Benefici</h4>
+              <div className={styles.benefitsList}>
                 {currentGoal.benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start gap-2.5 text-sm text-text-muted">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[color:color-mix(in_srgb,var(--tech-cyan)_70%,transparent)] mt-1.5 shrink-0" />
+                  <div key={index} className={styles.benefitItem}>
+                    <div className={styles.benefitDot} />
                     <span>{benefit}</span>
                   </div>
                 ))}
@@ -96,10 +98,10 @@ export function GoalHoverCard({
           ) : null}
         </div>
 
-        <div className="mt-auto flex justify-center pb-4">
+        <div className={styles.actions}>
           <Link
             href={href}
-            className="glass-pill text-xs h-8"
+            className={`glass-pill ${styles.pill}`}
             onClick={(event) => {
               if (!currentGoal?.slug) event.preventDefault()
             }}
@@ -108,7 +110,7 @@ export function GoalHoverCard({
           </Link>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-transparent" />
+        <div className={styles.divider} />
       </div>
     </GlassCard>
   )
@@ -136,7 +138,7 @@ export function GoalHoverCard({
               onAnimationComplete()
             }
           }}
-          className="relative w-full h-full"
+          className={styles.wrapper}
         >
           {cardContent}
         </motion.div>

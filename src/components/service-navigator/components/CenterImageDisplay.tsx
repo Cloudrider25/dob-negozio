@@ -6,6 +6,7 @@ import type { Area } from '@/components/service-navigator/types/navigator'
 
 import { useNavigatorData } from '@/components/service-navigator/data/navigator-data-context'
 import { AreaHoverCard } from './AreaHoverCard'
+import styles from '@/components/service-navigator/components/CenterImageDisplay.module.css'
 
 interface CenterImageDisplayProps {
   hoveredArea?: Area;
@@ -28,7 +29,7 @@ export function CenterImageDisplay({
   }, [hoveredArea, shouldSlideOut])
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-visible">
+    <div className={styles.wrapper}>
       <AreaHoverCard
         area={
           currentArea

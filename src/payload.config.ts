@@ -12,6 +12,24 @@ import { Needs } from './collections/Needs'
 import { Categories } from './collections/Categories'
 import { Lines } from './collections/Lines'
 import { Textures } from './collections/Textures'
+import { ProductAreas } from './collections/ProductAreas'
+import { TimingProducts } from './collections/TimingProducts'
+import { SkinTypes } from './collections/SkinTypes'
+import { Brands } from './collections/Brands'
+import { BrandLines } from './collections/BrandLines'
+import { RoutineSteps } from './collections/RoutineSteps'
+import { RoutineStepRules } from './collections/RoutineStepRules'
+import { BrandLineObjectivePriority } from './collections/BrandLineObjectivePriority'
+import { Attributes } from './collections/Attributes'
+import { ProductObjectives } from './collections/ProductObjectives'
+import { ProductSkinTypes } from './collections/ProductSkinTypes'
+import { ProductTimings } from './collections/ProductTimings'
+import { ProductSteps } from './collections/ProductSteps'
+import { RoutineTemplates } from './collections/RoutineTemplates'
+import { RoutineTemplateSteps } from './collections/RoutineTemplateSteps'
+import { RoutineTemplateStepProducts } from './collections/RoutineTemplateStepProducts'
+import { Exclusions } from './collections/Exclusions'
+import { Boosts } from './collections/Boosts'
 import { Services } from './collections/Services'
 import { Treatments } from './collections/Treatments'
 import { Areas } from './collections/Areas'
@@ -40,11 +58,29 @@ export default buildConfig({
   collections: [
     Users,
     Media,
-    Products,
+    ProductAreas,
     Needs,
+    SkinTypes,
+    TimingProducts,
+    Brands,
+    BrandLines,
+    BrandLineObjectivePriority,
+    RoutineSteps,
+    RoutineStepRules,
+    Attributes,
+    ProductObjectives,
+    ProductSkinTypes,
+    ProductTimings,
+    ProductSteps,
+    RoutineTemplates,
+    RoutineTemplateSteps,
+    RoutineTemplateStepProducts,
+    Exclusions,
+    Boosts,
     Categories,
     Lines,
     Textures,
+    Products,
     Areas,
     Objectives,
     Intents,
@@ -85,6 +121,7 @@ export default buildConfig({
       'our-story',
       'dob-protocol',
       'contact',
+      'checkout',
     ] as const
     const existing = await payload.find({
       collection: 'pages',

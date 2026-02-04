@@ -1,0 +1,101 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-2);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--stroke);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.iconButton {
+  padding: 0.5rem;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  transition: color 200ms ease;
+}
+
+.iconButton:hover {
+  color: var(--text-primary);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.headerTitle {
+  flex: 1;
+  text-align: center;
+}
+
+.stepLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.breadcrumb {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.listWithBottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 5rem;
+}
+
+.itemButton {
+  width: 100%;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--stroke);
+  text-align: left;
+  background: transparent;
+  transition: all 300ms ease;
+}
+
+.itemTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.itemSubtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}

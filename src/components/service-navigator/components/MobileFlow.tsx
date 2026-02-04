@@ -6,6 +6,7 @@ import type {
 } from '@/components/service-navigator/types/navigator'
 import { useNavigatorData } from '@/components/service-navigator/data/navigator-data-context'
 import { ChevronLeft, X } from '@/components/service-navigator/icons'
+import styles from '@/components/service-navigator/components/MobileFlow.module.css'
 
 interface MobileFlowProps {
   state: NavigatorState;
@@ -90,43 +91,41 @@ export function MobileFlow({
       : [];
 
   return (
-    <div className="fixed inset-0 bg-bg z-50 flex flex-col">
+    <div className={styles.overlay}>
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-bg-2 backdrop-blur-lg border-b border-stroke">
-        <div className="flex items-center justify-between p-4">
+      <div className={styles.header}>
+        <div className={styles.headerInner}>
           <button
             onClick={handleBack}
-            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+            className={styles.iconButton}
             disabled={state.step === "area"}
           >
-            {state.step !== "area" && <ChevronLeft className="w-5 h-5" />}
+            {state.step !== "area" && <ChevronLeft className={styles.icon} />}
           </button>
 
-          <div className="flex-1 text-center">
-            <div className="text-xs text-text-muted uppercase tracking-wider mb-1">
+          <div className={styles.headerCenter}>
+            <div className={styles.headerLabel}>
               {state.step === "area" && "Seleziona Area"}
               {state.step === "goal" && "Seleziona Obiettivo"}
               {state.step === "treatment" && "Seleziona Trattamento"}
               {state.step === "final" && "Scegli Servizio"}
             </div>
             {getBreadcrumb() && (
-              <div className="text-xs text-text-secondary capitalize">
-                {getBreadcrumb()}
-              </div>
+              <div className={styles.headerBreadcrumb}>{getBreadcrumb()}</div>
             )}
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+            className={styles.iconButton}
           >
-            <X className="w-5 h-5" />
+            <X className={styles.icon} />
           </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className={styles.content}>
         <AnimatePresence mode="wait">
           {/* Area Step */}
           {state.step === "area" && (
@@ -135,7 +134,7 @@ export function MobileFlow({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
+              className={styles.stepList}
             >
               {areas.map((area) => (
                 <button
@@ -147,15 +146,13 @@ export function MobileFlow({
                       step: needsGoal ? "goal" : "treatment",
                     });
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.stepButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">
+                  <div className={styles.stepTitle}>
                     {area.label}
                   </div>
                   {area.description && (
-                    <div className="text-sm text-text-muted">
-                      {area.description}
-                    </div>
+                    <div className={styles.stepDescription}>{area.description}</div>
                   )}
                 </button>
               ))}
@@ -169,7 +166,7 @@ export function MobileFlow({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
+              className={styles.stepList}
             >
               {goals.map((goal) => (
                 <button
@@ -180,15 +177,13 @@ export function MobileFlow({
                       step: "treatment",
                     });
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.stepButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">
+                  <div className={styles.stepTitle}>
                     {goal.label}
                   </div>
                   {goal.description && (
-                    <div className="text-sm text-text-muted">
-                      {goal.description}
-                    </div>
+                    <div className={styles.stepDescription}>{goal.description}</div>
                   )}
                 </button>
               ))}
@@ -202,7 +197,7 @@ export function MobileFlow({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
+              className={styles.stepList}
             >
               {treatments.map((treatment) => (
                 <button
@@ -213,15 +208,13 @@ export function MobileFlow({
                       step: "final",
                     });
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.stepButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">
+                  <div className={styles.stepTitle}>
                     {treatment.label}
                   </div>
                   {treatment.description && (
-                    <div className="text-sm text-text-muted">
-                      {treatment.description}
-                    </div>
+                    <div className={styles.stepDescription}>{treatment.description}</div>
                   )}
                 </button>
               ))}
@@ -235,7 +228,7 @@ export function MobileFlow({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3 pb-32"
+              className={`${styles.stepList} ${styles.stepListWide}`}
             >
               {services.map((service) => (
                 <button
@@ -243,26 +236,21 @@ export function MobileFlow({
                   onClick={() => {
                     onUpdateState({ selectedService: service });
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.stepButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-2">
+                  <div className={styles.serviceTitle}>
                     {service.title}
                   </div>
                   {service.description && (
-                    <div className="text-sm text-text-muted mb-3">
-                      {service.description}
-                    </div>
+                    <div className={styles.serviceDescription}>{service.description}</div>
                   )}
-                  <div className="flex items-center gap-4 text-sm text-text-muted mb-3">
+                  <div className={styles.serviceMeta}>
                     <span>{service.durationMin} min</span>
                     {service.price && <span>€ {service.price}</span>}
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className={styles.tags}>
                     {service.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 text-xs rounded-full text-text-muted border border-stroke"
-                      >
+                      <span key={tag} className={styles.tag}>
                         {tag}
                       </span>
                     ))}
@@ -279,11 +267,11 @@ export function MobileFlow({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="sticky bottom-0 bg-bg backdrop-blur-lg border-t border-stroke p-4"
+          className={styles.cta}
         >
           <button
             onClick={onBookNow}
-            className="button-base w-full px-6 py-4 font-medium bg-accent-cyan text-text-inverse"
+            className={`button-base ${styles.ctaButton}`}
           >
             Prenota {state.selectedService.title}
           </button>

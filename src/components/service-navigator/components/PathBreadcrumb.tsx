@@ -5,6 +5,7 @@ import type { NavigatorState, Step } from "@/components/service-navigator/types/
 import { useNavigatorData } from "@/components/service-navigator/data/navigator-data-context";
 import { ChevronLeft } from "@/components/service-navigator/icons";
 import { GlassCard } from "@/components/service-navigator/components/GlassCard";
+import styles from "@/components/service-navigator/components/PathBreadcrumb.module.css";
 
 interface PathBreadcrumbProps {
   state: NavigatorState;
@@ -85,38 +86,38 @@ export function PathBreadcrumb({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-8"
+      className={styles.wrapper}
     >
-      <GlassCard className="w-full min-h-[88px]" paddingClassName="p-6">
+      <GlassCard className={styles.card} paddingClassName={styles.cardPadding}>
         {nodes.length > 0 ? (
-          <div className="w-full">
-            <div className="flex items-center gap-3 flex-wrap">
+          <div>
+            <div className={styles.row}>
               {/* Pulsante Indietro */}
               <button
                 onClick={onBack}
-                className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-stroke transition-all duration-300"
+                className={styles.backButton}
               >
-                <ChevronLeft className="w-4 h-4 text-accent-cyan" />
-                <span className="text-sm text-text-primary">Indietro</span>
+                <ChevronLeft className={styles.backIcon} />
+                <span className={styles.backLabel}>Indietro</span>
               </button>
               
               {/* Connector line dopo il pulsante indietro */}
-              <div className="w-8 h-[2px] bg-gradient-to-r from-cyan-500/50 to-cyan-500/20" />
+              <div className={styles.connector} />
               
               {nodes.map((node, index) => (
-                <div key={index} className="flex items-center gap-3">
+                <div key={index} className={styles.nodeWrap}>
                   {/* Node */}
                   <button
                     onClick={() => onNavigateToStep(node.step)}
-                    className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-stroke transition-all duration-300"
+                    className={styles.nodeButton}
                   >
-                    <div className="w-2 h-2 rounded-full bg-accent-cyan shadow-[0_0_8px_color-mix(in_srgb,var(--tech-cyan)_60%,transparent)]" />
-                    <span className="text-sm text-text-primary capitalize">{node.label}</span>
+                    <div className={styles.nodeDot} />
+                    <span className={styles.nodeLabel}>{node.label}</span>
                   </button>
 
                   {/* Connector line */}
                   {index < nodes.length - 1 && (
-                    <div className="w-8 h-[2px] bg-gradient-to-r from-cyan-500/50 to-cyan-500/20" />
+                    <div className={styles.connector} />
                   )}
                 </div>
               ))}
@@ -124,19 +125,15 @@ export function PathBreadcrumb({
               {/* Messaggio guida inline se non completo */}
               {guideMessage !== "" && (
                 <>
-                  <div className="w-8 h-[2px] bg-gradient-to-r from-cyan-500/50 to-cyan-500/20" />
-                  <span className="text-sm text-accent-cyan">
-                    {guideMessage}
-                  </span>
+                  <div className={styles.connector} />
+                  <span className={styles.guide}>{guideMessage}</span>
                 </>
               )}
             </div>
           </div>
         ) : (
-          <div className="text-center w-full">
-            <p className="text-accent-cyan text-sm">
-              {guideMessage}
-            </p>
+          <div className={styles.empty}>
+            <p className={styles.emptyText}>{guideMessage}</p>
           </div>
         )}
       </GlassCard>

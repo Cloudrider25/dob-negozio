@@ -20,12 +20,9 @@ export function ProgressIndicator({
   const progressStyle = { '--progress': `${progress}%` } as CSSProperties
 
   return (
-    <div className="w-full h-1 bg-paper rounded-full overflow-hidden">
-      <div
-        className={`h-full bg-accent-cyan transition-all duration-500 ease-out ${styles.progressFill}`}
-        style={progressStyle}
-      >
-        <div className="w-full h-full bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--text-primary)_30%,transparent)] to-transparent animate-shimmer" />
+    <div className={styles.bar}>
+      <div className={styles.progressFill} style={progressStyle}>
+        <div className={styles.shimmer} />
       </div>
     </div>
   );

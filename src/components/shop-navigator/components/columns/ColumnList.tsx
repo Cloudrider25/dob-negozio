@@ -1,6 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import shared from './columns-shared.module.css'
+import styles from './ColumnList.module.css'
 
 type ColumnListItem = {
   id: string
@@ -32,26 +34,18 @@ export function ColumnList({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.3 }}
-      className="navigator-column"
+      className={styles.column}
     >
-      <div className="mb-1">
-        <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-          {title}
-        </h3>
+      <div className={styles.heading}>
+        <h3 className={styles.title}>{title}</h3>
       </div>
 
-      <div
-        className={scrollable ? 'overflow-visible' : 'space-y-3'}
-      >
+      <div className={scrollable ? styles.list : styles.listCompact}>
         {items.length === 0 ? (
           emptyState ?? null
         ) : (
           <div
-            className={
-              scrollable
-                ? 'space-y-3 max-h-[600px] overflow-y-auto overflow-x-visible pr-1'
-                : 'space-y-3'
-            }
+            className={`${styles.items} ${scrollable ? styles.itemsScrollable : ''}`}
           >
             {items.map((item) => (
               <motion.button
@@ -61,17 +55,15 @@ export function ColumnList({
                 onMouseLeave={() => item.onHover?.(false)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`group relative p-4 rounded-lg transition-all duration-300 w-full min-h-[120px] navigator-box ${
-                  item.isSelected ? 'border-accent-cyan shadow-soft' : ''
+                className={`${styles.itemButton} ${shared.box} ${
+                  item.isSelected ? styles.itemSelected : ''
                 } ${item.className ?? ''}`}
               >
-                <div className="relative flex items-start justify-between gap-4">
-                  <div className="text-left flex-1">
-                    <div className="text-base font-medium text-text-primary mb-1">
-                      {item.title}
-                    </div>
+                <div className={styles.itemContent}>
+                  <div className={styles.itemText}>
+                    <div className={styles.itemTitle}>{item.title}</div>
                     {item.description && (
-                      <div className="text-sm text-text-muted">{item.description}</div>
+                      <div className={styles.itemDescription}>{item.description}</div>
                     )}
                   </div>
                   {item.rightSlot}

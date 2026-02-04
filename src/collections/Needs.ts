@@ -2,6 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
 
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '')
+
 export const Needs: CollectionConfig = {
   slug: 'needs',
   admin: {
@@ -14,6 +22,34 @@ export const Needs: CollectionConfig = {
     create: isAdmin,
     update: isAdmin,
     delete: isAdmin,
+  },
+  hooks: {
+    beforeValidate: [
+      ({ data, req }) => {
+        if (!data || data.slug) return data
+        const rawName = data.name
+        let nameValue = ''
+        if (typeof rawName === 'string') {
+          nameValue = rawName
+        } else if (rawName && typeof rawName === 'object') {
+          const localized = rawName as Record<string, unknown>
+          const preferredLocale = req.locale || 'it'
+          const preferred = localized[preferredLocale]
+          if (typeof preferred === 'string') {
+            nameValue = preferred
+          } else {
+            const first = Object.values(localized).find((value) => typeof value === 'string')
+            if (typeof first === 'string') nameValue = first
+          }
+        }
+        if (!nameValue) return data
+        const slug = slugify(nameValue)
+        if (slug) {
+          data.slug = slug
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {
@@ -47,6 +83,12 @@ export const Needs: CollectionConfig = {
       type: 'text',
       unique: true,
       index: true,
+      required: true,
+    },
+    {
+      name: 'productArea',
+      type: 'relationship',
+      relationTo: 'product-areas',
       required: true,
     },
     {

@@ -1,0 +1,84 @@
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.heading {
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.list {
+  display: block;
+}
+
+.listCompact {
+  display: block;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.itemsScrollable {
+  max-height: 600px;
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-right: 4px;
+}
+
+.itemButton {
+  position: relative;
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--stroke);
+  background: transparent;
+  text-align: left;
+  transition: all 300ms ease;
+}
+
+.itemSelected {
+  border-color: var(--tech-cyan);
+  box-shadow: var(--shadow-soft);
+}
+
+.itemContent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.itemText {
+  flex: 1;
+  text-align: left;
+}
+
+.itemTitle {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.itemDescription {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}

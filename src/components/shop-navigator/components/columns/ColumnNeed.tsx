@@ -2,6 +2,7 @@ import type { NeedId } from '@/components/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { EmptyState } from '@/components/shop-navigator/components/EmptyState'
 import { ColumnList } from '@/components/shop-navigator/components/columns/ColumnList'
+import metaStyles from '@/components/shop-navigator/components/columns/column-meta.module.css'
 
 interface ColumnNeedProps {
   selectedNeed?: NeedId
@@ -24,7 +25,7 @@ export function ColumnNeed({ selectedNeed, onSelectNeed, onHoverNeed }: ColumnNe
         onClick: () => onSelectNeed(need.id),
         onHover: (active) => onHoverNeed?.(active ? need.id : undefined),
         rightSlot: (
-          <div className="text-sm text-text-muted">({getProductCount({ needId: need.id })})</div>
+          <div className={metaStyles.count}>({getProductCount({ needId: need.id })})</div>
         ),
       }))}
       emptyState={

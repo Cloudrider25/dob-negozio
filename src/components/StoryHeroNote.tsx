@@ -31,7 +31,7 @@ export const StoryHeroNote = ({
       aria-label="Story highlight"
       data-has-media={hasMedia}
     >
-      {hasMedia ? (
+      {hasMedia && media ? (
         <div className={styles.media}>
           <Image
             src={media.url}

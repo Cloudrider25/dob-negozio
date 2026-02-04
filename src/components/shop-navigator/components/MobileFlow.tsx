@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { NavigatorState } from '@/components/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { ChevronLeft, X } from '@/components/shop-navigator/icons'
+import styles from './MobileFlow.module.css'
 
 interface MobileFlowProps {
   state: NavigatorState
@@ -135,19 +136,19 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
   })
 
   return (
-    <div className="fixed inset-0 bg-bg z-50 flex flex-col">
-      <div className="sticky top-0 z-10 bg-bg-2 backdrop-blur-lg border-b border-stroke">
-        <div className="flex items-center justify-between p-4">
+    <div className={styles.overlay}>
+      <div className={styles.header}>
+        <div className={styles.headerRow}>
           <button
             onClick={handleBack}
-            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+            className={styles.iconButton}
             disabled={state.step === 'need'}
           >
-            {state.step !== 'need' && <ChevronLeft className="w-5 h-5" />}
+            {state.step !== 'need' && <ChevronLeft className={styles.icon} />}
           </button>
 
-          <div className="flex-1 text-center">
-            <div className="text-xs text-text-muted uppercase tracking-wider mb-1">
+          <div className={styles.headerTitle}>
+            <div className={styles.stepLabel}>
               {state.step === 'need' && 'Seleziona Esigenza'}
               {state.step === 'category' && 'Seleziona Categoria'}
               {state.step === 'line' && 'Seleziona Linea'}
@@ -155,20 +156,20 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
               {state.step === 'products' && 'Scegli Prodotto'}
             </div>
             {getBreadcrumb() && (
-              <div className="text-xs text-text-secondary capitalize">{getBreadcrumb()}</div>
+              <div className={styles.breadcrumb}>{getBreadcrumb()}</div>
             )}
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+            className={styles.iconButton}
           >
-            <X className="w-5 h-5" />
+            <X className={styles.icon} />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className={styles.content}>
         <AnimatePresence mode="wait">
           {state.step === 'need' && (
             <motion.div
@@ -176,7 +177,7 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
+              className={styles.list}
             >
               {needs.map((need) => (
                 <button
@@ -187,11 +188,11 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
                       step: 'category',
                     })
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.itemButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">{need.label}</div>
+                  <div className={styles.itemTitle}>{need.label}</div>
                   {need.boxTagline && (
-                    <div className="text-sm text-text-muted">{need.boxTagline}</div>
+                    <div className={styles.itemSubtitle}>{need.boxTagline}</div>
                   )}
                 </button>
               ))}
@@ -204,7 +205,7 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
+              className={styles.list}
             >
               {categories.map((category) => (
                 <button
@@ -216,13 +217,13 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
                       step: getNextStepAfterCategory(state.selectedNeed, category.id),
                     })
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.itemButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">
+                  <div className={styles.itemTitle}>
                     {category.label}
                   </div>
                   {category.boxTagline && (
-                    <div className="text-sm text-text-muted">{category.boxTagline}</div>
+                    <div className={styles.itemSubtitle}>{category.boxTagline}</div>
                   )}
                 </button>
               ))}
@@ -235,7 +236,7 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
+              className={styles.list}
             >
               {lines.map((line) => (
                 <button
@@ -247,11 +248,11 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
                       step: getNextStepAfterLine(state.selectedNeed, state.selectedCategory, line.id),
                     })
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.itemButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">{line.label}</div>
+                  <div className={styles.itemTitle}>{line.label}</div>
                   {line.boxTagline && (
-                    <div className="text-sm text-text-muted">{line.boxTagline}</div>
+                    <div className={styles.itemSubtitle}>{line.boxTagline}</div>
                   )}
                 </button>
               ))}
@@ -264,7 +265,7 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3"
+              className={styles.list}
             >
               {textures.map((texture) => (
                 <button
@@ -275,13 +276,13 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
                       step: 'products',
                     })
                   }}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.itemButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">
+                  <div className={styles.itemTitle}>
                     {texture.label}
                   </div>
                   {texture.boxTagline && (
-                    <div className="text-sm text-text-muted">{texture.boxTagline}</div>
+                    <div className={styles.itemSubtitle}>{texture.boxTagline}</div>
                   )}
                 </button>
               ))}
@@ -294,19 +295,19 @@ export function MobileFlow({ state, onUpdateState, onClose }: MobileFlowProps) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-3 pb-20"
+              className={styles.listWithBottom}
             >
               {products.map((product) => (
                 <button
                   key={product.id}
                   onClick={() => onUpdateState({ selectedProduct: product })}
-                  className="w-full p-5 rounded-lg border border-stroke transition-all duration-300 text-left"
+                  className={styles.itemButton}
                 >
-                  <div className="text-lg font-medium text-text-primary mb-1">
+                  <div className={styles.itemTitle}>
                     {product.title}
                   </div>
                   {product.brand && (
-                    <div className="text-sm text-text-muted">{product.brand}</div>
+                    <div className={styles.itemSubtitle}>{product.brand}</div>
                   )}
                 </button>
               ))}

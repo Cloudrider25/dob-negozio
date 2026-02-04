@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/service-navigator/components/GlassCard";
+import styles from "@/components/service-navigator/components/ListinoTradizionale.module.css";
 
 type Category = "manicure" | "viso" | "epilazione";
 
@@ -115,36 +116,30 @@ export function ListinoTradizionale() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="w-full"
+      className={styles.wrapper}
     >
       {/* Category Tabs */}
-      <div className="flex items-center justify-center gap-3 mb-12">
+      <div className={styles.tabs}>
         <button
           onClick={() => setActiveCategory("manicure")}
-          className={`px-8 py-3 rounded-full text-sm font-medium tracking-wide transition-all duration-300 ${
-            activeCategory === "manicure"
-              ? "button-base text-text-primary"
-              : "button-base text-text-secondary"
+          className={`button-base ${styles.tabButton} ${
+            activeCategory === "manicure" ? styles.tabActive : styles.tabInactive
           }`}
         >
           MANICURE
         </button>
         <button
           onClick={() => setActiveCategory("viso")}
-          className={`px-8 py-3 rounded-full text-sm font-medium tracking-wide transition-all duration-300 ${
-            activeCategory === "viso"
-              ? "button-base text-text-primary"
-              : "button-base text-text-secondary"
+          className={`button-base ${styles.tabButton} ${
+            activeCategory === "viso" ? styles.tabActive : styles.tabInactive
           }`}
         >
           TRATTAMENTI VISO
         </button>
         <button
           onClick={() => setActiveCategory("epilazione")}
-          className={`px-8 py-3 rounded-full text-sm font-medium tracking-wide transition-all duration-300 ${
-            activeCategory === "epilazione"
-              ? "button-base text-text-primary"
-              : "button-base text-text-secondary"
+          className={`button-base ${styles.tabButton} ${
+            activeCategory === "epilazione" ? styles.tabActive : styles.tabInactive
           }`}
         >
           EPILAZIONE LASER
@@ -152,15 +147,13 @@ export function ListinoTradizionale() {
       </div>
 
       {/* Filter Tags */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-8 max-w-5xl mx-auto">
+      <div className={styles.tags}>
         {allTags.map((tag) => (
           <button
             key={tag}
             onClick={() => toggleTag(tag)}
-            className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all duration-300 border ${
-              selectedTags.includes(tag)
-                ? "border-accent-cyan text-accent-cyan"
-                : "border-stroke text-text-muted"
+            className={`${styles.tagButton} ${
+              selectedTags.includes(tag) ? styles.tagActive : ""
             }`}
           >
             {tag}
@@ -169,9 +162,9 @@ export function ListinoTradizionale() {
       </div>
 
       {/* Services List */}
-      <div className="max-w-4xl mx-auto space-y-4">
+      <div className={styles.list}>
         {filteredServices.length === 0 ? (
-          <div className="text-center py-16 text-text-muted">
+          <div className={styles.empty}>
             Nessun servizio trovato per i filtri selezionati
           </div>
         ) : (
@@ -182,21 +175,21 @@ export function ListinoTradizionale() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <GlassCard className="w-full" paddingClassName="p-6">
-                <div className="flex items-start justify-between gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-text-primary mb-2">
+              <GlassCard className={styles.card} paddingClassName={styles.cardPadding}>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardText}>
+                    <h3 className={styles.cardTitle}>
                       {service.title}
                     </h3>
-                    <p className="text-sm text-text-secondary mb-3">
+                    <p className={styles.cardDescription}>
                       {service.description}
                     </p>
-                    <p className="text-sm text-text-muted">
+                    <p className={styles.cardMeta}>
                       €{service.price} • {service.duration}
                     </p>
                   </div>
 
-                  <button className="button-base shrink-0 px-6 py-2.5 rounded-lg text-text-secondary text-sm font-medium transition-all duration-300">
+                  <button className={`button-base ${styles.bookButton}`}>
                     Book from €{service.price}
                   </button>
                 </div>

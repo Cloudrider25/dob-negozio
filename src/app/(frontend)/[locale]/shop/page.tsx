@@ -42,6 +42,24 @@ export default async function ShopPage({
 
   const t = getDictionary(locale)
   const payload = await getPayloadClient()
+
+  const resolveBrandLabel = (brand: unknown, fallbackLocale: string) => {
+    if (!brand || typeof brand === 'number') return undefined
+    if (typeof brand === 'string') return brand
+    if (typeof brand === 'object') {
+      const record = brand as Record<string, unknown>
+      const name = record.name
+      if (typeof name === 'string') return name
+      if (name && typeof name === 'object') {
+        const localized = name as Record<string, unknown>
+        const preferred = localized[fallbackLocale]
+        if (typeof preferred === 'string') return preferred
+        const first = Object.values(localized).find((value) => typeof value === 'string')
+        if (typeof first === 'string') return first
+      }
+    }
+    return undefined
+  }
   const [productsResult, needsResult, categoriesResult, linesResult, texturesResult] =
     await Promise.all([
       payload.find({
@@ -227,10 +245,11 @@ export default async function ShopPage({
   const products: ProductCard[] = productsResult.docs.map((product) => ({
     id: String(product.id),
     title: product.title || '',
+    description: product.description || undefined,
     slug: product.slug || undefined,
     price: product.price ?? undefined,
     currency: product.currency || undefined,
-    brand: product.brand || undefined,
+    brand: resolveBrandLabel(product.brand, locale),
     coverImage: resolveMedia(product.coverImage),
     images: Array.isArray(product.images)
       ? product.images
@@ -253,17 +272,7 @@ export default async function ShopPage({
   }
 
   return (
-    <div className="min-h-screen flex flex-col gap-[var(--s32)] px-[8vw]">
-      <section className="grid grid-cols-[1fr_auto_1fr] items-center pt-4 max-[1100px]:grid-cols-1 max-[1100px]:gap-4 max-[1100px]:text-center">
-        <div className="flex gap-2 text-[0.8rem] uppercase tracking-[0.2em] max-[1100px]:justify-center">
-          <span>Home</span>
-          <span>/</span>
-          <span>Negozio</span>
-        </div>
-        <div className="text-center">
-          <h1 className="text-[2.4rem]">{t.shop.title}</h1>
-        </div>
-      </section>
+    <div className="min-h-screen flex flex-col gap-[var(--s32)] my-[2.5vw] ">
       <ShopNavigatorSection
         data={navigatorData}
         initialClassicParams={{

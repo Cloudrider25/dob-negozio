@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import type { ServiceFinal } from '@/components/service-navigator/types/navigator'
 import { GlassCard } from '@/components/service-navigator/components/GlassCard'
+import styles from '@/components/service-navigator/components/columns/ColumnServices.module.css'
 
 interface ServiceCardProps {
   service: ServiceFinal
@@ -30,53 +31,48 @@ export function ServiceCard({ service, onSelect, onAddToCart }: ServiceCardProps
       whileTap={{ scale: 0.98 }}
       role="button"
       tabIndex={0}
-      className="group relative rounded-lg transition-all duration-300 w-full h-full min-h-[120px] text-left"
+      className={styles.card}
     >
-      <GlassCard className="w-full min-h-[120px] max-h-[120px]" paddingClassName="">
-        <div className="flex items-stretch gap-4 h-full">
+      <GlassCard className={styles.card} paddingClassName="">
+        <div className={styles.cardInner}>
           {service.imageUrl && (
-            <div className="relative shrink-0 self-stretch w-24 min-h-[120px] overflow-hidden">
+            <div className={styles.media}>
               <Image
                 src={service.imageUrl}
                 alt={service.title}
                 fill
                 sizes="96px"
-                className="object-cover"
+                className={styles.mediaImage}
               />
             </div>
           )}
 
-          <div className="flex-1 space-y-2 p-4">
-            <div>
-              <h4 className="text-base font-medium text-text-primary leading-tight">
-                {service.title}
-              </h4>
+          <div className={styles.content}>
+            <div className={styles.titleBlock}>
+              <h4 className={styles.serviceTitle}>{service.title}</h4>
               {service.description && (
-                <p className="text-sm text-text-muted leading-snug">{service.description}</p>
+                <p className={styles.serviceDescription}>{service.description}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 text-sm text-text-muted">
+            <div className={styles.meta}>
               <span>{service.durationMin} min</span>
               {service.price && <span>€ {service.price}</span>}
             </div>
 
-            <div className="flex flex-wrap gap-1.5">
+            <div className={styles.tags}>
               {service.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-1 text-xs rounded-full text-[var(--text-muted)] border border-[var(--stroke)]"
-                >
+                <span key={tag} className={styles.tag}>
                   {tag}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="flex flex-col items-end justify-center gap-2 pr-4">
+          <div className={styles.actions}>
             <Link
               href={serviceHref}
-              className="glass-pill text-xs text-text-primary h-8 min-w-[147px]"
+              className={`glass-pill ${styles.pill} ${styles.pillWide}`}
               onClick={(event) => {
                 event.stopPropagation()
                 if (!service.slug) event.preventDefault()
@@ -90,7 +86,7 @@ export function ServiceCard({ service, onSelect, onAddToCart }: ServiceCardProps
                 event.stopPropagation()
                 onAddToCart(service)
               }}
-              className="glass-pill text-xs text-text-primary h-8 min-w-[100px]"
+              className={`glass-pill ${styles.pill} ${styles.pillNarrow}`}
             >
               Aggiungi al carrello
             </button>
@@ -120,16 +116,14 @@ export function ColumnServices({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.3 }}
-      className="navigator-column"
+      className={styles.column}
     >
-      <div className="mb-1">
-        <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-          Servizio
-        </h3>
+      <div className={styles.heading}>
+        <h3 className={styles.title}>Servizio</h3>
       </div>
 
       {services.length > 0 ? (
-        <div className="space-y-3 max-h-[600px] overflow-y-auto overflow-x-visible bg-transparent">
+        <div className={styles.list}>
           {services.map((service) => (
             <ServiceCard
               key={service.id}
@@ -140,7 +134,7 @@ export function ColumnServices({
           ))}
         </div>
       ) : (
-        <div className="p-6 text-center text-text-muted text-sm">
+        <div className={styles.empty}>
           Nessun servizio disponibile per questa selezione
         </div>
       )}

@@ -8,7 +8,9 @@ import { ShopNavigatorHeader } from '@/components/shop-navigator/components/Navi
 import { NavigatorGrid } from '@/components/shop-navigator/components/NavigatorGrid'
 import { MobileFlow } from '@/components/shop-navigator/components/MobileFlow'
 import { ShopNavigatorDataProvider } from '@/components/shop-navigator/data/shop-data-context'
-import { ShopProductCard } from '@/components/shop-navigator/components/columns/ColumnProducts'
+import { ServiceCarouselCard } from '@/components/ServiceCarouselCard'
+import type { ServicesCarouselItem } from '@/components/service-carousel/types'
+import styles from './ShopNavigatorSection.module.css'
 
 type ViewMode = 'navigator' | 'classic'
 
@@ -74,34 +76,41 @@ function ClassicShopView({
   const pageItems = sorted.slice(start, start + params.perPage)
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className={styles.classicView}>
+      <div className={styles.classicHeader}>
         <div>
-          <h2 className="text-2xl font-light text-text-primary">Shop Classico</h2>
-          <p className="text-sm text-text-muted">
-            {total} prodotti disponibili
-          </p>
+          <h2 className={styles.classicTitle}>Shop Classico</h2>
+          <p className={styles.classicSubtitle}>{total} prodotti disponibili</p>
         </div>
-        <div className="text-sm text-text-muted">
+        <div className={styles.classicMeta}>
           Pagina {page} di {totalPages}
         </div>
       </div>
 
       <div
-        className={
-          params.view === 'list'
-            ? 'grid grid-cols-1 gap-4'
-            : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'
-        }
+        className={params.view === 'list' ? styles.classicGridList : styles.classicGridCards}
       >
-        {pageItems.map((product) => (
-          <ShopProductCard
-            key={product.id}
-            product={product}
-            onAddToCart={() => onAddToCart(product)}
-            href={`${productBasePath}/${product.slug ?? product.id}`}
-          />
-        ))}
+        {pageItems.map((product) => {
+          const item: ServicesCarouselItem = {
+            title: product.title,
+            subtitle: product.description ?? undefined,
+            price:
+              typeof product.price === 'number'
+                ? `${product.price.toFixed(2)} ${product.currency ?? 'EUR'}`
+                : undefined,
+            duration: null,
+            image: {
+              url: product.coverImage?.url ?? product.images?.[0]?.url ?? '',
+              alt: product.coverImage?.alt ?? product.title,
+            },
+            tag: product.brand ?? null,
+            badgeLeft: null,
+            badgeRight: null,
+            href: `${productBasePath}/${product.slug ?? product.id}`,
+          }
+          if (!item.image.url) return null
+          return <ServiceCarouselCard key={product.id} item={item} />
+        })}
       </div>
     </div>
   )
@@ -152,12 +161,12 @@ export function ShopNavigatorSection({
   }
 
   return (
-    <section className="service-navigator relative min-h-screen overflow-hidden bg-bg-2">
+    <section className={`${styles.section} service-navigator`}>
       <ShopNavigatorDataProvider data={data}>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
+        <div className={styles.container}>
           <ShopNavigatorHeader activeView={viewMode} onViewChange={setViewMode} />
 
-          <div className="hidden lg:block">
+          <div className={styles.desktopOnly}>
             <AnimatePresence mode="wait">
               {viewMode === 'navigator' ? (
                 <NavigatorGrid
@@ -179,7 +188,7 @@ export function ShopNavigatorSection({
             </AnimatePresence>
           </div>
 
-          <div className="lg:hidden">
+          <div className={styles.mobileOnly}>
             {viewMode === 'classic' ? (
               <ClassicShopView
                 products={data.products}
@@ -190,7 +199,7 @@ export function ShopNavigatorSection({
             ) : (
               <button
                 onClick={() => setShowMobileFlow(true)}
-                className="w-full px-6 py-4 rounded-lg bg-accent-cyan text-text-inverse font-medium shadow-soft transition-all duration-300"
+                className={styles.mobileCta}
               >
                 Inizia la Configurazione
               </button>

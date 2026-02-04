@@ -1,0 +1,292 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 3rem;
+  padding: 2.5vw;
+  background: transparent;
+  min-height: 100dvh;
+
+}
+
+.form {
+  background: transparent;
+  padding:38px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.brandTitle {
+  margin: 0;
+  font-size: clamp(2.6rem, 2.1rem + 2.4vw, 4rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6a6660;
+  font-family: 'DOB Display', 'Times New Roman', serif;
+
+}
+
+.steps {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #8a857e;
+}
+
+.notice {
+  border-radius: 14px;
+  border: 1px solid rgba(106, 102, 96, 0.2);
+  background: #fff;
+  padding: 1rem 1.2rem;
+  font-size: 0.85rem;
+  color: #6a6660;
+  line-height: 1.6;
+}
+
+.express {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.expressTitle {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.65rem;
+  color: #8a857e;
+}
+
+.expressRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.expressButton {
+  border-radius: 10px;
+  border: 1px solid rgba(106, 102, 96, 0.2);
+  padding: 0.6rem 0.8rem;
+  background: #fff;
+  font-weight: 600;
+  text-align: center;
+}
+
+.orDivider {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.6rem;
+  color: #8a857e;
+}
+
+.orDivider::before,
+.orDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(106, 102, 96, 0.2);
+}
+
+.form {
+  display: grid;
+  gap: 1.2rem;
+  background: var(--bg);
+}
+
+.fieldGroup {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4f4b46;
+}
+
+.input,
+.select {
+  border-radius: 10px;
+  border: 1px solid rgba(106, 102, 96, 0.3);
+  padding: 0.8rem 0.9rem;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+.splitRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.splitRowThree {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: #6a6660;
+}
+
+.actionsRow {
+  margin-top: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.returnLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #6a6660;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.returnIcon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.continueButton {
+  border-radius: 10px;
+  border: 0;
+  padding: 0.85rem 1.4rem;
+  background: #5c5751;
+  color: #fff;
+  font-weight: 600;
+}
+
+.footerLinks {
+  margin-top: 2rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(106, 102, 96, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  font-size: 0.85rem;
+  color: #6a6660;
+}
+
+.footerLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cookieLink {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  color: #6a6660;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.summary {
+  background: transparent;
+  border-radius: 18px;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.summaryItem {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.summaryThumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e6e1db;
+}
+
+.summaryTitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #4f4b46;
+  margin: 0;
+}
+
+.summaryMeta {
+  font-size: 0.75rem;
+  color: #8a857e;
+}
+
+.summaryPrice {
+  font-size: 0.95rem;
+  color: #4f4b46;
+  white-space: nowrap;
+}
+
+.codeRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+}
+
+.applyButton {
+  border-radius: 10px;
+  border: 1px solid rgba(106, 102, 96, 0.3);
+  padding: 0.7rem 1rem;
+  background: #e6e1db;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.65rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4f4b46;
+}
+
+.checkoutButton {
+  border-radius: 999px;
+  border: 0;
+  padding: 0.9rem 1.2rem;
+  background: #4f4b46;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 1024px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+
+  .actionsRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

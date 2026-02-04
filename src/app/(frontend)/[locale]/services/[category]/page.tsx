@@ -191,7 +191,7 @@ export default async function ServiceCategoryPage({
       />
       <ServicesProtocol />
       <section
-        className="grid grid-cols-[minmax(220px,320px)_1fr_minmax(220px,320px)] gap-10 px-[8vw] py-[var(--s120)] max-[1100px]:grid-cols-1"
+        className="grid grid-cols-[minmax(220px,320px)_1fr_minmax(220px,320px)] gap-10 px-[2.5vw] py-[var(--s120)] max-[1100px]:grid-cols-1"
         data-header-theme="light"
       >
         <div className={styles.highlightMedia}>
@@ -251,7 +251,7 @@ export default async function ServiceCategoryPage({
           )}
         </div>
       </section>
-      <section className="px-[8vw] py-[var(--s120)]">
+      <section className="px-[2.5vw] py-[var(--s120)]">
         <div className="flex flex-col gap-6">
           <p className="text-[1.5rem] uppercase tracking-[0.4em]">
             {t.services.title}
@@ -287,7 +287,7 @@ export default async function ServiceCategoryPage({
           )}
         </div>
       </section>
-      <section className="px-[8vw] py-[var(--s120)]">
+      <section className="px-[2.5vw] py-[var(--s120)]">
         <div className={`${styles.ctaCard} grid grid-cols-[1.5fr_1fr] gap-8 rounded-[28px] border p-10 max-[900px]:grid-cols-1`}>
           <div>
             <p className="text-[0.75rem] uppercase tracking-[0.4em]">

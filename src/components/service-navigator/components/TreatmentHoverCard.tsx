@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { GlassCard } from '@/components/service-navigator/components/GlassCard'
+import styles from '@/components/service-navigator/components/TreatmentHoverCard.module.css'
 
 export interface TreatmentDetails {
   id: string
@@ -54,70 +55,55 @@ export function TreatmentHoverCard({
   }, [shouldSlideOut, currentTreatment])
 
   const cardContent = (
-    <div className="relative w-full h-full">
-      {/* Card container */}
-      <GlassCard className="w-full h-full service-hover-card rounded-t-[12px]" paddingClassName="">
-        {/* Subtle glow effect */}
-        <div className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full" />
+    <div className={styles.wrapper}>
+      <GlassCard className={`${styles.card} service-hover-card`} paddingClassName="">
+        <div className={styles.glow}>
+          <div className={styles.glowBlob} />
         </div>
 
-        {/* Content */}
-        <div className="relative h-full flex flex-col">
-          {/* Image section */}
-          <div className="relative h-72 overflow-hidden">
+        <div className={styles.content}>
+          <div className={styles.media}>
             {currentTreatment?.imageUrl ? (
               <Image
                 src={currentTreatment.imageUrl}
                 alt={currentTreatment.title}
                 fill
-                className="object-cover object-center"
+                className={styles.mediaImage}
                 sizes="(max-width: 1024px) 100vw, 320px"
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[color:color-mix(in_srgb,var(--tech-cyan)_35%,transparent)] via-[color:color-mix(in_srgb,var(--obsidian)_70%,transparent)] to-[color:color-mix(in_srgb,var(--obsidian)_80%,transparent)]" />
+              <div className={styles.mediaFallback} />
             )}
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[color:color-mix(in_srgb,var(--obsidian)_20%,transparent)] to-[color:color-mix(in_srgb,var(--obsidian)_80%,transparent)]" />
+            <div className={styles.mediaOverlay} />
 
-            {/* Title on image */}
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-              <h3 className="text-lg font-semibold text-text-primary mb-0.5">
-                {currentTreatment?.title}
-              </h3>
+            <div className={styles.mediaText}>
+              <h3 className={styles.title}>{currentTreatment?.title}</h3>
               {currentTreatment?.subtitle && (
-                <p className="text-sm text-accent-cyan">{currentTreatment.subtitle}</p>
+                <p className={styles.subtitle}>{currentTreatment.subtitle}</p>
               )}
             </div>
           </div>
 
-          {/* Description section */}
-          <div className="flex-1 p-4 flex flex-col gap-3 overflow-hidden">
-            <p className="text-sm text-text-muted leading-relaxed line-clamp-5">
-              {currentTreatment?.description}
-            </p>
+          <div className={styles.body}>
+            <p className={styles.description}>{currentTreatment?.description}</p>
 
             {currentTreatment?.descriptionBullets &&
               currentTreatment.descriptionBullets.length > 0 && (
-                <div className="space-y-1.5 max-h-28 overflow-y-auto pr-1">
+                <div className={styles.bulletList}>
                   {currentTreatment.descriptionBullets.map((bullet, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start gap-2 text-xs text-text-muted"
-                    >
-                      <div className="w-1 h-1 rounded-full bg-[color:color-mix(in_srgb,var(--tech-cyan)_60%,transparent)] mt-1.5 shrink-0" />
+                    <div key={index} className={styles.bulletItem}>
+                      <div className={styles.bulletDot} />
                       <span>{bullet}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-            {/* Features list */}
             {currentTreatment?.features.length ? (
-              <div className="space-y-1.5">
+              <div className={styles.featureList}>
                 {currentTreatment.features.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-2 text-xs text-text-muted">
-                    <div className="w-1 h-1 rounded-full bg-[color:color-mix(in_srgb,var(--tech-cyan)_60%,transparent)] mt-1.5 shrink-0" />
+                  <div key={index} className={styles.bulletItem}>
+                    <div className={styles.bulletDot} />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -125,10 +111,10 @@ export function TreatmentHoverCard({
             ) : null}
           </div>
 
-          <div className="mt-auto flex justify-center pb-4">
+          <div className={styles.actions}>
             <Link
               href={href}
-              className="glass-pill text-xs h-8"
+              className={`glass-pill ${styles.pill}`}
               onClick={(event) => {
                 if (!currentTreatment?.slug) event.preventDefault()
               }}
@@ -137,8 +123,7 @@ export function TreatmentHoverCard({
             </Link>
           </div>
 
-          {/* Subtle bottom glow */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[color:color-mix(in_srgb,var(--tech-cyan)_20%,transparent)] to-transparent" />
+          <div className={styles.divider} />
         </div>
       </GlassCard>
     </div>
@@ -167,7 +152,7 @@ export function TreatmentHoverCard({
               onAnimationComplete()
             }
           }}
-          className="relative w-full h-full"
+          className={styles.wrapper}
         >
           {cardContent}
         </motion.div>

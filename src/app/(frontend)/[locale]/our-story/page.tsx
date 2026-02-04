@@ -6,6 +6,7 @@ import { StoryHeroNote } from '@/components/StoryHeroNote'
 import { StoryValuesSection, type StoryValuesItem } from '@/components/StoryValuesSection'
 import { StoryTeamSection, type StoryTeamItem } from '@/components/StoryTeamSection'
 import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
+import type { Where } from 'payload'
 import styles from './our-story.module.css'
 
 export default async function OurStoryPage({
@@ -177,7 +178,7 @@ export default async function OurStoryPage({
       ? servicesSettings.limit
       : 6
 
-  const servicesWhere: Record<string, unknown> = {
+  const servicesWhere: Where = {
     and: [
       { active: { equals: true } },
       ...(Array.isArray(servicesSettings?.serviceTypes) && servicesSettings.serviceTypes.length

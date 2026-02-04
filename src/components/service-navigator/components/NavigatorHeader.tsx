@@ -1,6 +1,7 @@
 'use client'
 
 import { GlassCard } from './GlassCard'
+import styles from './NavigatorHeader.module.css'
 
 type NavigatorHeaderProps = {
   activeView: 'navigator' | 'listino' | 'consulenza'
@@ -9,37 +10,37 @@ type NavigatorHeaderProps = {
 
 export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderProps) {
   return (
-    <div className="text-center mb-16">
-      <h1 className="text-4xl md:text-5xl font-light text-text-primary mb-4">
+    <div className={styles.header}>
+      <h1 className={styles.title}>
         Scegli il risultato.{' '}
-        <span className="inline-block relative">
+        <span className={styles.titleHighlight}>
           Al resto pensiamo noi.
-          <span className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50" />
+          <span className={styles.titleUnderline} />
         </span>
       </h1>
 
-      <p className="text-lg text-text-secondary max-w-2xl mx-auto mb-6">
+      <p className={styles.subtitle}>
         Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
       </p>
 
-      <div className="flex items-center justify-center gap-3">
+      <div className={styles.actions}>
         {/* Service Navigator - Default/Active */}
         <button
           onClick={() => onViewChange('navigator')}
-          className="group inline-flex"
+          className={styles.actionButton}
         >
           <GlassCard
             variant="pill"
-            className={`transition-all duration-300 ${
-              activeView === 'navigator' ? 'shadow-soft ring-1 ring-accent-cyan/40' : 'ring-1 ring-transparent'
+            className={`${styles.pill} ${
+              activeView === 'navigator' ? styles.pillActive : styles.pillInactive
             }`}
-            paddingClassName="flex items-center gap-2 px-6 py-3"
+            paddingClassName={styles.pillPadding}
           >
             <span
-              className={`${
+              className={`${styles.pillLabel} ${
                 activeView === 'navigator'
-                  ? 'text-accent-cyan'
-                  : 'text-text-secondary group-hover:text-text-primary'
+                  ? styles.pillLabelActive
+                  : styles.pillLabelInactive
               }`}
             >
               Service Navigator
@@ -50,24 +51,24 @@ export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderPro
         {/* Listino Tradizionale */}
         <button
           onClick={() => onViewChange('listino')}
-          className="group inline-flex"
+          className={styles.actionButton}
         >
           <GlassCard
             variant="pill"
-            className={`transition-all duration-300 ${
-              activeView === 'listino' ? 'shadow-soft ring-1 ring-accent-cyan/40' : 'ring-1 ring-transparent'
+            className={`${styles.pill} ${
+              activeView === 'listino' ? styles.pillActive : styles.pillInactive
             }`}
-            paddingClassName="flex items-center gap-2 px-6 py-3"
+            paddingClassName={styles.pillPadding}
           >
             <span
-              className={`${
-                activeView === 'listino' ? 'text-accent-cyan' : 'text-text-secondary group-hover:text-text-primary'
+              className={`${styles.pillLabel} ${
+                activeView === 'listino' ? styles.pillLabelActive : styles.pillLabelInactive
               }`}
             >
               Listino Tradizionale
             </span>
             {activeView !== 'listino' && (
-              <span className="text-accent-cyan group-hover:translate-x-1 transition-transform duration-300">
+              <span className={styles.pillArrow}>
                 →
               </span>
             )}
@@ -77,26 +78,26 @@ export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderPro
         {/* Skin Analyzer */}
         <button
           onClick={() => onViewChange('consulenza')}
-          className="group inline-flex"
+          className={styles.actionButton}
         >
           <GlassCard
             variant="pill"
-            className={`transition-all duration-300 ${
-              activeView === 'consulenza' ? 'shadow-soft ring-1 ring-accent-cyan/40' : 'ring-1 ring-transparent'
+            className={`${styles.pill} ${
+              activeView === 'consulenza' ? styles.pillActive : styles.pillInactive
             }`}
-            paddingClassName="flex items-center gap-2 px-6 py-3"
+            paddingClassName={styles.pillPadding}
           >
             <span
-              className={`${
+              className={`${styles.pillLabel} ${
                 activeView === 'consulenza'
-                  ? 'text-accent-cyan'
-                  : 'text-text-secondary group-hover:text-text-primary'
+                  ? styles.pillLabelActive
+                  : styles.pillLabelInactive
               }`}
             >
               Skin Analyzer (Derma Test) & Consulenza
             </span>
             {activeView !== 'consulenza' && (
-              <span className="text-accent-cyan group-hover:translate-x-1 transition-transform duration-300">
+              <span className={styles.pillArrow}>
                 →
               </span>
             )}

@@ -84,17 +84,13 @@
   font-size: 1.2rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  max-width: 18ch;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .titleRow {
   display: grid;
   grid-template-columns: 70% 30%;
   gap: 0.6rem;
-  align-items: end;
+  align-items: flex-start;
   padding: 24px 24px 0;
 }
 

@@ -1,0 +1,93 @@
+import type { CollectionConfig } from 'payload'
+
+import { isAdmin } from '../access/isAdmin'
+
+export const RoutineTemplates: CollectionConfig = {
+  slug: 'routine-templates',
+  admin: {
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'slug', 'productArea', 'timing', 'objective', 'active', 'sortOrder'],
+    group: 'Shop',
+  },
+  access: {
+    read: () => true,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+  },
+  fields: [
+    {
+      name: 'name',
+      type: 'text',
+      localized: true,
+      required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      required: true,
+    },
+    {
+      name: 'description',
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'productArea',
+      type: 'relationship',
+      relationTo: 'product-areas',
+      required: true,
+    },
+    {
+      name: 'timing',
+      type: 'relationship',
+      relationTo: 'timing-products',
+      required: true,
+    },
+    {
+      name: 'objective',
+      type: 'relationship',
+      relationTo: 'objectives',
+      required: true,
+    },
+    {
+      name: 'skinType',
+      type: 'relationship',
+      relationTo: 'skin-types',
+    },
+    {
+      name: 'isMultibrand',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
+      name: 'brand',
+      type: 'relationship',
+      relationTo: 'brands',
+      admin: {
+        condition: (_, siblingData) => !siblingData?.isMultibrand,
+      },
+    },
+    {
+      name: 'brandLine',
+      type: 'relationship',
+      relationTo: 'brand-lines',
+      admin: {
+        condition: (_, siblingData) => !siblingData?.isMultibrand,
+      },
+    },
+    {
+      name: 'active',
+      type: 'checkbox',
+      defaultValue: true,
+    },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      defaultValue: 0,
+    },
+  ],
+  timestamps: true,
+}

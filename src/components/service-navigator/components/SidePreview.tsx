@@ -4,6 +4,7 @@ import type { NavigatorState, SelectedServiceItem } from "@/components/service-n
 import { useNavigatorData } from "@/components/service-navigator/data/navigator-data-context";
 import { Minus, Plus, ShoppingBag, Trash } from "@/components/service-navigator/icons";
 import { GlassCard } from "@/components/service-navigator/components/GlassCard";
+import styles from "@/components/service-navigator/components/SidePreview.module.css";
 
 interface SidePreviewProps {
   state: NavigatorState;
@@ -59,46 +60,44 @@ export function SidePreview({
   const totalPrice = cart.reduce((sum, item) => sum + (item.service.price || 0), 0);
 
   return (
-    <div className="navigator-column">
+    <div className={styles.column}>
       {/* Carrello Servizi */}
       {cart.length > 0 && (
-        <div className="mb-6 navigator-column">
+        <div className={styles.section}>
           {/* Titolo allineato con le colonne */}
-          <div className="mb-1">
-            <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-              Carrello
-            </h3>
+          <div className={styles.heading}>
+            <h3 className={styles.headingText}>Carrello</h3>
           </div>
 
-          <div className="relative w-full">
+          <div className={styles.panel}>
             <GlassCard paddingClassName="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <ShoppingBag className="w-4 h-4 text-accent-cyan" />
-                <h3 className="text-sm font-medium text-accent-cyan uppercase tracking-wider">
+              <div className={styles.cartHeader}>
+                <ShoppingBag className={styles.cartHeaderIcon} />
+                <h3 className={styles.cartHeaderText}>
                   Servizi Selezionati ({cart.length})
                 </h3>
               </div>
 
-              <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto">
+              <div className={styles.cartList}>
                 {groupedItems.map(({ item, count }) => {
                   const itemAreaData = getAreaById(item.area);
                   return (
                     <GlassCard key={item.service.id} paddingClassName="p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm text-text-primary font-medium mb-1 truncate">
+                      <div className={styles.cartItem}>
+                        <div className={styles.cartItemText}>
+                          <div className={styles.cartItemTitle}>
                             {item.service.title}
                           </div>
-                          <div className="text-xs text-text-muted space-y-0.5">
-                            <div className="capitalize">
+                          <div className={styles.cartItemMeta}>
+                            <div className={styles.summaryValueCaps}>
                               {itemAreaData?.label}
                               {item.goal &&
                                 ` • ${getGoalById(item.goal)?.label || item.goal}`}
                             </div>
-                            <div className="capitalize">
+                            <div className={styles.summaryValueCaps}>
                               {getTreatmentById(item.treatment)?.label || item.treatment}
                             </div>
-                            <div className="flex items-center gap-3 mt-1">
+                            <div className={styles.cartItemMetaRow}>
                               <span>
                                 {item.service.durationMin} min
                               </span>
@@ -111,27 +110,27 @@ export function SidePreview({
                           </div>
                         </div>
                         {count > 1 ? (
-                          <div className="flex items-center gap-1">
+                          <div className={styles.cartItemActions}>
                             <button
                               onClick={() => onRemoveFromCartItem(item)}
-                              className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                              className={`${styles.cartActionButton} ${styles.cartActionButtonRemove}`}
                             >
-                              <Minus className="w-4 h-4 text-accent-red" />
+                              <Minus className={`${styles.cartActionIcon} ${styles.cartActionIconRemove}`} />
                             </button>
-                            <span className="text-xs text-text-muted tabular-nums">{count}</span>
+                            <span className={styles.cartCount}>{count}</span>
                             <button
                               onClick={() => onAddToCartItem(item)}
-                              className="p-1 rounded hover:bg-cyan-500/20 transition-colors"
+                              className={`${styles.cartActionButton} ${styles.cartActionButtonAdd}`}
                             >
-                              <Plus className="w-4 h-4 text-accent-cyan" />
+                              <Plus className={`${styles.cartActionIcon} ${styles.cartActionIconAdd}`} />
                             </button>
                           </div>
                         ) : (
                           <button
                             onClick={() => onRemoveFromCartItem(item)}
-                            className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                            className={`${styles.cartActionButton} ${styles.cartActionButtonRemove}`}
                           >
-                            <Trash className="w-4 h-4 text-accent-red" />
+                            <Trash className={`${styles.cartActionIcon} ${styles.cartActionIconRemove}`} />
                           </button>
                         )}
                       </div>
@@ -141,21 +140,21 @@ export function SidePreview({
               </div>
 
               {/* Totali */}
-              <div className="pt-4 border-t border-cyan-500/20 space-y-2">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-text-secondary">
+              <div className={styles.cartTotals}>
+                <div className={styles.cartTotalRow}>
+                  <span className={styles.cartTotalLabel}>
                     Durata Totale
                   </span>
-                  <span className="text-accent-cyan font-medium">
+                  <span className={styles.cartTotalValue}>
                     {totalDuration} min
                   </span>
                 </div>
                 {totalPrice > 0 && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-text-secondary">
+                  <div className={styles.cartTotalRow}>
+                    <span className={styles.cartTotalLabel}>
                       Prezzo Totale
                     </span>
-                    <span className="text-accent-cyan font-medium">
+                    <span className={styles.cartTotalValue}>
                       € {totalPrice}
                     </span>
                   </div>
@@ -167,23 +166,19 @@ export function SidePreview({
       )}
 
       {/* Selezione Corrente */}
-      <div className="mb-6 navigator-column">
+      <div className={styles.section}>
         {/* Titolo allineato con le colonne */}
-        <div className="mb-1">
-          <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-            Riepilogo
-          </h3>
+        <div className={styles.heading}>
+          <h3 className={styles.headingText}>Riepilogo</h3>
         </div>
 
-        <div className="relative w-full">
+        <div className={styles.panel}>
           <GlassCard paddingClassName="p-6">
-            <div className="space-y-3">
+            <div className={styles.summaryList}>
               {/* Area */}
               <div>
-                <div className="text-xs text-text-muted mb-1">
-                  Area
-                </div>
-                <div className="text-base text-text-primary">
+                <div className={styles.summaryLabel}>Area</div>
+                <div className={styles.summaryValue}>
                   {areaData?.label || "—"}
                 </div>
               </div>
@@ -192,10 +187,8 @@ export function SidePreview({
               {(selectedArea === "viso" ||
                 selectedArea === "corpo") && (
                 <div>
-                  <div className="text-xs text-text-muted mb-1">
-                    Obiettivo
-                  </div>
-                  <div className="text-base text-text-primary capitalize">
+                  <div className={styles.summaryLabel}>Obiettivo</div>
+                  <div className={`${styles.summaryValue} ${styles.summaryValueCaps}`}>
                   {selectedGoal ? getGoalById(selectedGoal)?.label || selectedGoal : "—"}
                   </div>
                 </div>
@@ -203,20 +196,16 @@ export function SidePreview({
 
               {/* Treatment */}
               <div>
-                <div className="text-xs text-text-muted mb-1">
-                  Trattamento
-                </div>
-                <div className="text-base text-text-primary capitalize">
+                <div className={styles.summaryLabel}>Trattamento</div>
+                <div className={`${styles.summaryValue} ${styles.summaryValueCaps}`}>
                   {selectedTreatment ? getTreatmentById(selectedTreatment)?.label || selectedTreatment : "—"}
                 </div>
               </div>
 
               {/* Service */}
               <div>
-                <div className="text-xs text-text-muted mb-1">
-                  Servizio
-                </div>
-                <div className="text-base text-text-primary">
+                <div className={styles.summaryLabel}>Servizio</div>
+                <div className={styles.summaryValue}>
                   {selectedService?.title || "—"}
                 </div>
               </div>
@@ -224,29 +213,29 @@ export function SidePreview({
 
             {/* Premium info sempre visibili */}
             {selectedService && (
-              <div className="mt-6 pt-6 border-t border-stroke space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-text-secondary">
+              <div className={styles.summaryInfo}>
+                <div className={styles.summaryInfoRow}>
+                  <span className={styles.cartTotalLabel}>
                     Durata
                   </span>
-                  <span className="text-sm text-text-primary font-medium">
+                  <span className={styles.summaryValue}>
                     {selectedService.durationMin} min
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-text-secondary">
+                <div className={styles.summaryInfoRow}>
+                  <span className={styles.cartTotalLabel}>
                     Tecnologia
                   </span>
-                  <span className="text-sm text-text-primary font-medium capitalize">
+                  <span className={`${styles.summaryValue} ${styles.summaryValueCaps}`}>
                     {selectedTreatment}
                   </span>
                 </div>
                 {selectedService.price && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-text-secondary">
+                  <div className={styles.summaryInfoRow}>
+                    <span className={styles.cartTotalLabel}>
                       Prezzo
                     </span>
-                    <span className="text-sm text-text-primary font-medium">
+                    <span className={styles.summaryValue}>
                       € {selectedService.price}
                     </span>
                   </div>
@@ -258,12 +247,12 @@ export function SidePreview({
       </div>
 
       {/* CTAs */}
-      <div className="space-y-3">
+      <div className={styles.ctaStack}>
         {/* Add Another Service - Solo se ci sono già servizi nel carrello */}
         {cart.length > 0 && !canAddToCart && (
           <button
             onClick={onResetSelection}
-            className="glass-pill w-full justify-center text-sm font-medium text-text-primary"
+            className={`glass-pill ${styles.pillButton}`}
           >
             + Aggiungi Altro Servizio
           </button>
@@ -273,9 +262,7 @@ export function SidePreview({
         <button
           onClick={onBookNow}
           disabled={!canBook}
-          className={`glass-pill w-full justify-center text-sm font-medium ${
-            canBook ? 'text-text-primary' : 'text-text-muted cursor-not-allowed opacity-60'
-          }`}
+          className={`glass-pill ${styles.pillButton} ${canBook ? '' : styles.pillMuted}`}
         >
           Prenota Ora{" "}
           {cart.length > 0 &&
@@ -285,12 +272,12 @@ export function SidePreview({
         {/* Secondary CTA - Skin Analyzer */}
         <button
           onClick={onSkinAnalyzer}
-          className="button-base w-full px-6 py-3 font-medium text-text-primary"
+          className={`button-base ${styles.skinButton}`}
         >
-          <span className="block text-sm">
+          <span className={styles.skinTitle}>
             Skin Analyzer (Derma Test)
           </span>
-          <span className="block text-xs text-text-muted mt-1">
+          <span className={styles.skinSubtitle}>
             & Consulenza Gratuita
           </span>
         </button>

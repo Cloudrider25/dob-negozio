@@ -17,6 +17,8 @@ const CART_STORAGE_KEY = 'dob:cart'
 
 export function ProductPurchase({
   product,
+  className,
+  buttonLabel,
 }: {
   product: {
     id: string
@@ -27,6 +29,8 @@ export function ProductPurchase({
     brand?: string
     coverImage?: string | null
   }
+  className?: string
+  buttonLabel?: string
 }) {
   const [qty, setQty] = useState(1)
 
@@ -56,36 +60,20 @@ export function ProductPurchase({
     }
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
     window.dispatchEvent(new Event('dob:cart-updated'))
+    window.dispatchEvent(new Event('dob:cart-open'))
   }
 
   return (
     <div className="space-y-4">
-      {priceLabel && <div className="text-2xl font-semibold text-text-primary">{priceLabel}</div>}
-
-      <div className="inline-flex items-center rounded-lg border border-stroke overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setQty((value) => Math.max(1, value - 1))}
-          className="px-3 py-2 text-text-primary hover:text-accent-cyan transition-colors"
-        >
-          −
-        </button>
-        <div className="px-4 py-2 text-sm text-text-muted min-w-[36px] text-center">{qty}</div>
-        <button
-          type="button"
-          onClick={() => setQty((value) => value + 1)}
-          className="px-3 py-2 text-text-primary hover:text-accent-cyan transition-colors"
-        >
-          +
-        </button>
-      </div>
-
       <button
         type="button"
         onClick={handleAddToCart}
-        className="button-base w-full px-6 py-3 font-medium bg-accent-cyan text-text-inverse border-transparent"
+        className={
+          className ||
+          'button-base w-full px-6 py-3 font-medium bg-accent-cyan text-text-inverse border-transparent'
+        }
       >
-        Aggiungi al carrello
+        {buttonLabel || 'Aggiungi al carrello'}
       </button>
     </div>
   )

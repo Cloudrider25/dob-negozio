@@ -7,6 +7,7 @@ import { HeaderThemeObserver } from '@/components/HeaderThemeObserver'
 import { Header } from '@/components/Header'
 import { buildContactLinks } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/getPayloadClient'
+import { CartDrawer } from '@/components/cart/CartDrawer'
 
 export const generateStaticParams = () => locales.map((locale) => ({ locale }))
 
@@ -51,6 +52,7 @@ export default async function LocaleLayout({
         phoneLink={phoneLink}
       />
       <div className="pb-[2.5vw]">{children}</div>
+      <CartDrawer locale={locale} />
       <footer className="mt-auto border-t border-stroke bg-[var(--bg)] text-[#6b6761]">
         <div className="px-[2.25vw] py-12">
           <div className="mb-8 flex justify-center">
