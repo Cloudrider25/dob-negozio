@@ -183,10 +183,6 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     return null
   }
 
-  const categoryId = Array.isArray(product.categories)
-    ? resolveRelId(product.categories[0])
-    : resolveRelId(product.categories)
-
   const relatedResult = await payload.find({
     collection: 'products',
     locale,
@@ -194,10 +190,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     depth: 1,
     limit: 4,
     where: {
-      and: [
-        { id: { not_equals: String(product.id) } },
-        ...(categoryId ? [{ categories: { in: [categoryId] } }] : []),
-      ],
+      id: { not_equals: String(product.id) },
     },
   })
 
@@ -210,7 +203,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       format: product.format || '',
       isRefill: product.isRefill === true,
       price: product.price ?? null,
-      currency: product.currency || null,
+      currency: 'EUR',
       coverImage: coverMedia?.url ?? null,
       brand: resolveBrandLabel(product.brand),
       isCurrent: true,
@@ -249,10 +242,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
               : typeof alt?.product === 'object' && alt.product && 'price' in alt.product
                 ? (alt.product as { price?: number | null }).price ?? null
                 : null,
-          currency:
-            (typeof alt?.product === 'object' && alt.product && 'currency' in alt.product
-              ? (alt.product as { currency?: string | null }).currency
-              : null) || product.currency || null,
+          currency: 'EUR',
           coverImage:
             typeof alt?.product === 'object' && alt.product && 'coverImage' in alt.product
               ? resolveProductMedia(
@@ -306,7 +296,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     return {
       title,
       subtitle: doc.description || undefined,
-      price: formatPrice(doc.price, doc.currency),
+      price: formatPrice(doc.price),
       duration: null,
       image: { url: media.url, alt: media.alt },
       tag: resolveBrandLabel(doc.brand),
@@ -361,10 +351,6 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     return null
   }
 
-  const lineLabel = Array.isArray(product.lines)
-    ? resolveRelLabel(product.lines[0])
-    : resolveRelLabel(product.lines)
-
   const descriptionText = resolveText(product.description)
   const usageText = resolveText(product.usage)
   const ingredientsText = resolveText(product.activeIngredients)
@@ -373,10 +359,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   const faqTitleText = resolveText(product.faqTitle)
   const faqSubtitleText = resolveText(product.faqSubtitle)
 
-  const lineHeadline =
-    lineHeadlineText ||
-    (lineLabel ? `${lineLabel} formula clinicamente testata.` : null) ||
-    'Formula clinicamente testata.'
+  const lineHeadline = lineHeadlineText || 'Formula clinicamente testata.'
 
   const lineDetails = [
     {

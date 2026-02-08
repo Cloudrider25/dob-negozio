@@ -62,6 +62,7 @@ Vincoli su step (soft/hard). Esempio: SPF solo AM.
 | id | int | PK |
 | slug | text | unique |
 | name | text | Label |
+| logo_id | int \| NULL | FK → `media.id` (badge/logo card prodotto) |
 | active | bool | Abilitazione |
 | sort_order | int | Ordinamento |
 
@@ -80,14 +81,14 @@ Vincoli su step (soft/hard). Esempio: SPF solo AM.
 
 ---
 
-### 5) `brand_line_objective_priority` (consigliata)
-Spinge linee “native” per un obiettivo (es. Longevity + anti-age).
+### 5) `brand_line_needs_priority` (consigliata)
+Spinge linee “native” per un’esigenza (need).
 
 | Campo | Tipo | Note |
 |---|---|---|
 | id | int | PK |
 | brand_line_id | int | FK → `brand_lines.id` |
-| objective_id | int | FK → `objectives.id` |
+| need_id | int | FK → `needs.id` |
 | score_int | int | Punteggio ranking |
 | note | text | Spiegazione |
 
@@ -135,7 +136,7 @@ Esempi: `spf_level: 30/50`, `finish: matte/glow`.
 
 | Campo | Tipo | Note |
 |---|---|---|
-| id | int | PK |
+| id | text | PK (ID stringa per array items) |
 | attribute_id | int | FK → `attributes.id` |
 | slug | text | unique per attribute |
 | sort_order | int | Ordinamento |
@@ -174,51 +175,55 @@ Regola: in base a `attributes.type`, valorizzi **solo** il campo corretto.
 (già esiste) + FK:
 - `brand_id` (FK → `brands.id`)
 - `brand_line_id` (FK → `brand_lines.id`, nullable)
+- **Prezzi solo in EUR** → nessun campo `currency` per prodotto
+- **Magazzino**:
+  - `stock` (Total stock, calcolato dalle consegne)
+  - `average_cost` (Average Cost, calcolato)
+  - `total` (Total Cost, calcolato)
+  - `last_delivery_date` (Last delivery, calcolato)
+
+### 11a) `products_deliveries`
+Storico consegne per alimentare i campi Magazzino.
+
+| Campo | Tipo | Note |
+|---|---|---|
+| id | text | PK |
+| _parent_id | int | FK → `products.id` |
+| _order | int | ordine |
+| lot | text | Lotto |
+| quantity | number | Quantità |
+| cost_per_unit | number | Costo unitario |
+| total_cost | number | Calcolato (quantity × cost_per_unit) |
+| delivery_date | timestamp | Data consegna |
+| expiry_date | timestamp | Scadenza |
 
 ---
 
-### 12) `product_objectives` (M2M)
+### 12) `product_needs` (M2M)
+
+> `objectives` è legato ai Services, quindi per i prodotti usiamo solo `needs` (product_objectives rimosso).
 
 | Campo | Tipo | Note |
 |---|---|---|
 | product_id | int | FK → `products.id` |
-| objective_id | int | FK → `objectives.id` |
+| need_id | int | FK → `needs.id` |
 
-Indice unico suggerito: **(product_id, objective_id)**.
+Indice unico suggerito: **(product_id, need_id)**.
 
 ---
 
 ### 13) `product_skin_types` (M2M)
-
-| Campo | Tipo | Note |
-|---|---|---|
-| product_id | int | FK → `products.id` |
-| skin_type_id | int | FK → `skin_types.id` |
-
-Indice unico suggerito: **(product_id, skin_type_id)**.
+**Rimosso**: ora usiamo `skinTypePrimary` + `skinTypeSecondary` direttamente in `products`.
 
 ---
 
 ### 14) `product_timings` (M2M)
-
-| Campo | Tipo | Note |
-|---|---|---|
-| product_id | int | FK → `products.id` |
-| timing_id | int | FK → `timing_products.id` |
-
-Indice unico suggerito: **(product_id, timing_id)**.
+**Rimosso**: ora usiamo `timingProducts` direttamente in `products`.
 
 ---
 
 ### 15) `product_steps` (M2M)
-Fondamentale: “questo prodotto può essere usato nello step X”.
-
-| Campo | Tipo | Note |
-|---|---|---|
-| product_id | int | FK → `products.id` |
-| routine_step_id | int | FK → `routine_steps.id` |
-
-Indice unico suggerito: **(product_id, routine_step_id)**.
+**Rimosso**: gestito nel builder senza tabella pivot sui prodotti.
 
 ---
 
@@ -236,7 +241,7 @@ Routine preimpostata (mono o multi brand).
 | description | text | Opzionale |
 | product_area_id | int | FK → `product_areas.id` |
 | timing_id | int | FK → `timing_products.id` |
-| objective_id | int | FK → `objectives.id` |
+| need_id | int | FK → `needs.id` |
 | skin_type_id | int \| NULL | specifico o generico |
 | is_multibrand | bool | mono/multi |
 | brand_id | int \| NULL | se monobrand |
@@ -290,7 +295,7 @@ Blocchi o warning su combinazioni (anche su attributi).
 | brand_id | int \| NULL | FK |
 | brand_line_id | int \| NULL | FK |
 | attribute_id | int \| NULL | FK |
-| attribute_value_id | int \| NULL | **No FK** (validato da Payload) |
+| attribute_value_id | text \| NULL | **No FK** (validato da Payload) |
 
 ---
 
@@ -309,7 +314,7 @@ Punteggi per ordinare suggerimenti (anche con attributi).
 | brand_line_id | int \| NULL | FK |
 | product_id | int \| NULL | FK |
 | attribute_id | int \| NULL | FK |
-| attribute_value_id | int \| NULL | **No FK** (validato da Payload) |
+| attribute_value_id | text \| NULL | **No FK** (validato da Payload) |
 
 ---
 
@@ -346,11 +351,20 @@ Filtri aggiuntivi se monobrand:
 Layer di ranking/blocco:
 - `exclusions` (hide/warn)
 - `boosts` (score)
-- `brand_line_objective_priority` (score)
+- `brand_line_needs_priority` (score)
 
 ---
 
 ## TODO (verifica stato attuale DB + Payload)
+
+### 📌 Snapshot dati (2026-02-06)
+- `routine_templates`: 150
+- `routine_template_steps`: 1140
+- `routine_template_step_products`: 355
+- `routine_step_rules`: 7
+- `boosts`: 3
+- `exclusions`: 6
+- `attributes_values`: 3 (da `spf-level`: 30 / 50 / 50+)
 
 ### ✅ Già completato / presente
 - `product_areas` + `product_areas_locales` (collection Payload + tabella DB)
@@ -361,15 +375,16 @@ Layer di ranking/blocco:
 - `routine_step_rules` (collection Payload + tabella DB)
 - `brands` + `brands_locales` (collection Payload + tabella DB)
 - `brand_lines` + `brand_lines_locales` (collection Payload + tabella DB)
-- `brand_line_objective_priority` (collection Payload + tabella DB)
+- `brand_line_needs_priority` (collection Payload + tabella DB, `need_id` al posto di `objective_id`)
 - `attributes` + `attributes_locales` (collection Payload + tabella DB)
 - `attributes_values` + `attributes_values_locales` (enum values)
 - `products_attributes` (pivot valori attributi)
-- `product_objectives`
-- `product_skin_types`
-- `product_timings`
-- `product_steps`
-- Relazioni Products: `needs`, `categories`, `lines`, `textures`, `product_areas`, `timing_products`, `skin_types` (tutte presenti in `products_rels`)
+- `product_needs` (in Payload è già `needs` su Products, senza tabella M2M) — `product_objectives` rimosso
+- `product_skin_types` (**rimosso**)
+- `product_timings` (**rimosso**)
+- `product_steps` (**rimosso**)
+- Relazioni Products: `needs`, `textures`, `product_areas`, `timing_products`, `skin_types` (tutte presenti in `products_rels`)
+- `categories` e `lines` rimosse da Payload e DB (non più usate)
 - `timing_products` è il riferimento ufficiale al posto di `timings` (scelta confermata)
 - E) `routine_templates`, `routine_template_steps`, `routine_template_step_products`
 - Layer regole: `exclusions`, `boosts` (**attribute_value_id senza FK, validazione lato Payload**)

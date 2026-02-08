@@ -75,21 +75,15 @@ export interface Config {
     'timing-products': TimingProduct;
     brands: Brand;
     'brand-lines': BrandLine;
-    'brand-line-objective-priority': BrandLineObjectivePriority;
+    'brand-line-needs-priority': BrandLineNeedsPriority;
     'routine-steps': RoutineStep;
     'routine-step-rules': RoutineStepRule;
     attributes: Attribute;
-    'product-objectives': ProductObjective;
-    'product-skin-types': ProductSkinType;
-    'product-timings': ProductTiming;
-    'product-steps': ProductStep;
     'routine-templates': RoutineTemplate;
     'routine-template-steps': RoutineTemplateStep;
     'routine-template-step-products': RoutineTemplateStepProduct;
     exclusions: Exclusion;
     boosts: Boost;
-    categories: Category;
-    lines: Line;
     textures: Texture;
     products: Product;
     areas: Area;
@@ -118,21 +112,15 @@ export interface Config {
     'timing-products': TimingProductsSelect<false> | TimingProductsSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
     'brand-lines': BrandLinesSelect<false> | BrandLinesSelect<true>;
-    'brand-line-objective-priority': BrandLineObjectivePrioritySelect<false> | BrandLineObjectivePrioritySelect<true>;
+    'brand-line-needs-priority': BrandLineNeedsPrioritySelect<false> | BrandLineNeedsPrioritySelect<true>;
     'routine-steps': RoutineStepsSelect<false> | RoutineStepsSelect<true>;
     'routine-step-rules': RoutineStepRulesSelect<false> | RoutineStepRulesSelect<true>;
     attributes: AttributesSelect<false> | AttributesSelect<true>;
-    'product-objectives': ProductObjectivesSelect<false> | ProductObjectivesSelect<true>;
-    'product-skin-types': ProductSkinTypesSelect<false> | ProductSkinTypesSelect<true>;
-    'product-timings': ProductTimingsSelect<false> | ProductTimingsSelect<true>;
-    'product-steps': ProductStepsSelect<false> | ProductStepsSelect<true>;
     'routine-templates': RoutineTemplatesSelect<false> | RoutineTemplatesSelect<true>;
     'routine-template-steps': RoutineTemplateStepsSelect<false> | RoutineTemplateStepsSelect<true>;
     'routine-template-step-products': RoutineTemplateStepProductsSelect<false> | RoutineTemplateStepProductsSelect<true>;
     exclusions: ExclusionsSelect<false> | ExclusionsSelect<true>;
     boosts: BoostsSelect<false> | BoostsSelect<true>;
-    categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    lines: LinesSelect<false> | LinesSelect<true>;
     textures: TexturesSelect<false> | TexturesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
@@ -354,6 +342,7 @@ export interface Brand {
   id: number;
   name: string;
   slug: string;
+  logo?: (number | null) | Media;
   active?: boolean | null;
   sortOrder?: number | null;
   updatedAt: string;
@@ -370,18 +359,55 @@ export interface BrandLine {
   brand: number | Brand;
   active?: boolean | null;
   sortOrder?: number | null;
+  lineHeadline?: string | null;
+  description?: string | null;
+  usage?: string | null;
+  activeIngredients?: string | null;
+  results?: string | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-line-objective-priority".
+ * via the `definition` "brand-line-needs-priority".
  */
-export interface BrandLineObjectivePriority {
+export interface BrandLineNeedsPriority {
   id: number;
   brandLine: number | BrandLine;
-  objective: number | Objective;
+  need: number | Need;
   score: number;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-steps".
+ */
+export interface RoutineStep {
+  id: number;
+  name: string;
+  slug: string;
+  productArea: number | ProductArea;
+  description?: string | null;
+  stepOrderDefault?: number | null;
+  isOptionalDefault?: boolean | null;
+  isSystem?: boolean | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-step-rules".
+ */
+export interface RoutineStepRule {
+  id: number;
+  routineStep: number | RoutineStep;
+  timing?: (number | null) | TimingProduct;
+  objective?: (number | null) | Objective;
+  skinType?: (number | null) | SkinType;
+  ruleType: 'require' | 'forbid' | 'warn';
   note?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -449,37 +475,6 @@ export interface Area {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-steps".
- */
-export interface RoutineStep {
-  id: number;
-  name: string;
-  slug: string;
-  productArea: number | ProductArea;
-  description?: string | null;
-  stepOrderDefault?: number | null;
-  isOptionalDefault?: boolean | null;
-  active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-step-rules".
- */
-export interface RoutineStepRule {
-  id: number;
-  routineStep: number | RoutineStep;
-  timing?: (number | null) | TimingProduct;
-  objective?: (number | null) | Objective;
-  skinType?: (number | null) | SkinType;
-  ruleType: 'require' | 'forbid' | 'warn';
-  note?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "attributes".
  */
 export interface Attribute {
@@ -503,12 +498,48 @@ export interface Attribute {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-objectives".
+ * via the `definition` "routine-templates".
  */
-export interface ProductObjective {
+export interface RoutineTemplate {
   id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  productArea: number | ProductArea;
+  timing: number | TimingProduct;
+  need: number | Need;
+  skinType?: (number | null) | SkinType;
+  isMultibrand?: boolean | null;
+  brand?: (number | null) | Brand;
+  brandLine?: (number | null) | BrandLine;
+  active?: boolean | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-template-steps".
+ */
+export interface RoutineTemplateStep {
+  id: number;
+  routineTemplate: number | RoutineTemplate;
+  routineStep: number | RoutineStep;
+  stepOrder: number;
+  required?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-template-step-products".
+ */
+export interface RoutineTemplateStepProduct {
+  id: number;
+  routineTemplate: number | RoutineTemplate;
+  routineStep: number | RoutineStep;
   product: number | Product;
-  objective: number | Objective;
+  rank?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -521,7 +552,6 @@ export interface Product {
   title: string;
   active?: boolean | null;
   slug: string;
-  currency: 'EUR';
   sku?: string | null;
   format?: string | null;
   price: number;
@@ -592,65 +622,26 @@ export interface Product {
   needs?: (number | Need)[] | null;
   skinTypePrimary?: (number | null) | SkinType;
   skinTypeSecondary?: (number | SkinType)[] | null;
-  categories?: (number | Category)[] | null;
-  lines?: (number | Line)[] | null;
   textures?: (number | Texture)[] | null;
   productAreas?: (number | ProductArea)[] | null;
   timingProducts?: (number | TimingProduct)[] | null;
   stock?: number | null;
-  lot?: string | null;
-  expiryDate?: string | null;
   averageCost?: number | null;
-  lastCost?: number | null;
-  residualTotal?: number | null;
   total?: number | null;
-  metaLine?: string | null;
-  metaNeeds?: string | null;
-  metaCategories?: string | null;
-  metaZones?: string | null;
-  metaTexture?: string | null;
-  metaDescription?: string | null;
-  metaHowToUse?: string | null;
-  metaActiveIngredients?: string | null;
-  metaResults?: string | null;
+  lastDeliveryDate?: string | null;
+  deliveries?:
+    | {
+        lot?: string | null;
+        quantity?: number | null;
+        costPerUnit?: number | null;
+        totalCost?: number | null;
+        deliveryDate?: string | null;
+        expiryDate?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   stripeProductId?: string | null;
   stripePriceId?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  name: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  slug: string;
-  description?: string | null;
-  parent?: (number | null) | Category;
-  isMakeupRoot?: boolean | null;
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "lines".
- */
-export interface Line {
-  id: number;
-  name: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  slug: string;
-  description?: string | null;
-  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -673,86 +664,6 @@ export interface Texture {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-skin-types".
- */
-export interface ProductSkinType {
-  id: number;
-  product: number | Product;
-  skinType: number | SkinType;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-timings".
- */
-export interface ProductTiming {
-  id: number;
-  product: number | Product;
-  timing: number | TimingProduct;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-steps".
- */
-export interface ProductStep {
-  id: number;
-  product: number | Product;
-  routineStep: number | RoutineStep;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-templates".
- */
-export interface RoutineTemplate {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string | null;
-  productArea: number | ProductArea;
-  timing: number | TimingProduct;
-  objective: number | Objective;
-  skinType?: (number | null) | SkinType;
-  isMultibrand?: boolean | null;
-  brand?: (number | null) | Brand;
-  brandLine?: (number | null) | BrandLine;
-  active?: boolean | null;
-  sortOrder?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-template-steps".
- */
-export interface RoutineTemplateStep {
-  id: number;
-  routineTemplate: number | RoutineTemplate;
-  routineStep: number | RoutineStep;
-  stepOrder: number;
-  required?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-template-step-products".
- */
-export interface RoutineTemplateStepProduct {
-  id: number;
-  routineTemplate: number | RoutineTemplate;
-  routineStep: number | RoutineStep;
-  product: number | Product;
-  rank?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exclusions".
  */
 export interface Exclusion {
@@ -767,7 +678,7 @@ export interface Exclusion {
   brand?: (number | null) | Brand;
   brandLine?: (number | null) | BrandLine;
   attribute?: (number | null) | Attribute;
-  attributeValueId?: number | null;
+  attributeValueId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -786,7 +697,7 @@ export interface Boost {
   brand?: (number | null) | Brand;
   brandLine?: (number | null) | BrandLine;
   attribute?: (number | null) | Attribute;
-  attributeValueId?: number | null;
+  attributeValueId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1114,6 +1025,14 @@ export interface Page {
   heroTitle?: string | null;
   heroDescription?: string | null;
   heroMedia?: (number | Media)[] | null;
+  /**
+   * Titolo Step 1.
+   */
+  routineBuilderStep1Title?: string | null;
+  /**
+   * Titolo Step 2.
+   */
+  routineBuilderStep2Title?: string | null;
   servicesCarousel?: {
     limit?: number | null;
     serviceTypes?: ('single' | 'package')[] | null;
@@ -1159,9 +1078,7 @@ export interface Page {
   homeProgram?: (number | null) | Program;
   productsCarousel?: {
     limit?: number | null;
-    categories?: (number | Category)[] | null;
     needs?: (number | Need)[] | null;
-    lines?: (number | Line)[] | null;
     textures?: (number | Texture)[] | null;
   };
   valuesSection?: {
@@ -1260,8 +1177,8 @@ export interface PayloadLockedDocument {
         value: number | BrandLine;
       } | null)
     | ({
-        relationTo: 'brand-line-objective-priority';
-        value: number | BrandLineObjectivePriority;
+        relationTo: 'brand-line-needs-priority';
+        value: number | BrandLineNeedsPriority;
       } | null)
     | ({
         relationTo: 'routine-steps';
@@ -1274,22 +1191,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'attributes';
         value: number | Attribute;
-      } | null)
-    | ({
-        relationTo: 'product-objectives';
-        value: number | ProductObjective;
-      } | null)
-    | ({
-        relationTo: 'product-skin-types';
-        value: number | ProductSkinType;
-      } | null)
-    | ({
-        relationTo: 'product-timings';
-        value: number | ProductTiming;
-      } | null)
-    | ({
-        relationTo: 'product-steps';
-        value: number | ProductStep;
       } | null)
     | ({
         relationTo: 'routine-templates';
@@ -1310,14 +1211,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'boosts';
         value: number | Boost;
-      } | null)
-    | ({
-        relationTo: 'categories';
-        value: number | Category;
-      } | null)
-    | ({
-        relationTo: 'lines';
-        value: number | Line;
       } | null)
     | ({
         relationTo: 'textures';
@@ -1527,6 +1420,7 @@ export interface TimingProductsSelect<T extends boolean = true> {
 export interface BrandsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  logo?: T;
   active?: T;
   sortOrder?: T;
   updatedAt?: T;
@@ -1542,16 +1436,21 @@ export interface BrandLinesSelect<T extends boolean = true> {
   brand?: T;
   active?: T;
   sortOrder?: T;
+  lineHeadline?: T;
+  description?: T;
+  usage?: T;
+  activeIngredients?: T;
+  results?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-line-objective-priority_select".
+ * via the `definition` "brand-line-needs-priority_select".
  */
-export interface BrandLineObjectivePrioritySelect<T extends boolean = true> {
+export interface BrandLineNeedsPrioritySelect<T extends boolean = true> {
   brandLine?: T;
-  objective?: T;
+  need?: T;
   score?: T;
   note?: T;
   updatedAt?: T;
@@ -1568,6 +1467,7 @@ export interface RoutineStepsSelect<T extends boolean = true> {
   description?: T;
   stepOrderDefault?: T;
   isOptionalDefault?: T;
+  isSystem?: T;
   active?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1610,46 +1510,6 @@ export interface AttributesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-objectives_select".
- */
-export interface ProductObjectivesSelect<T extends boolean = true> {
-  product?: T;
-  objective?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-skin-types_select".
- */
-export interface ProductSkinTypesSelect<T extends boolean = true> {
-  product?: T;
-  skinType?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-timings_select".
- */
-export interface ProductTimingsSelect<T extends boolean = true> {
-  product?: T;
-  timing?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-steps_select".
- */
-export interface ProductStepsSelect<T extends boolean = true> {
-  product?: T;
-  routineStep?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "routine-templates_select".
  */
 export interface RoutineTemplatesSelect<T extends boolean = true> {
@@ -1658,7 +1518,7 @@ export interface RoutineTemplatesSelect<T extends boolean = true> {
   description?: T;
   productArea?: T;
   timing?: T;
-  objective?: T;
+  need?: T;
   skinType?: T;
   isMultibrand?: T;
   brand?: T;
@@ -1731,40 +1591,6 @@ export interface BoostsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
- */
-export interface CategoriesSelect<T extends boolean = true> {
-  name?: T;
-  boxTagline?: T;
-  cardTitle?: T;
-  cardTagline?: T;
-  cardMedia?: T;
-  slug?: T;
-  description?: T;
-  parent?: T;
-  isMakeupRoot?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "lines_select".
- */
-export interface LinesSelect<T extends boolean = true> {
-  name?: T;
-  boxTagline?: T;
-  cardTitle?: T;
-  cardTagline?: T;
-  cardMedia?: T;
-  slug?: T;
-  description?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "textures_select".
  */
 export interface TexturesSelect<T extends boolean = true> {
@@ -1787,7 +1613,6 @@ export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   active?: T;
   slug?: T;
-  currency?: T;
   sku?: T;
   format?: T;
   price?: T;
@@ -1838,27 +1663,24 @@ export interface ProductsSelect<T extends boolean = true> {
   needs?: T;
   skinTypePrimary?: T;
   skinTypeSecondary?: T;
-  categories?: T;
-  lines?: T;
   textures?: T;
   productAreas?: T;
   timingProducts?: T;
   stock?: T;
-  lot?: T;
-  expiryDate?: T;
   averageCost?: T;
-  lastCost?: T;
-  residualTotal?: T;
   total?: T;
-  metaLine?: T;
-  metaNeeds?: T;
-  metaCategories?: T;
-  metaZones?: T;
-  metaTexture?: T;
-  metaDescription?: T;
-  metaHowToUse?: T;
-  metaActiveIngredients?: T;
-  metaResults?: T;
+  lastDeliveryDate?: T;
+  deliveries?:
+    | T
+    | {
+        lot?: T;
+        quantity?: T;
+        costPerUnit?: T;
+        totalCost?: T;
+        deliveryDate?: T;
+        expiryDate?: T;
+        id?: T;
+      };
   stripeProductId?: T;
   stripePriceId?: T;
   updatedAt?: T;
@@ -2077,6 +1899,8 @@ export interface PagesSelect<T extends boolean = true> {
   heroTitle?: T;
   heroDescription?: T;
   heroMedia?: T;
+  routineBuilderStep1Title?: T;
+  routineBuilderStep2Title?: T;
   servicesCarousel?:
     | T
     | {
@@ -2125,9 +1949,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         limit?: T;
-        categories?: T;
         needs?: T;
-        lines?: T;
         textures?: T;
       };
   valuesSection?:

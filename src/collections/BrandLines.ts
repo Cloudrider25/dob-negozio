@@ -44,6 +44,34 @@ export const BrandLines: CollectionConfig = {
       type: 'number',
       defaultValue: 0,
     },
+    {
+      name: 'lineHeadline',
+      type: 'text',
+      localized: true,
+    },
+    {
+      name: 'description',
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'usage',
+      label: "Modo d'uso",
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'activeIngredients',
+      label: 'Principi attivi',
+      type: 'textarea',
+      localized: true,
+    },
+    {
+      name: 'results',
+      label: 'Risultati',
+      type: 'textarea',
+      localized: true,
+    },
   ],
   timestamps: true,
 }

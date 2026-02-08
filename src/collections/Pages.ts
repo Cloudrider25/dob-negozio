@@ -43,7 +43,8 @@ export const Pages: CollectionConfig = {
         {
           label: 'Sezione 1',
           admin: {
-            condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'our-story',
+            condition: (data) =>
+              data?.pageKey === 'home' || data?.pageKey === 'our-story' || data?.pageKey === 'shop',
           },
           fields: [
             {
@@ -82,6 +83,30 @@ export const Pages: CollectionConfig = {
               relationTo: 'media',
               hasMany: true,
               maxRows: 2,
+            },
+          ],
+        },
+        {
+          label: 'Routine Builder',
+          admin: {
+            condition: (data) => data?.pageKey === 'shop',
+          },
+          fields: [
+            {
+              name: 'routineBuilderStep1Title',
+              type: 'text',
+              localized: true,
+              admin: {
+                description: 'Titolo Step 1.',
+              },
+            },
+            {
+              name: 'routineBuilderStep2Title',
+              type: 'text',
+              localized: true,
+              admin: {
+                description: 'Titolo Step 2.',
+              },
             },
           ],
         },
@@ -455,15 +480,6 @@ export const Pages: CollectionConfig = {
                   type: 'row',
                   fields: [
                     {
-                      name: 'categories',
-                      type: 'relationship',
-                      relationTo: 'categories',
-                      hasMany: true,
-                      admin: {
-                        width: '50%',
-                      },
-                    },
-                    {
                       name: 'needs',
                       type: 'relationship',
                       relationTo: 'needs',
@@ -477,15 +493,6 @@ export const Pages: CollectionConfig = {
                 {
                   type: 'row',
                   fields: [
-                    {
-                      name: 'lines',
-                      type: 'relationship',
-                      relationTo: 'lines',
-                      hasMany: true,
-                      admin: {
-                        width: '50%',
-                      },
-                    },
                     {
                       name: 'textures',
                       type: 'relationship',

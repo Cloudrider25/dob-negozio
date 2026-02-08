@@ -5,8 +5,6 @@ import { writeFileSync } from 'fs'
 
 type TaxonomyMaps = {
   needs: Map<string, number>
-  categories: Map<string, number>
-  lines: Map<string, number>
   textures: Map<string, number>
 }
 
@@ -30,14 +28,10 @@ const slugify = (value: string) =>
     .replace(/-+/g, '-')
     .trim()
 
-const buildCategorySlug = (parent: string, name: string) => `${slugify(parent)}-${slugify(name)}`
-
 const getMaps = async (): Promise<TaxonomyMaps> => {
   const payload = await getPayload({ config })
-  const [needs, categories, lines, textures] = await Promise.all([
+  const [needs, textures] = await Promise.all([
     payload.find({ collection: 'needs', depth: 0, limit: 500 }),
-    payload.find({ collection: 'categories', depth: 0, limit: 1000 }),
-    payload.find({ collection: 'lines', depth: 0, limit: 500 }),
     payload.find({ collection: 'textures', depth: 0, limit: 500 }),
   ])
 
@@ -46,8 +40,6 @@ const getMaps = async (): Promise<TaxonomyMaps> => {
 
   return {
     needs: toMap(needs.docs as Array<{ id: number; slug: string }>),
-    categories: toMap(categories.docs as Array<{ id: number; slug: string }>),
-    lines: toMap(lines.docs as Array<{ id: number; slug: string }>),
     textures: toMap(textures.docs as Array<{ id: number; slug: string }>),
   }
 }
@@ -86,39 +78,6 @@ const getLocalizedString = (value: unknown): string => {
   return ''
 }
 
-const categoryRules = [
-  { slug: buildCategorySlug('Make up', 'Fondotinta'), keywords: ['fondotinta', 'foundation'] },
-  { slug: buildCategorySlug('Make up', 'Correttore'), keywords: ['correttore', 'concealer'] },
-  { slug: buildCategorySlug('Make up', 'Cipria'), keywords: ['cipria', 'powder'] },
-  { slug: buildCategorySlug('Make up', 'Terre e Blush'), keywords: ['terre', 'blush', 'bronzer'] },
-  { slug: buildCategorySlug('Make up', 'Sopracciglia'), keywords: ['sopracciglia', 'eyebrow', 'brows'] },
-  { slug: buildCategorySlug('Make up', 'Matite Occhi'), keywords: ['matita occhi', 'matite occhi', 'kohl'] },
-  { slug: buildCategorySlug('Make up', 'Matite Labbra'), keywords: ['matita labbra', 'matite labbra', 'lip liner'] },
-  { slug: buildCategorySlug('Make up', 'Rossetti'), keywords: ['rossetto', 'rossetti', 'lipstick'] },
-  { slug: buildCategorySlug('Make up', 'Ombretti'), keywords: ['ombretto', 'ombretti', 'eyeshadow'] },
-  { slug: buildCategorySlug('Make up', 'Eyeliner e Mascara'), keywords: ['eyeliner', 'mascara'] },
-  { slug: buildCategorySlug('Make up', 'Pennelli e Accessori'), keywords: ['pennello', 'pennelli', 'brush', 'accessori'] },
-  { slug: buildCategorySlug('Solari', 'Protezione Corpo'), keywords: ['spf', 'protezione', 'solare', 'sunscreen', 'sun', 'corpo', 'body'] },
-  { slug: buildCategorySlug('Solari', 'Protezione Viso'), keywords: ['spf', 'protezione', 'solare', 'sunscreen', 'sun', 'viso', 'face'] },
-  { slug: buildCategorySlug('Solari', 'Doposole'), keywords: ['doposole', 'after sun', 'aftersun'] },
-  { slug: buildCategorySlug('Viso', 'Detergenti e Struccanti'), keywords: ['detergente', 'detergenti', 'struccante', 'struccanti', 'cleanser', 'cleansing'] },
-  { slug: buildCategorySlug('Viso', 'Lozioni tonificanti e Mist'), keywords: ['tonico', 'tonici', 'mist', 'lozione', 'lozioni', 'tonificante', 'toner'] },
-  { slug: buildCategorySlug('Viso', 'Esfolianti e Scrub'), keywords: ['esfoliante', 'esfolianti', 'scrub', 'peeling', 'gommage'] },
-  { slug: buildCategorySlug('Viso', 'Maschere'), keywords: ['maschera', 'maschere', 'mask'] },
-  { slug: buildCategorySlug('Viso', 'Sieri e concentrati'), keywords: ['siero', 'sieri', 'serum', 'concentrato', 'concentrati', 'booster'] },
-  { slug: buildCategorySlug('Viso', 'Occhi e Labbra'), keywords: ['contorno occhi', 'occhi', 'eye', 'labbra', 'lip'] },
-  { slug: buildCategorySlug('Viso', 'Creme'), keywords: ['crema', 'creme', 'cream'] },
-  { slug: buildCategorySlug('Viso', 'Kit'), keywords: ['kit', 'set', 'trousse'] },
-  { slug: buildCategorySlug('Corpo', 'Oli'), keywords: ['olio', 'oli', 'oil', 'corpo', 'body'] },
-  { slug: buildCategorySlug('Corpo', 'Detersione e Igiene personale'), keywords: ['bagnodoccia', 'doccia', 'shower', 'sapone', 'igiene'] },
-  { slug: buildCategorySlug('Corpo', 'Scrub'), keywords: ['scrub', 'esfoliante', 'peeling', 'gommage', 'corpo', 'body'] },
-  { slug: buildCategorySlug('Corpo', 'Creme e Burri'), keywords: ['burro', 'butter', 'crema', 'creme', 'body', 'corpo'] },
-  { slug: buildCategorySlug('Corpo', 'Sieri'), keywords: ['siero', 'sieri', 'serum', 'corpo', 'body'] },
-  { slug: buildCategorySlug('Corpo', 'Mousse'), keywords: ['mousse', 'schiuma'] },
-  { slug: buildCategorySlug('Corpo', 'Bende & Leggings'), keywords: ['bende', 'leggings', 'bendaggi'] },
-  { slug: buildCategorySlug('Limited Edition', 'Ambra di Sicilia'), keywords: ['ambra di sicilia'] },
-  { slug: slugify('Bestseller'), keywords: ['bestseller', 'best seller'] },
-]
 
 const textureRules = [
   { slug: slugify('Bifasico'), keywords: ['bifasico'] },
@@ -133,32 +92,6 @@ const textureRules = [
   { slug: slugify('Spray'), keywords: ['spray'] },
 ]
 
-const lineRules = [
-  '75.15',
-  '75.25',
-  'Atypical',
-  'Balance',
-  'Bio+',
-  'Booster Viso',
-  'Bright Formula',
-  'Delay Infinity',
-  'Emozioni Plus',
-  'Equilibrium',
-  'Intense',
-  'Lime',
-  'Oligominerali',
-  'Rehydra',
-  'Body Spa',
-  'Fuoco Plus',
-  'Linea Bagnodoccia',
-  'Sikelia',
-  'Sinecell',
-  'Phytomakeup',
-  'Theatre 1585',
-  'Summer Paradise',
-  'Booster',
-  'Ambra di Sicilia',
-]
 
 const needRules = [
   { slug: `${slugify('Viso')}-${slugify('Rughe di Espressione')}`, keywords: ['rughe di espressione', 'linee di espressione'] },
@@ -193,34 +126,13 @@ const mapProduct = (
   maps: TaxonomyMaps,
 ): {
   needs: number[]
-  categories: number[]
-  lines: number[]
   textures: number[]
 } => {
-  const categoryIds: number[] = []
-  for (const rule of categoryRules) {
-    if (hasAny(text, rule.keywords)) {
-      const id = maps.categories.get(rule.slug)
-      if (id) categoryIds.push(id)
-    }
-  }
-
   const textureIds: number[] = []
   for (const rule of textureRules) {
     if (hasAny(text, rule.keywords)) {
       const id = maps.textures.get(rule.slug)
       if (id) textureIds.push(id)
-    }
-  }
-
-  const lineIds: number[] = []
-  const normalizedText = normalize(text)
-  for (const line of lineRules) {
-    const needle = normalize(line)
-    if (needle && normalizedText.includes(needle)) {
-      const slug = slugify(line)
-      const id = maps.lines.get(slug)
-      if (id) lineIds.push(id)
     }
   }
 
@@ -234,8 +146,6 @@ const mapProduct = (
 
   return {
     needs: Array.from(new Set(needIds)),
-    categories: Array.from(new Set(categoryIds)),
-    lines: Array.from(new Set(lineIds)),
     textures: Array.from(new Set(textureIds)),
   }
 }
@@ -258,8 +168,6 @@ const sampleLogs: Array<{
   id: number
   title: string
   needs: number
-  categories: number
-  lines: number
   textures: number
 }> = []
 
@@ -278,8 +186,6 @@ for (const product of productsResult.docs) {
   const mapping = mapProduct(text, maps)
   const matchCount =
     mapping.needs.length +
-    mapping.categories.length +
-    mapping.lines.length +
     mapping.textures.length
   if (matchCount > 0) {
     withMatches += 1
@@ -289,27 +195,19 @@ for (const product of productsResult.docs) {
         id: product.id as number,
         title: getLocalizedString(product.title),
         needs: mapping.needs.length,
-        categories: mapping.categories.length,
-        lines: mapping.lines.length,
         textures: mapping.textures.length,
       })
     }
   }
 
   const existingNeeds = toIdArray(product.needs)
-  const existingCategories = toIdArray(product.categories)
-  const existingLines = toIdArray(product.lines)
   const existingTextures = toIdArray(product.textures)
 
   const nextNeeds = mapping.needs.reduce(addId, existingNeeds)
-  const nextCategories = mapping.categories.reduce(addId, existingCategories)
-  const nextLines = mapping.lines.reduce(addId, existingLines)
   const nextTextures = mapping.textures.reduce(addId, existingTextures)
 
   const hasChanges =
     nextNeeds.length !== existingNeeds.length ||
-    nextCategories.length !== existingCategories.length ||
-    nextLines.length !== existingLines.length ||
     nextTextures.length !== existingTextures.length
 
   if (!hasChanges) {
@@ -324,8 +222,6 @@ for (const product of productsResult.docs) {
       overrideAccess: true,
       data: {
         needs: nextNeeds,
-        categories: nextCategories,
-        lines: nextLines,
         textures: nextTextures,
       },
     })

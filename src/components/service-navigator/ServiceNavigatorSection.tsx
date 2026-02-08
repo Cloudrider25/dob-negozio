@@ -8,7 +8,7 @@ import { NavigatorHeader } from "@/components/service-navigator/components/Navig
 import { NavigatorGrid } from "@/components/service-navigator/components/NavigatorGrid";
 import { MobileFlow } from "@/components/service-navigator/components/MobileFlow";
 import { ListinoTradizionale } from "@/components/service-navigator/components/ListinoTradizionale";
-import { ConsulenzaForm } from "@/components/service-navigator/components/ConsulenzaForm";
+import { ConsulenzaSection } from "@/components/service-navigator/components/ConsulenzaSection";
 import { NavigatorDataProvider } from "@/components/service-navigator/data/navigator-data-context";
 import styles from "./ServiceNavigatorSection.module.css";
 
@@ -53,9 +53,8 @@ export function ServiceNavigatorSection({
   };
 
   const handleSkinAnalyzer = () => {
-    // TODO: Collegare con pagina Skin Analyzer
-    console.log("Open Skin Analyzer");
-    alert("Skin Analyzer (Derma Test) & Consulenza");
+    setViewMode("consulenza");
+    setShowMobileFlow(false);
   };
 
   return (
@@ -82,12 +81,9 @@ export function ServiceNavigatorSection({
             ) : viewMode === "listino" ? (
               <ListinoTradizionale key="listino" />
             ) : (
-              <ConsulenzaForm
+              <ConsulenzaSection
                 key="consulenza"
-                phoneLink={contactLinks.phoneLink}
-                whatsappLink={contactLinks.whatsappLink}
-                phoneDisplay={contactLinks.phoneDisplay}
-                whatsappDisplay={contactLinks.whatsappDisplay}
+                contactLinks={contactLinks}
               />
             )}
           </AnimatePresence>

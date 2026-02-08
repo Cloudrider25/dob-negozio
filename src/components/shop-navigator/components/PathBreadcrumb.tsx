@@ -15,15 +15,11 @@ interface PathBreadcrumbProps {
 export function PathBreadcrumb({ state, onNavigateToStep, onBack }: PathBreadcrumbProps) {
   const {
     getNeedById,
-    getCategoryById,
-    getLineById,
     getTextureById,
   } = useShopNavigatorData()
 
   const {
     selectedNeed,
-    selectedCategory,
-    selectedLine,
     selectedTexture,
   } = state
 
@@ -31,15 +27,6 @@ export function PathBreadcrumb({ state, onNavigateToStep, onBack }: PathBreadcru
 
   if (selectedNeed) {
     nodes.push({ label: getNeedById(selectedNeed)?.label || selectedNeed, step: 'need' })
-  }
-  if (selectedCategory) {
-    nodes.push({
-      label: getCategoryById(selectedCategory)?.label || selectedCategory,
-      step: 'category',
-    })
-  }
-  if (selectedLine) {
-    nodes.push({ label: getLineById(selectedLine)?.label || selectedLine, step: 'line' })
   }
   if (selectedTexture) {
     nodes.push({
@@ -50,8 +37,6 @@ export function PathBreadcrumb({ state, onNavigateToStep, onBack }: PathBreadcru
 
   const getGuideMessage = () => {
     if (!selectedNeed) return 'Seleziona un’esigenza per iniziare'
-    if (!selectedCategory) return 'Scegli una categoria'
-    if (!selectedLine) return 'Seleziona una linea'
     if (!selectedTexture) return 'Scegli una texture'
     return ''
   }

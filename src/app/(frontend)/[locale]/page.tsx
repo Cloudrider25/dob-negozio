@@ -284,7 +284,7 @@ export default async function HomePage({
       return {
         title: product.title || '',
         subtitle: product.description || undefined,
-        price: formatPrice(product.price, product.currency),
+        price: formatPrice(product.price),
         image: { url: media.url, alt: media.alt },
         href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
       }

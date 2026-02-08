@@ -1,0 +1,454 @@
+.section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  min-height: 64vh;
+  align-items: stretch;
+}
+
+.panel {
+  min-height: 64vh;
+  height: 64vh;
+  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
+  background: color-mix(in srgb, var(--bg) 92%, #ffffff 8%);
+}
+
+.panelContent {
+  padding: 1.75rem;
+}
+
+.panelMedia {
+  display: flex;
+  overflow: hidden;
+}
+
+.panelContentMedia {
+  padding: 0;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  width: 100%;
+}
+
+.mediaSwiper {
+  width: 100%;
+  height: 100%;
+}
+
+.mediaSwiper :global(.swiper-wrapper),
+.mediaSwiper :global(.swiper-slide) {
+  height: 100%;
+}
+
+.mediaSwiper :global(.swiper-slide) {
+  background: #000;
+}
+
+.mediaSlide {
+  width: 100%;
+  height: 100%;
+}
+
+.leftSwiper {
+  width: 100%;
+  height: 100%;
+}
+
+.leftSwiper :global(.swiper-wrapper),
+.leftSwiper :global(.swiper-slide) {
+  height: 100%;
+}
+
+.leftSlide {
+  width: 100%;
+  height: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  height: 100%;
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(2.2rem, 2rem + 1vw, 3rem);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.bodyText {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.circleList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  justify-content: center;
+  margin-top: 3.2rem;
+}
+
+.circleSizeLarge .circleItem {
+  width: 140px;
+  height: 140px;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.circleSizeMedium .circleItem {
+  width: 120px;
+  height: 120px;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.circleSizeSmall .circleItem {
+  width: 100px;
+  height: 100px;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.needsPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.needPill {
+  border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
+  border-radius: 999px;
+  padding: 0.4rem 0.95rem;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--text) 85%, transparent);
+}
+
+.choiceGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.choicePill {
+  border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
+  border-radius: 999px;
+  padding: 0.4rem 0.95rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.choicePillActive {
+  border-color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg) 85%, #ffffff 15%);
+}
+
+.routineList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.routineCard {
+  border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  background: color-mix(in srgb, var(--bg) 88%, #ffffff 12%);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.routineCardActive {
+  border-color: color-mix(in srgb, var(--text) 70%, transparent);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.routineCardTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.routineCardDescription {
+  margin: 0.4rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.backButton {
+  align-self: flex-start;
+  margin-top: 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: var(--text-primary);
+}
+
+.stepActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  width: 100%;
+}
+
+.nextButton {
+  margin-left: auto;
+  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.nextButton:hover {
+  border-color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: var(--text-primary);
+}
+
+.nextButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.circleItem {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--text) 90%, transparent);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.circleItem:hover {
+  border-color: color-mix(in srgb, var(--text) 80%, transparent);
+  color: color-mix(in srgb, var(--text) 100%, transparent);
+  transform: scale(1.02);
+}
+
+.circleItemActive {
+  border-color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: color-mix(in srgb, var(--text) 95%, transparent);
+  transform: scale(1.02);
+}
+
+.circleItemSelected {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.areaMedia {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slideInRight {
+  animation: slideInRight var(--routine-slide-duration, 700ms) ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(4%);
+    opacity: 0.85;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.routineMediaPanel {
+  height: 100%;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  background: color-mix(in srgb, var(--bg) 92%, #ffffff 8%);
+  color: var(--text-primary);
+}
+
+.routineBreadcrumb {
+  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-radius: 14px;
+  padding: 0.8rem 1rem;
+  background: #fff;
+}
+
+.routineBreadcrumbRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.routineBreadcrumbNode {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.routineBreadcrumbStep {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.routineBreadcrumbSeparator {
+  width: 18px;
+  height: 1px;
+  background: color-mix(in srgb, var(--text) 40%, transparent);
+}
+
+.routineMediaList {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.routineStepGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.routineStepBlock {
+  border: 1px solid color-mix(in srgb, var(--stroke) 50%, transparent);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.routineStepTitle {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  flex: 0 0 110px;
+}
+
+.routineThumbs {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.routineProductRow {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.routineThumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--stroke) 40%, transparent);
+  background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
+}
+
+.routineThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.routineThumbFallback {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--stroke) 25%, transparent);
+}
+
+.routineProductTitle {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.mediaPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
+}
+
+.mediaFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+  font-size: 1rem;
+  background: color-mix(in srgb, var(--bg) 88%, #ffffff 12%);
+}
+
+.pillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.pillStatic {
+  border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--text) 85%, transparent);
+}
+
+@media (max-width: 900px) {
+  .section {
+    grid-template-columns: 1fr;
+  }
+}

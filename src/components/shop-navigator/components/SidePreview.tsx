@@ -14,16 +14,12 @@ interface SidePreviewProps {
 export function SidePreview({ state }: SidePreviewProps) {
   const {
     getNeedById,
-    getCategoryById,
-    getLineById,
     getTextureById,
     getProductsForFilters,
   } = useShopNavigatorData()
 
   const filters = {
     needId: state.selectedNeed,
-    categoryId: state.selectedCategory,
-    lineId: state.selectedLine,
     textureId: state.selectedTexture,
   }
 
@@ -201,22 +197,6 @@ export function SidePreview({ state }: SidePreviewProps) {
                 <div className={styles.summaryLabel}>Esigenza</div>
                 <div className={styles.summaryValue}>
                   {state.selectedNeed ? getNeedById(state.selectedNeed)?.label || '—' : '—'}
-                </div>
-              </div>
-
-              <div>
-                <div className={styles.summaryLabel}>Categoria</div>
-                <div className={styles.summaryValue}>
-                  {state.selectedCategory
-                    ? getCategoryById(state.selectedCategory)?.label || '—'
-                    : '—'}
-                </div>
-              </div>
-
-              <div>
-                <div className={styles.summaryLabel}>Linea</div>
-                <div className={styles.summaryValue}>
-                  {state.selectedLine ? getLineById(state.selectedLine)?.label || '—' : '—'}
                 </div>
               </div>
 

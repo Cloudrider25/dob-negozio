@@ -125,7 +125,11 @@ export function ShopNavigatorSection({
   initialClassicParams: ClassicParams
   productBasePath: string
 }) {
-  const [viewMode, setViewMode] = useState<ViewMode>('navigator')
+  const initialView =
+    initialClassicParams.view === 'classic' || initialClassicParams.view === 'list'
+      ? 'classic'
+      : 'navigator'
+  const [viewMode, setViewMode] = useState<ViewMode>(initialView)
   const [state, setState] = useState<NavigatorState>({
     step: 'need',
   })

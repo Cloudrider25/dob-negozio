@@ -6,7 +6,7 @@ export const RoutineTemplates: CollectionConfig = {
   slug: 'routine-templates',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'slug', 'productArea', 'timing', 'objective', 'active', 'sortOrder'],
+    defaultColumns: ['name', 'slug', 'productArea', 'timing', 'need', 'active', 'sortOrder'],
     group: 'Shop',
   },
   access: {
@@ -47,9 +47,9 @@ export const RoutineTemplates: CollectionConfig = {
       required: true,
     },
     {
-      name: 'objective',
+      name: 'need',
       type: 'relationship',
-      relationTo: 'objectives',
+      relationTo: 'needs',
       required: true,
     },
     {

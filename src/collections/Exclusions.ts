@@ -72,9 +72,9 @@ export const Exclusions: CollectionConfig = {
     },
     {
       name: 'attributeValueId',
-      type: 'number',
+      type: 'text',
       validate: (async (value, { data, siblingData, req }) => {
-        if (value === null || value === undefined) return true
+        if (value === null || value === undefined || value === '') return true
         const attributeRef = siblingData?.attribute ?? data?.attribute
         const attributeId =
           typeof attributeRef === 'object' && attributeRef
@@ -92,17 +92,16 @@ export const Exclusions: CollectionConfig = {
         if (!attribute || attribute.type !== 'enum') {
           return 'Attribute non supporta valori enum.'
         }
-        const valueId = Number(value)
-        if (!Number.isFinite(valueId)) return 'Attribute value non valido.'
+        const valueId = String(value)
         const values = Array.isArray(attribute.values)
           ? (attribute.values as Array<{ id?: number | string }>)
           : []
         const matches = values.some((item) => {
-          const itemId = typeof item.id === 'string' ? Number(item.id) : item.id
-          return itemId === valueId
+          if (item.id === undefined || item.id === null) return false
+          return String(item.id) === valueId
         })
         return matches ? true : 'Attribute value non valido per questo attribute.'
-      }) satisfies Validate<number>,
+      }) satisfies Validate<string>,
     },
   ],
   timestamps: true,

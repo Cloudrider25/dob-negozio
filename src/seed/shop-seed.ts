@@ -7,10 +7,6 @@ type SeedItem = {
   order?: number
 }
 
-type SeedCategory = SeedItem & {
-  parentSlug?: string
-  isMakeupRoot?: boolean
-}
 
 const slugify = (value: string) =>
   value
@@ -30,9 +26,9 @@ const buildOrderedItems = (items: string[], prefix?: string) =>
 
 type SeedCollectionSlug =
   | 'product-areas'
+  | 'brands'
+  | 'brand-lines'
   | 'needs'
-  | 'categories'
-  | 'lines'
   | 'textures'
 
 const seedSimpleCollection = async (
@@ -85,214 +81,32 @@ const fetchBySlugs = async (
   return map
 }
 
-const seedCategories = async (payload: Payload, categories: SeedCategory[]) => {
-  if (!categories.length) return
-  const roots = categories.filter((item) => !item.parentSlug)
-  const children = categories.filter((item) => item.parentSlug)
 
-  await seedSimpleCollection(payload, 'categories', roots)
+export const seedShopTaxonomies = async (payload: Payload) => {
+  // Needs are managed manually in DB now; no seed data here.
 
-  const allSlugs = categories.map((item) => item.slug)
-  const slugToId = await fetchBySlugs(payload, 'categories', allSlugs)
-
-  const existingSlugs = new Set(slugToId.keys())
-  for (const item of children) {
-    if (existingSlugs.has(item.slug)) continue
-    const parentId = item.parentSlug ? slugToId.get(item.parentSlug) : undefined
+  const existingNickelTested = await payload.find({
+    collection: 'attributes',
+    depth: 0,
+    limit: 1,
+    where: { slug: { equals: 'nickel-tested' } },
+  })
+  if (existingNickelTested.docs.length === 0) {
     await payload.create({
-      collection: 'categories',
+      collection: 'attributes',
       locale: 'it',
       overrideAccess: true,
       data: {
-        name: item.name,
-        slug: item.slug,
-        description: item.description,
-        order: item.order ?? 0,
-        parent: (parentId ?? undefined) as number | undefined,
-        isMakeupRoot: item.isMakeupRoot ?? false,
+        slug: 'nickel-tested',
+        type: 'boolean',
+        active: true,
+        sortOrder: 0,
+        name: 'Nickel tested',
+        description:
+          'Prodotti testati microbiologicamente, dermatologicamente e per il nickel.',
       },
     })
   }
-
-  for (const item of roots) {
-    if (!item.isMakeupRoot) continue
-    const id = slugToId.get(item.slug)
-    if (!id) continue
-    await payload.update({
-      collection: 'categories',
-      id,
-      overrideAccess: true,
-      data: { isMakeupRoot: true },
-    })
-  }
-}
-
-export const seedShopTaxonomies = async (payload: Payload) => {
-  const productAreaMap = await fetchBySlugs(payload, 'product-areas', ['viso', 'corpo'])
-  const needsGroups = [
-    {
-      group: 'Viso',
-      items: [
-        'Rughe di Espressione',
-        'Anti-age',
-        'Prime Rughe',
-        'Pelle con macchie',
-        'Pelle Spenta',
-        'Pelle Secca',
-        'Pelle Normale',
-        'Pelle Mista-impura',
-        'Pelle Sensibile e Intollerante',
-        'Pelle Maschile',
-        'Age Care',
-        'Skin Longevity',
-      ],
-    },
-    {
-      group: 'Corpo',
-      items: [
-        'Azione urto globale',
-        'Benessere',
-        'Cellulite',
-        'Idratare e Nutrire',
-        'Ridurre',
-        'Tonificare e Rimodellare',
-        'Zone Specifiche',
-      ],
-    },
-    {
-      group: 'Solari',
-      items: [
-        'Alte e Molto Alte Protezioni',
-        'Basse, Medie Protezioni e Abbronzanti',
-        'Doposole',
-      ],
-    },
-    {
-      group: 'Make-up',
-      items: ['Viso', 'Occhi', 'Labbra'],
-    },
-  ]
-
-  const needs = needsGroups.flatMap((group, groupIndex) => {
-    const areaSlug = slugify(group.group)
-    const productAreaId = productAreaMap.get(areaSlug)
-    if (!productAreaId) return []
-    return group.items.map((name, index) => ({
-      name,
-      slug: `${areaSlug}-${slugify(name)}`,
-      order: groupIndex * 100 + index,
-      productArea: productAreaId,
-    }))
-  })
-
-  const rootCategories = [
-    'Bestseller',
-    'Viso',
-    'Corpo',
-    'Solari',
-    'Make up',
-    'Limited Edition',
-  ]
-
-  const rootCategoryItems = rootCategories.map((name, index) => ({
-    name,
-    slug: slugify(name === 'Make up' ? 'Make-up' : name),
-    order: index,
-    isMakeupRoot: name === 'Make up',
-  }))
-
-  const childrenByParent: Array<{ parent: string; items: string[] }> = [
-    {
-      parent: 'Viso',
-      items: [
-        'Biologico e Vegano',
-        'Creme',
-        'Detergenti e Struccanti',
-        'Lozioni tonificanti e Mist',
-        'Esfolianti e Scrub',
-        'Maschere',
-        'Sieri e concentrati',
-        'Occhi e Labbra',
-        'Kit',
-      ],
-    },
-    {
-      parent: 'Corpo',
-      items: [
-        'Oli',
-        'Detersione e Igiene personale',
-        'Scrub',
-        'Creme e Burri',
-        'Sieri',
-        'Mousse',
-        'Bende & Leggings',
-        'Biologico e Vegano',
-      ],
-    },
-    {
-      parent: 'Solari',
-      items: ['Protezione Corpo', 'Protezione Viso'],
-    },
-    {
-      parent: 'Make up',
-      items: [
-        'Fondotinta',
-        'Correttore',
-        'Cipria',
-        'Terre e Blush',
-        'Sopracciglia',
-        'Matite Occhi',
-        'Matite Labbra',
-        'Rossetti',
-        'Ombretti',
-        'Eyeliner e Mascara',
-        'Pennelli e Accessori',
-      ],
-    },
-    {
-      parent: 'Limited Edition',
-      items: ['Ambra di Sicilia'],
-    },
-  ]
-
-  const childCategories = childrenByParent.flatMap((group, groupIndex) => {
-    const parentSlug = slugify(group.parent === 'Make up' ? 'Make-up' : group.parent)
-    return group.items.map((name, index) => ({
-      name,
-      slug: `${parentSlug}-${slugify(name)}`,
-      parentSlug,
-      order: groupIndex * 100 + index,
-    }))
-  })
-
-  const categories: SeedCategory[] = [...rootCategoryItems, ...childCategories]
-
-  const lines = buildOrderedItems([
-    '75.15',
-    '75.25',
-    'Atypical',
-    'Balance',
-    'Bio+',
-    'Booster Viso',
-    'Bright Formula',
-    'Delay Infinity',
-    'Emozioni Plus',
-    'Equilibrium',
-    'Intense',
-    'Lime',
-    'Oligominerali',
-    'Rehydra',
-    'Body Spa',
-    'Fuoco Plus',
-    'Linea Bagnodoccia',
-    'Sikelia',
-    'Sinecell',
-    'Phytomakeup',
-    'Theatre 1585',
-    'Summer Paradise',
-    'Booster',
-    'Ambra di Sicilia',
-  ])
 
   const textures = buildOrderedItems([
     'Bifasico',
@@ -307,32 +121,490 @@ export const seedShopTaxonomies = async (payload: Payload) => {
     'Spray',
   ])
 
-  if (needs.length) {
-    const slugs = needs.map((item) => item.slug)
-    const existing = await payload.find({
-      collection: 'needs',
-      depth: 0,
-      limit: slugs.length,
-      where: { slug: { in: slugs } },
-    })
-    const existingSlugs = new Set(existing.docs.map((doc) => doc.slug))
+  const vagheggiBrandSlug = slugify('Vagheggi')
+  const vagheggiLines = [
+    '75.25',
+    'Balance',
+    'Bio+',
+    'Body Spa',
+    'Booster Viso',
+    'Bright Formula',
+    'Delay Infinity',
+    'Emozioni Plus',
+    'Equilibrium',
+    'Fuoco',
+    'Intense',
+    'Linea Bagnodoccia',
+    'Lime',
+    'Oligominerali',
+    'Rehydra',
+    'Sikelia',
+    'Sinecell',
+  ]
 
-    for (const item of needs) {
-      if (existingSlugs.has(item.slug)) continue
+  const existingBrand = await payload.find({
+    collection: 'brands',
+    depth: 0,
+    limit: 1,
+    where: { slug: { equals: vagheggiBrandSlug } },
+  })
+  const brandId =
+    existingBrand.docs.length > 0
+      ? existingBrand.docs[0].id
+      : (
+          await payload.create({
+            collection: 'brands',
+            locale: 'it',
+            overrideAccess: true,
+            data: {
+              name: 'Vagheggi',
+              slug: vagheggiBrandSlug,
+              active: true,
+            },
+          })
+        ).id
+
+  const brandLineSlugs = vagheggiLines.map((name) => `${vagheggiBrandSlug}-${slugify(name)}`)
+  const existingBrandLines = await payload.find({
+    collection: 'brand-lines',
+    depth: 0,
+    limit: brandLineSlugs.length,
+    where: {
+      and: [{ slug: { in: brandLineSlugs } }, { brand: { equals: brandId } }],
+    },
+  })
+  const existingLineSlugs = new Set(existingBrandLines.docs.map((doc) => doc.slug))
+
+  for (const [index, name] of vagheggiLines.entries()) {
+    const slug = `${vagheggiBrandSlug}-${slugify(name)}`
+    if (existingLineSlugs.has(slug)) continue
+    await payload.create({
+      collection: 'brand-lines',
+      locale: 'it',
+      overrideAccess: true,
+      data: {
+        name,
+        slug,
+        brand: brandId,
+        sortOrder: index,
+        active: true,
+      },
+    })
+  }
+
+  const needsResult = await payload.find({
+    collection: 'needs',
+    depth: 0,
+    limit: 200,
+  })
+  const needSlugToId = new Map(needsResult.docs.map((doc) => [doc.slug, doc.id]))
+
+  const brandLinesResult = await payload.find({
+    collection: 'brand-lines',
+    depth: 0,
+    limit: 200,
+    where: { brand: { equals: brandId } },
+  })
+  const brandLineSlugToId = new Map(brandLinesResult.docs.map((doc) => [doc.slug, doc.id]))
+
+  const priorityMappings: Array<{
+    lineSlug: string
+    needs: Array<{ slug: string; score: number; note: string }>
+  }> = [
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('75.25')}`,
+      needs: [
+        {
+          slug: 'anti-age',
+          score: 100,
+          note: 'Longevità e contrasto ai segni del tempo. Source: vagheggi.com/75.25',
+        },
+        {
+          slug: 'elasticizzante-rimpolpante',
+          score: 50,
+          note: 'Effetto lifting/elasticità. Source: vagheggi.com/75.25',
+        },
+        {
+          slug: 'luminosita',
+          score: 50,
+          note: 'Migliora luminosità e vitalità. Source: vagheggi.com/75.25',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Balance')}`,
+      needs: [
+        {
+          slug: 'purificante',
+          score: 100,
+          note: 'Pelle impura/acneica, azione purificante. Source: vagheggi.com/balance',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Bio+')}`,
+      needs: [
+        {
+          slug: 'idratazione',
+          score: 100,
+          note: 'Idratazione viso. Source: vagheggi.com/bio-viso',
+        },
+        {
+          slug: 'luminosita',
+          score: 50,
+          note: 'Luminosità viso. Source: vagheggi.com/bio-viso',
+        },
+        {
+          slug: 'anti-age',
+          score: 50,
+          note: 'Anti-rughe/elasticità viso. Source: vagheggi.com/bio-viso',
+        },
+        {
+          slug: 'nutriente',
+          score: 100,
+          note: 'Nutrizione corpo. Source: vagheggi.com/bio-corpo',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Booster Viso')}`,
+      needs: [],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Bright Formula')}`,
+      needs: [
+        {
+          slug: 'uniformante',
+          score: 100,
+          note: 'Anti-macchia/tono uniforme. Source: vagheggi.com/bright-formula',
+        },
+        {
+          slug: 'luminosita',
+          score: 100,
+          note: 'Linea illuminante. Source: vagheggi.com/bright-formula',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Delay Infinity')}`,
+      needs: [
+        {
+          slug: 'anti-age',
+          score: 100,
+          note: 'Prime rughe/anti-age. Source: vagheggi.com/delay-infinity',
+        },
+        {
+          slug: 'elasticizzante-rimpolpante',
+          score: 50,
+          note: 'Elasticità/compattezza. Source: vagheggi.com/delay-infinity',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Emozioni Plus')}`,
+      needs: [
+        {
+          slug: 'lenitiva-pelli-sensibili',
+          score: 100,
+          note: 'Pelle sensibile/intollerante. Source: vagheggi.com/emozioni-plus',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Equilibrium')}`,
+      needs: [
+        {
+          slug: 'idratazione',
+          score: 100,
+          note: 'Pelle da riequilibrare e nutrire. Source: vagheggi.com/pelle-secca-e-arida',
+        },
+        {
+          slug: 'nutriente',
+          score: 100,
+          note: 'Pelle da riequilibrare e nutrire (corpo). Source: vagheggi.com/pelle-secca-e-arida',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Intense')}`,
+      needs: [
+        {
+          slug: 'anti-age',
+          score: 100,
+          note: 'Age care/distensione e riduzione rughe. Source: vagheggi.com/intense',
+        },
+        {
+          slug: 'detossinante-ossidativo',
+          score: 50,
+          note: 'Protezione da stress e inquinamento (anti-ossidativo). Source: vagheggi.com/intense',
+        },
+        {
+          slug: 'luminosita',
+          score: 50,
+          note: 'Illuminante/levigante. Source: vagheggi.com/intense',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Lime')}`,
+      needs: [
+        {
+          slug: 'luminosita',
+          score: 100,
+          note: 'Azione illuminante e anti-macchia. Source: vagheggi.com/lime',
+        },
+        {
+          slug: 'uniformante',
+          score: 100,
+          note: 'Riduce discromie/macchie. Source: vagheggi.com/lime',
+        },
+        {
+          slug: 'detossinante-ossidativo',
+          score: 50,
+          note: 'Azione antiossidante/anti-inquinamento. Source: vagheggi.com/lime',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Oligominerali')}`,
+      needs: [
+        {
+          slug: 'detossinante-ossidativo',
+          score: 50,
+          note: 'Azione riequilibrante (viso). Source: vagheggi.com/oligominerali',
+        },
+        {
+          slug: 'detossinante',
+          score: 50,
+          note: 'Azione riequilibrante (corpo). Source: vagheggi.com/oligominerali',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Rehydra')}`,
+      needs: [
+        {
+          slug: 'idratazione',
+          score: 100,
+          note: 'Linea idratante per pelle secca/disidratata. Source: vagheggi.com/pelle-secca-e-arida',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Body Spa')}`,
+      needs: [
+        {
+          slug: 'nutriente',
+          score: 100,
+          note: 'Azione idratante e nutriente corpo. Source: vagheggi.com/-/linea-body-spa-il-benessere-diventa-esperienza',
+        },
+        {
+          slug: 'esfoliante-levigante',
+          score: 50,
+          note: 'Scrub nutriente corpo. Source: vagheggi.com/-/linea-body-spa-il-benessere-diventa-esperienza',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Fuoco')}`,
+      needs: [
+        {
+          slug: 'anticellulite',
+          score: 100,
+          note: 'Inestetismi cellulite/adipe localizzato. Source: vagheggi.com/fuoco-plus',
+        },
+        {
+          slug: 'rassodante-tonificante',
+          score: 100,
+          note: 'Perdita di tonicità/compattezza. Source: vagheggi.com/fuoco-plus',
+        },
+        {
+          slug: 'drenante',
+          score: 50,
+          note: 'Microcircolo/drenaggio. Source: vagheggi.com/fuoco-plus',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Linea Bagnodoccia')}`,
+      needs: [],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Sikelia')}`,
+      needs: [
+        {
+          slug: 'rassodante-tonificante',
+          score: 100,
+          note: 'Azione tonificante/rimodellante. Source: vagheggi.com/sikelia',
+        },
+        {
+          slug: 'elasticizzante',
+          score: 100,
+          note: 'Elasticità e rimodellamento. Source: vagheggi.com/sikelia',
+        },
+        {
+          slug: 'smagliature',
+          score: 50,
+          note: 'Trattamento smagliature. Source: vagheggi.com/sikelia',
+        },
+      ],
+    },
+    {
+      lineSlug: `${vagheggiBrandSlug}-${slugify('Sinecell')}`,
+      needs: [
+        {
+          slug: 'anticellulite',
+          score: 100,
+          note: 'Combattere cellulite e adipe localizzato. Source: vagheggi.com/sinecell',
+        },
+        {
+          slug: 'drenante',
+          score: 100,
+          note: 'Azione drenante. Source: vagheggi.com/sinecell',
+        },
+        {
+          slug: 'rassodante-tonificante',
+          score: 50,
+          note: 'Azione tonificante. Source: vagheggi.com/sinecell',
+        },
+      ],
+    },
+  ]
+
+  const existingPriorities = await payload.find({
+    collection: 'brand-line-needs-priority',
+    depth: 0,
+    limit: 500,
+  })
+  const existingPairs = new Set(
+    existingPriorities.docs
+      .map((doc) => {
+        const brandLine = typeof doc.brandLine === 'object' && doc.brandLine ? doc.brandLine.id : doc.brandLine
+        const need = typeof doc.need === 'object' && doc.need ? doc.need.id : doc.need
+        if (!brandLine || !need) return null
+        return `${brandLine}:${need}`
+      })
+      .filter((value): value is string => Boolean(value)),
+  )
+
+  for (const mapping of priorityMappings) {
+    const lineId = brandLineSlugToId.get(mapping.lineSlug)
+    if (!lineId || mapping.needs.length === 0) continue
+    for (const entry of mapping.needs) {
+      const needId = needSlugToId.get(entry.slug)
+      if (!needId) continue
+      const key = `${lineId}:${needId}`
+      if (existingPairs.has(key)) continue
       await payload.create({
-        collection: 'needs',
+        collection: 'brand-line-needs-priority',
+        overrideAccess: true,
+        data: {
+          brandLine: lineId,
+          need: needId,
+          score: entry.score,
+          note: entry.note,
+        },
+      })
+      existingPairs.add(key)
+    }
+  }
+
+  const productAreasResult = await payload.find({
+    collection: 'product-areas',
+    depth: 0,
+    limit: 50,
+  })
+  const productAreaSlugToId = new Map(productAreasResult.docs.map((doc) => [doc.slug, doc.id]))
+  const faceAreaId = productAreaSlugToId.get('viso') ?? productAreaSlugToId.get('face')
+  const bodyAreaId = productAreaSlugToId.get('corpo') ?? productAreaSlugToId.get('body')
+
+  if (faceAreaId || bodyAreaId) {
+    const routineSteps = [
+      ...(faceAreaId
+        ? [
+            { areaId: faceAreaId, name: 'Detergente', slug: 'detergente', order: 0, isSystem: true, isOptional: false },
+            { areaId: faceAreaId, name: 'Tonico', slug: 'tonico', order: 1, isSystem: false, isOptional: false },
+            { areaId: faceAreaId, name: 'Siero', slug: 'siero', order: 2, isSystem: false, isOptional: false },
+            { areaId: faceAreaId, name: 'Crema', slug: 'crema', order: 3, isSystem: true, isOptional: false },
+            { areaId: faceAreaId, name: 'SPF', slug: 'spf', order: 4, isSystem: true, isOptional: false },
+            { areaId: faceAreaId, name: 'Struccante', slug: 'struccante', order: 5, isSystem: false, isOptional: true },
+            { areaId: faceAreaId, name: 'Esfoliante', slug: 'esfoliante', order: 6, isSystem: false, isOptional: true },
+            { areaId: faceAreaId, name: 'Maschera', slug: 'maschera', order: 7, isSystem: false, isOptional: true },
+            { areaId: faceAreaId, name: 'Contorno occhi', slug: 'contorno-occhi', order: 8, isSystem: false, isOptional: true },
+            {
+              areaId: faceAreaId,
+              name: 'Trattamento notte',
+              slug: 'trattamento-notte',
+              order: 9,
+              isSystem: false,
+              isOptional: true,
+            },
+          ]
+        : []),
+      ...(bodyAreaId
+        ? [
+            {
+              areaId: bodyAreaId,
+              name: 'Detergente corpo',
+              slug: 'detergente-corpo',
+              order: 0,
+              isSystem: true,
+              isOptional: false,
+            },
+            {
+              areaId: bodyAreaId,
+              name: 'Esfoliante corpo',
+              slug: 'esfoliante-corpo',
+              order: 1,
+              isSystem: false,
+              isOptional: true,
+            },
+            {
+              areaId: bodyAreaId,
+              name: 'Trattamento mirato',
+              slug: 'trattamento-mirato',
+              order: 2,
+              isSystem: false,
+              isOptional: false,
+            },
+            {
+              areaId: bodyAreaId,
+              name: 'Crema / olio finale',
+              slug: 'crema-olio-finale',
+              order: 3,
+              isSystem: true,
+              isOptional: false,
+            },
+          ]
+        : []),
+    ]
+
+    const existingSteps = await payload.find({
+      collection: 'routine-steps',
+      depth: 0,
+      limit: 500,
+    })
+    const existingKeys = new Set(existingSteps.docs.map((doc) => `${doc.productArea}:${doc.slug}`))
+
+    for (const step of routineSteps) {
+      const key = `${step.areaId}:${step.slug}`
+      if (existingKeys.has(key)) continue
+      await payload.create({
+        collection: 'routine-steps',
         locale: 'it',
         overrideAccess: true,
         data: {
-          name: item.name,
-          slug: item.slug,
-          order: item.order ?? 0,
-          productArea: Number(item.productArea),
+          name: step.name,
+          slug: step.slug,
+          productArea: step.areaId,
+          stepOrderDefault: step.order,
+          isOptionalDefault: step.isOptional,
+          isSystem: step.isSystem,
+          active: true,
         },
       })
     }
   }
-  await seedCategories(payload, categories)
-  await seedSimpleCollection(payload, 'lines', lines)
+
   await seedSimpleCollection(payload, 'textures', textures)
 }

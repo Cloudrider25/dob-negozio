@@ -9,8 +9,6 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Products } from './collections/Products'
 import { Needs } from './collections/Needs'
-import { Categories } from './collections/Categories'
-import { Lines } from './collections/Lines'
 import { Textures } from './collections/Textures'
 import { ProductAreas } from './collections/ProductAreas'
 import { TimingProducts } from './collections/TimingProducts'
@@ -19,12 +17,8 @@ import { Brands } from './collections/Brands'
 import { BrandLines } from './collections/BrandLines'
 import { RoutineSteps } from './collections/RoutineSteps'
 import { RoutineStepRules } from './collections/RoutineStepRules'
-import { BrandLineObjectivePriority } from './collections/BrandLineObjectivePriority'
+import { BrandLineNeedsPriority } from './collections/BrandLineNeedsPriority'
 import { Attributes } from './collections/Attributes'
-import { ProductObjectives } from './collections/ProductObjectives'
-import { ProductSkinTypes } from './collections/ProductSkinTypes'
-import { ProductTimings } from './collections/ProductTimings'
-import { ProductSteps } from './collections/ProductSteps'
 import { RoutineTemplates } from './collections/RoutineTemplates'
 import { RoutineTemplateSteps } from './collections/RoutineTemplateSteps'
 import { RoutineTemplateStepProducts } from './collections/RoutineTemplateStepProducts'
@@ -64,21 +58,15 @@ export default buildConfig({
     TimingProducts,
     Brands,
     BrandLines,
-    BrandLineObjectivePriority,
+    BrandLineNeedsPriority,
     RoutineSteps,
     RoutineStepRules,
     Attributes,
-    ProductObjectives,
-    ProductSkinTypes,
-    ProductTimings,
-    ProductSteps,
     RoutineTemplates,
     RoutineTemplateSteps,
     RoutineTemplateStepProducts,
     Exclusions,
     Boosts,
-    Categories,
-    Lines,
     Textures,
     Products,
     Areas,

@@ -1,4 +1,4 @@
-import type { CategoryId, LineId, NeedId, TextureId } from '@/components/shop-navigator/types/navigator'
+import type { NeedId, TextureId } from '@/components/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { EmptyState } from '@/components/shop-navigator/components/EmptyState'
 import { ColumnList } from '@/components/shop-navigator/components/columns/ColumnList'
@@ -6,8 +6,6 @@ import metaStyles from '@/components/shop-navigator/components/columns/column-me
 
 interface ColumnTextureProps {
   needId: NeedId
-  categoryId: CategoryId
-  lineId?: LineId
   selectedTexture?: TextureId
   onSelectTexture: (texture: TextureId) => void
   onHoverTexture?: (texture: TextureId | null) => void
@@ -15,14 +13,12 @@ interface ColumnTextureProps {
 
 export function ColumnTexture({
   needId,
-  categoryId,
-  lineId,
   selectedTexture,
   onSelectTexture,
   onHoverTexture,
 }: ColumnTextureProps) {
   const { getTexturesForFilters, getProductCount } = useShopNavigatorData()
-  const textures = getTexturesForFilters({ needId, categoryId, lineId })
+  const textures = getTexturesForFilters({ needId })
 
   return (
     <ColumnList
@@ -36,7 +32,7 @@ export function ColumnTexture({
         onHover: (active) => onHoverTexture?.(active ? texture.id : null),
         rightSlot: (
           <div className={metaStyles.count}>
-            ({getProductCount({ needId, categoryId, lineId, textureId: texture.id })})
+            ({getProductCount({ needId, textureId: texture.id })})
           </div>
         ),
       }))}

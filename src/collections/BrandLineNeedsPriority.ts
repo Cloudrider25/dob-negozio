@@ -2,11 +2,11 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
 
-export const ProductSkinTypes: CollectionConfig = {
-  slug: 'product-skin-types',
+export const BrandLineNeedsPriority: CollectionConfig = {
+  slug: 'brand-line-needs-priority',
   admin: {
     useAsTitle: 'id',
-    defaultColumns: ['product', 'skinType'],
+    defaultColumns: ['brandLine', 'need', 'score'],
     group: 'Shop',
   },
   access: {
@@ -17,16 +17,26 @@ export const ProductSkinTypes: CollectionConfig = {
   },
   fields: [
     {
-      name: 'product',
+      name: 'brandLine',
       type: 'relationship',
-      relationTo: 'products',
+      relationTo: 'brand-lines',
       required: true,
     },
     {
-      name: 'skinType',
+      name: 'need',
       type: 'relationship',
-      relationTo: 'skin-types',
+      relationTo: 'needs',
       required: true,
+    },
+    {
+      name: 'score',
+      type: 'number',
+      required: true,
+      defaultValue: 0,
+    },
+    {
+      name: 'note',
+      type: 'textarea',
     },
   ],
   timestamps: true,

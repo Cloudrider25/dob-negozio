@@ -30,6 +30,11 @@ export const Brands: CollectionConfig = {
       required: true,
     },
     {
+      name: 'logo',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
       name: 'active',
       type: 'checkbox',
       defaultValue: true,

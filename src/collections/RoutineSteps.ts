@@ -50,6 +50,11 @@ export const RoutineSteps: CollectionConfig = {
       defaultValue: false,
     },
     {
+      name: 'isSystem',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
       name: 'active',
       type: 'checkbox',
       defaultValue: true,
