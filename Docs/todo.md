@@ -1,86 +1,74 @@
-# Homepage data map
+OBIETTIVO
+Evolvere “Routine Builder” restando compatibili con lo schema Payload/Drizzle attuale:
+1) Routine suggerita (predefinita) in base ai filtri utente.
+2) Template/scheletri modulari (base, completa, specifiche) composti da step standard riutilizzabili.
+3) Personalizzazione: l’utente parte dalla routine suggerita e può sostituire UNO o PIÙ prodotti per singolo step, mantenendo invariata la struttura.
+4) Compatibilità prodotti per step basata su: timing, tipo pelle, need, disponibilità.
 
-## Fonte dati: pages (pageKey = "home")
-- heroTitleMode ("fixed" | altro)
-- heroTitle (usato solo se heroTitleMode = "fixed")
-- heroDescription (fallback: dictionary.hero.subtitle)
-- heroStyle ("style1" | "style2")
-- heroMedia (array: [dark, light]) → media { url, alt, mimeType }
-- storyHeroTitle
-- storyHeroBody
-- storyHeroCtaLabel
-- storyHeroCtaHref
-- storyHeroMedia → media { url, alt }
-- productsCarousel (Sezione 5)
-  - limit
-  - categories
-  - needs
-  - lines
-  - textures
+STATO REALE DEL PROGETTO (oggi)
+Già presenti:
+- `routine-templates`
+- `routine-template-steps` (ordine + required)
+- `routine-template-step-products` (prodotti suggeriti per step)
+- `routine-steps`
+- `routine-step-rules` (require/forbid/warn per timing/skin type)
+- relazioni prodotti: timing, skin type, needs, ecc.
 
-## Fonte dati: dictionary (i18n)
-- hero.eyebrow
-- hero.title
-- hero.subtitle
-- nav.services
-- nav.shop
-- shop.title (per fallback alt)
+Mancano / da aggiungere:
+- **Routine Instance** (salvataggio custom utente) + **Overrides per step**
+- Endpoint API per suggerimento + picker prodotti per step
+- UI per “Cambia prodotto” step-by-step (override)
 
-## Sezione: Hero
-- Condizione: render solo se esiste almeno un media (dark o light)
-- Props:
-  - eyebrow, title, description
-  - variant (heroStyle)
-  - mediaDark, mediaLight
-  - ctas: servizi e shop con label i18n
+COMPORTAMENTO DESIDERATO (UX)
+A) Flow standard
+- Utente seleziona filtri (timing, tipo pelle, need).
+- Sistema restituisce UNA routine suggerita (template + prodotti pre-assegnati).
+- UI mostra lista step ordinati, ognuno con prodotto selezionato + CTA “Cambia”.
+- “Cambia” apre picker prodotti compatibili, salva override solo per quello step.
 
-## Sezione: ServicesCarousel
-- Query: collection "services"
-  - filter: active = true
-  - limit: 6, depth: 1, sort: -createdAt
-- Card fields:
-  - title: service.name
-  - subtitle: service.description
-  - price: service.price (EUR) → formatPrice
-  - duration: service.durationMinutes → "{n} min"
-  - image: gallery cover (isCover) oppure fallback image
-  - tag: serviceType ("package" → "Pacchetto", "single" → "Singolo")
-  - badgeLeft: intent.label
-  - badgeRight: badge.name
-  - href: /[locale]/services/service/[slug]
+B) Edge case
+- Se un required step non ha prodotti: mostra placeholder “Seleziona prodotto”.
+- Prodotti AM+PM: validi su più timing (M2M).
 
-## Sezione: StoryHero
-- Props:
-  - locale
-  - title: storyHeroTitle (fallback: default text)
-  - body: storyHeroBody (fallback: default text)
-  - ctaLabel: storyHeroCtaLabel (fallback: "Scopri DOB")
-  - ctaHref: storyHeroCtaHref (fallback: /[locale]/shop)
-  - media: storyHeroMedia (fallback: /media/hero_homepage_light.png)
+TEMPLATE MINIMI DA SUPPORTARE (SEEDS)
+1) AM_BASE: Cleanser (req), Moisturizer (req), SPF (opt)
+2) AM_COMPLETA: Cleanser (req), Toner (opt), Serum (opt), Moisturizer (req), SPF (req)
+3) PM_BASE: Makeup Remover (opt), Cleanser (req), Night Cream (req)
+4) PM_COMPLETA: Makeup Remover (req), Cleanser (req), Toner (opt), Treatment (opt), Night Cream (req)
 
-## Sezione: ProgramsSplitSection
-- Nessun dato da payload in pagina (gestione interna)
-  - Ora usa collection "programs" (selezionato via Sezione 4: homeProgram)
-  - Steps con dati dinamici (manual / service / product)
+NOTA: per “double cleanse” usare due slot distinti: MAKEUP_REMOVER + CLEANSER.
 
-## Sezione: ShopCarousel
-- Query: collection "products"
-  - filter: active = true (+ eventuali filtri Sezione 5)
-  - limit: 6 (default) o productsCarousel.limit
-  - depth: 1, sort: -createdAt
-  - Card fields:
-  - title: product.title
-  - subtitle: product.description
-  - price: product.price + product.currency → formatPrice
-  - image: coverImage oppure images[0] oppure fallback image
+DATABASE (PAYLOAD/DRIZZLE)
+Non riscrivere: usare le tabelle esistenti.
+Da aggiungere:
+1) `routine-instances`
+- id, baseTemplateId, userId/sessionId, createdAt/updatedAt
+2) `routine-instance-overrides`
+- id, instanceId, routineStepId, productId
 
-## Sezione: ValuesSection
-- Props: locale
-- Dati interni al componente (nessun fetch qui in pagina)
+API (BACKEND)
+1) Suggest routine
+GET /api/routines/suggest?timing=...&skinType=...&need=...
+- usa `routine-templates` + `routine-template-steps` + `routine-template-step-products`
 
-## Utility usate nella pagina
-- resolveMedia(media, fallbackAlt)
-- resolveGalleryCover(gallery, fallbackAlt)
-- formatPrice(value, currency)
-- formatDuration(minutes)
-- fallbackImage: /media/493b3205c13b5f67b36cf794c2222583.jpg
+2) Picker prodotti per step
+GET /api/routines/step-products?stepId=...&timing=...&skinType=...&need=...
+
+3) Create/update routine instance
+POST /api/routines/instances
+body: { baseTemplateId, overrides: [{ stepId, productId }] }
+
+UI (FRONTEND)
+- Schermata “Routine proposta”: lista step + prodotto + CTA “Cambia”
+- Modal/Drawer “Cambia prodotto”: lista prodotti compatibili, salva override
+- Stato: baseTemplate + overrides locali
+
+TASK OPERATIVE (PROSSIMI STEP)
+1) Definire collections `routine-instances` e `routine-instance-overrides`.
+2) Creare endpoint suggest + step-products + instance upsert.
+3) UI: “Routine proposta” + “Cambia” per step.
+4) Test minimi: selezione routine, override applicati, filtro prodotti compatibili.
+
+CONSTRAINT
+- Nessuna logica hardcoded sugli step: ordine/required arrivano da template/steps.
+- Migrazioni minime, compatibili con DB/seed attuali.

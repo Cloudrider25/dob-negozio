@@ -140,12 +140,12 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         select: {
           id: true,
           name: true,
-          duration: true,
+          durationMinutes: true,
           slug: true,
           description: true,
           price: true,
           treatments: true,
-          image: true,
+          gallery: true,
         },
       }),
       payload.findGlobal({

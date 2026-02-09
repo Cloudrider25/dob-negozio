@@ -15,18 +15,18 @@ export type ValuesSectionItem = {
 }
 
 type ValuesSectionProps = {
-  locale: string
   items?: ValuesSectionItem[]
   media?: { url: string; alt?: string | null } | null
 }
 
-export const ValuesSection = ({ locale, items, media }: ValuesSectionProps) => {
+export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
   const resolvedItems = items ?? []
+  const [activeId, setActiveId] = useState<string>(resolvedItems[0]?.id ?? '')
+
   if (!resolvedItems.length) {
     return null
   }
 
-  const [activeId, setActiveId] = useState<string>(resolvedItems[0]?.id ?? '')
   const active = resolvedItems.find((item) => item.id === activeId) ?? resolvedItems[0]
 
   return (

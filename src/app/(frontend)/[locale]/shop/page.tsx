@@ -497,23 +497,6 @@ export default async function ShopPage({
     products,
   }
 
-  const toShopAllItem = (product: typeof shopAllProducts[number]) => {
-    const media = product.coverImage ?? product.images?.[0]
-    if (!media) return null
-    const brandLabel = resolveBrandLabel(product.brand, locale)
-    return {
-      title: product.title,
-      subtitle: brandLabel ?? null,
-      price: typeof product.price === 'number' ? `€ ${product.price}` : null,
-      image: { url: media.url, alt: media.alt || product.title },
-      tag: brandLabel ?? null,
-      badgeLeft: null,
-      badgeRight: null,
-      href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
-      duration: null,
-    }
-  }
-
   const contactLinks = buildContactLinks({
     phone: siteSettings?.phone,
     whatsapp: siteSettings?.whatsapp,

@@ -50,7 +50,6 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
   const resolvedSteps = steps && steps.length > 0 ? steps : defaultSteps
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
-  const activeStep = resolvedSteps[activeIndex]
 
   const getSlideState = (index: number) => {
     if (index === activeIndex) return styles.slideActive

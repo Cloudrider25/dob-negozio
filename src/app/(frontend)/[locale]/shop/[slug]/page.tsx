@@ -13,7 +13,6 @@ import { ServiceAccordion } from '@/app/(frontend)/[locale]/services/service/[sl
 import { FaqAccordion } from '@/app/(frontend)/[locale]/services/service/[slug]/FaqAccordion'
 import { ServiceTreatmentReveal } from '@/components/ServiceTreatmentReveal'
 import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
-import { ProductPurchase } from '@/components/shop/ProductPurchase'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -150,16 +149,6 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;')
-
-  const resolveRelId = (value: unknown) => {
-    if (!value) return null
-    if (typeof value === 'string' || typeof value === 'number') return String(value)
-    if (typeof value === 'object' && 'id' in value) {
-      const idValue = (value as { id?: string | number }).id
-      return idValue ? String(idValue) : null
-    }
-    return null
-  }
 
   const resolveProductMedia = (value: unknown, fallbackAlt: string) => {
     if (!value || typeof value !== 'object') return null
@@ -338,18 +327,6 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
   const lineMediaDoc = await resolveMediaFromId(product.lineMedia)
   const lineMediaResolved = lineMediaDoc ? resolveMedia(lineMediaDoc, product.title || '') : null
-
-  const resolveRelLabel = (value: unknown) => {
-    if (!value) return null
-    if (typeof value === 'string') return value
-    if (typeof value === 'object') {
-      const record = value as Record<string, unknown>
-      if (typeof record.name === 'string') return record.name
-      if (typeof record.label === 'string') return record.label
-      if (typeof record.title === 'string') return record.title
-    }
-    return null
-  }
 
   const descriptionText = resolveText(product.description)
   const usageText = resolveText(product.usage)

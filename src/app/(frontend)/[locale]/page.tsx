@@ -1,17 +1,13 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { Hero } from '@/components/Hero'
-import { ButtonLink } from '@/components/ui/button-link'
-import { Card } from '@/components/ui/card'
 import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
 import { ShopCarousel, type ShopCarouselItem } from '@/components/ShopCarousel'
 import { StoryHero } from '@/components/StoryHero'
 import { ValuesSection, type ValuesSectionItem } from '@/components/ValuesSection'
 import { ProgramsSplitSection } from '@/components/ProgramsSplitSection'
 import { ProtocolSplit, type ProtocolSplitStep } from '@/components/ProtocolSplit'
-import styles from './home.module.css'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 
 export default async function HomePage({
@@ -391,7 +387,6 @@ export default async function HomePage({
       <ProgramsSplitSection program={programData} locale={locale} />
       <ShopCarousel items={carouselItems} />
       <ValuesSection
-        locale={locale}
         items={valuesItems.length > 0 ? valuesItems : undefined}
         media={valuesMedia ? { url: valuesMedia.url, alt: valuesMedia.alt } : undefined}
       />

@@ -28,14 +28,6 @@ export const ServicesCarousel = ({
   const nextRef = useRef<HTMLButtonElement | null>(null)
   const [swiper, setSwiper] = useState<SwiperInstance | null>(null)
 
-  if (items.length === 0) {
-    return (
-      <section className={styles.section} aria-label="Services carousel">
-        <div className={styles.empty}>Nessun servizio disponibile.</div>
-      </section>
-    )
-  }
-
   useEffect(() => {
     if (!swiper || !prevRef.current || !nextRef.current) return
     const navigation = swiper.params.navigation
@@ -45,6 +37,14 @@ export const ServicesCarousel = ({
     swiper.navigation.init()
     swiper.navigation.update()
   }, [swiper])
+
+  if (items.length === 0) {
+    return (
+      <section className={styles.section} aria-label="Services carousel">
+        <div className={styles.empty}>Nessun servizio disponibile.</div>
+      </section>
+    )
+  }
 
   return (
     <section className={styles.section} aria-label="Services carousel">

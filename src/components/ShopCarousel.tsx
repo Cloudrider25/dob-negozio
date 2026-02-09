@@ -41,14 +41,6 @@ export const ShopCarousel = ({ items }: { items: ShopCarouselItem[] }) => {
     [items],
   )
 
-  if (mappedItems.length === 0) {
-    return (
-      <section className={styles.section} aria-label="Shop carousel">
-        <div className={styles.empty}>Nessun prodotto disponibile.</div>
-      </section>
-    )
-  }
-
   useEffect(() => {
     if (!swiper || !prevRef.current || !nextRef.current) return
     const navigation = swiper.params.navigation
@@ -58,6 +50,14 @@ export const ShopCarousel = ({ items }: { items: ShopCarouselItem[] }) => {
     swiper.navigation.init()
     swiper.navigation.update()
   }, [swiper])
+
+  if (mappedItems.length === 0) {
+    return (
+      <section className={styles.section} aria-label="Shop carousel">
+        <div className={styles.empty}>Nessun prodotto disponibile.</div>
+      </section>
+    )
+  }
 
   return (
     <section className={styles.section} aria-label="Shop carousel">
