@@ -4,6 +4,13 @@ import { useEffect, useMemo, useState } from 'react'
 import type { NavigatorState } from '@/components/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
 import { Minus, Plus, ShoppingBag, Trash } from '@/components/shop-navigator/icons'
+import {
+  CART_UPDATED_EVENT,
+  emitCartUpdated,
+  readCart,
+  writeCart,
+  type CartItem,
+} from '@/lib/cartStorage'
 import styles from './SidePreview.module.css'
 import shared from './columns/columns-shared.module.css'
 
@@ -25,18 +32,6 @@ export function SidePreview({ state }: SidePreviewProps) {
 
   const resultCount = getProductsForFilters(filters).length
 
-  type CartItem = {
-    id: string
-    title: string
-    slug?: string
-    price?: number
-    currency?: string
-    brand?: string
-    coverImage?: string | null
-    quantity: number
-  }
-
-  const CART_STORAGE_KEY = 'dob:cart'
   const [cartItems, setCartItems] = useState<CartItem[]>([])
 
   const cartTotals = useMemo(() => {
@@ -52,18 +47,16 @@ export function SidePreview({ state }: SidePreviewProps) {
     if (typeof window === 'undefined') return
 
     const loadCart = () => {
-      const raw = window.localStorage.getItem(CART_STORAGE_KEY)
-      const items = raw ? (JSON.parse(raw) as CartItem[]) : []
-      setCartItems(items)
+      setCartItems(readCart())
     }
 
     loadCart()
     const handler = () => loadCart()
-    window.addEventListener('dob:cart-updated', handler)
+    window.addEventListener(CART_UPDATED_EVENT, handler)
     window.addEventListener('storage', handler)
 
     return () => {
-      window.removeEventListener('dob:cart-updated', handler)
+      window.removeEventListener(CART_UPDATED_EVENT, handler)
       window.removeEventListener('storage', handler)
     }
   }, [])
@@ -72,8 +65,8 @@ export function SidePreview({ state }: SidePreviewProps) {
     if (typeof window === 'undefined') return
     const next = cartItems.filter((item) => item.id !== id)
     setCartItems(next)
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next))
-    window.dispatchEvent(new Event('dob:cart-updated'))
+    writeCart(next)
+    emitCartUpdated()
   }
 
   const handleIncrement = (id: string) => {
@@ -82,8 +75,8 @@ export function SidePreview({ state }: SidePreviewProps) {
       item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
     )
     setCartItems(next)
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next))
-    window.dispatchEvent(new Event('dob:cart-updated'))
+    writeCart(next)
+    emitCartUpdated()
   }
 
   const handleDecrement = (id: string) => {
@@ -94,8 +87,8 @@ export function SidePreview({ state }: SidePreviewProps) {
       )
       .filter((item) => item.quantity > 0)
     setCartItems(next)
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next))
-    window.dispatchEvent(new Event('dob:cart-updated'))
+    writeCart(next)
+    emitCartUpdated()
   }
 
   return (

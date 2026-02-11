@@ -44,5 +44,42 @@ export const SiteSettings: GlobalConfig = {
         },
       ],
     },
+    {
+      name: 'smtp',
+      type: 'group',
+      admin: {
+        description:
+          'Configurazione SMTP per invio email. In produzione mantieni sincronizzati questi valori con le variabili ambiente.',
+      },
+      fields: [
+        {
+          name: 'host',
+          type: 'text',
+        },
+        {
+          name: 'port',
+          type: 'number',
+          defaultValue: 587,
+        },
+        {
+          name: 'secure',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+        {
+          name: 'user',
+          type: 'text',
+        },
+        {
+          name: 'pass',
+          type: 'text',
+        },
+        {
+          name: 'from',
+          type: 'text',
+          defaultValue: 'no-reply@dobmilano.it',
+        },
+      ],
+    },
   ],
 }

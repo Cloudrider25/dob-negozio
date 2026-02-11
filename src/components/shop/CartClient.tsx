@@ -5,19 +5,13 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Minus, Plus, Trash } from '@/components/shop-navigator/icons'
-
-type CartItem = {
-  id: string
-  title: string
-  slug?: string
-  price?: number
-  currency?: string
-  brand?: string
-  coverImage?: string | null
-  quantity: number
-}
-
-const CART_STORAGE_KEY = 'dob:cart'
+import {
+  CART_UPDATED_EVENT,
+  emitCartUpdated,
+  readCart,
+  writeCart,
+  type CartItem,
+} from '@/lib/cartStorage'
 
 const formatPrice = (value: number, currency?: string) =>
   new Intl.NumberFormat('it-IT', {
@@ -33,15 +27,13 @@ export function CartClient({ locale }: { locale: string }) {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const load = () => {
-      const raw = window.localStorage.getItem(CART_STORAGE_KEY)
-      const parsed = raw ? (JSON.parse(raw) as CartItem[]) : []
-      setItems(parsed)
+      setItems(readCart())
     }
     load()
-    window.addEventListener('dob:cart-updated', load)
+    window.addEventListener(CART_UPDATED_EVENT, load)
     window.addEventListener('storage', load)
     return () => {
-      window.removeEventListener('dob:cart-updated', load)
+      window.removeEventListener(CART_UPDATED_EVENT, load)
       window.removeEventListener('storage', load)
     }
   }, [])
@@ -49,8 +41,8 @@ export function CartClient({ locale }: { locale: string }) {
   const updateItems = (next: CartItem[]) => {
     setItems(next)
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next))
-      window.dispatchEvent(new Event('dob:cart-updated'))
+      writeCart(next)
+      emitCartUpdated()
     }
   }
 
@@ -245,9 +237,12 @@ export function CartClient({ locale }: { locale: string }) {
               <span>Totale</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
-            <button className="w-full mt-2 px-4 py-3 rounded-lg bg-accent-cyan text-text-inverse">
+            <Link
+              href={`/${locale}/checkout`}
+              className="w-full mt-2 px-4 py-3 rounded-lg bg-accent-cyan text-text-inverse text-center block"
+            >
               Procedi al checkout
-            </button>
+            </Link>
           </div>
         </div>
       </section>

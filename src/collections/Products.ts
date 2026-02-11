@@ -873,6 +873,15 @@ export const Products: CollectionConfig = {
                   },
                 },
                 {
+                  name: 'allocatedStock',
+                  label: 'Allocated stock',
+                  type: 'number',
+                  defaultValue: 0,
+                  admin: {
+                    readOnly: true,
+                  },
+                },
+                {
                   name: 'averageCost',
                   label: 'Average Cost',
                   type: 'number',

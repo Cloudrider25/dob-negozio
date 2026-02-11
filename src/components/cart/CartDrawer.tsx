@@ -5,20 +5,14 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
 import styles from './CartDrawer.module.css'
-
-type CartItem = {
-  id: string
-  title: string
-  slug?: string
-  price?: number
-  currency?: string
-  brand?: string
-  coverImage?: string | null
-  quantity: number
-}
-
-const CART_STORAGE_KEY = 'dob:cart'
-const OPEN_EVENT = 'dob:cart-open'
+import {
+  CART_OPEN_EVENT,
+  CART_UPDATED_EVENT,
+  readCart,
+  writeCart,
+  type CartItem,
+  emitCartUpdated,
+} from '@/lib/cartStorage'
 
 const formatPrice = (value: number, currency?: string) =>
   new Intl.NumberFormat('it-IT', {
@@ -35,22 +29,20 @@ export function CartDrawer({ locale }: { locale: string }) {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const load = () => {
-      const raw = window.localStorage.getItem(CART_STORAGE_KEY)
-      const parsed = raw ? (JSON.parse(raw) as CartItem[]) : []
-      setItems(parsed)
+      setItems(readCart())
     }
     const openDrawer = () => {
       load()
       setOpen(true)
     }
     load()
-    window.addEventListener('dob:cart-updated', load)
+    window.addEventListener(CART_UPDATED_EVENT, load)
     window.addEventListener('storage', load)
-    window.addEventListener(OPEN_EVENT, openDrawer)
+    window.addEventListener(CART_OPEN_EVENT, openDrawer)
     return () => {
-      window.removeEventListener('dob:cart-updated', load)
+      window.removeEventListener(CART_UPDATED_EVENT, load)
       window.removeEventListener('storage', load)
-      window.removeEventListener(OPEN_EVENT, openDrawer)
+      window.removeEventListener(CART_OPEN_EVENT, openDrawer)
     }
   }, [])
 
@@ -66,8 +58,8 @@ export function CartDrawer({ locale }: { locale: string }) {
   const updateItems = (next: CartItem[]) => {
     setItems(next)
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next))
-      window.dispatchEvent(new Event('dob:cart-updated'))
+      writeCart(next)
+      emitCartUpdated()
     }
   }
 

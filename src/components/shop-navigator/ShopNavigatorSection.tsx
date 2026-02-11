@@ -10,6 +10,7 @@ import { MobileFlow } from '@/components/shop-navigator/components/MobileFlow'
 import { ShopNavigatorDataProvider } from '@/components/shop-navigator/data/shop-data-context'
 import { ServiceCarouselCard } from '@/components/ServiceCarouselCard'
 import type { ServicesCarouselItem } from '@/components/service-carousel/types'
+import { emitCartUpdated, readCart, writeCart, type CartItem } from '@/lib/cartStorage'
 import styles from './ShopNavigatorSection.module.css'
 
 type ViewMode = 'navigator' | 'classic'
@@ -23,28 +24,13 @@ type ClassicParams = {
   view: string
 }
 
-type CartItem = {
-  id: string
-  title: string
-  slug?: string
-  price?: number
-  currency?: string
-  brand?: string
-  coverImage?: string | null
-  quantity: number
-}
-
-const CART_STORAGE_KEY = 'dob:cart'
-
 function ClassicShopView({
   products,
   params,
-  onAddToCart,
   productBasePath,
 }: {
   products: ProductCard[]
   params: ClassicParams
-  onAddToCart: (product: ProductCard) => void
   productBasePath: string
 }) {
   const filtered = useMemo(() => {
@@ -143,8 +129,7 @@ export function ShopNavigatorSection({
   const handleAddToCart = (product?: ProductCard) => {
     if (!product) return
     if (typeof window === 'undefined') return
-    const raw = window.localStorage.getItem(CART_STORAGE_KEY)
-    const items: CartItem[] = raw ? (JSON.parse(raw) as CartItem[]) : []
+    const items = readCart()
     const existing = items.find((item) => item.id === product.id)
     if (existing) {
       existing.quantity += 1
@@ -160,8 +145,8 @@ export function ShopNavigatorSection({
         quantity: 1,
       })
     }
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
-    window.dispatchEvent(new Event('dob:cart-updated'))
+    writeCart(items)
+    emitCartUpdated()
   }
 
   return (
@@ -185,7 +170,6 @@ export function ShopNavigatorSection({
                   key="classic"
                   products={data.products}
                   params={initialClassicParams}
-                  onAddToCart={handleAddToCart}
                   productBasePath={productBasePath}
                 />
               )}
@@ -197,7 +181,6 @@ export function ShopNavigatorSection({
               <ClassicShopView
                 products={data.products}
                 params={initialClassicParams}
-                onAddToCart={handleAddToCart}
                 productBasePath={productBasePath}
               />
             ) : (

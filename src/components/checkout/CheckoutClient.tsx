@@ -2,23 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
-
+import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import styles from '@/app/(checkout)/[locale]/checkout/checkout.module.css'
-
-type CartItem = {
-  id: string
-  title: string
-  slug?: string
-  price?: number
-  currency?: string
-  brand?: string
-  coverImage?: string | null
-  quantity: number
-}
-
-const CART_STORAGE_KEY = 'dob:cart'
+import { emitCartUpdated, readCart, writeCart, type CartItem } from '@/lib/cartStorage'
 
 const formatPrice = (value: number, currency?: string) =>
   new Intl.NumberFormat('it-IT', {
@@ -28,8 +16,7 @@ const formatPrice = (value: number, currency?: string) =>
   }).format(value)
 
 export function CheckoutClient({ notice, locale }: { notice?: string | null; locale: string }) {
-  const [items, setItems] = useState<CartItem[]>([])
-  const isRemote = (url?: string | null) => Boolean(url && /^https?:\/\//i.test(url))
+  const router = useRouter()
   const [formState, setFormState] = useState({
     email: '',
     firstName: '',
@@ -38,30 +25,74 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     postalCode: '',
     city: '',
     province: '',
+    phone: '',
   })
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const load = () => {
-      const raw = window.localStorage.getItem(CART_STORAGE_KEY)
-      const parsed = raw ? (JSON.parse(raw) as CartItem[]) : []
-      setItems(parsed)
-    }
-    load()
-    window.addEventListener('dob:cart-updated', load)
-    window.addEventListener('storage', load)
-    return () => {
-      window.removeEventListener('dob:cart-updated', load)
-      window.removeEventListener('storage', load)
-    }
-  }, [])
+  const items = useMemo(() => readCart(), [])
+  const isRemote = (url?: string | null) => Boolean(url && /^https?:\/\//i.test(url))
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + (item.price ?? 0) * item.quantity, 0),
     [items],
   )
 
-  const isFormComplete = Object.values(formState).every((value) => value.trim().length > 0)
+  const isFormComplete = useMemo(() => {
+    const required = [
+      formState.email,
+      formState.firstName,
+      formState.lastName,
+      formState.address,
+      formState.postalCode,
+      formState.city,
+      formState.province,
+    ]
+    return required.every((value) => value.trim().length > 0)
+  }, [formState])
+
+  const onSubmit = async () => {
+    if (submitting) return
+    if (!isFormComplete) {
+      setError('Compila tutti i campi obbligatori prima di continuare.')
+      return
+    }
+    if (items.length === 0) {
+      setError('Il carrello è vuoto.')
+      return
+    }
+
+    setSubmitting(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/shop/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          locale,
+          customer: formState,
+          items: items.map((item: CartItem) => ({ id: item.id, quantity: item.quantity })),
+        }),
+      })
+
+      const data = (await response.json()) as { error?: string; orderNumber?: string; orderId?: string | number }
+      if (!response.ok) {
+        throw new Error(data.error || 'Checkout non riuscito.')
+      }
+
+      writeCart([])
+      emitCartUpdated()
+      const orderCode = data.orderNumber || String(data.orderId || '')
+      router.push(`/${locale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Checkout non riuscito.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -73,29 +104,16 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             <span>›</span>
             <span>Information</span>
             <span>›</span>
-            <span>Shipping</span>
-            <span>›</span>
             <span>Payment</span>
           </div>
         </div>
 
         {notice ? <div className={styles.notice}>{notice}</div> : null}
-
-        <div className={styles.express}>
-          <div className={styles.expressTitle}>Express checkout</div>
-          <div className={styles.expressRow}>
-            <div className={styles.expressButton}>Shop Pay</div>
-            <div className={styles.expressButton}>PayPal</div>
-            <div className={styles.expressButton}>G Pay</div>
-          </div>
-        </div>
-
-        <div className={styles.orDivider}>OR</div>
+        {error ? <div className={styles.notice}>{error}</div> : null}
 
         <div className={styles.fieldGroup}>
           <div className={styles.labelRow}>
-            <span>Contact</span>
-            <span>Sign in</span>
+            <span>Contatto</span>
           </div>
           <input
             className={styles.input}
@@ -105,18 +123,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
               setFormState((prev) => ({ ...prev, email: event.target.value }))
             }
           />
-          <label className={styles.checkboxRow}>
-            <input type="checkbox" />
-            Email me with news and offers
-          </label>
         </div>
 
         <div className={styles.fieldGroup}>
           <div className={styles.labelRow}>
-            <span>Shipping address</span>
+            <span>Indirizzo di spedizione</span>
           </div>
-          <select className={styles.select}>
-            <option>Italy</option>
+          <select className={styles.select} defaultValue="Italy">
+            <option value="Italy">Italy</option>
           </select>
           <div className={styles.splitRow}>
             <input
@@ -144,7 +158,6 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
               setFormState((prev) => ({ ...prev, address: event.target.value }))
             }
           />
-          <input className={styles.input} placeholder="Apartment, suite, etc. (optional)" />
           <div className={styles.splitRowThree}>
             <input
               className={styles.input}
@@ -162,67 +175,57 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 setFormState((prev) => ({ ...prev, city: event.target.value }))
               }
             />
-            <select
-              className={styles.select}
+            <input
+              className={styles.input}
+              placeholder="Province"
               value={formState.province}
               onChange={(event) =>
                 setFormState((prev) => ({ ...prev, province: event.target.value }))
               }
-            >
-              <option value="">Province</option>
-              <option>Milano</option>
-              <option>Roma</option>
-              <option>Torino</option>
-            </select>
+            />
           </div>
-          <input className={styles.input} placeholder="Phone" />
-          <label className={styles.checkboxRow}>
-            <input type="checkbox" />
-            Text me with news and offers (US &amp; CA only)
-          </label>
+          <input
+            className={styles.input}
+            placeholder="Phone (optional)"
+            value={formState.phone}
+            onChange={(event) =>
+              setFormState((prev) => ({ ...prev, phone: event.target.value }))
+            }
+          />
         </div>
 
         <div className={styles.actionsRow}>
-          {isFormComplete ? (
-            <>
-              <Link className={styles.returnLink} href={`/${locale}/cart`}>
-                <span className={styles.returnIcon}>‹</span>
-                Return to cart
-              </Link>
-              <button className={styles.continueButton} type="button">
-                Continue to shipping
-              </button>
-            </>
-          ) : (
-            <button
-              className={styles.returnLink}
-              type="button"
-              onClick={() => window.history.back()}
-            >
-              <span className={styles.returnIcon}>‹</span>
-              Ritorna allo shopping
-            </button>
-          )}
+          <Link className={styles.returnLink} href={`/${locale}/cart`}>
+            <span className={styles.returnIcon}>‹</span>
+            Return to cart
+          </Link>
+          <button
+            className={styles.continueButton}
+            type="button"
+            disabled={submitting}
+            onClick={onSubmit}
+          >
+            {submitting ? 'Invio ordine...' : 'Conferma ordine'}
+          </button>
         </div>
 
         <div className={styles.footerLinks}>
-          <Link href="#" className={styles.footerLink}>
+          <Link href={`/${locale}/refund`} className={styles.footerLink}>
             Refund policy
           </Link>
-          <Link href="#" className={styles.footerLink}>
+          <Link href={`/${locale}/shipping`} className={styles.footerLink}>
             Shipping
           </Link>
-          <Link href="#" className={styles.footerLink}>
+          <Link href={`/${locale}/privacy`} className={styles.footerLink}>
             Privacy policy
           </Link>
-          <Link href="#" className={styles.footerLink}>
+          <Link href={`/${locale}/terms`} className={styles.footerLink}>
             Terms of service
           </Link>
-          <Link href="#" className={styles.footerLink}>
+          <Link href={`/${locale}/contact`} className={styles.footerLink}>
             Contact
           </Link>
         </div>
-        <div className={styles.cookieLink}>Cookie Preferences</div>
       </section>
 
       <aside className={styles.summary}>
@@ -256,20 +259,13 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           ))
         )}
 
-        <div className={styles.codeRow}>
-          <input className={styles.input} placeholder="Discount code or gift card" />
-          <button className={styles.applyButton} type="button">
-            Apply
-          </button>
-        </div>
-
         <div className={styles.summaryRow}>
           <span>Subtotal</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
         <div className={styles.summaryRow}>
           <span>Shipping</span>
-          <span>Calculated at next step</span>
+          <span>{formatPrice(0)}</span>
         </div>
         <div className={styles.totalRow}>
           <span>Total</span>

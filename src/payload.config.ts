@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -35,6 +36,8 @@ import { Promotions } from './collections/Promotions'
 import { Programs } from './collections/Programs'
 import { Posts } from './collections/Posts'
 import { Pages } from './collections/Pages'
+import { Orders } from './collections/Orders'
+import { OrderItems } from './collections/OrderItems'
 import { SiteSettings } from './globals/SiteSettings'
 import { InstagramSettings } from './globals/InstagramSettings'
 import { seedShopTaxonomies } from './seed/shop-seed'
@@ -78,6 +81,8 @@ export default buildConfig({
     Services,
     Promotions,
     Programs,
+    Orders,
+    OrderItems,
     Posts,
     Pages,
   ],
@@ -88,6 +93,20 @@ export default buildConfig({
     fallback: true,
   },
   editor: lexicalEditor(),
+  email: nodemailerAdapter({
+    defaultFromAddress: process.env.SMTP_FROM || 'no-reply@dobmilano.it',
+    defaultFromName: 'DOB Milano',
+    skipVerify: true,
+    transportOptions: {
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    },
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

@@ -95,6 +95,8 @@ export interface Config {
     services: Service;
     promotions: Promotion;
     programs: Program;
+    orders: Order;
+    'order-items': OrderItem;
     posts: Post;
     pages: Page;
     'payload-kv': PayloadKv;
@@ -132,6 +134,8 @@ export interface Config {
     services: ServicesSelect<false> | ServicesSelect<true>;
     promotions: PromotionsSelect<false> | PromotionsSelect<true>;
     programs: ProgramsSelect<false> | ProgramsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    'order-items': OrderItemsSelect<false> | OrderItemsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -626,6 +630,7 @@ export interface Product {
   productAreas?: (number | ProductArea)[] | null;
   timingProducts?: (number | TimingProduct)[] | null;
   stock?: number | null;
+  allocatedStock?: number | null;
   averageCost?: number | null;
   total?: number | null;
   lastDeliveryDate?: string | null;
@@ -972,6 +977,57 @@ export interface Program {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  orderNumber: string;
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded' | 'fulfilled';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentProvider: string;
+  paymentReference?: string | null;
+  currency: string;
+  locale: string;
+  subtotal: number;
+  shippingAmount: number;
+  discountAmount: number;
+  total: number;
+  customerEmail: string;
+  customerFirstName: string;
+  customerLastName: string;
+  customerPhone?: string | null;
+  shippingAddress: {
+    address: string;
+    postalCode: string;
+    city: string;
+    province: string;
+    country: string;
+  };
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-items".
+ */
+export interface OrderItem {
+  id: number;
+  order: number | Order;
+  product: number | Product;
+  productTitle: string;
+  productSlug?: string | null;
+  productBrand?: string | null;
+  productCoverImage?: string | null;
+  currency: string;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -1255,6 +1311,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'programs';
         value: number | Program;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'order-items';
+        value: number | OrderItem;
       } | null)
     | ({
         relationTo: 'posts';
@@ -1667,6 +1731,7 @@ export interface ProductsSelect<T extends boolean = true> {
   productAreas?: T;
   timingProducts?: T;
   stock?: T;
+  allocatedStock?: T;
   averageCost?: T;
   total?: T;
   lastDeliveryDate?: T;
@@ -1874,6 +1939,57 @@ export interface ProgramsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  status?: T;
+  paymentStatus?: T;
+  paymentProvider?: T;
+  paymentReference?: T;
+  currency?: T;
+  locale?: T;
+  subtotal?: T;
+  shippingAmount?: T;
+  discountAmount?: T;
+  total?: T;
+  customerEmail?: T;
+  customerFirstName?: T;
+  customerLastName?: T;
+  customerPhone?: T;
+  shippingAddress?:
+    | T
+    | {
+        address?: T;
+        postalCode?: T;
+        city?: T;
+        province?: T;
+        country?: T;
+      };
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-items_select".
+ */
+export interface OrderItemsSelect<T extends boolean = true> {
+  order?: T;
+  product?: T;
+  productTitle?: T;
+  productSlug?: T;
+  productBrand?: T;
+  productCoverImage?: T;
+  currency?: T;
+  unitPrice?: T;
+  quantity?: T;
+  lineTotal?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -2051,6 +2167,17 @@ export interface SiteSetting {
     facebook?: string | null;
     instagram?: string | null;
   };
+  /**
+   * Configurazione SMTP per invio email. In produzione mantieni sincronizzati questi valori con le variabili ambiente.
+   */
+  smtp?: {
+    host?: string | null;
+    port?: number | null;
+    secure?: boolean | null;
+    user?: string | null;
+    pass?: string | null;
+    from?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2084,6 +2211,16 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         facebook?: T;
         instagram?: T;
+      };
+  smtp?:
+    | T
+    | {
+        host?: T;
+        port?: T;
+        secure?: T;
+        user?: T;
+        pass?: T;
+        from?: T;
       };
   updatedAt?: T;
   createdAt?: T;

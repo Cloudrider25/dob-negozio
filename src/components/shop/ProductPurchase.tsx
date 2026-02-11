@@ -1,19 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-
-type CartItem = {
-  id: string
-  title: string
-  slug?: string
-  price?: number
-  currency?: string
-  brand?: string
-  coverImage?: string | null
-  quantity: number
-}
-
-const CART_STORAGE_KEY = 'dob:cart'
+import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/cartStorage'
 
 export function ProductPurchase({
   product,
@@ -31,21 +18,13 @@ export function ProductPurchase({
   }
   className?: string
   buttonLabel?: string
-}) {
-  const [qty, setQty] = useState(1)
-
-  const priceLabel = useMemo(() => {
-    if (typeof product.price !== 'number') return null
-    return `${product.currency ?? '€'} ${product.price.toFixed(2)}`
-  }, [product.currency, product.price])
-
+  }) {
   const handleAddToCart = () => {
     if (typeof window === 'undefined') return
-    const raw = window.localStorage.getItem(CART_STORAGE_KEY)
-    const items: CartItem[] = raw ? (JSON.parse(raw) as CartItem[]) : []
+    const items = readCart()
     const existing = items.find((item) => item.id === product.id)
     if (existing) {
-      existing.quantity += qty
+      existing.quantity += 1
     } else {
       items.push({
         id: product.id,
@@ -55,12 +34,12 @@ export function ProductPurchase({
         currency: product.currency,
         brand: product.brand,
         coverImage: product.coverImage ?? null,
-        quantity: qty,
+        quantity: 1,
       })
     }
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
-    window.dispatchEvent(new Event('dob:cart-updated'))
-    window.dispatchEvent(new Event('dob:cart-open'))
+    writeCart(items)
+    emitCartUpdated()
+    emitCartOpen()
   }
 
   return (

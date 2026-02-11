@@ -39,7 +39,7 @@ export const dictionary = {
     shop: {
       title: 'Shop',
       lead: 'La selezione di prodotti professionali, disponibili online.',
-      note: 'E-commerce in fase di configurazione con pagamenti Stripe.',
+      note: 'Acquista online con checkout sicuro e conferma ordine immediata.',
     },
     journal: {
       title: 'Journal',
@@ -58,7 +58,7 @@ export const dictionary = {
     cart: {
       title: 'Carrello',
       lead: 'Riepilogo dei prodotti selezionati.',
-      note: 'La funzionalità di checkout sarà disponibile a breve.',
+      note: 'Controlla i prodotti e completa l\'ordine in pochi passaggi.',
     },
     common: {
       discover: 'Scopri di piu',
@@ -110,7 +110,7 @@ export const dictionary = {
     shop: {
       title: 'Shop',
       lead: 'A curated selection of professional products, available online.',
-      note: 'E-commerce setup in progress with Stripe payments.',
+      note: 'Shop online with secure checkout and immediate order confirmation.',
     },
     journal: {
       title: 'Journal',
@@ -129,7 +129,7 @@ export const dictionary = {
     cart: {
       title: 'Cart',
       lead: 'Review the products you have selected.',
-      note: 'Checkout will be available soon.',
+      note: 'Review items and complete your order in a few steps.',
     },
     common: {
       discover: 'Discover more',
@@ -181,7 +181,7 @@ export const dictionary = {
     shop: {
       title: 'Shop',
       lead: 'Подборка профессиональных продуктов, доступных онлайн.',
-      note: 'Настройка e-commerce и платежей Stripe в процессе.',
+      note: 'Покупайте онлайн с безопасным оформлением и моментальным подтверждением заказа.',
     },
     journal: {
       title: 'Journal',
@@ -200,7 +200,7 @@ export const dictionary = {
     cart: {
       title: 'Корзина',
       lead: 'Просмотр выбранных товаров.',
-      note: 'Оформление заказа будет доступно в ближайшее время.',
+      note: 'Проверьте товары и завершите оформление в несколько шагов.',
     },
     common: {
       discover: 'Узнать больше',
