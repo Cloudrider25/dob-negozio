@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Listino prezzi DOB Milano</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+      @font-face {
+        font-family: 'DOB Display';
+        src: url('file:///Users/ale/Progetti/DOBMilano/public/fonts/Dobfont-Regular-new_FIXEDU.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      :root {
+        --bg: #EDF2F2;
+        --bg-2: #F5F2ED;
+        --page-bg: #FFFFFF;
+        --paper: #EEE;
+        --sand: #E9E2D6;
+        --text-primary: rgba(7, 7, 10, 0.92);
+        --text-secondary: rgba(7, 7, 10, 0.7);
+        --text-muted: rgba(7, 7, 10, 0.5);
+        --stroke: rgba(7, 7, 10, 0.08);
+        --tech-cyan: #50A4F8;
+        --pearl-grad: linear-gradient(180deg, #FFFFFF 0%, #F5F2ED 60%, #F0ECE6 100%);
+        --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.12);
+        --radius-card: 20px;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Instrument Sans', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+        background: var(--pearl-grad);
+        color: var(--text-primary);
+      }
+
+      .page {
+        padding: 24mm 20mm 22mm;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 18mm;
+      }
+
+      .logo {
+        width: 140px;
+        height: auto;
+      }
+
+      .title-block {
+        text-align: right;
+      }
+
+      .title {
+        font-family: 'DOB Display', 'Times New Roman', serif;
+        font-size: 28px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      .meta {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .area {
+        margin-bottom: 18mm;
+        page-break-inside: avoid;
+      }
+
+      .area-title {
+        font-family: 'DOB Display', 'Times New Roman', serif;
+        font-size: 20px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin: 0 0 8mm;
+      }
+
+      .objective {
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid var(--stroke);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-soft);
+        padding: 16px 18px 8px;
+        margin-bottom: 10mm;
+        page-break-inside: avoid;
+      }
+
+      .objective-title {
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 0 0 12px;
+        color: var(--text-secondary);
+      }
+
+      .treatment {
+        margin-bottom: 12px;
+        page-break-inside: avoid;
+      }
+
+      .treatment-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 8px;
+        color: var(--text-primary);
+      }
+
+      .service-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .service-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 90px 120px;
+        gap: 16px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 14px;
+        border: 1px solid rgba(7, 7, 10, 0.06);
+      }
+
+      .service-name {
+        font-size: 13px;
+        line-height: 1.35;
+        color: var(--text-primary);
+      }
+
+      .service-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .service-price {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .footer-note {
+        margin-top: 12mm;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <img class="logo" src="file:///Users/ale/Progetti/DOBMilano/public/brand/logo-black.png" alt="DOB Milano" />
+        <div class="title-block">
+          <h1 class="title">Listino Prezzi</h1>
+          <p class="subtitle">Light theme edition · Milano</p>
+          <div class="meta">Aggiornato al 03 febbraio 2026</div>
+        </div>
+      </header>
+
+      
+        <section class="area">
+          <div class="area-title">Corpo</div>
+          
+            <div class="objective">
+              <div class="objective-title">Lift & compattezza</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Icoone — Viso</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Icoon Viso 10 sedute</div>
+                      <div class="service-meta">35 min</div>
+                      <div class="service-price">450 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Viso 5 sedute</div>
+                      <div class="service-meta">35 min</div>
+                      <div class="service-price">220 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Viso Seduta singola</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Rimodellamento & drenaggio meccanico</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Icoone — Corpo</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 1 focus (1 seduta)</div>
+                      <div class="service-meta">40 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 1 focus (10 sedute)</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">540 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 1 focus (15 sedute)</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">760 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 1 focus (20 sedute)</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">950 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 2 focus (10 sedute)</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">670 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 2 focus (15 sedute)</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">950 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 2 focus (20 sedute)</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">1.190 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoon Corpo base + 2 focus seduta singola</div>
+                      <div class="service-meta">40 min</div>
+                      <div class="service-price">75 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Icoone Corpo promo 5</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">400 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+        </section>
+      
+        <section class="area">
+          <div class="area-title">Epilazione</div>
+          
+            <div class="objective">
+              <div class="objective-title">Laser Donna — Corpo</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Laser Donna Corpo</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">1/2 gamba</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">100 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Addome</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">120 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Ascelle</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Avanbraccia</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">85 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Braccia</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Cosce</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">145 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Decollete</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">90 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Gambe totali</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">230 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Glutei</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">110 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Inguine base</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Inguine tot</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">110 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Linea alba</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">45 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Mani</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">40 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Pedi</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">40 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Schiena Interiore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">90 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Schiena superiore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">90 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Schiena totale</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">160 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Seno</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">35 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Spalle</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">75 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Sterno</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Laser Donna — Viso</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Laser Donna Viso</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Basette</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Collo anteriore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Collo posteriore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Fronte bassa</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Guance</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Labbra</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">40 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Mento</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">45 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Viso totale</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">150 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Zigomi</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">40 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Laser Uomo — Corpo</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Laser Uomo Corpo</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">1/2 Gamba</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">120 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Ascelle</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Avanbraccia</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">90 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Braccia</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">75 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Cosce</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">170 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Gambe Totale</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">260 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Glutei</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">130 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Mani</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Pedi</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Schiena inferiore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">120 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Schiena superiore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">150 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Schiena totale</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">180 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Spalle</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">0 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Torace totale</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">0 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Laser Uomo — Viso</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Laser Uomo Viso</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Basette</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Collo anteriore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Collop Posteriore</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Fronte bassa</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Guance</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">80 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Labbra</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Mento</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Viso totale</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">170 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Zigomi</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">45 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+        </section>
+      
+        <section class="area">
+          <div class="area-title">Massaggio</div>
+          
+            <div class="objective">
+              <div class="objective-title">Decontratturante</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Massaggi</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Massaggio corpo De contrutunante (45 min)</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Massaggio corpo De contrutunante (60 min)</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">65 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Drenaggio & leggerezza</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Massaggi</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Massaggio corpo LimfoDrenante</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Massaggio Drenante</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">55 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Pacchetti</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Massaggi pac</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Massaggio Drenante - 5 sessione</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">275 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Relax & rituali</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Massaggi</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Massaggio Ayurvedico</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">80 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Viso lifting manuale</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Massaggi</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Massaggio Viso Kobido 60 min</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Massaggio Viso Kobido 90 min</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">100 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Massaggio Viso Lifting Express</div>
+                      <div class="service-meta">45 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Massaggio Viso Lifting profondo</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">70 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+        </section>
+      
+        <section class="area">
+          <div class="area-title">Viso</div>
+          
+            <div class="objective">
+              <div class="objective-title">Anti-fotoinvecchiamento / Rinnovo</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Trattamenti viso con HL</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Trat-to Renew Formula anti-fotoinvecchiamento con Thermoacti</div>
+                      <div class="service-meta">75 min</div>
+                      <div class="service-price">90 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Detersione & Skin Reset</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Trattamenti viso di base</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Pulizia viso + 15 min Thermoactive + maschera</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">125 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Pulizia viso con Ultrasuoni etc (75 min)</div>
+                      <div class="service-meta">75 min</div>
+                      <div class="service-price">120 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Pulizia Viso con Ultrasuoni etc (90 min)</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">135 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Pulizia Viso Personalizzato (60 min)</div>
+                      <div class="service-meta">60 min</div>
+                      <div class="service-price">110 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Pulizia Viso Personalizzato (90 min)</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">135 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Diagnosi & Piano</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Skin Analyser</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Skin analyser consultation</div>
+                      <div class="service-meta">15 min</div>
+                      <div class="service-price">0 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Glow / Hydro-dermo</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Trattamenti Viso Avanzati</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Hydroficial treatment</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">170 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Lifting & Tono</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">Trattamenti Viso Avanzati</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">RF lifting collo + decoltee</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">60 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">RF lifting viso</div>
+                      <div class="service-meta">30 min</div>
+                      <div class="service-price">50 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+            <div class="objective">
+              <div class="objective-title">Protocolli professionali</div>
+              
+                <div class="treatment">
+                  <div class="treatment-title">IS Clinical</div>
+                  <div class="service-list">
+                    
+                    <div class="service-row">
+                      <div class="service-name">Foaming Enzyme</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">140 €</div>
+                    </div>
+                  
+                    <div class="service-row">
+                      <div class="service-name">Red Carpet</div>
+                      <div class="service-meta">90 min</div>
+                      <div class="service-price">150 €</div>
+                    </div>
+                  
+                  </div>
+                </div>
+              
+            </div>
+          
+        </section>
+      
+
+      <div class="footer-note">I prezzi sono indicativi e possono variare in base alla consulenza personalizzata.</div>
+    </div>
+  </body>
+</html>

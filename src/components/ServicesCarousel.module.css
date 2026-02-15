@@ -1,0 +1,11 @@
+.track {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  gap: var(--carousel-gap, 28px);
+}
+
+.card {
+  width: var(--carousel-card-width, 320px);
+  flex: 0 0 auto;
+}

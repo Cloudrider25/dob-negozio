@@ -1,0 +1,42 @@
+:root {
+  --text-primary: rgba(246, 242, 234, 0.92);
+  --text-secondary: rgba(246, 242, 234, 0.7);
+  --text-muted: rgba(246, 242, 234, 0.5);
+  --text-inverse: rgba(7, 7, 10, 0.92);
+  --stroke: rgba(255, 255, 255, 0.1);
+  --pearl-grad: var(--pearl-grad);
+  --pearl-highlight: var(--pearl-highlight);
+  --ui-accent: var(--neon-red);
+}
+
+body[data-theme="dark"],
+html[data-theme="dark"],
+body.dark {
+  --bg: var(--graphite);
+  --bg-2: var(--obsidian);
+  --page-bg: var(--obsidian);
+  --paper: var(--panel);
+  --sand: rgba(255, 255, 255, 0.08);
+  --text-primary: rgba(246, 242, 234, 0.92);
+  --text-secondary: rgba(246, 242, 234, 0.7);
+  --text-muted: rgba(246, 242, 234, 0.5);
+  --text-inverse: rgba(7, 7, 10, 0.92);
+  --stroke: rgba(255, 255, 255, 0.1);
+  --ui-accent: var(--neon-red);
+}
+
+body[data-theme="light"],
+html[data-theme="light"],
+body.light {
+  --bg: #edeef2;
+  --bg-2: var(--pearl-2);
+  --page-bg: var(--pearl-1);
+  --paper: var(--neutral-100);
+  --sand: #E9E2D6;
+  --text-primary: rgba(7, 7, 10, 0.92);
+  --text-secondary: rgba(7, 7, 10, 0.7);
+  --text-muted: rgba(7, 7, 10, 0.5);
+  --text-inverse: rgba(246, 242, 234, 0.92);
+  --stroke: rgba(7, 7, 10, 0.08);
+  --ui-accent: var(--tech-cyan);
+}

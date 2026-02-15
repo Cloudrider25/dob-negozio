@@ -1,0 +1,122 @@
+'use client'
+
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
+import { getAccountDictionary } from '@/lib/account-i18n'
+
+import styles from './AuthForms.module.css'
+
+const getErrorMessage = (payload: unknown, fallback: string) => {
+  if (payload && typeof payload === 'object') {
+    const record = payload as { message?: unknown; errors?: Array<{ message?: unknown }> }
+    if (typeof record.message === 'string' && record.message.trim().length > 0) {
+      return record.message
+    }
+    if (Array.isArray(record.errors) && typeof record.errors[0]?.message === 'string') {
+      return record.errors[0].message
+    }
+  }
+  return fallback
+}
+
+export function SignInForm({ locale }: { locale: string }) {
+  const router = useRouter()
+  const copy = getAccountDictionary(locale).auth.signIn
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (submitting) return
+
+    setSubmitting(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = (await response.json().catch(() => ({}))) as unknown
+      if (!response.ok) {
+        setError(getErrorMessage(data, copy.errors.generic))
+        return
+      }
+
+      router.push(`/${locale}`)
+      router.refresh()
+    } catch {
+      setError(copy.errors.network)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <form className={styles.card} onSubmit={onSubmit}>
+      <h1 className={styles.title}>{copy.title}</h1>
+
+      {error ? <p className={`${styles.message} ${styles.error}`}>{error}</p> : null}
+
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="signin-email">
+          {copy.emailLabel}
+        </label>
+        <input
+          id="signin-email"
+          type="email"
+          className={styles.input}
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder={copy.emailPlaceholder}
+          autoComplete="email"
+          required
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="signin-password">
+          {copy.passwordLabel}
+        </label>
+        <input
+          id="signin-password"
+          type="password"
+          className={styles.input}
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder={copy.passwordPlaceholder}
+          autoComplete="current-password"
+          required
+        />
+      </div>
+
+      <hr className={styles.separator} />
+
+      <div className={styles.actions}>
+        <button className={styles.submit} type="submit" disabled={submitting}>
+          {submitting ? copy.submitting : copy.submit}
+        </button>
+
+        <Link className={styles.link} href={`/${locale}/forgot-password`}>
+          {copy.forgotPassword}
+        </Link>
+
+        <p className={styles.muted}>
+          {copy.noAccount}{' '}
+          <Link className={styles.link} href={`/${locale}/signup`}>
+            {copy.signupCta}
+          </Link>
+        </p>
+      </div>
+    </form>
+  )
+}

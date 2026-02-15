@@ -1,0 +1,62 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.topSpacing {
+  margin-bottom: 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.mainCol {
+  grid-column: span 9;
+  position: relative;
+}
+
+.sideCol {
+  grid-column: span 3;
+}
+
+.columnsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.splitCol {
+  grid-column: span 2;
+}
+
+.hiddenTitleWrap {
+  margin-bottom: 0.25rem;
+}
+
+.hiddenTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  user-select: none;
+}
+
+.mainContent {
+  flex: 1;
+  min-height: 440px;
+}
+
+.relative {
+  position: relative;
+}
+
+.minHeight {
+  min-height: 440px;
+}

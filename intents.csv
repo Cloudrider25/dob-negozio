@@ -1,0 +1,10 @@
+intent_code,label_it,description_it
+cleansing,Detersione / Pulizia,Trattamenti di pulizia e reset della pelle.
+hydrafacial,Hydrafacial,Trattamenti tipo Hydrofacial.
+lifting,Lifting / Tono,Lifting manuale o con macchinari.
+renewal,Rinnovo / Anti-fotoinvecchiamento,Trattamenti di rinnovo/antiage specifici.
+professional_protocol,Protocolli professionali (brand),Protocolli/brand (es. IS Clinical).
+consultation,Consulenza,Diagnosi e consultazioni.
+body_contouring,Rimodellamento corpo,Body contouring e drenaggio meccanico (es. Icoone).
+massage,Massaggio,Massaggi manuali corpo/viso.
+hair_removal,Epilazione,Rimozione peli con laser o ceretta.

@@ -1,0 +1,135 @@
+.card {
+  max-width: 760px;
+  margin: 0 auto;
+  color: #66625d;
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  text-align: center;
+  font-size: clamp(2.1rem, 1.9rem + 1.2vw, 3.4rem);
+  line-height: 1.05;
+  color: #66625d;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0 0 1.6rem;
+  text-align: center;
+  color: #66625d;
+  font-size: 1.05rem;
+}
+
+.field {
+  margin-bottom: 0.78rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.34rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #66625d;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #4e4b47;
+  border-radius: 14px;
+  height: 58px;
+  padding: 0 18px;
+  font-size: 1.05rem;
+  color: #44413e;
+  background: transparent;
+}
+
+.input::placeholder {
+  color: #66625d;
+}
+
+.inlineGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.78rem;
+}
+
+.separator {
+  margin: 0.6rem 0 0.75rem;
+  border: 0;
+  border-top: 2px solid #696661;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.submit {
+  min-width: 170px;
+  border-radius: 999px;
+  border: 1px solid #66625d;
+  background: transparent;
+  color: #66625d;
+  font-size: 1.05rem;
+  padding: 0.4rem 1.2rem;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link {
+  color: #66625d;
+  text-decoration: underline;
+  font-size: 0.95rem;
+}
+
+.muted {
+  margin: 0;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #66625d;
+}
+
+.message {
+  margin: 0 0 1rem;
+  border-radius: 10px;
+  padding: 0.75rem 0.95rem;
+  font-size: 0.92rem;
+}
+
+.error {
+  background: rgba(204, 0, 0, 0.1);
+  color: #8a1010;
+  border: 1px solid rgba(138, 16, 16, 0.25);
+}
+
+.success {
+  background: rgba(23, 122, 74, 0.12);
+  color: #175b3c;
+  border: 1px solid rgba(23, 91, 60, 0.25);
+}
+
+@media (max-width: 1100px) {
+  .title {
+    font-size: clamp(1.9rem, 5vw, 2.8rem);
+  }
+
+  .subtitle,
+  .muted,
+  .submit,
+  .link,
+  .message {
+    font-size: clamp(0.88rem, 2.7vw, 1rem);
+  }
+
+  .input {
+    height: 52px;
+    font-size: 1rem;
+  }
+}

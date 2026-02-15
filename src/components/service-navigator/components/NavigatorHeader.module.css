@@ -1,0 +1,97 @@
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 300;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 3rem;
+  }
+}
+
+.titleHighlight {
+  position: relative;
+  display: inline-block;
+}
+
+.titleUnderline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #4fd1c5, transparent);
+  opacity: 0.5;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  max-width: 42rem;
+  margin: 0 auto 1.5rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  display: inline-flex;
+}
+
+.pill {
+  transition: all 300ms ease;
+}
+
+.pillActive {
+  box-shadow: var(--shadow-soft);
+  border: 1px solid color-mix(in srgb, var(--tech-cyan) 40%, transparent);
+}
+
+.pillInactive {
+  border: 1px solid transparent;
+}
+
+.pillPadding {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.pillLabel {
+  color: var(--text-secondary);
+  transition: color 300ms ease;
+}
+
+.pillLabelActive {
+  color: var(--tech-cyan);
+}
+
+.pillLabelInactive {
+  color: var(--text-secondary);
+}
+
+.actionButton:hover .pillLabelInactive {
+  color: var(--text-primary);
+}
+
+.pillArrow {
+  color: var(--tech-cyan);
+  transition: transform 300ms ease;
+}
+
+.actionButton:hover .pillArrow {
+  transform: translateX(0.25rem);
+}

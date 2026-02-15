@@ -1,0 +1,118 @@
+.wrapper {
+  width: 100%;
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.tabButton {
+  padding: 0.75rem 2rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  transition: all 300ms ease;
+}
+
+.tabActive {
+  color: var(--text-primary);
+}
+
+.tabInactive {
+  color: var(--text-secondary);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tagButton {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  transition: all 300ms ease;
+  border: 1px solid var(--stroke);
+  color: var(--text-muted);
+}
+
+.tagActive {
+  border-color: var(--tech-cyan);
+  color: var(--tech-cyan);
+}
+
+.list {
+  max-width: 64rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--text-muted);
+}
+
+.cardContent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.cardText {
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.cardMeta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.bookButton {
+  flex-shrink: 0;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 300ms ease;
+}
+
+.card {
+  width: 100%;
+}
+
+.cardPadding {
+  padding: 1.5rem;
+}

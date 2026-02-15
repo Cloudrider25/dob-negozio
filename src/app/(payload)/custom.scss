@@ -1,0 +1,260 @@
+@font-face {
+  font-family: 'DOB Display';
+  src: url('/fonts/Dobfont-Regular-new_FIXEDU.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer payload {
+  :root {
+    --admin-sidebar-bg: #000000;
+    --admin-sidebar-panel: #010101;
+    --admin-sidebar-card: #000000;
+    --admin-sidebar-text: #ffffff;
+    --admin-sidebar-text-muted: #a2a2a2;
+    --admin-sidebar-border: rgba(255, 255, 255, 0.08);
+    --admin-sidebar-accent: #1f78ff;
+    --admin-sidebar-accent-strong: #0b6cf3;
+  }
+
+
+
+  .nav {
+    border-radius: 20px;
+    margin: 16px;
+    overflow: hidden;
+    border-right: 1px solid var(--admin-columns-divider);
+    margin-top: 0px;
+  }
+
+
+
+  .nav__scroll {
+    padding: 18px 16px 22px;
+    gap: 6px;
+  }
+
+  .nav__link,
+  .nav a,
+  .nav button {
+    color: var(--admin-sidebar-text);
+  }
+
+  .nav__link,
+  .nav-group__toggle {
+    border-radius: 12px;
+    padding: 9px 12px;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .nav__link:hover,
+  .nav-group__toggle:hover {
+    background: var(--admin-sidebar-card);
+    color: var(--admin-sidebar-text);
+  }
+
+  .nav__link--active,
+  .nav-group__toggle--active,
+  .nav__link:focus-visible,
+  .nav-group__toggle:focus-visible {
+    background: var(--admin-sidebar-accent);
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(13, 108, 243, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .nav__group-label,
+  .nav-group__label {
+
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 1rem;
+
+  }
+
+  .nav-group__label::before {
+    display: inline-block;
+    margin-right: 0.45rem;
+    font-size: 1.7rem;
+    line-height: 1;
+    vertical-align: top;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .nav-group.Vendite .nav-group__label::before {
+    content: '€';
+  }
+
+  .nav-group.Servizi .nav-group__label::before {
+    content: '✚';
+  }
+
+  .nav-group.Catalogo.Shop .nav-group__label::before {
+    content: '◫';
+  }
+
+  .nav-group.Routine.Engine .nav-group__label::before {
+    content: '⚡';
+  }
+
+  .nav-group.Contenuti .nav-group__label::before {
+    content: '✎';
+  }
+
+  .nav-group.Sistema .nav-group__label::before {
+    content: '⚙️';
+  }
+
+  .nav__icon {
+    color: inherit;
+    opacity: 0.9;
+  }
+
+  .nav-group__content {
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid var(--admin-sidebar-border);
+  }
+
+  .nav-group__content .nav__link {
+    background: transparent;
+    color: var(--admin-sidebar-text-muted);
+  }
+
+  .nav-group__content .nav__link--active {
+    background: var(--admin-sidebar-accent-strong);
+    color: #ffffff;
+  }
+
+  .nav__link:focus-visible,
+  .nav-group__toggle:focus-visible {
+    outline: 2px solid rgba(31, 120, 255, 0.5);
+    outline-offset: 2px;
+  }
+
+  .nav__header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.75rem;
+    padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  }
+
+  .adminSidebarBrand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 34px;
+    text-decoration: none;
+    margin-bottom: 12px;
+
+  }
+
+  .adminSidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5rem;
+    margin: 0 0 0.9rem;
+    padding: 0 0.25rem 0.55rem;
+    border-bottom: 1px solid var(--admin-sidebar-border);
+  }
+
+  .adminSidebarBrand__logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .adminSidebarBrand__text {
+    color: var(--admin-sidebar-text);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-size: 3.5rem;
+    line-height: 1;
+    font-family: 'DOB Display', 'Times New Roman', serif !important;
+  }
+
+  .template-default__nav-toggler-wrapper {
+    position: sticky;
+    z-index: var(--z-modal);
+    top: 12px;
+    left: 0;
+    height: 0;
+    width: var(--gutter-h);
+    display: flex;
+    justify-content: center;
+  }
+
+  .template-default__nav-toggler-wrapper:has(.nav-toggler--is-open) {
+    left: 230px;
+  }
+
+  /* Admin-wide visual language aligned with Routine Template Builder */
+  .template-default,
+  .payload-admin,
+  .payload__root {
+    color: var(--theme-text);
+    font-family: var(--font-body, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+    --admin-columns-divider: #ffffff;
+  }
+
+  .template-default h1,
+  .template-default h2,
+  .template-default h3,
+  .payload-admin h1,
+  .payload-admin h2,
+  .payload-admin h3 {
+    letter-spacing: 0.04em;
+    font-family: var(--font-body, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  }
+
+  .template-default h1,
+  .payload-admin h1 {
+    font-size: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+  }
+
+  .template-default h2,
+  .payload-admin h2 {
+    font-size: clamp(1.2rem, 1.05rem + 0.5vw, 1.5rem);
+  }
+
+  .template-default .card,
+  .template-default .drawer__content,
+
+  .payload-admin .card,
+  .payload-admin .render-fields {
+    border-radius: 16px;
+    border: 1px solid var(--theme-elevation-200);
+    background: var(--theme-elevation-0);
+  }
+
+    .template-default .collection-edit__form{
+    border-right: 1px solid var(--theme-elevation-200);
+    border-left: 1px solid var(--theme-elevation-200);
+
+
+  }
+
+  .template-default input:not([type='checkbox']):not([type='radio']),
+  .template-default textarea,
+  .template-default select,
+  .payload-admin input:not([type='checkbox']):not([type='radio']),
+  .payload-admin textarea,
+  .payload-admin select {
+    border-radius: 10px;
+    border: 1px solid var(--theme-elevation-200);
+    background: var(--theme-elevation-0);
+    color: var(--theme-text);
+  }
+
+  .template-default .btn,
+  .template-default button,
+  .payload-admin .btn,
+  .payload-admin button {
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+  }
+}
