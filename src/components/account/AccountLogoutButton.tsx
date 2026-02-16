@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { getAccountDictionary } from '@/lib/account-i18n'
 
 export function AccountLogoutButton({
@@ -47,14 +48,17 @@ export function AccountLogoutButton({
 
   return (
     <div className="flex flex-col gap-2">
-      <button
+      <Button
         type="button"
         onClick={onLogout}
         disabled={submitting}
-        className={className || 'rounded-full border border-stroke px-5 py-2 text-sm text-text-primary'}
+        kind="main"
+        size="sm"
+        interactive
+        className={className}
       >
         {submitting ? copy.submitting : label || copy.fallbackLabel}
-      </button>
+      </Button>
       {error ? <p className="m-0 text-xs text-[color:#8a1010]">{error}</p> : null}
     </div>
   )

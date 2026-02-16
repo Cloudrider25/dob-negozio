@@ -1,4 +1,4 @@
-export * from './icons'
+export * from '@/components/ui/icons'
 export * from './ConsultationForm'
 export * from './ProgressIndicator'
 export * from './PathBreadcrumb'

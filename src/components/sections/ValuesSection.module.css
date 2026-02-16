@@ -44,24 +44,7 @@
 
 
 .cta {
-  all: unset;
-  display: inline-block;
-  align-content: center;
-  justify-content: center;
-  border: 2px solid #7b756f;
-  border-radius: 40px;
-  height: 30px;
-  padding: .3rem 1.9rem .2rem;
-  font-size: max(.875rem + .2vw, .925vw);
-  font-weight: 400;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: #7b756f;
-  font-family: "Inter", sans-serif;
-  background: transparent;
-  cursor: pointer;
   width: max-content;
-  text-align: center;
   margin-top: 24px;
   align-self: start;
 }
@@ -148,9 +131,6 @@
 
   .cta {
     margin-top: 14px;
-    font-size: 0.75rem;
-    letter-spacing: 0.14em;
-    padding: 0.2rem 1rem;
     height: 32px;
   }
 }

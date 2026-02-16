@@ -1,10 +1,11 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 
 import type { ServicesCarouselItem } from './types'
 import styles from './UIC_CarouselCard.module.css'
+import { Button } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ui/button-link'
 
 export const UICCarouselCard = ({
   item,
@@ -36,13 +37,13 @@ export const UICCarouselCard = ({
           <span>{item.duration || ''}</span>
         </div>
         {item.href ? (
-          <Link className={styles.cta} href={item.href}>
+          <ButtonLink className={styles.cta} href={item.href} kind="card" size="sm" interactive>
             Scopri {item.title}
-          </Link>
+          </ButtonLink>
         ) : (
-          <button className={styles.cta} type="button">
+          <Button className={styles.cta} type="button" kind="card" size="sm" interactive>
             Scopri {item.title}
-          </button>
+          </Button>
         )}
       </div>
     </article>

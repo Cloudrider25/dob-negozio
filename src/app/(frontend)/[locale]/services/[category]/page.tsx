@@ -185,8 +185,8 @@ export default async function ServiceCategoryPage({
         variant="style1"
         mediaDark={categoryImage}
         ctas={[
-          { href: whatsappLink, label: 'Prenota', variant: 'primary', external: true },
-          { href: phoneLink, label: 'Consulenza', variant: 'outline', external: true },
+          { href: whatsappLink, label: 'Prenota', kind: 'hero', external: true },
+          { href: phoneLink, label: 'Consulenza', kind: 'hero', external: true },
         ]}
       />
       <ServicesProtocol />
@@ -301,10 +301,10 @@ export default async function ServiceCategoryPage({
             </p>
           </div>
           <div className="flex flex-col items-start justify-center gap-4">
-            <ButtonLink href={whatsappLink} variant="primary" external>
+            <ButtonLink href={whatsappLink} kind="main" external interactive>
               Prenota via WhatsApp
             </ButtonLink>
-            <ButtonLink href={phoneLink} variant="outline" external>
+            <ButtonLink href={phoneLink} kind="main" external interactive>
               Prenota via telefono
             </ButtonLink>
           </div>

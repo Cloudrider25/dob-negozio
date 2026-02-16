@@ -2,9 +2,10 @@
 
 import type { NavigatorState, SelectedServiceItem } from '@/components/navigators/service-navigator/types/navigator'
 import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
-import { Minus, Plus, ShoppingBag, Trash } from '@/components/navigators/core/icons'
+import { Minus, Plus, ShoppingBag, Trash } from '@/components/ui/icons'
 import { GlassCard } from '@/components/navigators/service-navigator/components/GlassCard'
 import { SidePreviewSection } from '@/components/navigators/core/SidePreviewSection'
+import { Button } from '@/components/ui/button'
 import styles from '@/components/navigators/service-navigator/components/SidePreview.module.css'
 
 interface SidePreviewProps {
@@ -196,23 +197,25 @@ export function SidePreview({
 
       <div className={styles.ctaStack}>
         {cart.length > 0 && !canAddToCart && (
-          <button onClick={onResetSelection} className={`glass-pill ${styles.pillButton}`}>
+          <Button onClick={onResetSelection} className={`glass-pill ${styles.pillButton}`} kind="main" size="sm">
             + Aggiungi Altro Servizio
-          </button>
+          </Button>
         )}
 
-        <button
+        <Button
           onClick={onBookNow}
           disabled={!canBook}
           className={`glass-pill ${styles.pillButton} ${canBook ? '' : styles.pillMuted}`}
+          kind="main"
+          size="sm"
         >
           Prenota Ora {cart.length > 0 && `(${cart.length} ${cart.length === 1 ? 'servizio' : 'servizi'})`}
-        </button>
+        </Button>
 
-        <button onClick={onSkinAnalyzer} className={`button-base ${styles.skinButton}`}>
+        <Button onClick={onSkinAnalyzer} className={styles.skinButton} kind="main" interactive>
           <span className={styles.skinTitle}>Skin Analyzer (Derma Test)</span>
           <span className={styles.skinSubtitle}>& Consulenza Gratuita</span>
-        </button>
+        </Button>
       </div>
     </div>
   )

@@ -563,8 +563,8 @@ export default async function ShopPage({
           mediaLight={heroLight || undefined}
           eagerMedia="dark"
           ctas={[
-            { href: '#routine-builder', label: 'Routine consigliata', variant: 'primary' },
-            { href: '#navigator', label: 'Esplora prodotti', variant: 'outline' },
+            { href: '#routine-builder', label: 'Routine consigliata', kind: 'hero' },
+            { href: '#navigator', label: 'Esplora prodotti', kind: 'hero' },
           ]}
         />
       )}

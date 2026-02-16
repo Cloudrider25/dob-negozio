@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { NavigatorState } from '@/components/navigators/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
-import { ChevronLeft, X } from '@/components/navigators/core/icons'
+import { ChevronLeft, X } from '@/components/ui/icons'
 import { MobileFlowShell } from '@/components/navigators/core/MobileFlowShell'
 import styles from './MobileFlow.module.css'
 

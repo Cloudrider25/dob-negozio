@@ -59,7 +59,7 @@ export const StoryHeroNote = ({
           <span className={styles.signatureName}>DOB Milano</span>
         </div>
         {ctaLabel ? (
-          <ButtonLink href={ctaHref || `/${locale}/shop`} variant="outline">
+          <ButtonLink href={ctaHref || `/${locale}/shop`} kind="main" interactive>
             {ctaLabel}
           </ButtonLink>
         ) : null}

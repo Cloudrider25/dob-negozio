@@ -2,7 +2,7 @@
 
 import type { NavigatorState, Step } from '@/components/navigators/service-navigator/types/navigator'
 import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
-import { ChevronLeft } from '@/components/navigators/core/icons'
+import { ChevronLeft } from '@/components/ui/icons'
 import { GlassCard } from '@/components/navigators/service-navigator/components/GlassCard'
 import { PathBreadcrumbCore } from '@/components/navigators/core/PathBreadcrumb'
 import styles from '@/components/navigators/core/PathBreadcrumb.module.css'

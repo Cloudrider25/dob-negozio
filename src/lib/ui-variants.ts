@@ -1,16 +1,14 @@
 import { cva } from "class-variance-authority"
 
 export const buttonVariants = cva(
-  "relative inline-flex items-center justify-center rounded-pill border text-sm uppercase tracking-[0.14em] transition hover:-translate-y-0.5 after:absolute after:left-5 after:right-5 after:bottom-2 after:h-[2px] after:bg-[var(--ui-accent)] after:opacity-0 after:transition",
+  "relative inline-flex items-center justify-center rounded-pill border text-sm uppercase tracking-[0.14em] transition-colors duration-200",
   {
     variants: {
-      variant: {
-        primary:
-          "border-stroke bg-transparent text-text-primary hover:shadow-soft hover:after:opacity-100",
-        outline:
-          "border-stroke bg-transparent text-text-primary hover:after:opacity-100",
-        secondary: "border-stroke text-text-primary",
-        ghost: "border-transparent text-text-primary hover:after:opacity-100",
+      kind: {
+        main: "bg-transparent border-current text-text-primary",
+        card: "bg-[var(--page-bg)] border-transparent text-text-primary",
+        hero:
+          "bg-transparent text-text-inverse border-[color:color-mix(in_srgb,var(--text-inverse)_55%,transparent)]",
       },
       size: {
         sm: "h-10 px-4",
@@ -19,7 +17,7 @@ export const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "primary",
+      kind: "main",
       size: "md",
     },
   },

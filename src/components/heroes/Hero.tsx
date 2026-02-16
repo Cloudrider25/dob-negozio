@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { ButtonLink } from '@/components/ui/button-link'
+import { resolveButtonKind } from '@/components/ui/button-theme'
 
 export type HeroMedia = {
   url: string
@@ -11,7 +12,7 @@ export type HeroMedia = {
 type HeroCta = {
   href: string
   label: string
-  variant?: 'primary' | 'outline'
+  kind?: 'main' | 'card' | 'hero'
   external?: boolean
 }
 
@@ -103,8 +104,9 @@ export const Hero = ({
               <ButtonLink
                 key={cta.href}
                 href={cta.href}
-                variant={cta.variant || 'primary'}
+                kind={resolveButtonKind(cta.kind)}
                 external={cta.external}
+                interactive
                 className="pill"
               >
                 {cta.label}

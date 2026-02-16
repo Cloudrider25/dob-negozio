@@ -14,6 +14,7 @@ import { ProductFaqAccordion } from './ProductFaqAccordion'
 import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatmentReveal'
 import { UICCarousel } from '@/components/carousel/UIC_Carousel'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
+import { ButtonLink } from '@/components/ui/button-link'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -444,14 +445,17 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                     <div className={styles.crossSellMeta}>Selezione consigliata</div>
                   </div>
                 </div>
-                <Link
+                <ButtonLink
                   className={styles.lineupButton}
                   href={
                     addOnProduct.slug ? `/${locale}/shop/${addOnProduct.slug}` : `/${locale}/shop`
                   }
+                  kind="main"
+                  size="sm"
+                  interactive
                 >
                   Scopri
-                </Link>
+                </ButtonLink>
               </div>
             </div>
           ) : null}

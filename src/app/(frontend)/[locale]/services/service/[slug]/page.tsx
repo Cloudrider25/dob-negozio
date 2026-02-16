@@ -14,6 +14,7 @@ import { HeroGallery } from './HeroGallery'
 import { FaqAccordion } from './FaqAccordion'
 import type { Treatment } from '@/payload-types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
+import { Button } from '@/components/ui/button'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -506,9 +507,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                 </Link>
               ))}
             </div>
-            <button className={styles.buyButton} type="button">
+            <Button className={styles.buyButton} type="button" kind="main" interactive>
               Prenota ora
-            </button>
+            </Button>
           </div>
 
           <div className={styles.crossSell}>
@@ -529,9 +530,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                   <div className={styles.crossSellMeta}>Selezione consigliata</div>
                 </div>
               </div>
-              <button className={styles.lineupButton} type="button">
+              <Button className={styles.lineupButton} type="button" kind="main" size="sm" interactive>
                 Aggiungi
-              </button>
+              </Button>
             </div>
           </div>
 

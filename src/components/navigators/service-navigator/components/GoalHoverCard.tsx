@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { Target } from '@/components/navigators/core/icons'
+import { Flag } from '@/components/ui/icons'
 import { HoverCardBase } from '@/components/navigators/core/HoverCardBase'
 import type { Goal } from '@/components/navigators/service-navigator/types/navigator'
 import styles from '@/components/navigators/service-navigator/components/GoalHoverCard.module.css'
@@ -57,7 +57,7 @@ export function GoalHoverCard({
             <div className={styles.content}>
               <div className={styles.header}>
                 <div className={styles.iconWrap}>
-                  <Target className={styles.icon} />
+                  <Flag className={styles.icon} />
                 </div>
 
                 <h3 className={styles.title}>{currentGoal.title}</h3>

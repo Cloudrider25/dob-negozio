@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/navigators/service-navigator/components/GlassCard";
+import { Button } from "@/components/ui/button";
 import styles from "@/components/navigators/service-navigator/components/ListinoTradizionale.module.css";
 
 type Category = "manicure" | "viso" | "epilazione";
@@ -120,30 +121,36 @@ export function ListinoTradizionale() {
     >
       {/* Category Tabs */}
       <div className={styles.tabs}>
-        <button
+        <Button
           onClick={() => setActiveCategory("manicure")}
-          className={`button-base ${styles.tabButton} ${
+          className={`${styles.tabButton} ${
             activeCategory === "manicure" ? styles.tabActive : styles.tabInactive
           }`}
+          kind="main"
+          size="sm"
         >
           MANICURE
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setActiveCategory("viso")}
-          className={`button-base ${styles.tabButton} ${
+          className={`${styles.tabButton} ${
             activeCategory === "viso" ? styles.tabActive : styles.tabInactive
           }`}
+          kind="main"
+          size="sm"
         >
           TRATTAMENTI VISO
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setActiveCategory("epilazione")}
-          className={`button-base ${styles.tabButton} ${
+          className={`${styles.tabButton} ${
             activeCategory === "epilazione" ? styles.tabActive : styles.tabInactive
           }`}
+          kind="main"
+          size="sm"
         >
           EPILAZIONE LASER
-        </button>
+        </Button>
       </div>
 
       {/* Filter Tags */}
@@ -189,9 +196,9 @@ export function ListinoTradizionale() {
                     </p>
                   </div>
 
-                  <button className={`button-base ${styles.bookButton}`}>
+                  <Button className={styles.bookButton} kind="main" interactive>
                     Book from €{service.price}
-                  </button>
+                  </Button>
                 </div>
               </GlassCard>
             </motion.div>

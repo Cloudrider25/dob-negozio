@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
-import { Minus, Plus, Trash } from '@/components/navigators/core/icons'
+import { Minus, Plus, Trash } from '@/components/ui/icons'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
 import {

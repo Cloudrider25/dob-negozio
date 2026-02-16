@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { useState } from 'react'
 
 import styles from './ValuesSection.module.css'
+import { ButtonLink } from '@/components/ui/button-link'
 
 export type ValuesSectionItem = {
   id: string
@@ -35,9 +35,9 @@ export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
         <div className={styles.contentTop}>
           <h2 className={styles.title}>{active.title}</h2>
           {active.ctaHref && active.ctaLabel ? (
-            <Link href={active.ctaHref} className={styles.cta}>
+            <ButtonLink href={active.ctaHref} className={styles.cta} kind="main" size="sm" interactive>
               {active.ctaLabel}
-            </Link>
+            </ButtonLink>
           ) : null}
         </div>
         <div className={styles.list}>

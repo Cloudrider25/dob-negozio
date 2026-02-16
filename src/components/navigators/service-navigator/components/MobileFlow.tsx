@@ -3,8 +3,9 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import type { NavigatorState } from '@/components/navigators/service-navigator/types/navigator'
 import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
-import { ChevronLeft, X } from '@/components/navigators/core/icons'
+import { ChevronLeft, X } from '@/components/ui/icons'
 import { MobileFlowShell } from '@/components/navigators/core/MobileFlowShell'
+import { Button } from '@/components/ui/button'
 import styles from '@/components/navigators/service-navigator/components/MobileFlow.module.css'
 
 interface MobileFlowProps {
@@ -110,9 +111,9 @@ export function MobileFlow({ state, onUpdateState, onBookNow, onClose }: MobileF
       footer={
         state.step === 'final' && state.selectedService ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={styles.cta}>
-            <button onClick={onBookNow} className={`button-base ${styles.ctaButton}`}>
+            <Button onClick={onBookNow} className={styles.ctaButton} interactive kind="main">
               Prenota {state.selectedService.title}
-            </button>
+            </Button>
           </motion.div>
         ) : undefined
       }

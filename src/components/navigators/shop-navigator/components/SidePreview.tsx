@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { NavigatorState } from '@/components/navigators/shop-navigator/types/navigator'
 import { useShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
-import { Minus, Plus, ShoppingBag, Trash } from '@/components/navigators/core/icons'
+import { Minus, Plus, ShoppingBag, Trash } from '@/components/ui/icons'
 import {
   CART_UPDATED_EVENT,
   emitCartUpdated,

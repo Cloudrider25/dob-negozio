@@ -5,6 +5,8 @@ import { MenuLink } from '@/components/layout/MenuLink'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { cn } from '@/lib/cn'
 import { CartDrawerTrigger } from '@/components/cart/CartDrawerTrigger'
+import { ShoppingBag, User } from '@/components/ui/icons'
+import { ButtonLink } from '@/components/ui/button-link'
 import styles from './Header.module.css'
 
 type HeaderProps = {
@@ -76,32 +78,22 @@ export const Header = ({
           </Link>
         </div>
         <div className={styles.right}>
-          <a className={styles.cta} href={whatsappLink}>
+          <ButtonLink className={styles.cta} href={whatsappLink} external kind="main" size="sm" interactive>
             {t.cta.appointment}
-          </a>
+          </ButtonLink>
           <div className={styles.iconRow} aria-label="Account e carrello">
             <Link
               href={accountHref}
               className={`${styles.iconButton} ${styles.iconButtonGlass}`}
               aria-label="Account"
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M12 12c2.9 0 5-2.3 5-5s-2.1-5-5-5-5 2.3-5 5 2.1 5 5 5Zm0 2c-4 0-8 2.1-8 5v1h16v-1c0-2.9-4-5-8-5Z"
-                  fill="currentColor"
-                />
-              </svg>
+              <User />
             </Link>
             <CartDrawerTrigger
               className={`${styles.iconButton} ${styles.iconButtonGlass}`}
               ariaLabel="Carrello"
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M7 18a2 2 0 1 0 .01 4A2 2 0 0 0 7 18Zm10 0a2 2 0 1 0 .01 4A2 2 0 0 0 17 18Zm-9.3-3h9.7a2 2 0 0 0 2-1.6l1.6-7.2H6.2L5.6 3H2v2h2l3 12Z"
-                  fill="currentColor"
-                />
-              </svg>
+              <ShoppingBag />
             </CartDrawerTrigger>
           </div>
           <ThemeToggle />
@@ -166,32 +158,22 @@ export const Header = ({
               </MenuLink>
             </div>
             <div className={styles.menuActions}>
-              <a className={styles.cta} href={whatsappLink}>
+              <ButtonLink className={styles.cta} href={whatsappLink} external kind="main" size="sm" interactive>
                 {t.cta.appointment}
-              </a>
+              </ButtonLink>
               <div className={styles.iconRow} aria-label="Account e carrello">
                 <Link
                   href={accountHref}
                   className={`${styles.iconButton} ${styles.iconButtonGlass}`}
                   aria-label="Account"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M12 12c2.9 0 5-2.3 5-5s-2.1-5-5-5-5 2.3-5 5 2.1 5 5 5Zm0 2c-4 0-8 2.1-8 5v1h16v-1c0-2.9-4-5-8-5Z"
-                      fill="currentColor"
-                    />
-                  </svg>
+                  <User />
                 </Link>
                 <CartDrawerTrigger
                   className={`${styles.iconButton} ${styles.iconButtonGlass}`}
                   ariaLabel="Carrello"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M7 18a2 2 0 1 0 .01 4A2 2 0 0 0 7 18Zm10 0a2 2 0 1 0 .01 4A2 2 0 0 0 17 18Zm-9.3-3h9.7a2 2 0 0 0 2-1.6l1.6-7.2H6.2L5.6 3H2v2h2l3 12Z"
-                      fill="currentColor"
-                    />
-                  </svg>
+                  <ShoppingBag />
                 </CartDrawerTrigger>
               </div>
               <ThemeToggle />

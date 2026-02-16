@@ -1,6 +1,6 @@
 'use client'
 
-import { Sparkles } from '@/components/navigators/core/icons'
+import { Sparkles } from '@/components/ui/icons'
 import styles from '@/components/navigators/core/EmptyState.module.css'
 
 interface EmptyStateProps {

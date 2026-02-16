@@ -108,6 +108,12 @@ Azione: estrarre `UIC_ConsultationForm.tsx` con submit handler passato via props
 Scope iniziale: `UIC_CarouselCard`, `ValuesSection`, `AuthSplitLayout`, `UIC_Carousel`, `Header`, `ServicesProtocol`, `RoutineBuilderSection`, `AuthForms`  
 Risultato: riallineato a `1024px` dove coerente (completato nei batch 1-4).
 
+- [x] **Sistema bottoni unificato (3 soli tipi)**  
+Scope: `src/components/ui/button.tsx`, `src/components/ui/button-link.tsx`, `src/components/ui/button-theme.ts`, `src/lib/ui-variants.ts`  
+Evidenza: presenza storica di varianti eterogenee (`variant/tone`) e CTA con stili locali non coerenti.  
+Azione: standardizzati i bottoni su `kind: main | card | hero` (default `main`), rimosso supporto legacy `variant/tone`, mantenuto motion condiviso; applicata regola d'uso: `card` solo per card prodotto/servizio e CTA acquisto nei program, `main` altrove, `hero` nei CTA hero.
+Stato: completato e verificato con scan codebase + `pnpm -s tsc --noEmit`.
+
 - [ ] **Riduzione CSS globale monolitico**  
 Scope: `src/styles/globals.css`  
 Evidenza: file ancora esteso con regole component-specific.  

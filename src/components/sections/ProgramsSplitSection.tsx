@@ -1,11 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import styles from './ProgramsSplitSection.module.css'
 import serviceCardStyles from '@/components/carousel/UIC_CarouselCard.module.css'
+import { Button } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ui/button-link'
+import { CircleArrowLeft, CircleArrowRight } from '@/components/ui/icons'
 
 type ProgramStep = {
   id: string
@@ -81,24 +83,7 @@ export const ProgramsSplitSection = ({
             }}
             aria-label="Previous"
           >
-            <svg className={styles.arrowIcon} viewBox="0 0 48 48" aria-hidden="true">
-              <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2" />
-              <path
-                d="M26 16L18 24L26 32"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M19 24H30"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
+            <CircleArrowLeft className={styles.arrowIcon} />
           </button>
           <button
             className={styles.arrow}
@@ -109,24 +94,7 @@ export const ProgramsSplitSection = ({
             }}
             aria-label="Next"
           >
-            <svg className={styles.arrowIcon} viewBox="0 0 48 48" aria-hidden="true">
-              <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2" />
-              <path
-                d="M22 16L30 24L22 32"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M18 24H29"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
+            <CircleArrowRight className={styles.arrowIcon} />
           </button>
         </div>
         {activeIndex === 0 ? (
@@ -135,15 +103,15 @@ export const ProgramsSplitSection = ({
             <p className={`${styles.subtitle} ${styles.subtitleCentered}`}>{program.description}</p>
             <div className={styles.metaRow}>
               {programHref ? (
-                <Link className={serviceCardStyles.cta} href={programHref}>
+                <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
                   Scopri {program.title}
                   {program.price ? ` - ${program.price}` : ''}
-                </Link>
+                </ButtonLink>
               ) : (
-                <button className={serviceCardStyles.cta} type="button">
+                <Button className={serviceCardStyles.cta} type="button" kind="card" size="sm" interactive>
                   Scopri {program.title}
                   {program.price ? ` - ${program.price}` : ''}
-                </button>
+                </Button>
               )}
               <span className={`${styles.counter} ${styles.counterLarge}`}>{counter}</span>
             </div>
@@ -170,15 +138,15 @@ export const ProgramsSplitSection = ({
                 <p className={styles.stepTitle}>{activeStep?.title}</p>
                 <p className={styles.stepSubtitle}>{activeStep?.subtitle}</p>
                 {programHref ? (
-                  <Link className={serviceCardStyles.cta} href={programHref}>
+                  <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
                     Scopri {program.title}
                     {program.price ? ` - ${program.price}` : ''}
-                  </Link>
+                  </ButtonLink>
                 ) : (
-                  <button className={serviceCardStyles.cta} type="button">
+                  <Button className={serviceCardStyles.cta} type="button" kind="card" size="sm" interactive>
                     Scopri {program.title}
                     {program.price ? ` - ${program.price}` : ''}
-                  </button>
+                  </Button>
                 )}
               </div>
               <span className={styles.counter}>{counter}</span>

@@ -2,6 +2,7 @@
 
 import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/cartStorage'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
+import { Button } from '@/components/ui/button'
 
 export function ProductPurchase({
   product,
@@ -53,16 +54,18 @@ export function ProductPurchase({
 
   return (
     <div className="space-y-4">
-      <button
+      <Button
         type="button"
         onClick={handleAddToCart}
+        interactive
+        kind="main"
         className={
           className ||
-          'button-base w-full px-6 py-3 font-medium bg-accent-cyan text-text-inverse border-transparent'
+          'w-full px-6 py-3 font-medium'
         }
       >
         {buttonLabel || copy.addToCart}
-      </button>
+      </Button>
     </div>
   )
 }

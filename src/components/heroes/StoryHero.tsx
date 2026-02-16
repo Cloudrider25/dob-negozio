@@ -33,7 +33,7 @@ export const StoryHero = ({ locale, title, body, ctaLabel, ctaHref, media }: Sto
           {body ||
             'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'}
         </p>
-        <ButtonLink href={ctaHref || `/${locale}/shop`} variant="outline">
+        <ButtonLink href={ctaHref || `/${locale}/shop`} kind="main" interactive>
           {ctaLabel || 'Scopri DOB'}
         </ButtonLink>
       </div>

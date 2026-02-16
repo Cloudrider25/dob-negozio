@@ -370,8 +370,8 @@ export default async function HomePage({
           mediaDark={darkHeroMedia || undefined}
           mediaLight={lightHeroMedia || undefined}
           ctas={[
-            { href: `/${locale}/services`, label: t.nav.services, variant: 'primary' },
-            { href: `/${locale}/shop`, label: t.nav.shop, variant: 'outline' },
+            { href: `/${locale}/services`, label: t.nav.services, kind: 'hero' },
+            { href: `/${locale}/shop`, label: t.nav.shop, kind: 'hero' },
           ]}
         />
       )}
