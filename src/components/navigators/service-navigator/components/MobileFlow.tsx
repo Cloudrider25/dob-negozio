@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import type { NavigatorState } from '@/components/navigators/service-navigator/types/navigator'
-import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { useNavigatorData } from '@/components/services/navigator-data-context'
 import { ChevronLeft, X } from '@/components/ui/icons'
 import { MobileFlowShell } from '@/components/navigators/core/MobileFlowShell'
 import { Button } from '@/components/ui/button'

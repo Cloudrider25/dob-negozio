@@ -10,20 +10,9 @@ import stylesConsultationForm from '@/components/forms/ConsultationForm.module.c
 import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
 import { SectionSwitcher } from '@/components/sections/SectionSwitcher'
 import { Button } from '@/components/ui/button'
-import type { ShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
 import type { ProductCard } from '@/components/navigators/shop-navigator/types/navigator'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import styles from './ShopSectionSwitcher.module.css'
-
-const ShopNavigatorSection = dynamic(
-  () =>
-    import('@/components/navigators/shop-navigator/ShopNavigatorSection').then(
-      (module) => module.ShopNavigatorSection,
-    ),
-  {
-    loading: () => <section className={styles.sectionSkeleton}>Loading shop navigator...</section>,
-  },
-)
 
 const RoutineBuilderSplitSection = dynamic(
   () =>
@@ -80,13 +69,12 @@ type ClassicParams = {
   view: string
 }
 
-type SectionKey = 'shop-all' | 'navigator' | 'routine' | 'consulenza'
+type SectionKey = 'shop-all' | 'routine' | 'consulenza'
 const TRANSPARENT_IMAGE_PLACEHOLDER =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
 
 export function ShopSectionSwitcher({
   initialSection = 'shop-all',
-  navigatorData,
   classicParams,
   routineTemplates,
   productAreas,
@@ -103,7 +91,6 @@ export function ShopSectionSwitcher({
   routineStep2Title,
 }: {
   initialSection?: SectionKey
-  navigatorData: ShopNavigatorData
   classicParams: ClassicParams
   routineTemplates: RoutineTemplateView[]
   productAreas: Array<{
@@ -208,12 +195,11 @@ export function ShopSectionSwitcher({
 
   const pills = useMemo(
     () => [
-      { key: 'navigator', label: copy.sectionNavigator },
       { key: 'routine', label: copy.sectionRoutine },
       { key: 'consulenza', label: copy.sectionConsultation },
       { key: 'shop-all', label: copy.sectionShopAll },
     ],
-    [copy.sectionConsultation, copy.sectionNavigator, copy.sectionRoutine, copy.sectionShopAll],
+    [copy.sectionConsultation, copy.sectionRoutine, copy.sectionShopAll],
   )
 
   const updateSectionQuery = (nextSection: SectionKey) => {
@@ -604,16 +590,6 @@ export function ShopSectionSwitcher({
             </div>
           </div>
         </section>
-      )}
-
-      {activeSection === 'navigator' && (
-        <div id="navigator">
-          <ShopNavigatorSection
-            data={navigatorData}
-            initialClassicParams={classicParams}
-            productBasePath={productBasePath}
-          />
-        </div>
       )}
 
       {activeSection === 'routine' && (

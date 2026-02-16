@@ -1,7 +1,7 @@
 'use client'
 
 import type { NavigatorState, Step } from '@/components/navigators/service-navigator/types/navigator'
-import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { useNavigatorData } from '@/components/services/navigator-data-context'
 import { ChevronLeft } from '@/components/ui/icons'
 import { PathBreadcrumbCore } from '@/components/navigators/core/PathBreadcrumb'
 import styles from '@/components/navigators/core/PathBreadcrumb.module.css'

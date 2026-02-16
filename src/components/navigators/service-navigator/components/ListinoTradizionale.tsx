@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { ShopAllSection } from '@/components/shop/ShopAllSection'
-import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { useNavigatorData } from '@/components/services/navigator-data-context'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { Button } from '@/components/ui/button'
 import styles from '@/components/navigators/service-navigator/components/ListinoTradizionale.module.css'

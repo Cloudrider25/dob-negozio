@@ -3,13 +3,12 @@ import { notFound } from 'next/navigation'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { Hero } from '@/components/heroes/Hero'
-import { ServiceNavigatorSection } from '@/components/navigators/service-navigator/ServiceNavigatorSection'
-import { NavigatorDataProvider } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { NavigatorDataProvider } from '@/components/services/navigator-data-context'
 import { ListinoTradizionale } from '@/components/navigators/service-navigator/components/ListinoTradizionale'
 import { ConsulenzaSection } from '@/components/navigators/service-navigator/components/ConsulenzaSection'
 import { ServicesSectionSwitcher } from '@/components/services/ServicesSectionSwitcher'
-import styles from './services-page.module.css'
-import type { NavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { ServiceRoutineBuilderSplitSection } from '@/components/services/ServiceRoutineBuilderSplitSection'
+import type { NavigatorData } from '@/components/services/navigator-data-context'
 import type {
   AreaData,
   GoalData,
@@ -326,27 +325,7 @@ export default async function ServicesPage({
       )}
       <ServicesSectionSwitcher currentView={initialViewMode} />
       {initialViewMode === 'navigator' ? (
-        <>
-          <section className={styles.navigatorCore}>
-            <div className={styles.navigatorCoreGrid}>
-              <div className={styles.navigatorCoreContent}>
-                <h2 className={styles.navigatorCoreTitle}>Scegli il risultato. Al resto pensiamo noi.</h2>
-                <p className={styles.navigatorCoreSubtitle}>
-                  Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
-                </p>
-              </div>
-              <div aria-hidden="true" />
-            </div>
-          </section>
-          <ServiceNavigatorSection
-            data={navigatorData}
-            contactLinks={contactLinks}
-            initialViewMode="navigator"
-            forcedViewMode="navigator"
-            showHeaderActions={false}
-            showHeaderIntro={false}
-          />
-        </>
+        <ServiceRoutineBuilderSplitSection data={navigatorData} />
       ) : null}
       {initialViewMode === 'consulenza' ? (
         <section className="w-full bg-[var(--bg)] px-[2.5vw] py-20">

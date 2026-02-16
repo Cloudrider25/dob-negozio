@@ -1,0 +1,318 @@
+.section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  min-height: 64vh;
+  margin-bottom: 2.55vw;
+}
+
+.panel {
+  min-height: 64vh;
+  height: 64vh;
+  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--stroke) 68%, transparent);
+  background: color-mix(in srgb, var(--bg) 94%, #ffffff 6%);
+  overflow: hidden;
+}
+
+.panelContent {
+  height: 100%;
+  min-height: 0;
+  padding: 1.65rem;
+}
+
+.panelMedia {
+  display: flex;
+}
+
+.panelContentMedia {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.leftSwiper,
+.mediaSwiper {
+  width: 100%;
+  height: 100%;
+}
+
+.leftSwiper :global(.swiper-wrapper),
+.leftSwiper :global(.swiper-slide),
+.mediaSwiper :global(.swiper-wrapper),
+.mediaSwiper :global(.swiper-slide) {
+  height: 100%;
+}
+
+.leftSlide,
+.mediaSlide {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(1.45rem, 1.2rem + 0.7vw, 2.15rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.18;
+  color: var(--text-primary);
+}
+
+.bodyText {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.58;
+  color: var(--text-secondary);
+}
+
+.circleList {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.circleItem {
+  min-width: 112px;
+  min-height: 112px;
+  padding: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+.circleItem:hover,
+.circleItemActive {
+  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  transform: translateY(-1px);
+}
+
+.circleItemSelected {
+  background: color-mix(in srgb, var(--text-primary) 86%, transparent);
+  border-color: color-mix(in srgb, var(--text-primary) 86%, transparent);
+  color: var(--text-inverse);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.blockLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.pillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.pillItem {
+  border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
+  border-radius: 999px;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: transparent;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.pillItemActive,
+.pillItem:hover {
+  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+}
+
+.stepActions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.stepActionSpacer {
+  width: 1px;
+  height: 1px;
+}
+
+.navButton {
+  border: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.navButton:hover {
+  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+}
+
+.navButton:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.serviceList {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.serviceCard {
+  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-radius: 14px;
+  padding: 0.82rem 0.95rem;
+  background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
+  text-align: left;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.serviceCard:hover,
+.serviceCardActive {
+  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+}
+
+.serviceTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.serviceMeta {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.emptyState {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.mediaImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.summaryPanel {
+  height: 100%;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.summaryPill {
+  border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
+  border-radius: 999px;
+  padding: 0.32rem 0.7rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.serviceImage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
+}
+
+.serviceInfo {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.serviceInfoTitle {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.serviceInfoMeta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.serviceInfoDescription {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.mediaPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px dashed color-mix(in srgb, var(--stroke) 55%, transparent);
+  border-radius: 14px;
+}
+
+@media screen and (max-width: 1024px) {
+  .section {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .panel {
+    min-height: 56vh;
+    height: 56vh;
+  }
+}

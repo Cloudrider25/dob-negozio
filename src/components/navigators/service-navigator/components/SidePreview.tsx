@@ -1,7 +1,7 @@
 'use client'
 
 import type { NavigatorState, SelectedServiceItem } from '@/components/navigators/service-navigator/types/navigator'
-import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { useNavigatorData } from '@/components/services/navigator-data-context'
 import { Minus, Plus, ShoppingBag, Trash } from '@/components/ui/icons'
 import { GlassCard } from '@/components/navigators/service-navigator/components/GlassCard'
 import { SidePreviewSection } from '@/components/navigators/core/SidePreviewSection'

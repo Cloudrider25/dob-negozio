@@ -1,5 +1,5 @@
 import type { Goal, Area } from '@/components/navigators/service-navigator/types/navigator'
-import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { useNavigatorData } from '@/components/services/navigator-data-context'
 import { EmptyState } from '@/components/navigators/service-navigator/components/EmptyState'
 import { ColumnList } from '@/components/navigators/service-navigator/components/columns/ColumnList'
 

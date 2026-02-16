@@ -351,14 +351,6 @@ export const Services: CollectionConfig = {
               required: true,
             },
             {
-              name: 'treatment',
-              type: 'relationship',
-              relationTo: 'treatments',
-              admin: {
-                hidden: true,
-              },
-            },
-            {
               name: 'objective',
               type: 'relationship',
               relationTo: 'objectives',

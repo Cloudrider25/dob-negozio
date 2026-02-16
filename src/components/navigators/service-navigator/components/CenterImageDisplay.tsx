@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 import type { Area } from '@/components/navigators/service-navigator/types/navigator'
 
-import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { useNavigatorData } from '@/components/services/navigator-data-context'
 import { AreaHoverCard } from './AreaHoverCard'
 import styles from '@/components/navigators/core/CenterImageDisplay.module.css'
 

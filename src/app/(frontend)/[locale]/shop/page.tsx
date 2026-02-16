@@ -6,7 +6,6 @@ import { getShopBaseData, getShopPageConfig, getShopRoutineData } from '@/lib/sh
 import { buildContactLinks } from '@/lib/contact'
 import { Hero } from '@/components/heroes/Hero'
 import { ShopSectionSwitcher } from '@/components/shop/ShopSectionSwitcher'
-import type { ShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
 import type { NeedData, ProductCard, TextureData } from '@/components/navigators/shop-navigator/types/navigator'
 import type {
   RoutineStep,
@@ -445,12 +444,6 @@ export default async function ShopPage({
     }
   })
 
-  const navigatorData: ShopNavigatorData = {
-    needs,
-    textures,
-    products,
-  }
-
   const contactLinks = buildContactLinks({
     phone: siteSettings?.phone,
     whatsapp: siteSettings?.whatsapp,
@@ -564,17 +557,14 @@ export default async function ShopPage({
           eagerMedia="dark"
           ctas={[
             { href: '#routine-builder', label: 'Routine consigliata', kind: 'hero' },
-            { href: '#navigator', label: 'Esplora prodotti', kind: 'hero' },
+            { href: '#shop-all', label: 'Esplora prodotti', kind: 'hero' },
           ]}
         />
       )}
       <ShopSectionSwitcher
         initialSection={
-          section === 'navigator' || section === 'routine' || section === 'consulenza'
-            ? section
-            : 'shop-all'
+          section === 'routine' || section === 'consulenza' ? section : 'shop-all'
         }
-        navigatorData={navigatorData}
         classicParams={{
           query,
           brand,

@@ -765,7 +765,6 @@ export interface Service {
       }[]
     | null;
   treatments: (number | Treatment)[];
-  treatment?: (number | null) | Treatment;
   objective?: (number | null) | Objective;
   area?: (number | null) | Area;
   intent?: (number | null) | Intent;
@@ -1677,7 +1676,6 @@ export interface ServicesSelect<T extends boolean = true> {
         id?: T;
       };
   treatments?: T;
-  treatment?: T;
   objective?: T;
   area?: T;
   intent?: T;

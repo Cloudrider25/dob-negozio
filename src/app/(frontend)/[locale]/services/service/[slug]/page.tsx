@@ -135,7 +135,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
   }
 
   const treatmentsList = Array.isArray(service.treatments) ? service.treatments : []
-  const primaryTreatmentValue = treatmentsList[0] ?? service.treatment
+  const primaryTreatmentValue = treatmentsList[0]
   const parentTreatment = await resolveTreatmentFromValue(primaryTreatmentValue)
   const parentTitle =
     parentTreatment && typeof parentTreatment.boxName === 'string' ? parentTreatment.boxName : null

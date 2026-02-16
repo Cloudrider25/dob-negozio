@@ -19,7 +19,7 @@ import { PathBreadcrumb } from '@/components/navigators/service-navigator/compon
 import { CenterImageDisplay } from '@/components/navigators/service-navigator/components/CenterImageDisplay'
 import { TreatmentHoverCard } from '@/components/navigators/service-navigator/components/TreatmentHoverCard'
 import { GoalHoverCard } from '@/components/navigators/service-navigator/components/GoalHoverCard'
-import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { useNavigatorData } from '@/components/services/navigator-data-context'
 import { NavigatorGridLayout } from '@/components/navigators/core/NavigatorGridLayout'
 import styles from '@/components/navigators/service-navigator/components/NavigatorGrid.module.css'
 
