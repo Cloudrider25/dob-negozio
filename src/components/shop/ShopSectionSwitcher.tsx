@@ -5,9 +5,7 @@ import dynamic from 'next/dynamic'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { ShopAllSection } from '@/components/shop/ShopAllSection'
-import type { ConsultationFormData } from '@/components/forms/ConsultationForm'
-import stylesConsultationForm from '@/components/forms/ConsultationForm.module.css'
-import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
+import { ConsulenzaSection } from '@/components/services/ConsulenzaSection'
 import { SectionSwitcher } from '@/components/sections/SectionSwitcher'
 import { Button } from '@/components/ui/button'
 import type { ProductCard } from '@/components/shop/shop-navigator.types'
@@ -21,16 +19,6 @@ const RoutineBuilderSplitSection = dynamic(
     ),
   {
     loading: () => <section className={styles.sectionSkeleton}>Loading routine builder...</section>,
-  },
-)
-
-const ConsulenzaForm = dynamic(
-  () =>
-    import('@/components/forms/ConsultationForm').then(
-      (module) => module.ConsultationForm,
-    ),
-  {
-    loading: () => <section className={styles.sectionSkeleton}>Loading consulenza form...</section>,
   },
 )
 
@@ -213,16 +201,6 @@ export function ShopSectionSwitcher({
     const nextQuery = params.toString()
     const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname
     router.replace(nextUrl, { scroll: false })
-  }
-
-  const handleConsultationSubmit = async (formData: ConsultationFormData) => {
-    await submitConsultationLead({
-      ...formData,
-      source: 'shop-consultation',
-      pagePath: typeof window !== 'undefined' ? window.location.pathname : undefined,
-      locale:
-        typeof document !== 'undefined' ? document.documentElement.lang?.trim() || undefined : undefined,
-    })
   }
 
   const filterOptions = useMemo(() => {
@@ -593,18 +571,20 @@ export function ShopSectionSwitcher({
       )}
 
       {activeSection === 'routine' && (
-        <RoutineBuilderSplitSection
-          productAreas={productAreas}
-          routineTimings={routineTimings}
-          routineSkinTypes={routineSkinTypes}
-          routineNeeds={routineNeeds}
-          routineTemplates={routineTemplates}
-          routineSteps={routineSteps}
-          routineStepRules={routineStepRules}
-          routineStep1Title={routineStep1Title}
-          routineStep2Title={routineStep2Title}
-          shopAllProducts={shopAllProducts}
-        />
+        <div className={styles.sectionBlockTop}>
+          <RoutineBuilderSplitSection
+            productAreas={productAreas}
+            routineTimings={routineTimings}
+            routineSkinTypes={routineSkinTypes}
+            routineNeeds={routineNeeds}
+            routineTemplates={routineTemplates}
+            routineSteps={routineSteps}
+            routineStepRules={routineStepRules}
+            routineStep1Title={routineStep1Title}
+            routineStep2Title={routineStep2Title}
+            shopAllProducts={shopAllProducts}
+          />
+        </div>
       )}
 
       {activeSection === 'shop-all' && (
@@ -614,16 +594,8 @@ export function ShopSectionSwitcher({
       )}
 
       {activeSection === 'consulenza' && (
-        <section id="consulenza">
-          <ConsulenzaForm
-            phoneLink={contactLinks.phoneLink}
-            phoneDisplay={contactLinks.phoneDisplay}
-            whatsappLink={contactLinks.whatsappLink}
-            whatsappDisplay={contactLinks.whatsappDisplay}
-            styles={stylesConsultationForm}
-            contactStyleVariant="plain"
-            onSubmit={handleConsultationSubmit}
-          />
+        <section id="consulenza" className={`${styles.sectionBlockTop} w-full bg-[var(--bg)] px-[2.5vw] py-20`}>
+          <ConsulenzaSection contactLinks={contactLinks} source="shop-consultation" />
         </section>
       )}
     </>

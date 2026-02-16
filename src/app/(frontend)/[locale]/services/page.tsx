@@ -325,15 +325,17 @@ export default async function ServicesPage({
       )}
       <ServicesSectionSwitcher currentView={initialViewMode} />
       {initialViewMode === 'navigator' ? (
-        <ServiceRoutineBuilderSplitSection data={navigatorData} />
+        <div className="mt-[2.5vw]">
+          <ServiceRoutineBuilderSplitSection data={navigatorData} />
+        </div>
       ) : null}
       {initialViewMode === 'consulenza' ? (
-        <section className="w-full bg-[var(--bg)] px-[2.5vw] py-20">
+        <section className="mt-[2.5vw] w-full bg-[var(--bg)] px-[2.5vw] py-20">
           <ConsulenzaSection contactLinks={contactLinks} />
         </section>
       ) : null}
       {initialViewMode === 'listino' ? (
-        <section className="w-full bg-transparent pb-16">
+        <section className="mt-[2.5vw] w-full bg-transparent pb-16">
           <NavigatorDataProvider data={navigatorData}>
             <ListinoTradizionale />
           </NavigatorDataProvider>

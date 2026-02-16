@@ -13,11 +13,16 @@ type ContactLinks = {
   whatsappDisplay: string
 }
 
-export function ConsulenzaSection({ contactLinks }: { contactLinks: ContactLinks }) {
+type ConsulenzaSectionProps = {
+  contactLinks: ContactLinks
+  source?: string
+}
+
+export function ConsulenzaSection({ contactLinks, source = 'service-navigator' }: ConsulenzaSectionProps) {
   const handleSubmit = async (formData: ConsultationFormData) => {
     await submitConsultationLead({
       ...formData,
-      source: 'service-navigator',
+      source,
       pagePath: typeof window !== 'undefined' ? window.location.pathname : undefined,
       locale:
         typeof document !== 'undefined' ? document.documentElement.lang?.trim() || undefined : undefined,

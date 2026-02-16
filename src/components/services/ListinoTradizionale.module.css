@@ -3,7 +3,11 @@
 }
 
 .cardsBlock {
-  margin-top: 2.55vw;
+  margin-top: 0;
+}
+
+.cardsBlockWithFilters {
+  margin-top: 2.5vw;
 }
 
 .empty {

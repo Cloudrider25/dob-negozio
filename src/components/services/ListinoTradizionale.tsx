@@ -354,7 +354,7 @@ export function ListinoTradizionale() {
         </section>
       )}
 
-      <div className={styles.cardsBlock}>
+      <div className={showFilters ? styles.cardsBlockWithFilters : styles.cardsBlock}>
         {servicesAsCards.length > 0 ? (
           <ShopAllSection items={servicesAsCards} />
         ) : (

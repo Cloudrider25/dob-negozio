@@ -15,11 +15,15 @@
   display: flex;
   justify-content: center;
   overflow: visible;
-  margin-top: 2.55vw;
+  margin-top: 2.5vw;
 }
 
 .cardsBlock {
-  margin-top: 2.55vw;
+  margin-top: 2.5vw;
+}
+
+.sectionBlockTop {
+  margin-top: 2.5vw;
 }
 
 .filterRow {
