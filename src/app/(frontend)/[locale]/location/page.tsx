@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { buildContactLinks } from '@/lib/contact'
-import { Hero } from '@/components/Hero'
+import { Hero } from '@/components/heroes/Hero'
 
 export default async function LocationPage({
   params,

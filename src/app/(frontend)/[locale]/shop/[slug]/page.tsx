@@ -11,9 +11,9 @@ import { HeroGallery } from './HeroGallery'
 import { AlternativeSelector } from './AlternativeSelector'
 import { ProductServiceAccordion } from './ProductServiceAccordion'
 import { ProductFaqAccordion } from './ProductFaqAccordion'
-import { ServiceTreatmentReveal } from '@/components/ServiceTreatmentReveal'
-import { UICCarousel } from '@/components/UIC_Carousel'
-import type { ServicesCarouselItem } from '@/components/service-carousel/types'
+import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatmentReveal'
+import { UICCarousel } from '@/components/carousel/UIC_Carousel'
+import type { ServicesCarouselItem } from '@/components/carousel/types'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -704,7 +704,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         </div>
       </section>
 
-      <ServiceTreatmentReveal
+      <ServicesTreatmentReveal
         primary={{
           title: product.title || 'Protocol overview',
           mediaDescription: descriptionText || '',

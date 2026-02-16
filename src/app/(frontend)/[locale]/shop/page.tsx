@@ -4,10 +4,10 @@ import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getShopBaseData, getShopPageConfig, getShopRoutineData } from '@/lib/shop/getShopData'
 import { buildContactLinks } from '@/lib/contact'
-import { Hero } from '@/components/Hero'
+import { Hero } from '@/components/heroes/Hero'
 import { ShopSectionSwitcher } from '@/components/shop/ShopSectionSwitcher'
-import type { ShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
-import type { NeedData, ProductCard, TextureData } from '@/components/shop-navigator/types/navigator'
+import type { ShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
+import type { NeedData, ProductCard, TextureData } from '@/components/navigators/shop-navigator/types/navigator'
 import type {
   RoutineStep,
   RoutineStepRule,

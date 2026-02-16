@@ -14,15 +14,15 @@ Verificare i layout a 2 colonne nel frontend e guidare la convergenza di stile/d
 
 ### Componenti frontend con 2 colonne (`src/components`)
 Totale: **9 componenti**
-- `src/components/StoryValuesSection.tsx`
+- `src/components/sections/StoryValuesSection.tsx`
 - `src/components/account/AccountDashboardClient.tsx`
-- `src/components/ProtocolSplit.tsx`
+- `src/components/sections/ProtocolSplit.tsx`
 - `src/components/shop/RoutineBuilderSplitSection.tsx`
-- `src/components/ProgramsSplitSection.tsx`
-- `src/components/shop-navigator/ShopNavigatorSection.tsx`
-- `src/components/shop-navigator/components/ConsulenzaForm.tsx`
-- `src/components/shop-navigator/components/columns/ColumnProducts.tsx`
-- `src/components/service-navigator/components/ConsulenzaForm.tsx`
+- `src/components/sections/ProgramsSplitSection.tsx`
+- `src/components/navigators/shop-navigator/ShopNavigatorSection.tsx`
+- `src/components/navigators/shop-navigator/components/ConsulenzaForm.tsx`
+- `src/components/navigators/shop-navigator/components/columns/ColumnProducts.tsx`
+- `src/components/navigators/service-navigator/components/ConsulenzaForm.tsx`
 
 ### Pagine/layout con pattern 2 colonne (`src/app/(frontend)`)
 Totale: **5 file**
@@ -60,18 +60,18 @@ Totale file con pattern 2 colonne rilevati: **14**
 
 ### Batch 3 completato
 1. Convergenza split-layout in:
-   - `src/components/StoryValuesSection.module.css`
-   - `src/components/ProgramsSplitSection.module.css`
+   - `src/components/sections/StoryValuesSection.module.css`
+   - `src/components/sections/ProgramsSplitSection.module.css`
    - `src/components/account/AccountDashboardClient.module.css`
 2. Token locali introdotti nei componenti split (`--split-gap`, `--split-min-height`, `--split-radius`).
-3. `sizes` immagini aggiornato in `src/components/ProgramsSplitSection.tsx`.
+3. `sizes` immagini aggiornato in `src/components/sections/ProgramsSplitSection.tsx`.
 4. Verifica: `pnpm -s tsc --noEmit` OK.
 
 ### Batch 4 completato
 1. Riallineamento breakpoint residui `900/1100` a `1024` nei componenti condivisi:
    - `src/components/account/AuthForms.module.css`
-   - `src/components/Header.module.css`
-   - `src/components/ServicesProtocol.module.css`
+   - `src/components/layout/Header.module.css`
+   - `src/components/services/ServicesProtocol.module.css`
    - `src/components/shop/RoutineBuilderSection.module.css`
 2. Aggiornato anche il boundary desktop corrispondente in header:
    - `@media (min-width: 1101px)` -> `@media (min-width: 1025px)`.
@@ -88,17 +88,17 @@ Totale file con pattern 2 colonne rilevati: **14**
 ### Priorita P1 (alto impatto)
 
 - [ ] **Navigator duplicati**  
-Scope: `src/components/service-navigator/*` e `src/components/shop-navigator/*`  
+Scope: `src/components/navigators/service-navigator/*` e `src/components/navigators/shop-navigator/*`  
 Evidenza: componenti omonimi con differenze moderate (`NavigatorGrid.tsx`, `PathBreadcrumb.tsx`, `ColumnList.tsx`, ecc.)  
 Azione: creare `UIC_NavigatorCore` + adapter per dominio (`service`/`shop`) e ridurre duplicazione.
 
-- [ ] **File identici duplicati**  
-Scope: `src/components/service-navigator/icons.tsx`, `src/components/shop-navigator/icons.tsx`  
-Evidenza: file identici.  
-Azione: unificare in `UIC_NavigatorIcons.tsx` + eventuali re-export locali.
+- [x] **File identici duplicati**  
+Scope: `src/components/navigators/service-navigator/icons.tsx`, `src/components/navigators/shop-navigator/icons.tsx`, `src/components/navigators/core/icons.tsx`  
+Evidenza: file duplicati sui due navigator.  
+Azione: unificato su `navigators/core/icons.tsx`, migrati i consumer diretti e rimossi gli alias locali.
 
 - [ ] **Consulenza form duplicata con placeholder runtime**  
-Scope: `src/components/service-navigator/components/ConsulenzaForm.tsx`, `src/components/shop-navigator/components/ConsulenzaForm.tsx`  
+Scope: `src/components/navigators/service-navigator/components/ConsulenzaForm.tsx`, `src/components/navigators/shop-navigator/components/ConsulenzaForm.tsx`  
 Evidenza: presenza `TODO` + `console.log`/placeholder submit.  
 Azione: estrarre `UIC_ConsultationForm.tsx` con submit handler passato via props e integrazione backend reale.
 
@@ -116,6 +116,54 @@ Azione: proseguire migrazione in CSS module/componenti e mantenere `globals.css`
 ### Priorita P3 (basso impatto / decisione API)
 
 - [x] **Wrapper carousel legacy**  
-Scope: `src/components/ServicesCarousel.tsx`, `src/components/ShopCarousel.tsx`, `src/components/UIC_Carousel.tsx`  
+Scope: `src/components/carousel/ServicesCarousel.tsx`, `src/components/carousel/ShopCarousel.tsx`, `src/components/carousel/UIC_Carousel.tsx`  
 Evidenza: `ServicesCarousel` e `ShopCarousel` sono wrapper sottili su `UIC_Carousel`.  
-Azione: consumer migrati a `UIC_Carousel` diretto nelle pagine frontend; alias legacy mantenuti e marcati `@deprecated` per compatibilita.
+Azione: consumer migrati a `UIC_Carousel` diretto nelle pagine frontend; rimossi alias root obsoleti in `src/components/*`; wrapper deprecati mantenuti solo in `src/components/carousel/*` per compatibilita.
+
+### Checklist Monitor - Riorganizzazione `src/components`
+
+- [x] **Definizione convenzioni cartelle e naming**  
+Scope: `src/components/**`  
+Evidenza: coesistenza di file root, cartelle dominio e naming eterogeneo (`UIC_*`, file sparsi, folder specifiche).  
+Azione: convenzione fissata: `UIC_*` solo per primitive/shared UI core; componenti di pagina/domino in cartelle feature (`heroes`, `layout`, `theme`, `sections`, `carousel`).
+
+- [x] **Raggruppamento componenti root in cartelle feature**  
+Scope: `src/components/{heroes,layout,theme,sections,carousel}`  
+Evidenza: 37 file al root `src/components`, con componenti funzionalmente aggregabili.  
+Azione: batch 1 completato: file root migrati nelle cartelle target, con alias compatibili nei vecchi path.
+
+- [x] **Alias compatibilita import legacy**  
+Scope: vecchi entrypoint `src/components/*` dopo spostamento  
+Evidenza: import path legacy presenti in `src/app` e componenti correlati.  
+Azione: re-export temporanei usati durante migrazione e poi rimossi; restano solo wrapper deprecati carousel in `src/components/carousel/*`.
+
+- [x] **Barrel per dominio/feature**  
+Scope: `src/components/*/index.ts` (dove utile)  
+Evidenza: import diretti su file puntuali con path lunghi e non uniformi.  
+Azione: aggiunti `index.ts` in `heroes`, `layout`, `theme`, `sections`, `carousel`.
+
+- [x] **Unificazione navigator core (service/shop)**  
+Scope: `src/components/navigators/service-navigator/*`, `src/components/navigators/shop-navigator/*`, nuovo `src/components/navigators/core/*`  
+Evidenza: duplicazione componenti (`NavigatorGrid`, `PathBreadcrumb`, `MobileFlow`, `SidePreview`, `ColumnList`, ecc.).  
+Azione: estrarre core condiviso e mantenere adapter dominio `service`/`shop` per data mapping e query.  
+Stato batch 4: convergenza completata con core condiviso per `NavigatorGridLayout`, `MobileFlowShell`, `SidePreviewSection` oltre ai blocchi gia estratti (`icons`, `ConsultationForm`, `PathBreadcrumb`, `ColumnList`, `ProgressIndicator`); i file dominio restano adapter.
+
+- [x] **Deduplica risorse identiche navigator**  
+Scope: `icons.tsx`, `ConsulenzaForm*`, utility/shared CSS navigator  
+Evidenza: file uguali o quasi uguali in entrambi i navigator.  
+Azione: consolidare in shared/core con re-export locali solo dove serve.  
+Stato batch 6: completato. `icons.tsx` unificato in `navigators/core/icons.tsx` con migrazione consumer a import diretto core e rimozione alias locali; `ConsulenzaForm.tsx` rifattorizzato su `navigators/core/ConsultationForm.tsx`; stylesheet unico condiviso in `navigators/core/ConsultationForm.module.css`; centralizzati anche `ProgressIndicator.module.css`, `EmptyState.module.css`, `PathBreadcrumb.module.css` e `CenterImageDisplay.module.css` in `navigators/core` con rimozione dei duplicati locali.
+
+- [x] **Cleanup finale alias e path obsoleti**  
+Scope: alias legacy e import path pre-riorganizzazione  
+Evidenza: alias previsti solo come transizione.  
+Azione: rimuovere alias deprecati dopo migrazione completa dei consumer.
+Stato batch 2: completata rimozione alias navigator (`service-navigator/icons.tsx`, `shop-navigator/icons.tsx`) e alias root `src/components/*`; consumer migrati a path feature/core.
+
+- [x] **Gate di verifica tecnica per ogni batch**  
+Scope: codebase frontend + admin import map  
+Evidenza: rischio regressioni su path/risoluzione componenti.  
+Azione: batch 1-2 verificati con `pnpm -s tsc --noEmit` e `pnpm exec payload generate:importmap`.
+
+
+Se vuoi, prossimo passo è chiudere anche la voce “Consulenza form duplicata con placeholder runtime” (rimozione console.log/alert e submit handler reale).

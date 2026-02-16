@@ -1,14 +1,14 @@
 import { notFound } from 'next/navigation'
 
 import { getDictionary, isLocale } from '@/lib/i18n'
-import { Hero } from '@/components/Hero'
-import { UICCarousel } from '@/components/UIC_Carousel'
-import { StoryHero } from '@/components/StoryHero'
-import { ValuesSection, type ValuesSectionItem } from '@/components/ValuesSection'
-import { ProgramsSplitSection } from '@/components/ProgramsSplitSection'
-import { ProtocolSplit, type ProtocolSplitStep } from '@/components/ProtocolSplit'
+import { Hero } from '@/components/heroes/Hero'
+import { UICCarousel } from '@/components/carousel/UIC_Carousel'
+import { StoryHero } from '@/components/heroes/StoryHero'
+import { ValuesSection, type ValuesSectionItem } from '@/components/sections/ValuesSection'
+import { ProgramsSplitSection } from '@/components/sections/ProgramsSplitSection'
+import { ProtocolSplit, type ProtocolSplitStep } from '@/components/sections/ProtocolSplit'
 import { getPayloadClient } from '@/lib/getPayloadClient'
-import type { ServicesCarouselItem } from '@/components/service-carousel/types'
+import type { ServicesCarouselItem } from '@/components/carousel/types'
 
 export default async function HomePage({
   params,

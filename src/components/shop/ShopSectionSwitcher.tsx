@@ -5,14 +5,14 @@ import dynamic from 'next/dynamic'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { ShopAllSection } from '@/components/shop/ShopAllSection'
-import type { ShopNavigatorData } from '@/components/shop-navigator/data/shop-data-context'
-import type { ProductCard } from '@/components/shop-navigator/types/navigator'
-import type { ServicesCarouselItem } from '@/components/service-carousel/types'
+import type { ShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
+import type { ProductCard } from '@/components/navigators/shop-navigator/types/navigator'
+import type { ServicesCarouselItem } from '@/components/carousel/types'
 import styles from './ShopSectionSwitcher.module.css'
 
 const ShopNavigatorSection = dynamic(
   () =>
-    import('@/components/shop-navigator/ShopNavigatorSection').then(
+    import('@/components/navigators/shop-navigator/ShopNavigatorSection').then(
       (module) => module.ShopNavigatorSection,
     ),
   {
@@ -40,7 +40,7 @@ const RoutineBuilderSection = dynamic(
 
 const ConsulenzaForm = dynamic(
   () =>
-    import('@/components/shop-navigator/components/ConsulenzaForm').then(
+    import('@/components/navigators/shop-navigator/components/ConsulenzaForm').then(
       (module) => module.ConsulenzaForm,
     ),
   {

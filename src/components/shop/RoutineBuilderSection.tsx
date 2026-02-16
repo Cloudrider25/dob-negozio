@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { ProductCard } from '@/components/shop-navigator/types/navigator'
+import type { ProductCard } from '@/components/navigators/shop-navigator/types/navigator'
 import styles from './RoutineBuilderSection.module.css'
 
 type RoutineNeed = {

@@ -6,14 +6,14 @@ import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import styles from './service-detail.module.css'
 import { ServiceAccordion } from './ServiceAccordion'
-import { UICCarousel } from '@/components/UIC_Carousel'
-import { ServiceTreatmentReveal } from '@/components/ServiceTreatmentReveal'
+import { UICCarousel } from '@/components/carousel/UIC_Carousel'
+import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatmentReveal'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import type { SerializedEditorState } from 'lexical'
 import { HeroGallery } from './HeroGallery'
 import { FaqAccordion } from './FaqAccordion'
 import type { Treatment } from '@/payload-types'
-import type { ServicesCarouselItem } from '@/components/service-carousel/types'
+import type { ServicesCarouselItem } from '@/components/carousel/types'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -753,7 +753,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
         </div>
       </section>
 
-      <ServiceTreatmentReveal
+      <ServicesTreatmentReveal
         primary={{
           title: parentTitle || service.name || 'Protocol overview',
           mediaDescription: parentDescription || service.description || '',

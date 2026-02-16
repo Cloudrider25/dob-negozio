@@ -1,6 +1,6 @@
 import React from 'react'
 import '../../styles/globals.css'
-import { ThemeHydrator } from '@/components/ThemeHydrator'
+import { ThemeHydrator } from '@/components/theme/ThemeHydrator'
 
 export const metadata = {
   description:

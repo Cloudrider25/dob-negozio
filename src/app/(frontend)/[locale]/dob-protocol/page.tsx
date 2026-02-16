@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
-import { ProtocolSplit, type ProtocolSplitStep } from '@/components/ProtocolSplit'
+import { ProtocolSplit, type ProtocolSplitStep } from '@/components/sections/ProtocolSplit'
 
 export default async function DobProtocolPage({
   params,

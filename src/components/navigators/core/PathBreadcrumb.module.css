@@ -1,0 +1,114 @@
+.wrapper {
+  margin-bottom: 2rem;
+}
+
+.breadcrumb {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px);
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+}
+
+.card {
+  width: 100%;
+  min-height: 88px;
+}
+
+.cardPadding {
+  padding: 1.5rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.nodeWrap,
+.nodeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.backIcon,
+.icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--tech-cyan);
+}
+
+.backButton,
+.nodeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--stroke);
+  transition: all 300ms ease;
+}
+
+.shopBackButton,
+.shopNodeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--stroke);
+  background: transparent;
+  transition: all 300ms ease;
+}
+
+.backLabel,
+.nodeLabel,
+.shopNodeLabel {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.nodeLabel {
+  text-transform: capitalize;
+}
+
+.connector {
+  width: 2rem;
+  height: 2px;
+  background: linear-gradient(to right, rgba(79, 209, 197, 0.5), rgba(79, 209, 197, 0.2));
+}
+
+.separator {
+  width: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(80, 164, 248, 0.5), rgba(80, 164, 248, 0.2));
+}
+
+.nodeDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--tech-cyan);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--tech-cyan) 60%, transparent);
+}
+
+.guide,
+.emptyText {
+  font-size: 0.875rem;
+  color: var(--tech-cyan);
+}
+
+.empty {
+  text-align: center;
+  width: 100%;
+}

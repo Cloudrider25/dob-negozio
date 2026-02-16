@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
-import { ProgramsSplitSection } from '@/components/ProgramsSplitSection'
+import { ProgramsSplitSection } from '@/components/sections/ProgramsSplitSection'
 import styles from './program-detail.module.css'
 
 type PageParams = Promise<{ locale: string; slug: string }>

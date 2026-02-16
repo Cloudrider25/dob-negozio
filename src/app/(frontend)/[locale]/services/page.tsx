@@ -2,15 +2,15 @@ import { notFound } from 'next/navigation'
 
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
-import { Hero } from '@/components/Hero'
-import { ServiceNavigatorSection } from '@/components/service-navigator/ServiceNavigatorSection'
-import type { NavigatorData } from '@/components/service-navigator/data/navigator-data-context'
+import { Hero } from '@/components/heroes/Hero'
+import { ServiceNavigatorSection } from '@/components/navigators/service-navigator/ServiceNavigatorSection'
+import type { NavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
 import type {
   AreaData,
   GoalData,
   ServiceFinal,
   TreatmentData,
-} from '@/components/service-navigator/types/navigator'
+} from '@/components/navigators/service-navigator/types/navigator'
 import { buildContactLinks } from '@/lib/contact'
 
 export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {

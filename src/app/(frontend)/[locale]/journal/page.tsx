@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import Image from 'next/image'
-import { Hero } from '@/components/Hero'
+import { Hero } from '@/components/heroes/Hero'
 import styles from './journal.module.css'
 
 type InstagramMediaItem = {
