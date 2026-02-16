@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { NavigatorState } from "@/components/navigators/service-navigator/types/navigator";
 import type { NavigatorData } from "@/components/navigators/service-navigator/data/navigator-data-context";
@@ -24,17 +25,31 @@ type ContactLinks = {
 export function ServiceNavigatorSection({
   data,
   contactLinks,
+  initialViewMode = "navigator",
+  showHeaderActions = true,
+  showHeaderIntro = true,
+  forcedViewMode,
 }: {
   data: NavigatorData;
   contactLinks: ContactLinks;
+  initialViewMode?: ViewMode;
+  showHeaderActions?: boolean;
+  showHeaderIntro?: boolean;
+  forcedViewMode?: ViewMode;
 }) {
-  const [viewMode, setViewMode] = useState<ViewMode>("navigator");
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
   const [state, setState] = useState<NavigatorState>({
     step: "area",
     cart: [], // Inizializza il carrello vuoto
   });
 
   const [showMobileFlow, setShowMobileFlow] = useState(false);
+
+  useEffect(() => {
+    setViewMode(initialViewMode);
+  }, [initialViewMode]);
+
+  const activeViewMode = forcedViewMode ?? viewMode;
 
   const handleUpdateState = (updates: Partial<NavigatorState>) => {
     setState((prev) => ({ ...prev, ...updates }));
@@ -53,6 +68,7 @@ export function ServiceNavigatorSection({
   };
 
   const handleSkinAnalyzer = () => {
+    if (forcedViewMode) return;
     setViewMode("consulenza");
     setShowMobileFlow(false);
   };
@@ -63,14 +79,16 @@ export function ServiceNavigatorSection({
         {/* Content */}
         <div className={styles.content}>
           <NavigatorHeader 
-            activeView={viewMode}
-            onViewChange={setViewMode}
+            activeView={activeViewMode}
+            onViewChange={forcedViewMode ? () => {} : setViewMode}
+            showActions={showHeaderActions}
+            showIntro={showHeaderIntro && activeViewMode !== "listino"}
           />
 
         {/* Desktop View */}
         <div className={styles.desktopOnly}>
           <AnimatePresence mode="wait">
-            {viewMode === "navigator" ? (
+            {activeViewMode === "navigator" ? (
               <NavigatorGrid
                 key="navigator"
                 state={state}
@@ -78,7 +96,7 @@ export function ServiceNavigatorSection({
                 onBookNow={handleBookNow}
                 onSkinAnalyzer={handleSkinAnalyzer}
               />
-            ) : viewMode === "listino" ? (
+            ) : activeViewMode === "listino" ? (
               <ListinoTradizionale key="listino" />
             ) : (
               <ConsulenzaSection

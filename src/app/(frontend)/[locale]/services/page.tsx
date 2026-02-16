@@ -4,6 +4,11 @@ import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { Hero } from '@/components/heroes/Hero'
 import { ServiceNavigatorSection } from '@/components/navigators/service-navigator/ServiceNavigatorSection'
+import { NavigatorDataProvider } from '@/components/navigators/service-navigator/data/navigator-data-context'
+import { ListinoTradizionale } from '@/components/navigators/service-navigator/components/ListinoTradizionale'
+import { ConsulenzaSection } from '@/components/navigators/service-navigator/components/ConsulenzaSection'
+import { ServicesSectionSwitcher } from '@/components/services/ServicesSectionSwitcher'
+import styles from './services-page.module.css'
 import type { NavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
 import type {
   AreaData,
@@ -13,8 +18,15 @@ import type {
 } from '@/components/navigators/service-navigator/types/navigator'
 import { buildContactLinks } from '@/lib/contact'
 
-export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function ServicesPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams?: Promise<{ view?: string }>
+}) {
   const { locale } = await params
+  const viewParam = (await searchParams)?.view?.trim()
 
   if (!isLocale(locale)) {
     notFound()
@@ -297,6 +309,9 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
     phone: siteSettings?.phone,
     whatsapp: siteSettings?.whatsapp,
   })
+  const initialViewMode =
+    viewParam === 'listino' || viewParam === 'consulenza' ? viewParam : 'navigator'
+
   return (
     <div className="flex flex-col gap-0">
       {hasHero && (
@@ -309,7 +324,42 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
           mediaLight={heroLight || undefined}
         />
       )}
-      <ServiceNavigatorSection data={navigatorData} contactLinks={contactLinks} />
+      <ServicesSectionSwitcher currentView={initialViewMode} />
+      {initialViewMode === 'navigator' ? (
+        <>
+          <section className={styles.navigatorCore}>
+            <div className={styles.navigatorCoreGrid}>
+              <div className={styles.navigatorCoreContent}>
+                <h2 className={styles.navigatorCoreTitle}>Scegli il risultato. Al resto pensiamo noi.</h2>
+                <p className={styles.navigatorCoreSubtitle}>
+                  Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
+                </p>
+              </div>
+              <div aria-hidden="true" />
+            </div>
+          </section>
+          <ServiceNavigatorSection
+            data={navigatorData}
+            contactLinks={contactLinks}
+            initialViewMode="navigator"
+            forcedViewMode="navigator"
+            showHeaderActions={false}
+            showHeaderIntro={false}
+          />
+        </>
+      ) : null}
+      {initialViewMode === 'consulenza' ? (
+        <section className="w-full bg-[var(--bg)] px-[2.5vw] py-20">
+          <ConsulenzaSection contactLinks={contactLinks} />
+        </section>
+      ) : null}
+      {initialViewMode === 'listino' ? (
+        <section className="w-full bg-transparent pb-16">
+          <NavigatorDataProvider data={navigatorData}>
+            <ListinoTradizionale />
+          </NavigatorDataProvider>
+        </section>
+      ) : null}
     </div>
   )
 }
