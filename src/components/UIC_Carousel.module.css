@@ -1,0 +1,61 @@
+.section {
+  background: transparent;
+  overflow: hidden;
+}
+
+.wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel {
+  overflow: visible;
+}
+
+.carousel :global(.swiper-wrapper) {
+  align-items: stretch;
+}
+
+.empty {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.slide {
+  height: auto;
+}
+
+.nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 24px rgba(10, 18, 30, 0.12);
+  cursor: pointer;
+  z-index: 6;
+  pointer-events: auto;
+}
+
+.prev {
+  left: 12px;
+}
+
+.next {
+  right: 12px;
+}
+
+@media (max-width: 1024px) {
+  .section {
+    padding: 0;
+  }
+
+  .nav {
+    display: none;
+  }
+}

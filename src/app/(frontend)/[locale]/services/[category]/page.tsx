@@ -6,7 +6,7 @@ import { getPayloadClient } from '@/lib/getPayloadClient'
 import { buildContactLinks } from '@/lib/contact'
 import { Hero } from '@/components/Hero'
 import { ServicesProtocol } from '@/components/ServicesProtocol'
-import { ServicesCarousel } from '@/components/ServicesCarousel'
+import { UICCarousel } from '@/components/UIC_Carousel'
 import { ServicesToggle } from '@/components/ServicesToggle'
 import { ButtonLink } from '@/components/ui/button-link'
 import styles from './services-category.module.css'
@@ -191,7 +191,7 @@ export default async function ServiceCategoryPage({
       />
       <ServicesProtocol />
       <section
-        className="grid grid-cols-[minmax(220px,320px)_1fr_minmax(220px,320px)] gap-10 px-[2.5vw] py-[var(--s120)] max-[1100px]:grid-cols-1"
+        className="grid grid-cols-[minmax(220px,320px)_1fr_minmax(220px,320px)] gap-10 px-[2.5vw] py-[var(--s120)] max-[1024px]:grid-cols-1"
         data-header-theme="light"
       >
         <div className={styles.highlightMedia}>
@@ -202,7 +202,7 @@ export default async function ServiceCategoryPage({
               src={highlightImageLeft.url}
               alt={highlightImageLeft.alt}
               fill
-              sizes="(max-width: 1100px) 100vw, 320px"
+              sizes="(max-width: 1024px) 100vw, 320px"
             />
           )}
         </div>
@@ -217,7 +217,7 @@ export default async function ServiceCategoryPage({
             {categoryDoc.highlightLead ||
               'Trattamenti studiati per risultati visibili, texture luminosa e cura profonda.'}
           </p>
-          <div className="grid w-full grid-cols-2 gap-8 max-[1100px]:grid-cols-1">
+          <div className="grid w-full grid-cols-2 gap-8 max-[1024px]:grid-cols-1">
             <div>
               <h3 className="mb-2 text-[1.2rem]">
                 {categoryDoc.highlightPointOneTitle || 'Powered by precision'}
@@ -246,7 +246,7 @@ export default async function ServiceCategoryPage({
               src={highlightImageRight.url}
               alt={highlightImageRight.alt}
               fill
-              sizes="(max-width: 1100px) 100vw, 320px"
+              sizes="(max-width: 1024px) 100vw, 320px"
             />
           )}
         </div>
@@ -262,7 +262,7 @@ export default async function ServiceCategoryPage({
           <div className="flex items-center justify-between">
             <ServicesToggle currentType={typeFilter} />
           </div>
-          <ServicesCarousel
+          <UICCarousel
             items={filteredServices.map((service) => ({
               title: service.name || categoryTitle,
               subtitle: service.description || categoryDoc.description || 'Trattamento su misura.',
@@ -281,6 +281,8 @@ export default async function ServiceCategoryPage({
                   : null,
               href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
             }))}
+            ariaLabel="Services carousel"
+            emptyLabel="Nessun servizio disponibile."
           />
           {!filteredServices.length && (
             <p className="text-[0.9rem]">{t.services.note}</p>

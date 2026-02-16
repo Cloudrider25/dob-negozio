@@ -18,7 +18,7 @@ export function AuthSplitLayout({ children, locale }: { children: ReactNode; loc
             fill
             priority
             className={styles.image}
-            sizes="(max-width: 1100px) 100vw, 52vw"
+            sizes="(max-width: 1024px) 100vw, 52vw"
           />
           <p className={styles.overlay}>{copy.visualOverlay}</p>
         </aside>

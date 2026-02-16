@@ -1,7 +1,8 @@
 .layout {
+  --split-gap: 56px;
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 56px;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: var(--split-gap);
   padding: 28px 24px 40px;
   background: var(--bg);
   border-radius: 0 0 14px 14px;
@@ -315,7 +316,7 @@
   font-size: calc(18px * 0.7);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .layout {
     grid-template-columns: 1fr;
     gap: 26px;

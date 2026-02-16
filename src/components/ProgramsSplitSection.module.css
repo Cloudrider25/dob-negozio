@@ -1,8 +1,11 @@
 .section {
+  --split-gap: clamp(1rem, 2.5vw, 2.5rem);
+  --split-radius: 16px;
+  --split-min-height: 420px;
   display: grid;
-  gap: 2.5vw;
+  gap: var(--split-gap);
   background: transparent;
-  border-radius: 16px;
+  border-radius: var(--split-radius);
   grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
   min-height: 620px;
   height: auto;
@@ -10,9 +13,9 @@
 
 .left {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--split-radius);
   overflow: hidden;
-  min-height: 420px;
+  min-height: var(--split-min-height);
   background: #d9d6d2;
 }
 
@@ -44,10 +47,10 @@
 
 .right {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--split-radius);
   padding: clamp(1.8rem, 2.2vw, 2.6rem);
   background: var(--bg);
-  min-height: 420px;
+  min-height: var(--split-min-height);
   display: grid;
   gap: 1rem;
   align-content: stretch;
@@ -243,10 +246,10 @@
   overflow: auto;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .section {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: var(--split-gap);
     min-height: 0;
   }
 

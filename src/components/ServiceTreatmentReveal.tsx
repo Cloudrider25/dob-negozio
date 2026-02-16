@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import Link from 'next/link'
 
-import styles from '../app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css'
+import styles from './ServiceTreatmentReveal.module.css'
 
 type PanelContent = {
   title: string

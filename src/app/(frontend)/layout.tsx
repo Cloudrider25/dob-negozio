@@ -4,7 +4,8 @@ import '../../styles/globals.css'
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
-  display: 'swap',
+  display: 'optional',
+  preload: false,
   variable: '--font-instrument',
   weight: ['400', '500', '600', '700'],
 })

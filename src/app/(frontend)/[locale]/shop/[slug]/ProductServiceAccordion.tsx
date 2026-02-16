@@ -1,0 +1,43 @@
+'use client'
+
+import { useState } from 'react'
+
+import styles from './product-detail.module.css'
+
+type AccordionItem = {
+  id: string
+  title: string
+  body: React.ReactNode
+  cta?: React.ReactNode
+}
+
+export function ProductServiceAccordion({ items }: { items: AccordionItem[] }) {
+  const [openId, setOpenId] = useState(items[0]?.id ?? '')
+
+  return (
+    <div className={styles.accordion}>
+      {items.map((item) => {
+        const isOpen = item.id === openId
+        return (
+          <div key={item.id} className={styles.accordionItem}>
+            <button
+              type="button"
+              className={styles.accordionTrigger}
+              onClick={() => setOpenId(isOpen ? '' : item.id)}
+              aria-expanded={isOpen}
+            >
+              <span>{item.title}</span>
+              <span className={styles.accordionIcon}>{isOpen ? '−' : '+'}</span>
+            </button>
+            {isOpen && (
+              <div className={styles.accordionPanel}>
+                {item.body}
+                {item.cta && <div className={styles.accordionCta}>{item.cta}</div>}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}

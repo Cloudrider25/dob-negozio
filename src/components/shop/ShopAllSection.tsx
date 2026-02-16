@@ -1,6 +1,6 @@
 'use client'
 
-import { ServiceCarouselCard } from '@/components/ServiceCarouselCard'
+import { UICCarouselCard } from '@/components/UIC_CarouselCard'
 import type { ServicesCarouselItem } from '@/components/service-carousel/types'
 import styles from './ShopAllSection.module.css'
 
@@ -9,7 +9,7 @@ export function ShopAllSection({ items }: { items: ServicesCarouselItem[] }) {
     <section className={styles.section}>
       <div className={styles.grid}>
         {items.map((item, index) => (
-          <ServiceCarouselCard key={`${item.title}-${index}`} item={item} />
+          <UICCarouselCard key={`${item.title}-${index}`} item={item} />
         ))}
       </div>
     </section>

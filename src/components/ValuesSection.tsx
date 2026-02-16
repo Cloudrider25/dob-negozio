@@ -60,7 +60,7 @@ export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
           src={media?.url || '/media/hero_homepage_light.png'}
           alt={media?.alt || 'Texture DOB'}
           fill
-          sizes="(max-width: 900px) 100vw, 48vw"
+          sizes="(max-width: 1024px) 100vw, 48vw"
         />
       </div>
     </section>

@@ -5,7 +5,8 @@ import { Hero } from '@/components/Hero'
 import { StoryHeroNote } from '@/components/StoryHeroNote'
 import { StoryValuesSection, type StoryValuesItem } from '@/components/StoryValuesSection'
 import { StoryTeamSection, type StoryTeamItem } from '@/components/StoryTeamSection'
-import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
+import { UICCarousel } from '@/components/UIC_Carousel'
+import type { ServicesCarouselItem } from '@/components/service-carousel/types'
 import type { Where } from 'payload'
 import styles from './our-story.module.css'
 
@@ -274,7 +275,13 @@ export default async function OurStoryPage({
           items={storyTeamItems}
         />
       )}
-      {serviceItems.length > 0 && <ServicesCarousel items={serviceItems} />}
+      {serviceItems.length > 0 && (
+        <UICCarousel
+          items={serviceItems}
+          ariaLabel="Services carousel"
+          emptyLabel="Nessun servizio disponibile."
+        />
+      )}
     </div>
   )
 }

@@ -9,10 +9,11 @@ import { getDictionary, isLocale } from '@/lib/i18n'
 import styles from './product-detail.module.css'
 import { HeroGallery } from './HeroGallery'
 import { AlternativeSelector } from './AlternativeSelector'
-import { ServiceAccordion } from '@/app/(frontend)/[locale]/services/service/[slug]/ServiceAccordion'
-import { FaqAccordion } from '@/app/(frontend)/[locale]/services/service/[slug]/FaqAccordion'
+import { ProductServiceAccordion } from './ProductServiceAccordion'
+import { ProductFaqAccordion } from './ProductFaqAccordion'
 import { ServiceTreatmentReveal } from '@/components/ServiceTreatmentReveal'
-import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
+import { UICCarousel } from '@/components/UIC_Carousel'
+import type { ServicesCarouselItem } from '@/components/service-carousel/types'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -455,7 +456,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
             </div>
           ) : null}
 
-          <ServiceAccordion
+          <ProductServiceAccordion
             items={[
               ...(resultsText
                 ? [
@@ -648,7 +649,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
             </p>
             <div className={styles.faqList}>
               {Array.isArray(product.faqItems) && product.faqItems.length ? (
-                <FaqAccordion
+                <ProductFaqAccordion
                   items={
                     product.faqItems
                       .map((item) => {
@@ -664,7 +665,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   }
                 />
               ) : (
-                <FaqAccordion
+                <ProductFaqAccordion
                   items={[
                     {
                       question: 'Come si applica?',
@@ -721,11 +722,13 @@ export default async function ProductDetailPage({ params }: { params: PageParams
           mediaBody: (
             <div className={styles.treatmentCarousel}>
               {alternativeProductItems.length > 0 ? (
-                <ServicesCarousel
+                <UICCarousel
                   items={alternativeProductItems}
                   single
                   cardClassName={styles.altCarouselCard}
                   mediaClassName={styles.altCarouselMedia}
+                  ariaLabel="Alternative products carousel"
+                  emptyLabel="Nessun prodotto disponibile."
                 />
               ) : (
                 <p className={styles.treatmentText}>
@@ -738,7 +741,11 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       />
 
       <section aria-label="Altri prodotti">
-        <ServicesCarousel items={productItems} />
+        <UICCarousel
+          items={productItems}
+          ariaLabel="Shop carousel"
+          emptyLabel="Nessun prodotto disponibile."
+        />
       </section>
     </div>
   )

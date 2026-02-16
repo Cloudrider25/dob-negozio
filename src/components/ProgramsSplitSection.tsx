@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import styles from './ProgramsSplitSection.module.css'
-import serviceCardStyles from './ServiceCarouselCard.module.css'
+import serviceCardStyles from './UIC_CarouselCard.module.css'
 
 type ProgramStep = {
   id: string
@@ -54,7 +54,7 @@ export const ProgramsSplitSection = ({
             src={leftMedia.url}
             alt={leftMedia.alt || 'Program media'}
             fill
-            sizes="(max-width: 900px) 100vw, 48vw"
+            sizes="(max-width: 1024px) 100vw, 48vw"
             className={direction === 'next' ? styles.slideNext : styles.slidePrev}
           />
         )}
@@ -159,7 +159,7 @@ export const ProgramsSplitSection = ({
                     src={activeStep.detailMedia.url}
                     alt={activeStep.detailMedia.alt || ''}
                     fill
-                    sizes="40vw"
+                    sizes="(max-width: 1024px) 100vw, 40vw"
                     className={direction === 'next' ? styles.slideNext : styles.slidePrev}
                   />
                 )}

@@ -2,13 +2,13 @@ import { notFound } from 'next/navigation'
 
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { Hero } from '@/components/Hero'
-import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
-import { ShopCarousel, type ShopCarouselItem } from '@/components/ShopCarousel'
+import { UICCarousel } from '@/components/UIC_Carousel'
 import { StoryHero } from '@/components/StoryHero'
 import { ValuesSection, type ValuesSectionItem } from '@/components/ValuesSection'
 import { ProgramsSplitSection } from '@/components/ProgramsSplitSection'
 import { ProtocolSplit, type ProtocolSplitStep } from '@/components/ProtocolSplit'
 import { getPayloadClient } from '@/lib/getPayloadClient'
+import type { ServicesCarouselItem } from '@/components/service-carousel/types'
 
 export default async function HomePage({
   params,
@@ -273,7 +273,7 @@ export default async function HomePage({
     })
     .filter((item) => Boolean(item && item.title))
 
-  const carouselItems: ShopCarouselItem[] = productsResult.docs
+  const carouselItems: ServicesCarouselItem[] = productsResult.docs
     .map((product) => {
       const gallery = Array.isArray(product.images) ? product.images : []
       const media = resolveMedia(product.coverImage || gallery[0], product.title || '') || fallbackImage
@@ -281,7 +281,11 @@ export default async function HomePage({
         title: product.title || '',
         subtitle: product.description || undefined,
         price: formatPrice(product.price),
+        duration: null,
         image: { url: media.url, alt: media.alt },
+        tag: null,
+        badgeLeft: null,
+        badgeRight: null,
         href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
       }
     })
@@ -371,7 +375,11 @@ export default async function HomePage({
           ]}
         />
       )}
-      <ServicesCarousel items={serviceItems} />
+      <UICCarousel
+        items={serviceItems}
+        ariaLabel="Services carousel"
+        emptyLabel="Nessun servizio disponibile."
+      />
       <ProtocolSplit
         eyebrow={pageDoc?.protocolSplit?.eyebrow || 'DOB protocol'}
         steps={protocolSteps.length > 0 ? protocolSteps : undefined}
@@ -385,7 +393,11 @@ export default async function HomePage({
         media={storyHeroMedia || undefined}
       />
       <ProgramsSplitSection program={programData} locale={locale} />
-      <ShopCarousel items={carouselItems} />
+      <UICCarousel
+        items={carouselItems}
+        ariaLabel="Shop carousel"
+        emptyLabel="Nessun prodotto disponibile."
+      />
       <ValuesSection
         items={valuesItems.length > 0 ? valuesItems : undefined}
         media={valuesMedia ? { url: valuesMedia.url, alt: valuesMedia.alt } : undefined}

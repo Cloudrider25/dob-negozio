@@ -15,6 +15,7 @@ Mantenere la documentazione coerente, con una sola fonte per ogni area e separaz
 - `Docs/brand-guide.md` — linee guida brand e direzione visuale.
 - `Docs/new-style.md` — regole rapide di stile condivise.
 - `Docs/new-layout.md` — regole layout dettagliate per service detail.
+- `Docs/style-design-audit.md` — audit layout a 2 colonne + piano azione stile/design.
 
 ## Archivio (non fonte primaria)
 I seguenti file sono stati spostati in `Docs/archive/` per storico e tracciabilita, ma non vanno usati come riferimento operativo corrente:

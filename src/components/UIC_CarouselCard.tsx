@@ -4,9 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { ServicesCarouselItem } from './service-carousel/types'
-import styles from './ServiceCarouselCard.module.css'
+import styles from './UIC_CarouselCard.module.css'
 
-export const ServiceCarouselCard = ({
+export const UICCarouselCard = ({
   item,
   cardClassName,
   mediaClassName,
@@ -22,7 +22,7 @@ export const ServiceCarouselCard = ({
         {(item.badgeRight || item.tag) && (
           <span className={styles.badgeRight}>{item.badgeRight || item.tag}</span>
         )}
-        <Image src={item.image.url} alt={item.image.alt || item.title} fill sizes="(max-width: 900px) 70vw, 33vw" />
+        <Image src={item.image.url} alt={item.image.alt || item.title} fill sizes="(max-width: 1024px) 70vw, 33vw" />
       </div>
       <div className={styles.titleBlock}>
         <div className={styles.titleRow}>

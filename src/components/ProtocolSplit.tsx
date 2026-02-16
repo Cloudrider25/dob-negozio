@@ -113,7 +113,7 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
                   src={step.image}
                   alt={step.imageAlt}
                   fill
-                  sizes="(max-width: 900px) 100vw, 50vw"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   priority={index === 0}
                 />
               </div>

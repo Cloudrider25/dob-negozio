@@ -1,37 +1,45 @@
-# New style guide
+# New Style Guide
 
 ## Scopo
-Raccogliere le regole visive condivise (tipografia, colori, spaziature, componenti) per mantenere coerenza tra le pagine.
+Definire regole visive condivise e allineate all'implementazione corrente frontend.
 
 ## Tipografia
-- Titoli principali: maiuscolo/minuscolo coerente con il contesto, letter-spacing ampio
-- Label/caption: uppercase, letter-spacing 0.16–0.24em
-- Body: 0.9–0.95rem, line-height 1.6, colore `--text-secondary`
+- Label/caption: uppercase, tracking alto (`0.16em`-`0.24em`).
+- Body: `0.9rem`-`0.95rem`, line-height `1.6`, colore `--text-secondary`.
+- Titoli: gerarchia chiara, evitare mix casuale upper/lowercase tra sezioni simili.
 
 ## Colori
-- Background pannelli: var(--bg) / #f7f6f3 / #f7f5f2
-- Media placeholder: #e9e6e2
-- Bordi: `color-mix(in srgb, var(--stroke) 60%, transparent)`
-- Testo secondario: `--text-secondary`
+- Pannelli dark: `var(--bg)`.
+- Pannelli light: `#f7f6f3` / `#f7f5f2`.
+- Placeholder media: `#e9e6e2`.
+- Bordi: `1px solid color-mix(in srgb, var(--stroke) 60%, transparent)`.
 
 ## Spaziature
-- Gap principale tra sezioni: 3rem
-- Gap standard in grid a 2 colonne: 2.5rem
-- Padding pannelli grandi: 2.2–2.6rem
+- Gap verticale sezioni pagina: `3rem`.
+- Split 2 colonne: `2.5rem` (via `--split-gap` dove possibile).
+- Padding pannelli principali: `2.2rem`-`2.6rem`.
 
-## Bordo e raggio
-- Border radius medio: 16–18px
-- Border radius hero/pannelli grandi: 22px
-- Bordi 1px, tono morbido
+## Radius / Border
+- Radius pannelli medi: `16px`-`18px`.
+- Radius hero/split grandi: `22px`.
+- Border sempre soft, no outline pesanti di default.
 
-## Card & componenti
-- Card servizi/prodotti: background chiaro, bordo sottile, niente shadow (attuale)
-- CTA pill: border 1px, uppercase, letter-spacing alto
+## Regole Split System (attive)
+- Breakpoint standard split: `1024px`.
+- Desktop: 2 colonne, mobile: 1 colonna.
+- Preferire token locali:
+  - `--split-gap`
+  - `--split-min-height`
+  - `--split-radius`
 
-## Componenti (pattern)
-- Hero: media + pannello testo con stessa altezza (viewport-based)
-- Accordions: una sezione aperta alla volta, trigger uppercase
-- FAQ: due colonne, copy + media
+## Immagini Responsive
+- `sizes` allineato ai breakpoint CSS (`max-width: 1024px` per split principali).
+- Evitare `sizes` con breakpoint diversi dal layout reale del componente.
+
+## Component Patterns
+- Hero split: media + panel con altezze coerenti.
+- FAQ/Inside/Treatment grids: stessa logica di collapse.
+- Account split: sidebar fluida (`minmax`) + content, collapse a 1 colonna su mobile.
 
 ## Note
-Aggiornare questo documento quando si cambia una regola globale (es. radius, palette, ombre).
+- Se una variazione rompe la coerenza split/layout, aggiornare prima `Docs/style-design-audit.md` e poi questo file.

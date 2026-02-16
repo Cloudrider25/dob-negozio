@@ -6,13 +6,14 @@ import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import styles from './service-detail.module.css'
 import { ServiceAccordion } from './ServiceAccordion'
-import { ServicesCarousel, type ServicesCarouselItem } from '@/components/ServicesCarousel'
+import { UICCarousel } from '@/components/UIC_Carousel'
 import { ServiceTreatmentReveal } from '@/components/ServiceTreatmentReveal'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import type { SerializedEditorState } from 'lexical'
 import { HeroGallery } from './HeroGallery'
 import { FaqAccordion } from './FaqAccordion'
 import type { Treatment } from '@/payload-types'
+import type { ServicesCarouselItem } from '@/components/service-carousel/types'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -774,11 +775,13 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
           mediaBody: (
             <div className={styles.treatmentCarousel}>
               {alternativeServiceItems.length > 0 ? (
-                <ServicesCarousel
+                <UICCarousel
                   items={alternativeServiceItems}
                   single
                   cardClassName={styles.altCarouselCard}
                   mediaClassName={styles.altCarouselMedia}
+                  ariaLabel="Alternative services carousel"
+                  emptyLabel="Nessun servizio disponibile."
                 />
               ) : (
                 <p className={styles.treatmentText}>
@@ -791,7 +794,11 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
       />
 
       <section aria-label="Altri servizi">
-        <ServicesCarousel items={serviceItems} />
+        <UICCarousel
+          items={serviceItems}
+          ariaLabel="Services carousel"
+          emptyLabel="Nessun servizio disponibile."
+        />
       </section>
     </div>
   )

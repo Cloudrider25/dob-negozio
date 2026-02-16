@@ -8,7 +8,7 @@ import { ShopNavigatorHeader } from '@/components/shop-navigator/components/Navi
 import { NavigatorGrid } from '@/components/shop-navigator/components/NavigatorGrid'
 import { MobileFlow } from '@/components/shop-navigator/components/MobileFlow'
 import { ShopNavigatorDataProvider } from '@/components/shop-navigator/data/shop-data-context'
-import { ServiceCarouselCard } from '@/components/ServiceCarouselCard'
+import { UICCarouselCard } from '@/components/UIC_CarouselCard'
 import type { ServicesCarouselItem } from '@/components/service-carousel/types'
 import { emitCartUpdated, readCart, writeCart, type CartItem } from '@/lib/cartStorage'
 import styles from './ShopNavigatorSection.module.css'
@@ -95,7 +95,7 @@ function ClassicShopView({
             href: `${productBasePath}/${product.slug ?? product.id}`,
           }
           if (!item.image.url) return null
-          return <ServiceCarouselCard key={product.id} item={item} />
+          return <UICCarouselCard key={product.id} item={item} />
         })}
       </div>
     </div>
