@@ -3,7 +3,6 @@
 import type { NavigatorState, Step } from '@/components/navigators/service-navigator/types/navigator'
 import { useNavigatorData } from '@/components/navigators/service-navigator/data/navigator-data-context'
 import { ChevronLeft } from '@/components/ui/icons'
-import { GlassCard } from '@/components/navigators/service-navigator/components/GlassCard'
 import { PathBreadcrumbCore } from '@/components/navigators/core/PathBreadcrumb'
 import styles from '@/components/navigators/core/PathBreadcrumb.module.css'
 
@@ -79,9 +78,9 @@ export function PathBreadcrumb({ state, onNavigateToStep, onBack }: PathBreadcru
         emptyText: styles.emptyText,
       }}
       renderContainer={(children) => (
-        <GlassCard className={styles.card} paddingClassName={styles.cardPadding}>
-          {children}
-        </GlassCard>
+        <div className={`${styles.breadcrumb} ${styles.card}`}>
+          <div className={styles.cardPadding}>{children}</div>
+        </div>
       )}
     />
   )
