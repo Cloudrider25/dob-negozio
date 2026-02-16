@@ -40,6 +40,7 @@ import { Orders } from './collections/Orders'
 import { OrderItems } from './collections/OrderItems'
 import { ShopWebhookEvents } from './collections/ShopWebhookEvents'
 import { ShopInventoryLocks } from './collections/ShopInventoryLocks'
+import { ConsultationLeads } from './collections/ConsultationLeads'
 import { SiteSettings } from './globals/SiteSettings'
 import { InstagramSettings } from './globals/InstagramSettings'
 import { siteSettingsSMTPAdapter } from './lib/email/siteSettingsSMTPAdapter'
@@ -96,6 +97,7 @@ export default buildConfig({
     Media,
     Users,
     AuthAuditEvents,
+    ConsultationLeads,
   ],
   globals: [SiteSettings, InstagramSettings],
   localization: {

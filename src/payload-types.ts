@@ -102,6 +102,7 @@ export interface Config {
     media: Media;
     users: User;
     'auth-audit-events': AuthAuditEvent;
+    'consultation-leads': ConsultationLead;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -144,6 +145,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'auth-audit-events': AuthAuditEventsSelect<false> | AuthAuditEventsSelect<true>;
+    'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1305,6 +1307,33 @@ export interface AuthAuditEvent {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation-leads".
+ */
+export interface ConsultationLead {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  skinType?: string | null;
+  concerns?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  message?: string | null;
+  status: 'new' | 'in-progress' | 'closed';
+  source?: string | null;
+  locale?: string | null;
+  pagePath?: string | null;
+  ip?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1466,6 +1495,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'auth-audit-events';
         value: number | AuthAuditEvent;
+      } | null)
+    | ({
+        relationTo: 'consultation-leads';
+        value: number | ConsultationLead;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2362,6 +2395,32 @@ export interface AuthAuditEventsSelect<T extends boolean = true> {
   userAgent?: T;
   message?: T;
   meta?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation-leads_select".
+ */
+export interface ConsultationLeadsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  skinType?: T;
+  concerns?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  message?: T;
+  status?: T;
+  source?: T;
+  locale?: T;
+  pagePath?: T;
+  ip?: T;
+  userAgent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

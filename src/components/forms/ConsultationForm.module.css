@@ -281,6 +281,11 @@
   overflow: hidden;
 }
 
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .submitContent {
   position: relative;
   z-index: 1;
@@ -309,6 +314,20 @@
 
 .submitButton:hover .submitGlow {
   opacity: 1;
+}
+
+.submitSuccess {
+  margin: 0;
+  color: #0f766e;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.submitError {
+  margin: 0;
+  color: #b91c1c;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
 .footer {

@@ -4,8 +4,11 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { ArrowRight, Beaker, Phone, WhatsApp, type IconProps } from '@/components/ui/icons'
+import type { ConsultationLeadInput } from '@/lib/consultation/types'
 
-type FormData = {
+export type ConsultationFormData = ConsultationLeadInput
+
+type ConsultationFormState = {
   firstName: string
   lastName: string
   email: string
@@ -31,6 +34,9 @@ export type ConsultationFormProps = {
   contactStyleVariant?: ContactStyleVariant
   includeButtonBaseClass?: boolean
   GlassCard?: GlassCardComponent
+  onSubmit?: (data: ConsultationFormData) => Promise<void> | void
+  submitSuccessMessage?: string
+  submitErrorMessage?: string
 }
 
 const skinTypes = [
@@ -64,8 +70,11 @@ export function ConsultationForm({
   contactStyleVariant = 'plain',
   includeButtonBaseClass = false,
   GlassCard,
+  onSubmit,
+  submitSuccessMessage = 'Richiesta inviata con successo. Ti ricontatteremo entro 24 ore.',
+  submitErrorMessage = 'Impossibile inviare la richiesta al momento. Riprova tra poco.',
 }: ConsultationFormProps) {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<ConsultationFormState>({
     firstName: '',
     lastName: '',
     email: '',
@@ -74,14 +83,28 @@ export function ConsultationForm({
     concerns: [],
     message: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Collegare con sistema backend
-    console.log('Form submitted:', formData)
-    alert(
-      `Richiesta di consulenza inviata!\n\nNome: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}\nTipo di pelle: ${formData.skinType}\nPreoccupazioni: ${formData.concerns.join(', ')}`,
-    )
+    if (isSubmitting) return
+
+    try {
+      setIsSubmitting(true)
+      setSubmitStatus('idle')
+      await onSubmit?.({
+        ...formData,
+        skinType: formData.skinType || undefined,
+        concerns: formData.concerns,
+        message: formData.message || undefined,
+      })
+      setSubmitStatus('success')
+    } catch {
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const toggleConcern = (concern: string) => {
@@ -339,14 +362,17 @@ export function ConsultationForm({
           <button
             type="submit"
             className={joinClassNames(includeButtonBaseClass ? 'button-base' : undefined, styles.submitButton)}
+            disabled={isSubmitting}
           >
             <span className={styles.submitContent}>
-              Invia Richiesta di Consulenza
+              {isSubmitting ? 'Invio in corso...' : 'Invia Richiesta di Consulenza'}
               <ArrowRight className={styles.submitIcon} />
             </span>
             <span className={styles.submitGlow} />
           </button>
         </div>
+        {submitStatus === 'success' ? <p className={styles.submitSuccess}>{submitSuccessMessage}</p> : null}
+        {submitStatus === 'error' ? <p className={styles.submitError}>{submitErrorMessage}</p> : null}
       </motion.form>
 
       <motion.div

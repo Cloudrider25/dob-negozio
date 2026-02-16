@@ -5,6 +5,9 @@ import dynamic from 'next/dynamic'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { ShopAllSection } from '@/components/shop/ShopAllSection'
+import type { ConsultationFormData } from '@/components/forms/ConsultationForm'
+import stylesConsultationForm from '@/components/forms/ConsultationForm.module.css'
+import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
 import type { ShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
 import type { ProductCard } from '@/components/navigators/shop-navigator/types/navigator'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
@@ -40,8 +43,8 @@ const RoutineBuilderSection = dynamic(
 
 const ConsulenzaForm = dynamic(
   () =>
-    import('@/components/navigators/shop-navigator/components/ConsulenzaForm').then(
-      (module) => module.ConsulenzaForm,
+    import('@/components/forms/ConsultationForm').then(
+      (module) => module.ConsultationForm,
     ),
   {
     loading: () => <section className={styles.sectionSkeleton}>Loading consulenza form...</section>,
@@ -230,6 +233,16 @@ export function ShopSectionSwitcher({
     const nextQuery = params.toString()
     const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname
     router.replace(nextUrl, { scroll: false })
+  }
+
+  const handleConsultationSubmit = async (formData: ConsultationFormData) => {
+    await submitConsultationLead({
+      ...formData,
+      source: 'shop-consultation',
+      pagePath: typeof window !== 'undefined' ? window.location.pathname : undefined,
+      locale:
+        typeof document !== 'undefined' ? document.documentElement.lang?.trim() || undefined : undefined,
+    })
   }
 
   const filterOptions = useMemo(() => {
@@ -626,6 +639,9 @@ export function ShopSectionSwitcher({
             phoneDisplay={contactLinks.phoneDisplay}
             whatsappLink={contactLinks.whatsappLink}
             whatsappDisplay={contactLinks.whatsappDisplay}
+            styles={stylesConsultationForm}
+            contactStyleVariant="plain"
+            onSubmit={handleConsultationSubmit}
           />
         </section>
       )}

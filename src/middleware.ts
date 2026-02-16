@@ -14,6 +14,7 @@ const LIMIT_PER_WINDOW: Record<string, number> = {
   '/api/users/forgot-password': 6,
   '/api/users/reset-password': 6,
   '/api/users/verify': 20,
+  '/api/consultation-leads': 10,
 }
 
 const getClientIP = (req: NextRequest) =>
@@ -49,7 +50,7 @@ export function middleware(req: NextRequest) {
     const retryAfterSeconds = Math.max(1, Math.ceil((state.resetAt - now) / 1000))
     return NextResponse.json(
       {
-        error: 'Too many authentication attempts. Please retry later.',
+        error: 'Too many requests. Please retry later.',
       },
       {
         status: 429,
@@ -73,5 +74,6 @@ export const config = {
     '/api/users/forgot-password',
     '/api/users/reset-password',
     '/api/users/verify/:path*',
+    '/api/consultation-leads',
   ],
 }

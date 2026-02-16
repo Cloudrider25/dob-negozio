@@ -97,10 +97,10 @@ Scope: `src/components/navigators/service-navigator/icons.tsx`, `src/components/
 Evidenza: file duplicati sui due navigator.  
 Azione: unificato su `navigators/core/icons.tsx`, migrati i consumer diretti e rimossi gli alias locali.
 
-- [ ] **Consulenza form duplicata con placeholder runtime**  
-Scope: `src/components/navigators/service-navigator/components/ConsulenzaForm.tsx`, `src/components/navigators/shop-navigator/components/ConsulenzaForm.tsx`  
-Evidenza: presenza `TODO` + `console.log`/placeholder submit.  
-Azione: estrarre `UIC_ConsultationForm.tsx` con submit handler passato via props e integrazione backend reale.
+- [x] **Consulenza form duplicata con placeholder runtime**  
+Scope: `src/components/forms/ConsultationForm.tsx`, consumer in `service-navigator` e `shop`, endpoint `src/app/api/consultation-leads/route.ts`  
+Evidenza: form duplicato e submit placeholder (`console.log`/`alert`) nel layer navigator.  
+Azione: estratto componente shared in `src/components/forms`, rimossi wrapper dominio `ConsulenzaForm.tsx`, aggiunto `onSubmit` su props e collegato a endpoint backend dedicato con persistenza lead su Payload (`consultation-leads`).
 
 ### Priorita P2 (qualita architettura/stile)
 
@@ -159,6 +159,7 @@ Scope: `icons.tsx`, `ConsulenzaForm*`, utility/shared CSS navigator
 Evidenza: file uguali o quasi uguali in entrambi i navigator.  
 Azione: consolidare in shared/core con re-export locali solo dove serve.  
 Stato batch 6: completato. `icons.tsx` unificato in `navigators/core/icons.tsx` con migrazione consumer a import diretto core e rimozione alias locali; `ConsulenzaForm.tsx` rifattorizzato su `navigators/core/ConsultationForm.tsx`; stylesheet unico condiviso in `navigators/core/ConsultationForm.module.css`; centralizzati anche `ProgressIndicator.module.css`, `EmptyState.module.css`, `PathBreadcrumb.module.css` e `CenterImageDisplay.module.css` in `navigators/core` con rimozione dei duplicati locali.
+Aggiornamento batch 7: `ConsultationForm` spostato da `navigators/core` a `src/components/forms/ConsultationForm.tsx` con stylesheet dedicato in `src/components/forms/ConsultationForm.module.css`; consumer service/shop collegati direttamente al componente shared.
 
 - [x] **Cleanup finale alias e path obsoleti**  
 Scope: alias legacy e import path pre-riorganizzazione  
@@ -171,5 +172,3 @@ Scope: codebase frontend + admin import map
 Evidenza: rischio regressioni su path/risoluzione componenti.  
 Azione: batch 1-2 verificati con `pnpm -s tsc --noEmit` e `pnpm exec payload generate:importmap`.
 
-
-Se vuoi, prossimo passo è chiudere anche la voce “Consulenza form duplicata con placeholder runtime” (rimozione console.log/alert e submit handler reale).
