@@ -6,7 +6,7 @@ import { getShopBaseData, getShopPageConfig, getShopRoutineData } from '@/lib/sh
 import { buildContactLinks } from '@/lib/contact'
 import { Hero } from '@/components/heroes/Hero'
 import { ShopSectionSwitcher } from '@/components/shop/ShopSectionSwitcher'
-import type { NeedData, ProductCard, TextureData } from '@/components/navigators/shop-navigator/types/navigator'
+import type { NeedData, ProductCard, TextureData } from '@/components/shop/shop-navigator.types'
 import type {
   RoutineStep,
   RoutineStepRule,

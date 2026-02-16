@@ -8,7 +8,7 @@ import { ShopAllSection } from '@/components/shop/ShopAllSection'
 import { useNavigatorData } from '@/components/services/navigator-data-context'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { Button } from '@/components/ui/button'
-import styles from '@/components/navigators/service-navigator/components/ListinoTradizionale.module.css'
+import styles from '@/components/services/ListinoTradizionale.module.css'
 import filterStyles from '@/components/shop/ShopSectionSwitcher.module.css'
 
 const FALLBACK_IMAGE = '/media/493b3205c13b5f67b36cf794c2222583.jpg'

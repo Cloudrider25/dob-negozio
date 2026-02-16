@@ -3,7 +3,7 @@
 import { ConsultationForm } from '@/components/forms/ConsultationForm'
 import type { ConsultationFormData } from '@/components/forms/ConsultationForm'
 import styles from '@/components/forms/ConsultationForm.module.css'
-import { GlassCard } from '@/components/navigators/service-navigator/components/GlassCard'
+import { GlassCard } from '@/components/ui/glass-card'
 import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
 
 type ContactLinks = {

@@ -10,7 +10,7 @@ import stylesConsultationForm from '@/components/forms/ConsultationForm.module.c
 import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
 import { SectionSwitcher } from '@/components/sections/SectionSwitcher'
 import { Button } from '@/components/ui/button'
-import type { ProductCard } from '@/components/navigators/shop-navigator/types/navigator'
+import type { ProductCard } from '@/components/shop/shop-navigator.types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import styles from './ShopSectionSwitcher.module.css'
 

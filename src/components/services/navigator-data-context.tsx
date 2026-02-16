@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo } from 'react'
 
-import type { Area, AreaData, Goal, GoalData, ServiceFinal, Treatment, TreatmentData } from '@/components/navigators/service-navigator/types/navigator'
+import type { Area, AreaData, Goal, GoalData, ServiceFinal, Treatment, TreatmentData } from '@/components/services/service-navigator.types'
 
 export type NavigatorData = {
   areas: AreaData[]

@@ -4,8 +4,8 @@ import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { Hero } from '@/components/heroes/Hero'
 import { NavigatorDataProvider } from '@/components/services/navigator-data-context'
-import { ListinoTradizionale } from '@/components/navigators/service-navigator/components/ListinoTradizionale'
-import { ConsulenzaSection } from '@/components/navigators/service-navigator/components/ConsulenzaSection'
+import { ListinoTradizionale } from '@/components/services/ListinoTradizionale'
+import { ConsulenzaSection } from '@/components/services/ConsulenzaSection'
 import { ServicesSectionSwitcher } from '@/components/services/ServicesSectionSwitcher'
 import { ServiceRoutineBuilderSplitSection } from '@/components/services/ServiceRoutineBuilderSplitSection'
 import type { NavigatorData } from '@/components/services/navigator-data-context'
@@ -14,7 +14,7 @@ import type {
   GoalData,
   ServiceFinal,
   TreatmentData,
-} from '@/components/navigators/service-navigator/types/navigator'
+} from '@/components/services/service-navigator.types'
 import { buildContactLinks } from '@/lib/contact'
 
 export default async function ServicesPage({
