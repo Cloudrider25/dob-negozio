@@ -189,6 +189,7 @@ export default async function ServiceCategoryPage({
           { href: phoneLink, label: 'Consulenza', kind: 'hero', external: true },
         ]}
       />
+      <ServicesToggle currentType={typeFilter} />
       <ServicesProtocol />
       <section
         className="grid grid-cols-[minmax(220px,320px)_1fr_minmax(220px,320px)] gap-10 px-[2.5vw] py-[var(--s120)] max-[1024px]:grid-cols-1"
@@ -259,9 +260,6 @@ export default async function ServiceCategoryPage({
           <h2 className="text-[2.6rem] uppercase tracking-[0.08em]">
             {categoryTitle}
           </h2>
-          <div className="flex items-center justify-between">
-            <ServicesToggle currentType={typeFilter} />
-          </div>
           <UICCarousel
             items={filteredServices.map((service) => ({
               title: service.name || categoryTitle,

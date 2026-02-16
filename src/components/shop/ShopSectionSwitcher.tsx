@@ -8,6 +8,8 @@ import { ShopAllSection } from '@/components/shop/ShopAllSection'
 import type { ConsultationFormData } from '@/components/forms/ConsultationForm'
 import stylesConsultationForm from '@/components/forms/ConsultationForm.module.css'
 import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
+import { SectionSwitcher } from '@/components/sections/SectionSwitcher'
+import { Button } from '@/components/ui/button'
 import type { ShopNavigatorData } from '@/components/navigators/shop-navigator/data/shop-data-context'
 import type { ProductCard } from '@/components/navigators/shop-navigator/types/navigator'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
@@ -30,14 +32,6 @@ const RoutineBuilderSplitSection = dynamic(
     ),
   {
     loading: () => <section className={styles.sectionSkeleton}>Loading routine builder...</section>,
-  },
-)
-
-const RoutineBuilderSection = dynamic(
-  () =>
-    import('@/components/shop/RoutineBuilderSection').then((module) => module.RoutineBuilderSection),
-  {
-    loading: () => <section className={styles.sectionSkeleton}>Loading recommended routine...</section>,
   },
 )
 
@@ -470,53 +464,53 @@ export function ShopSectionSwitcher({
 
   return (
     <>
-      <section className={styles.pills}>
-        {pills.map((pill) => (
-          <button
-            key={pill.key}
-            type="button"
-            className={`${styles.pillLink} ${activeSection === pill.key ? styles.pillActive : ''}`}
-            onClick={() => {
-              const nextSection = pill.key as SectionKey
-              setActiveSection(nextSection)
-              updateSectionQuery(nextSection)
-            }}
-          >
-            {pill.label}
-          </button>
-        ))}
-        {activeSection === 'shop-all' && (
-          <button
-            type="button"
-            className={`${styles.pillLink} ${showFilters ? styles.pillActive : ''}`}
-            onClick={() => setShowFilters((prev) => !prev)}
-          >
-            {copy.filters}
-            {activeFilterCount > 0 && (
-              <span className={styles.filterCount}>{activeFilterCount}</span>
-            )}
-          </button>
-        )}
-        {activeSection === 'shop-all' && activeFilterCount > 0 && (
-          <button
-            type="button"
-            className={styles.pillLink}
-            onClick={() => {
-              setFilters({
-                needs: new Set(),
-                textures: new Set(),
-                productAreas: new Set(),
-                timingProducts: new Set(),
-                skinTypes: new Set(),
-                brands: new Set(),
-                brandLines: new Set(),
-              })
-            }}
-          >
-            {copy.removeAll}
-          </button>
-        )}
-      </section>
+      <SectionSwitcher
+        items={pills}
+        activeKey={activeSection}
+        onChange={(nextKey) => {
+          const nextSection = nextKey as SectionKey
+          setActiveSection(nextSection)
+          updateSectionQuery(nextSection)
+        }}
+        actions={[
+          ...(activeSection === 'shop-all'
+            ? [
+                {
+                  key: 'filters',
+                  label: (
+                    <>
+                      {copy.filters}
+                      {activeFilterCount > 0 && (
+                        <span className={styles.filterCount}>{activeFilterCount}</span>
+                      )}
+                    </>
+                  ),
+                  active: showFilters,
+                  onClick: () => setShowFilters((prev) => !prev),
+                },
+              ]
+            : []),
+          ...(activeSection === 'shop-all' && activeFilterCount > 0
+            ? [
+                {
+                  key: 'remove-all',
+                  label: copy.removeAll,
+                  onClick: () => {
+                    setFilters({
+                      needs: new Set(),
+                      textures: new Set(),
+                      productAreas: new Set(),
+                      timingProducts: new Set(),
+                      skinTypes: new Set(),
+                      brands: new Set(),
+                      brandLines: new Set(),
+                    })
+                  },
+                },
+              ]
+            : []),
+        ]}
+      />
 
       {activeSection === 'shop-all' && showFilters && (
         <section className={styles.filters}>
@@ -531,24 +525,29 @@ export function ShopSectionSwitcher({
               { key: 'brandLines', label: copy.brandLine, options: filterOptions.brandLines },
             ].map((group) => (
               <div key={group.key} className={styles.filterGroup}>
-                <button
-                  type="button"
+                <Button
+                  kind="main"
+                  size="sm"
+                  interactive
                   className={styles.filterPill}
                   onClick={() => {
                     setOpenFilter((prev) => (prev === group.key ? null : group.key))
                   }}
                 >
                   {group.label}
-                </button>
+                </Button>
                 {openFilter === group.key && (
                   <div className={styles.dropdown}>
                     {group.options.length === 0 && (
                       <div className={styles.dropdownEmpty}>{copy.noOptions}</div>
                     )}
                     {group.options.map((option) => (
-                      <button
-                        type="button"
+                      <Button
                         key={option.id}
+                        kind="main"
+                        size="sm"
+                        interactive
+                        aria-pressed={filters[group.key as keyof typeof filters].has(option.id)}
                         className={`${styles.dropdownItem} ${
                           filters[group.key as keyof typeof filters].has(option.id)
                             ? styles.dropdownItemActive
@@ -559,7 +558,7 @@ export function ShopSectionSwitcher({
                         }
                       >
                         {option.label}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -567,15 +566,17 @@ export function ShopSectionSwitcher({
             ))}
 
             <div className={styles.filterGroup}>
-              <button
-                type="button"
+              <Button
+                kind="main"
+                size="sm"
+                interactive
                 className={styles.filterPill}
                 onClick={() => {
                   setOpenFilter((prev) => (prev === 'order' ? null : 'order'))
                 }}
               >
                 {copy.orderBy}
-              </button>
+              </Button>
               {openFilter === 'order' && (
                 <div className={styles.dropdown}>
                   {[
@@ -584,16 +585,19 @@ export function ShopSectionSwitcher({
                     { id: 'price-desc', label: copy.orderPriceDesc },
                     { id: 'title', label: copy.orderTitle },
                   ].map((option) => (
-                    <button
-                      type="button"
+                    <Button
                       key={option.id}
+                      kind="main"
+                      size="sm"
+                      interactive
+                      aria-pressed={orderBy === option.id}
                       className={`${styles.dropdownItem} ${
                         orderBy === option.id ? styles.dropdownItemActive : ''
                       }`}
                       onClick={() => setOrderBy(option.id as typeof orderBy)}
                     >
                       {option.label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               )}
@@ -613,24 +617,25 @@ export function ShopSectionSwitcher({
       )}
 
       {activeSection === 'routine' && (
-        <>
-          <RoutineBuilderSplitSection
-            productAreas={productAreas}
-            routineTimings={routineTimings}
-            routineSkinTypes={routineSkinTypes}
-            routineNeeds={routineNeeds}
-            routineTemplates={routineTemplates}
-            routineSteps={routineSteps}
-            routineStepRules={routineStepRules}
-            routineStep1Title={routineStep1Title}
-            routineStep2Title={routineStep2Title}
-            shopAllProducts={shopAllProducts}
-          />
-          <RoutineBuilderSection templates={routineTemplates} productBasePath={productBasePath} />
-        </>
+        <RoutineBuilderSplitSection
+          productAreas={productAreas}
+          routineTimings={routineTimings}
+          routineSkinTypes={routineSkinTypes}
+          routineNeeds={routineNeeds}
+          routineTemplates={routineTemplates}
+          routineSteps={routineSteps}
+          routineStepRules={routineStepRules}
+          routineStep1Title={routineStep1Title}
+          routineStep2Title={routineStep2Title}
+          shopAllProducts={shopAllProducts}
+        />
       )}
 
-      {activeSection === 'shop-all' && <ShopAllSection items={shopAllItems} />}
+      {activeSection === 'shop-all' && (
+        <div className={styles.cardsBlock}>
+          <ShopAllSection items={shopAllItems} />
+        </div>
+      )}
 
       {activeSection === 'consulenza' && (
         <section id="consulenza">

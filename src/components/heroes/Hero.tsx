@@ -28,7 +28,6 @@ type HeroProps = {
 }
 
 export const Hero = ({
-  eyebrow,
   title,
   description,
   variant = 'style1',
@@ -95,7 +94,6 @@ export const Hero = ({
       </div>
       <div className="hero-global__overlay" />
       <div className={`hero-global__content ${variant === 'style2' ? 'hero-global__content--center' : ''}`}>
-        {eyebrow && <p className="hero-global__eyebrow">{eyebrow}</p>}
         <h1>{title}</h1>
         {description && <p className="hero-global__description">{description}</p>}
         {variant === 'style1' && ctas.length > 0 && (

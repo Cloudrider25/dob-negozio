@@ -6,23 +6,35 @@ import styles from './NavigatorHeader.module.css'
 type NavigatorHeaderProps = {
   activeView: 'navigator' | 'listino' | 'consulenza'
   onViewChange: (view: 'navigator' | 'listino' | 'consulenza') => void
+  showActions?: boolean
+  showIntro?: boolean
 }
 
-export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderProps) {
+export function NavigatorHeader({
+  activeView,
+  onViewChange,
+  showActions = true,
+  showIntro = true,
+}: NavigatorHeaderProps) {
   return (
     <div className={styles.header}>
-      <h1 className={styles.title}>
-        Scegli il risultato.{' '}
-        <span className={styles.titleHighlight}>
-          Al resto pensiamo noi.
-          <span className={styles.titleUnderline} />
-        </span>
-      </h1>
+      {showIntro ? (
+        <>
+          <h1 className={styles.title}>
+            Scegli il risultato.{' '}
+            <span className={styles.titleHighlight}>
+              Al resto pensiamo noi.
+              <span className={styles.titleUnderline} />
+            </span>
+          </h1>
 
-      <p className={styles.subtitle}>
-        Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
-      </p>
+          <p className={styles.subtitle}>
+            Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
+          </p>
+        </>
+      ) : null}
 
+      {showActions ? (
       <div className={styles.actions}>
         {/* Service Navigator - Default/Active */}
         <button
@@ -48,34 +60,7 @@ export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderPro
           </GlassCard>
         </button>
 
-        {/* Listino Tradizionale */}
-        <button
-          onClick={() => onViewChange('listino')}
-          className={styles.actionButton}
-        >
-          <GlassCard
-            variant="pill"
-            className={`${styles.pill} ${
-              activeView === 'listino' ? styles.pillActive : styles.pillInactive
-            }`}
-            paddingClassName={styles.pillPadding}
-          >
-            <span
-              className={`${styles.pillLabel} ${
-                activeView === 'listino' ? styles.pillLabelActive : styles.pillLabelInactive
-              }`}
-            >
-              Listino Tradizionale
-            </span>
-            {activeView !== 'listino' && (
-              <span className={styles.pillArrow}>
-                →
-              </span>
-            )}
-          </GlassCard>
-        </button>
-
-        {/* Skin Analyzer */}
+        {/* Consulenza */}
         <button
           onClick={() => onViewChange('consulenza')}
           className={styles.actionButton}
@@ -94,7 +79,7 @@ export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderPro
                   : styles.pillLabelInactive
               }`}
             >
-              Skin Analyzer (Derma Test) & Consulenza
+              Consulenza
             </span>
             {activeView !== 'consulenza' && (
               <span className={styles.pillArrow}>
@@ -103,7 +88,35 @@ export function NavigatorHeader({ activeView, onViewChange }: NavigatorHeaderPro
             )}
           </GlassCard>
         </button>
+
+        {/* Tutti i servizi */}
+        <button
+          onClick={() => onViewChange('listino')}
+          className={styles.actionButton}
+        >
+          <GlassCard
+            variant="pill"
+            className={`${styles.pill} ${
+              activeView === 'listino' ? styles.pillActive : styles.pillInactive
+            }`}
+            paddingClassName={styles.pillPadding}
+          >
+            <span
+              className={`${styles.pillLabel} ${
+                activeView === 'listino' ? styles.pillLabelActive : styles.pillLabelInactive
+              }`}
+            >
+              Tutti i servizi
+            </span>
+            {activeView !== 'listino' && (
+              <span className={styles.pillArrow}>
+                →
+              </span>
+            )}
+          </GlassCard>
+        </button>
       </div>
+      ) : null}
     </div>
   )
 }

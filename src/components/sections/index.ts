@@ -1,5 +1,6 @@
 export * from './ProgramsSplitSection'
 export * from './ProtocolSplit'
+export * from './SectionSwitcher'
 export * from './StoryTeamSection'
 export * from './StoryValuesSection'
 export * from './ValuesSection'

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
 import styles from './CartDrawer.module.css'
+import { Trash } from '@/components/ui/icons'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
 import {
@@ -260,13 +261,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
                     onClick={() => removeItem(item.id)}
                     aria-label={copy.remove}
                   >
-                    <Image
-                      src="/bin.png"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className={styles.removeIcon}
-                    />
+                    <Trash className={styles.removeIcon} size={24} />
                   </button>
                 </div>
                 <div className={styles.price}>

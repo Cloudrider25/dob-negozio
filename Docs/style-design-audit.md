@@ -172,3 +172,9 @@ Scope: codebase frontend + admin import map
 Evidenza: rischio regressioni su path/risoluzione componenti.  
 Azione: batch 1-2 verificati con `pnpm -s tsc --noEmit` e `pnpm exec payload generate:importmap`.
 
+## Media Governance (operativo)
+
+- `media/`: storage upload runtime di Payload (configurato come `staticDir` in `src/collections/Media.ts`).
+- `public/media/`: fallback statici legacy ancora referenziati da path hardcoded `/media/...`.
+- Decisione corrente: mantenere `public/media` fino a migrazione completa dei fallback su asset gestiti da Payload.
+- Regola cleanup: non eliminare file in `public/media` se referenziati da fallback attivi.
