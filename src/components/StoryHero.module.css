@@ -1,12 +1,13 @@
 .section {
   position: relative;
   min-height: clamp(560px, 75vh, 760px);
-  height: 100vh;
+  height: auto;
   border-radius: 12px;
   overflow: hidden;
   display: grid;
   place-items: center;
   background: var(--bg);
+  padding: clamp(1.5rem, 3vw, 3rem);
 }
 
 .media {
@@ -28,7 +29,7 @@
   box-shadow: 0 24px 64px rgba(15, 15, 15, 0.12);
   border-radius: 12px;
   padding: clamp(1.5rem, 2vw, 2.25rem);
-  max-width: min(520px, 86vw);
+  max-width: min(520px, 100%);
   text-align: center;
   color: #6b6761;
   backdrop-filter: blur(6px);
@@ -49,7 +50,16 @@
 
 @media (max-width: 720px) {
   .section {
-    min-height: 70vh;
-    height: 100vh;
+    min-height: 460px;
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1.1rem 1rem;
+    max-width: 100%;
+  }
+
+  .body {
+    font-size: 0.9rem;
   }
 }

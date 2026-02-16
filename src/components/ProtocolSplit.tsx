@@ -51,6 +51,11 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
 
+  const activateStep = (index: number) => {
+    setDirection(index > activeIndex ? 'forward' : 'backward')
+    setActiveIndex(index)
+  }
+
   const getSlideState = (index: number) => {
     if (index === activeIndex) return styles.slideActive
     const prevIndex = (activeIndex - 1 + resolvedSteps.length) % resolvedSteps.length
@@ -89,14 +94,9 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
                   className={`${styles.stepBtn} ${index === activeIndex ? styles.stepBtnActive : ''}`}
                   type="button"
                   aria-pressed={index === activeIndex}
-                  onMouseEnter={() => {
-                    setDirection(index > activeIndex ? 'forward' : 'backward')
-                    setActiveIndex(index)
-                  }}
-                  onFocus={() => {
-                    setDirection(index > activeIndex ? 'forward' : 'backward')
-                    setActiveIndex(index)
-                  }}
+                  onMouseEnter={() => activateStep(index)}
+                  onFocus={() => activateStep(index)}
+                  onClick={() => activateStep(index)}
                 >
                   {step.id}
                 </button>

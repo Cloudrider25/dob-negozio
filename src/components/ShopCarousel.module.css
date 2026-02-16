@@ -36,7 +36,8 @@
   flex-wrap: nowrap;
   font-size: 16px;
   font-weight: 400;
-  height: 660px;
+  min-height: 560px;
+  height: auto;
   justify-content: space-between;
   left: 0;
   line-height: 24px;
@@ -213,10 +214,49 @@
 
 @media (max-width: 900px) {
   .section {
-    padding: 2.5rem 0;
+    padding: 0;
   }
 
   .nav {
     display: none;
+  }
+
+  .card {
+    min-height: 0;
+  }
+
+  .titleRow {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    padding: 18px 18px 0;
+  }
+
+  .titleRow .price {
+    justify-self: start;
+    font-size: 1.2rem;
+  }
+
+  .subtitle,
+  .metaRow {
+    padding-inline: 18px;
+  }
+
+  .cta {
+    margin: 0.8rem 1rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .media::before {
+    padding-bottom: 104%;
+  }
+
+  .title {
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+  }
+
+  .meta {
+    font-size: 0.8rem;
   }
 }

@@ -1,6 +1,6 @@
 # DOB Milano - Master Navigator Checklist
 
-Ultimo aggiornamento: 2026-02-15  
+Ultimo aggiornamento: 2026-02-16  
 Owner: Team DOB Milano
 
 ## Stato Globale
@@ -90,6 +90,9 @@ Owner: Team DOB Milano
 ## Note di Uso
 
 - Questo file è il navigator master cross-area.
+- L'indice documentazione aggiornato e in `Docs/README.md`.
 - I dettagli tecnici restano nei documenti verticali:
 - `Docs/user-account.md`
 - `Docs/shop-journey-monitor.md`
+- `Docs/services-configurator.md`
+- `Docs/db-product.md`

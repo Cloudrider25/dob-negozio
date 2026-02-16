@@ -75,9 +75,11 @@ export const ShopCarousel = ({ items }: { items: ShopCarouselItem[] }) => {
           onSwiper={setSwiper}
           navigation
           breakpoints={{
-            0: { slidesPerView: 1.1, spaceBetween: 32 },
-            700: { slidesPerView: 2.1, spaceBetween: 40 },
-            1100: { slidesPerView: 3, spaceBetween: 48 },
+            0: { slidesPerView: 1.05, spaceBetween: 12 },
+            430: { slidesPerView: 1.14, spaceBetween: 14 },
+            640: { slidesPerView: 1.36, spaceBetween: 18 },
+            900: { slidesPerView: 2.1, spaceBetween: 32 },
+            1200: { slidesPerView: 3, spaceBetween: 40 },
           }}
         >
           {mappedItems.map((item) => (
