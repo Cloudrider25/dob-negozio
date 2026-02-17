@@ -37,17 +37,10 @@
 
 .title {
   margin: 0 0 0.8rem;
-  text-transform: lowercase;
-  font-size: var(--type-h3-size);
-  line-height: var(--type-h3-line);
-  letter-spacing: var(--type-body-track);
 }
 
 .body {
   margin: 0 0 1.4rem;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
 }
 
 @media (max-width: 720px) {

@@ -33,7 +33,7 @@ export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
     <section className={styles.section} aria-label="Valori DOB">
       <div className={styles.card}>
         <div className={styles.contentTop}>
-          <h2 className={styles.title}>{active.title}</h2>
+          <h2 className={`${styles.title} typo-h2-upper`}>{active.title}</h2>
           {active.ctaHref && active.ctaLabel ? (
             <ButtonLink href={active.ctaHref} className={styles.cta} kind="main" size="sm" interactive>
               {active.ctaLabel}
@@ -44,7 +44,7 @@ export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
           {resolvedItems.map((item) => (
             <button
               key={item.id}
-              className={`${styles.listItem} ${activeId === item.id ? styles.listItemActive : ''}`}
+              className={`${styles.listItem} typo-body-lg ${activeId === item.id ? styles.listItemActive : ''}`}
               type="button"
               onMouseEnter={() => setActiveId(item.id)}
               onFocus={() => setActiveId(item.id)}

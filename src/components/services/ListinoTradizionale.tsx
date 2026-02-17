@@ -358,7 +358,7 @@ export function ListinoTradizionale() {
         {servicesAsCards.length > 0 ? (
           <ShopAllSection items={servicesAsCards} />
         ) : (
-          <div className={styles.empty}>Nessun servizio disponibile con i filtri selezionati.</div>
+          <div className={`${styles.empty} typo-body`}>Nessun servizio disponibile con i filtri selezionati.</div>
         )}
       </div>
     </motion.div>

@@ -18,7 +18,7 @@ const RoutineBuilderSplitSection = dynamic(
       (module) => module.RoutineBuilderSplitSection,
     ),
   {
-    loading: () => <section className={styles.sectionSkeleton}>Loading routine builder...</section>,
+    loading: () => <section className={`${styles.sectionSkeleton} typo-small-upper`}>Loading routine builder...</section>,
   },
 )
 
@@ -445,7 +445,7 @@ export function ShopSectionSwitcher({
                     <>
                       {copy.filters}
                       {activeFilterCount > 0 && (
-                        <span className={styles.filterCount}>{activeFilterCount}</span>
+                        <span className={`${styles.filterCount} typo-caption-upper`}>{activeFilterCount}</span>
                       )}
                     </>
                   ),
@@ -503,7 +503,7 @@ export function ShopSectionSwitcher({
                 {openFilter === group.key && (
                   <div className={styles.dropdown}>
                     {group.options.length === 0 && (
-                      <div className={styles.dropdownEmpty}>{copy.noOptions}</div>
+                      <div className={`${styles.dropdownEmpty} typo-small`}>{copy.noOptions}</div>
                     )}
                     {group.options.map((option) => (
                       <Button

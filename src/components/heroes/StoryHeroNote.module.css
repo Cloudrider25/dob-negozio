@@ -47,9 +47,6 @@
 
 .bandLabel {
   background: transparent;
-  text-transform: uppercase;
-  letter-spacing: 0.24em;
-  font-size: 1.5rem;
   color: var(--text-secondary);
 }
 
@@ -69,8 +66,6 @@ padding-top: 24px;
 
 .noteText {
   margin: 0;
-  line-height: 1.7;
-  font-size: 1.5rem;
   color: var(--text-primary);
 }
 
@@ -82,13 +77,11 @@ padding-top: 24px;
 }
 
 .signatureLead {
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.75rem;
+  letter-spacing: var(--type-caption-track);
 }
 
 .signatureName {
-  font-family: "Dobfont-Regular-new_FIXEDU", "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem);
   color: color-mix(in srgb, var(--text-primary) 80%, transparent);
 }

@@ -99,8 +99,8 @@ export const ProgramsSplitSection = ({
         </div>
         {activeIndex === 0 ? (
           <>
-            <h3 className={styles.title}>{program.title}</h3>
-            <p className={`${styles.subtitle} ${styles.subtitleCentered}`}>{program.description}</p>
+            <h3 className={`${styles.title} typo-h2-upper`}>{program.title}</h3>
+            <p className={`${styles.subtitle} ${styles.subtitleCentered} typo-body`}>{program.description}</p>
             <div className={styles.metaRow}>
               {programHref ? (
                 <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
@@ -113,14 +113,14 @@ export const ProgramsSplitSection = ({
                   {program.price ? ` - ${program.price}` : ''}
                 </Button>
               )}
-              <span className={`${styles.counter} ${styles.counterLarge}`}>{counter}</span>
+              <span className={`${styles.counter} ${styles.counterLarge} typo-h1`}>{counter}</span>
             </div>
           </>
         ) : (
           <>
-            <h3 className={styles.title}>{program.title}</h3>
+            <h3 className={`${styles.title} typo-h2-upper`}>{program.title}</h3>
             <div className={styles.stepMediaRow}>
-              {activeStep?.badge && <span className={styles.stepBadge}>{activeStep.badge}</span>}
+              {activeStep?.badge && <span className={`${styles.stepBadge} typo-h2-upper`}>{activeStep.badge}</span>}
               <div className={styles.stepMedia}>
                 {activeStep?.detailMedia?.url && (
                   <Image
@@ -135,8 +135,8 @@ export const ProgramsSplitSection = ({
             </div>
             <div className={styles.stepFooter}>
               <div className={styles.stepInfo}>
-                <p className={styles.stepTitle}>{activeStep?.title}</p>
-                <p className={styles.stepSubtitle}>{activeStep?.subtitle}</p>
+                <p className={`${styles.stepTitle} typo-small-upper`}>{activeStep?.title}</p>
+                <p className={`${styles.stepSubtitle} typo-body`}>{activeStep?.subtitle}</p>
                 {programHref ? (
                   <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
                     Scopri {program.title}
@@ -149,7 +149,7 @@ export const ProgramsSplitSection = ({
                   </Button>
                 )}
               </div>
-              <span className={styles.counter}>{counter}</span>
+              <span className={`${styles.counter} typo-h2`}>{counter}</span>
             </div>
           </>
         )}

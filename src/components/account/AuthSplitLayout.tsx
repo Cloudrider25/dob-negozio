@@ -20,7 +20,7 @@ export function AuthSplitLayout({ children, locale }: { children: ReactNode; loc
             className={styles.image}
             sizes="(max-width: 1024px) 100vw, 52vw"
           />
-          <p className={styles.overlay}>{copy.visualOverlay}</p>
+          <p className={`${styles.overlay} typo-display-upper`}>{copy.visualOverlay}</p>
         </aside>
         <section className={styles.formCol}>
           <div className={styles.formWrap}>{children}</div>

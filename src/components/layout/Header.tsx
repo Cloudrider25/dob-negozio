@@ -44,7 +44,7 @@ export const Header = ({
   return (
     <>
       <input className={styles.menuToggle} id="menu-toggle" type="checkbox" />
-      <div className={styles.topBar}>prenota una consulenza gratuita</div>
+      <div className={`${styles.topBar} typo-caption-upper`}>prenota una consulenza gratuita</div>
       <header className={styles.header}>
         <div className={styles.menuTrigger}>
           <label className={styles.burger} htmlFor="menu-toggle" aria-label="Apri menu">
@@ -53,8 +53,8 @@ export const Header = ({
             <span className={styles.burgerLine} />
           </label>
         </div>
-        <div className={styles.brand}>
-          <Link href={`/${locale}`} className={styles.brand}>
+        <div className={`${styles.brand} typo-caption-upper`}>
+          <Link href={`/${locale}`} className={`${styles.brand} typo-caption-upper`}>
             <span className={styles.brandMark}>
               <Image
                 className={styles.logoDark}
@@ -73,12 +73,19 @@ export const Header = ({
                 priority
               />
             </span>
-            <h1 className={styles.brandTitle}>DOB</h1>
+            <h1 className={`${styles.brandTitle} typo-display-upper`}>DOB</h1>
             <span className="sr-only">{t.brand}</span>
           </Link>
         </div>
         <div className={styles.right}>
-          <ButtonLink className={styles.cta} href={whatsappLink} external kind="main" size="sm" interactive>
+          <ButtonLink
+            className={`${styles.cta} typo-small-upper`}
+            href={whatsappLink}
+            external
+            kind="main"
+            size="sm"
+            interactive
+          >
             {t.cta.appointment}
           </ButtonLink>
           <div className={styles.iconRow} aria-label="Account e carrello">
@@ -98,7 +105,7 @@ export const Header = ({
           </div>
           <ThemeToggle />
           <div className={styles.locale}>
-            <button className={styles.localeButton} type="button" aria-haspopup="true">
+            <button className={`${styles.localeButton} typo-small-upper`} type="button" aria-haspopup="true">
               {locale.toUpperCase()}
             </button>
             <div className={styles.localeMenu} role="menu">
@@ -106,7 +113,7 @@ export const Header = ({
                 <Link
                   key={item}
                   href={`/${item}`}
-                  className={cn(styles.localeLink, item === locale && styles.localeLinkActive)}
+                  className={cn(styles.localeLink, 'typo-small-upper', item === locale && styles.localeLinkActive)}
                 >
                   {item.toUpperCase()}
                 </Link>
@@ -121,44 +128,51 @@ export const Header = ({
             <label className={styles.menuClose} htmlFor="menu-toggle" aria-label="Chiudi menu">
               ×
             </label>
-            <h2 className={styles.menuTitle}>Menu</h2>
+            <h2 className={`${styles.menuTitle} typo-display-upper`}>Menu</h2>
             <div className={styles.menuLinks}>
-              <MenuLink className="uppercase tracking-[0.18em]" external href="https://facebook.com">
+              <MenuLink className="typo-small-upper" external href="https://facebook.com">
                 Facebook
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" external href="https://instagram.com">
+              <MenuLink className="typo-small-upper" external href="https://instagram.com">
                 Instagram
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/our-story`}>
+              <MenuLink className="typo-small-upper" href={`/${locale}/our-story`}>
                 / {t.nav.story}
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/dob-protocol`}>
+              <MenuLink className="typo-small-upper" href={`/${locale}/dob-protocol`}>
                 / {t.nav.protocol}
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/journal`}>
+              <MenuLink className="typo-small-upper" href={`/${locale}/journal`}>
                 / {t.nav.journal}
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/location`}>
+              <MenuLink className="typo-small-upper" href={`/${locale}/location`}>
                 / {t.nav.location}
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/services`}>
+              <MenuLink className="typo-small-upper" href={`/${locale}/services`}>
                 / {t.nav.services}
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" href={`/${locale}/shop`}>
+              <MenuLink className="typo-small-upper" href={`/${locale}/shop`}>
                 / {t.nav.shop}
               </MenuLink>
             </div>
             <div className={styles.menuBooking}>
-              <p className="m-0">For booking</p>
-              <MenuLink className="uppercase tracking-[0.18em]" external href={whatsappLink}>
+              <p className="m-0 typo-small-upper">For booking</p>
+              <MenuLink className="typo-small-upper" external href={whatsappLink}>
                 / {t.cta.whatsapp}
               </MenuLink>
-              <MenuLink className="uppercase tracking-[0.18em]" external href={phoneLink}>
+              <MenuLink className="typo-small-upper" external href={phoneLink}>
                 / {t.cta.call}
               </MenuLink>
             </div>
             <div className={styles.menuActions}>
-              <ButtonLink className={styles.cta} href={whatsappLink} external kind="main" size="sm" interactive>
+              <ButtonLink
+                className={`${styles.cta} typo-small-upper`}
+                href={whatsappLink}
+                external
+                kind="main"
+                size="sm"
+                interactive
+              >
                 {t.cta.appointment}
               </ButtonLink>
               <div className={styles.iconRow} aria-label="Account e carrello">
@@ -178,7 +192,7 @@ export const Header = ({
               </div>
               <ThemeToggle />
               <div className={styles.locale}>
-                <button className={styles.localeButton} type="button" aria-haspopup="true">
+                <button className={`${styles.localeButton} typo-small-upper`} type="button" aria-haspopup="true">
                   {locale.toUpperCase()}
                 </button>
                 <div className={styles.localeMenu} role="menu">
@@ -186,7 +200,7 @@ export const Header = ({
                     <Link
                       key={item}
                       href={`/${item}`}
-                      className={cn(styles.localeLink, item === locale && styles.localeLinkActive)}
+                      className={cn(styles.localeLink, 'typo-small-upper', item === locale && styles.localeLinkActive)}
                     >
                       {item.toUpperCase()}
                     </Link>

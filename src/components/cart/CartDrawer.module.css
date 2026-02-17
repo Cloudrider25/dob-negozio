@@ -46,16 +46,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.7rem;
   color: #6a6660;
 }
 
 .closeButton {
   border: 0;
   background: transparent;
-  font-size: 1.4rem;
   cursor: pointer;
   color: #6a6660;
 }
@@ -75,10 +71,7 @@
 
 .freeNote {
   text-align: center;
-  font-size: 0.75rem;
   color: #6a6660;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .list {
@@ -108,13 +101,10 @@
 
 .itemTitle {
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
   color: #4f4b46;
 }
 
 .itemMeta {
-  font-size: 0.75rem;
   color: #7a756f;
 }
 
@@ -132,17 +122,14 @@
   padding: 0.2rem 0.5rem;
   cursor: pointer;
   color: #6a6660;
-  font-size: 0.9rem;
 }
 
 .qtyValue {
   padding: 0.2rem 0.6rem;
-  font-size: 0.8rem;
   color: #6a6660;
 }
 
 .price {
-  font-size: 0.95rem;
   color: #6a6660;
   white-space: nowrap;
 }
@@ -188,9 +175,6 @@
 
 .routineTitle {
   margin: 0;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
   color: #6a6660;
 }
 
@@ -198,9 +182,6 @@
   border-radius: 999px;
   border: 1px solid rgba(106, 102, 96, 0.35);
   padding: 0.35rem 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.65rem;
   background: #6a6660;
   color: #fff;
 }
@@ -216,7 +197,6 @@
 .summaryRow {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
   color: #6a6660;
 }
 
@@ -225,9 +205,6 @@
   border-radius: 999px;
   border: 0;
   padding: 0.8rem 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.75rem;
   background: #6a6660;
   color: #fff;
   cursor: pointer;
@@ -236,7 +213,6 @@
 .empty {
   text-align: center;
   color: #7a756f;
-  font-size: 0.9rem;
   padding: 2rem 0;
 }
 

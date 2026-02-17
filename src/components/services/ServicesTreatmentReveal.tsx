@@ -33,17 +33,17 @@ function Panel({
   const copyContent = (
     <>
       {!content.imageInCopy ? (
-        <h2 className={styles.treatmentTitle}>{content.title}</h2>
+        <h2 className={`${styles.treatmentTitle} typo-h2`}>{content.title}</h2>
       ) : null}
       {!content.imageInCopy ? (
         <>
           {typeof content.body === 'string' ? (
-            <p className={styles.treatmentText}>{content.body}</p>
+            <p className={`${styles.treatmentText} typo-body`}>{content.body}</p>
           ) : (
             content.body
           )}
           {content.railBody && content.railBody.length > 0 ? (
-            <ul className={styles.treatmentRailList}>
+            <ul className={`${styles.treatmentRailList} typo-body`}>
               {content.railBody.map((item, index) => (
                 <li key={`${item}-${index}`}>{item}</li>
               ))}
@@ -95,13 +95,13 @@ function Panel({
         >
           {content.imageInCopy ? (
             <div className={styles.treatmentMediaTitle}>
-              <h2 className={styles.treatmentTitle}>{content.title}</h2>
+              <h2 className={`${styles.treatmentTitle} typo-h2`}>{content.title}</h2>
             </div>
           ) : null}
           {content.imageInCopy && content.mediaDescription ? (
             <div className={styles.treatmentMediaDescription}>
               {typeof content.mediaDescription === 'string' ? (
-                <p className={styles.treatmentText}>{content.mediaDescription}</p>
+                <p className={`${styles.treatmentText} typo-body`}>{content.mediaDescription}</p>
               ) : (
                 content.mediaDescription
               )}
@@ -137,7 +137,9 @@ function Panel({
                 return (
                   <span
                     key={`${item}-${index}`}
-                    className={`${styles.treatmentRailText} ${railClass}`}
+                    className={`${styles.treatmentRailText} ${railClass} ${
+                      isLast ? 'typo-small-upper' : 'typo-body-lg-upper'
+                    }`}
                   >
                     {item}
                   </span>

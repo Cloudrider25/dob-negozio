@@ -202,22 +202,22 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         onClick={() => setOpen(false)}
       />
       <aside className={styles.panel} aria-label="Cart drawer">
-        <div className={styles.header}>
+        <div className={`${styles.header} typo-caption-upper`}>
           <span>
             {itemCount} {copy.itemsLabel}
           </span>
-          <button className={styles.closeButton} type="button" onClick={() => setOpen(false)}>
+          <button className={`${styles.closeButton} typo-h3`} type="button" onClick={() => setOpen(false)}>
             ×
           </button>
         </div>
         <div className={styles.progress}>
           <div className={styles.progressFill} style={{ width: `${freeShippingProgress}%` }} />
         </div>
-        <div className={styles.freeNote}>{freeShippingNote}</div>
+        <div className={`${styles.freeNote} typo-caption-upper`}>{freeShippingNote}</div>
 
         <div className={styles.list}>
           {items.length === 0 ? (
-            <div className={styles.empty}>{copy.cartEmpty}</div>
+            <div className={`${styles.empty} typo-body`}>{copy.cartEmpty}</div>
           ) : (
             items.map((item) => (
               <div key={item.id} className={styles.item}>
@@ -234,21 +234,21 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
                   ) : null}
                 </div>
                 <div>
-                  <h2 className={styles.itemTitle}>{item.title}</h2>
-                  {item.brand && <div className={styles.itemMeta}>{item.brand}</div>}
+                  <h2 className={`${styles.itemTitle} typo-small-upper`}>{item.title}</h2>
+                  {item.brand && <div className={`${styles.itemMeta} typo-caption`}>{item.brand}</div>}
                   <div className={styles.qtyRow}>
                     <button
                       type="button"
-                      className={styles.qtyButton}
+                      className={`${styles.qtyButton} typo-body`}
                       onClick={() => decrement(item.id)}
                       aria-label={copy.decreaseQuantityAria}
                     >
                       −
                     </button>
-                    <span className={styles.qtyValue}>{item.quantity}</span>
+                    <span className={`${styles.qtyValue} typo-caption`}>{item.quantity}</span>
                     <button
                       type="button"
-                      className={styles.qtyButton}
+                      className={`${styles.qtyButton} typo-body`}
                       onClick={() => increment(item.id)}
                       aria-label={copy.increaseQuantityAria}
                     >
@@ -264,7 +264,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
                     <Trash className={styles.removeIcon} size={24} />
                   </button>
                 </div>
-                <div className={styles.price}>
+                <div className={`${styles.price} typo-small`}>
                   {typeof item.price === 'number'
                     ? formatPrice(item.price * item.quantity, item.currency)
                     : '—'}
@@ -288,24 +288,24 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
             ) : null}
           </div>
           <div className={styles.routineInfo}>
-            <p className={styles.routineTitle}>{recommended?.title || copy.completeRoutine}</p>
-            <div className={styles.itemMeta}>
+            <p className={`${styles.routineTitle} typo-caption-upper`}>{recommended?.title || copy.completeRoutine}</p>
+            <div className={`${styles.itemMeta} typo-caption`}>
               {recommended?.format || copy.recommendedSelection}
             </div>
           </div>
-          <button className={styles.routineButton} type="button" onClick={addRecommendedToCart}>
+          <button className={`${styles.routineButton} typo-caption-upper`} type="button" onClick={addRecommendedToCart}>
             {copy.add}
           </button>
         </div>
 
         <div className={styles.summary}>
-          <div className={styles.summaryRow}>
+          <div className={`${styles.summaryRow} typo-small`}>
             <span>{copy.subtotal}</span>
             <span>{formatPrice(subtotal)}</span>
           </div>
-          <div className={styles.itemMeta}>{copy.summaryNote}</div>
+          <div className={`${styles.itemMeta} typo-caption`}>{copy.summaryNote}</div>
           <Link
-            className={styles.checkoutButton}
+            className={`${styles.checkoutButton} typo-caption-upper`}
             href={`/${locale}/checkout`}
             onClick={() => setOpen(false)}
           >

@@ -72,9 +72,9 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
 
       <div className={styles.contentPanel}>
         <div className={styles.contentTop}>
-          <h2 className={styles.title}>{activeItem?.title}</h2>
+          <h2 className={`${styles.title} typo-h2`}>{activeItem?.title}</h2>
           {activeItem?.description && (
-            <p className={styles.description}>{activeItem.description}</p>
+            <p className={`${styles.description} typo-body`}>{activeItem.description}</p>
           )}
         </div>
 
@@ -82,7 +82,7 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
           {normalizedItems.map((item, index) => (
             <button
               key={`${item.label || item.title}-${index}`}
-              className={`${styles.listItem} ${index === activeIndex ? styles.listItemActive : ''}`}
+              className={`${styles.listItem} typo-body-lg ${index === activeIndex ? styles.listItemActive : ''}`}
               type="button"
               onMouseEnter={() => {
                 setActiveIndex(index)

@@ -184,13 +184,13 @@ export const ServicesProtocol = ({
   return (
     <section className={styles.protocol}>
       <div className={styles.intro}>
-        <span className={styles.eyebrow}>{eyebrow}</span>
-        <h2 className={styles.title}>{title}</h2>
+        <span className={`${styles.eyebrow} typo-caption-upper`}>{eyebrow}</span>
+        <h2 className={`${styles.title} typo-display-upper`}>{title}</h2>
       </div>
       <div ref={flowRef} className={styles.flow}>
         <motion.div
           ref={badgeRef}
-          className={styles.badge}
+          className={`${styles.badge} typo-caption-upper`}
           animate={badgeControls}
           variants={{
             off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
@@ -225,7 +225,7 @@ export const ServicesProtocol = ({
             <div className={styles.stepTop}>
               <span className={cn(styles.drop, styles.dropStep)} aria-hidden="true" />
               <motion.span
-                className={styles.node}
+              className={`${styles.node} typo-caption-upper`}
                 animate={nodeOneControls}
                 variants={{
                   off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
@@ -254,8 +254,8 @@ export const ServicesProtocol = ({
               }}
             >
               <span className={styles.icon} aria-hidden="true" />
-              <h3 className={styles.cardTitle}>Analisi / consulenza</h3>
-              <p className={styles.cardBody}>
+              <h3 className={`${styles.cardTitle} typo-body-lg-upper`}>Analisi / consulenza</h3>
+              <p className={`${styles.cardBody} typo-body`}>
                 Diagnosi personalizzata, ascolto e definizione degli obiettivi per costruire il
                 percorso più efficace.
               </p>
@@ -265,7 +265,7 @@ export const ServicesProtocol = ({
             <div className={styles.stepTop}>
               <span className={cn(styles.drop, styles.dropStep)} aria-hidden="true" />
               <motion.span
-                className={styles.node}
+              className={`${styles.node} typo-caption-upper`}
                 animate={nodeTwoControls}
                 variants={{
                   off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
@@ -294,8 +294,8 @@ export const ServicesProtocol = ({
               }}
             >
               <span className={styles.icon} aria-hidden="true" />
-              <h3 className={styles.cardTitle}>Trattamento + tecnologia</h3>
-              <p className={styles.cardBody}>
+              <h3 className={`${styles.cardTitle} typo-body-lg-upper`}>Trattamento + tecnologia</h3>
+              <p className={`${styles.cardBody} typo-body`}>
                 Manualità esperte e protocolli avanzati per massimizzare i risultati in tempi
                 misurabili.
               </p>
@@ -305,7 +305,7 @@ export const ServicesProtocol = ({
             <div className={styles.stepTop}>
               <span className={cn(styles.drop, styles.dropStep)} aria-hidden="true" />
               <motion.span
-                className={styles.node}
+              className={`${styles.node} typo-caption-upper`}
                 animate={nodeThreeControls}
                 variants={{
                   off: { borderColor: 'var(--protocol-accent)', boxShadow: 'none' },
@@ -334,8 +334,8 @@ export const ServicesProtocol = ({
               }}
             >
               <span className={styles.icon} aria-hidden="true" />
-              <h3 className={styles.cardTitle}>Follow-up + mantenimento</h3>
-              <p className={styles.cardBody}>
+              <h3 className={`${styles.cardTitle} typo-body-lg-upper`}>Follow-up + mantenimento</h3>
+              <p className={`${styles.cardBody} typo-body`}>
                 Piano di mantenimento e monitoraggio continuo per risultati duraturi e progressivi.
               </p>
             </motion.div>

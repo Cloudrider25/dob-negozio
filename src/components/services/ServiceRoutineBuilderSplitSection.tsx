@@ -140,13 +140,13 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
           >
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h3 className={styles.heading}>Scegli il risultato. Al resto pensiamo noi.</h3>
-                <p className={styles.bodyText}>
+                <h2 className={`${styles.heading} typo-h2-upper`}>Scegli il risultato. Al resto pensiamo noi.</h2>
+                <p className={`${styles.bodyText} typo-body`}>
                   Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
                 </p>
                 <div className={styles.stepActions}>
                   <span className={styles.stepActionSpacer} aria-hidden="true" />
-                  <button type="button" className={styles.navButton} onClick={() => goToStep(1)}>
+                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(1)}>
                     Inizia
                   </button>
                 </div>
@@ -155,8 +155,8 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
 
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h3 className={styles.heading}>Parti dall&apos;area da trattare</h3>
-                <p className={styles.bodyText}>
+                <h2 className={`${styles.heading} typo-h2-upper`}>Parti dall&apos;area da trattare</h2>
+                <p className={`${styles.bodyText} typo-body`}>
                   {activeArea?.description ||
                     "Seleziona l'area su cui vuoi intervenire per iniziare la configurazione."}
                 </p>
@@ -165,7 +165,7 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                     <button
                       key={area.id}
                       type="button"
-                      className={`${styles.circleItem} ${
+                      className={`${styles.circleItem} typo-small-upper ${
                         area.id === activeAreaId ? styles.circleItemActive : ''
                       } ${selectedAreaId === area.id ? styles.circleItemSelected : ''}`}
                       onMouseEnter={() => setActiveAreaId(area.id)}
@@ -178,12 +178,12 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                   ))}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={styles.navButton} onClick={() => goToStep(0)}>
+                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(0)}>
                     Torna indietro
                   </button>
                   <button
                     type="button"
-                    className={styles.navButton}
+                    className={`${styles.navButton} typo-caption-upper`}
                     disabled={!selectedAreaId}
                     onClick={() => goToStep(2)}
                   >
@@ -195,8 +195,8 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
 
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h3 className={styles.heading}>Definisci obiettivo e trattamento</h3>
-                <p className={styles.bodyText}>
+                <h2 className={`${styles.heading} typo-h2-upper`}>Definisci obiettivo e trattamento</h2>
+                <p className={`${styles.bodyText} typo-body`}>
                   {selectedGoal?.description ||
                     selectedTreatment?.description ||
                     'Scegli il percorso più adatto al risultato che vuoi ottenere.'}
@@ -204,13 +204,13 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
 
                 {goalsForArea.length > 0 ? (
                   <div className={styles.block}>
-                    <p className={styles.blockLabel}>Obiettivo</p>
+                    <p className={`${styles.blockLabel} typo-caption-upper`}>Obiettivo</p>
                     <div className={styles.pillList}>
                       {goalsForArea.map((goal) => (
                         <button
                           key={goal.id}
                           type="button"
-                          className={`${styles.pillItem} ${
+                          className={`${styles.pillItem} typo-caption-upper ${
                             selectedGoal?.id === goal.id ? styles.pillItemActive : ''
                           }`}
                           onClick={() => setSelectedGoalId(goal.id)}
@@ -223,13 +223,13 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                 ) : null}
 
                 <div className={styles.block}>
-                  <p className={styles.blockLabel}>Trattamento</p>
+                  <p className={`${styles.blockLabel} typo-caption-upper`}>Trattamento</p>
                   <div className={styles.pillList}>
                     {treatmentsForSelection.map((treatment) => (
                       <button
                         key={treatment.id}
                         type="button"
-                        className={`${styles.pillItem} ${
+                        className={`${styles.pillItem} typo-caption-upper ${
                           selectedTreatment?.id === treatment.id ? styles.pillItemActive : ''
                         }`}
                         onClick={() => setSelectedTreatmentId(treatment.id)}
@@ -241,12 +241,12 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                 </div>
 
                 <div className={styles.stepActions}>
-                  <button type="button" className={styles.navButton} onClick={() => goToStep(1)}>
+                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(1)}>
                     Torna indietro
                   </button>
                   <button
                     type="button"
-                    className={styles.navButton}
+                    className={`${styles.navButton} typo-caption-upper`}
                     disabled={!selectedTreatment}
                     onClick={() => goToStep(3)}
                   >
@@ -258,8 +258,8 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
 
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h3 className={styles.heading}>Servizi suggeriti</h3>
-                <p className={styles.bodyText}>
+                <h2 className={`${styles.heading} typo-h2-upper`}>Servizi suggeriti</h2>
+                <p className={`${styles.bodyText} typo-body`}>
                   {selectedTreatment
                     ? `Seleziona un servizio per ${selectedTreatment.label.toLowerCase()}.`
                     : 'Seleziona prima un trattamento.'}
@@ -275,19 +275,19 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                         }`}
                         onClick={() => setActiveServiceId(service.id)}
                       >
-                        <p className={styles.serviceTitle}>{service.title}</p>
-                        <p className={styles.serviceMeta}>
+                        <p className={`${styles.serviceTitle} typo-body`}>{service.title}</p>
+                        <p className={`${styles.serviceMeta} typo-small`}>
                           {service.durationMin > 0 ? `${service.durationMin} min` : 'Durata su richiesta'}
                           {service.price ? ` · ${formatPrice(service.price)}` : ''}
                         </p>
                       </button>
                     ))
                   ) : (
-                    <p className={styles.emptyState}>Nessun servizio disponibile per la selezione corrente.</p>
+                    <p className={`${styles.emptyState} typo-body`}>Nessun servizio disponibile per la selezione corrente.</p>
                   )}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={styles.navButton} onClick={() => goToStep(2)}>
+                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(2)}>
                     Torna indietro
                   </button>
                 </div>
@@ -310,7 +310,7 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
             }}
           >
             <SwiperSlide className={styles.mediaSlide}>
-              <div className={styles.mediaPlaceholder}>Inizia il percorso</div>
+              <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Inizia il percorso</div>
             </SwiperSlide>
 
             <SwiperSlide className={styles.mediaSlide}>
@@ -323,7 +323,7 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                   loading="lazy"
                 />
               ) : (
-                <div className={styles.mediaPlaceholder}>Anteprima area</div>
+                <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima area</div>
               )}
             </SwiperSlide>
 
@@ -337,17 +337,17 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                   loading="lazy"
                 />
               ) : (
-                <div className={styles.mediaPlaceholder}>Anteprima obiettivo/trattamento</div>
+                <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima obiettivo/trattamento</div>
               )}
             </SwiperSlide>
 
             <SwiperSlide className={styles.mediaSlide}>
               <div className={styles.summaryPanel}>
                 <div className={styles.summaryRow}>
-                  {selectedArea?.label ? <span className={styles.summaryPill}>Area: {selectedArea.label}</span> : null}
-                  {selectedGoal?.label ? <span className={styles.summaryPill}>Obiettivo: {selectedGoal.label}</span> : null}
+                  {selectedArea?.label ? <span className={`${styles.summaryPill} typo-caption-upper`}>Area: {selectedArea.label}</span> : null}
+                  {selectedGoal?.label ? <span className={`${styles.summaryPill} typo-caption-upper`}>Obiettivo: {selectedGoal.label}</span> : null}
                   {selectedTreatment?.label ? (
-                    <span className={styles.summaryPill}>Trattamento: {selectedTreatment.label}</span>
+                    <span className={`${styles.summaryPill} typo-caption-upper`}>Trattamento: {selectedTreatment.label}</span>
                   ) : null}
                 </div>
 
@@ -359,20 +359,20 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
                     loading="lazy"
                   />
                 ) : (
-                  <div className={styles.mediaPlaceholder}>Anteprima servizio</div>
+                  <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima servizio</div>
                 )}
 
                 {activeService ? (
                   <div className={styles.serviceInfo}>
-                    <p className={styles.serviceInfoTitle}>{activeService.title}</p>
-                    <p className={styles.serviceInfoMeta}>
+                    <p className={`${styles.serviceInfoTitle} typo-body-lg`}>{activeService.title}</p>
+                    <p className={`${styles.serviceInfoMeta} typo-small`}>
                       {activeService.durationMin > 0
                         ? `${activeService.durationMin} min`
                         : 'Durata su richiesta'}
                       {activeService.price ? ` · ${formatPrice(activeService.price)}` : ''}
                     </p>
                     {activeService.description ? (
-                      <p className={styles.serviceInfoDescription}>{activeService.description}</p>
+                      <p className={`${styles.serviceInfoDescription} typo-body`}>{activeService.description}</p>
                     ) : null}
                   </div>
                 ) : null}

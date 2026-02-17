@@ -144,12 +144,12 @@ function PaymentElementForm({
       </div>
 
       <section className={styles.billingSection}>
-        <h3 className={styles.billingTitle}>{copy.sections.billingAddress}</h3>
-        <p className={styles.paymentDescription}>{copy.messages.billingAddressDescription}</p>
+        <h3 className={`${styles.billingTitle} typo-h2`}>{copy.sections.billingAddress}</h3>
+        <p className={`${styles.paymentDescription} typo-body`}>{copy.messages.billingAddressDescription}</p>
         <div className={styles.billingChoiceCard}>
           <button
             type="button"
-            className={`${styles.paymentMethodRow} ${billingMode === 'same' ? styles.paymentMethodRowActive : ''}`}
+            className={`${styles.paymentMethodRow} typo-body ${billingMode === 'same' ? styles.paymentMethodRowActive : ''}`}
             onClick={() => setBillingMode('same')}
           >
             <span className={styles.radioDot} aria-hidden />
@@ -157,7 +157,7 @@ function PaymentElementForm({
           </button>
           <button
             type="button"
-            className={`${styles.paymentMethodRow} ${billingMode === 'different' ? styles.paymentMethodRowActive : ''}`}
+            className={`${styles.paymentMethodRow} typo-body ${billingMode === 'different' ? styles.paymentMethodRowActive : ''}`}
             onClick={() => setBillingMode('different')}
           >
             <span className={styles.radioDot} aria-hidden />
@@ -190,11 +190,11 @@ function PaymentElementForm({
       </section>
 
       <div className={styles.actionsRow}>
-        <button type="button" className={styles.returnLinkButton} onClick={onBack} disabled={confirming}>
-          <span className={styles.returnIcon}>‹</span>
+        <button type="button" className={`${styles.returnLinkButton} typo-body`} onClick={onBack} disabled={confirming}>
+          <span className={`${styles.returnIcon} typo-body-lg`}>‹</span>
           {copy.actions.returnToShipping}
         </button>
-        <button className={styles.continueButton} type="button" onClick={handlePay} disabled={confirming}>
+        <button className={`${styles.continueButton} typo-small-upper`} type="button" onClick={handlePay} disabled={confirming}>
           {confirming ? copy.actions.processing : copy.actions.payNow}
         </button>
       </div>
@@ -680,8 +680,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     <div className={styles.page}>
       <section className={styles.form}>
         <div className={styles.brand}>
-          <h1 className={styles.brandTitle}>dob</h1>
-          <div className={styles.steps}>
+          <p className={`${styles.brandTitle} typo-display-upper`}>dob</p>
+          <div className={`${styles.steps} typo-caption-upper`}>
             <span className={styles.stepItem}>{copy.stepper.cart}</span>
             <span className={styles.stepSeparator}>›</span>
             <span
@@ -702,16 +702,16 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           </div>
         </div>
 
-        {error ? <div className={styles.notice}>{error}</div> : null}
+        {error ? <div className={`${styles.notice} typo-small`}>{error}</div> : null}
 
         {activeStep === 'information' ? (
           <>
             <section className={styles.express}>
-              <p className={styles.expressTitle}>{copy.expressCheckout}</p>
+              <p className={`${styles.expressTitle} typo-caption-upper`}>{copy.expressCheckout}</p>
               <div className={styles.expressRow}>
                 <button
                   type="button"
-                  className={styles.expressButton}
+                  className={`${styles.expressButton} typo-small`}
                   onClick={onGoToPaymentStep}
                   disabled={submitting}
                 >
@@ -719,7 +719,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 </button>
                 <button
                   type="button"
-                  className={styles.expressButton}
+                  className={`${styles.expressButton} typo-small`}
                   onClick={onGoToPaymentStep}
                   disabled={submitting}
                 >
@@ -727,22 +727,22 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 </button>
                 <button
                   type="button"
-                  className={styles.expressButton}
+                  className={`${styles.expressButton} typo-small`}
                   onClick={onGoToPaymentStep}
                   disabled={submitting}
                 >
                   GPay
                 </button>
               </div>
-              <div className={styles.orDivider}>{copy.orDivider}</div>
+              <div className={`${styles.orDivider} typo-caption-upper`}>{copy.orDivider}</div>
             </section>
 
             <div className={styles.fieldGroup}>
-              <div className={styles.labelRow}>
+              <div className={`${styles.labelRow} typo-small`}>
                 <span>{copy.contact}</span>
               </div>
               <input
-                className={styles.input}
+                className={`${styles.input} typo-body`}
                 placeholder={copy.placeholders.email}
                 value={formState.email}
                 onChange={(event) =>
@@ -752,15 +752,15 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             </div>
 
             <div className={styles.fieldGroup}>
-              <div className={styles.labelRow}>
+              <div className={`${styles.labelRow} typo-small`}>
                 <span>{copy.shippingAddress}</span>
               </div>
-              <select className={styles.select} defaultValue={copy.country}>
+              <select className={`${styles.select} typo-body`} defaultValue={copy.country}>
                 <option value={copy.country}>{copy.country}</option>
               </select>
               <div className={styles.splitRow}>
                 <input
-                  className={styles.input}
+                  className={`${styles.input} typo-body`}
                   placeholder={copy.placeholders.firstName}
                   value={formState.firstName}
                   onChange={(event) =>
@@ -768,7 +768,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                   }
                 />
                 <input
-                  className={styles.input}
+                  className={`${styles.input} typo-body`}
                   placeholder={copy.placeholders.lastName}
                   value={formState.lastName}
                   onChange={(event) =>
@@ -777,7 +777,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 />
               </div>
               <input
-                className={styles.input}
+                className={`${styles.input} typo-body`}
                 placeholder={copy.placeholders.address}
                 value={formState.address}
                 onChange={(event) =>
@@ -786,7 +786,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
               />
               <div className={styles.splitRowThree}>
                 <input
-                  className={styles.input}
+                  className={`${styles.input} typo-body`}
                   placeholder={copy.placeholders.postalCode}
                   value={formState.postalCode}
                   onChange={(event) =>
@@ -794,7 +794,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                   }
                 />
                 <input
-                  className={styles.input}
+                  className={`${styles.input} typo-body`}
                   placeholder={copy.placeholders.city}
                   value={formState.city}
                   onChange={(event) =>
@@ -802,7 +802,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                   }
                 />
                 <input
-                  className={styles.input}
+                  className={`${styles.input} typo-body`}
                   placeholder={copy.placeholders.province}
                   value={formState.province}
                   onChange={(event) =>
@@ -811,7 +811,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 />
               </div>
               <input
-                className={styles.input}
+                className={`${styles.input} typo-body`}
                 placeholder={copy.placeholders.phoneOptional}
                 value={formState.phone}
                 onChange={(event) =>
@@ -821,12 +821,12 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             </div>
 
             <div className={styles.actionsRow}>
-              <Link className={styles.returnLink} href={`/${locale}/cart`}>
-                <span className={styles.returnIcon}>‹</span>
+              <Link className={`${styles.returnLink} typo-body`} href={`/${locale}/cart`}>
+                <span className={`${styles.returnIcon} typo-body-lg`}>‹</span>
                 {copy.actions.returnToCart}
               </Link>
               <button
-                className={styles.continueButton}
+                className={`${styles.continueButton} typo-small-upper`}
                 type="button"
                 disabled={submitting}
                 onClick={onGoToShippingStep}
@@ -839,29 +839,29 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           <>
             <section className={styles.shippingSummaryCard}>
               <div className={styles.shippingSummaryRow}>
-                <span className={styles.shippingSummaryLabel}>{copy.contact}</span>
-                <span className={styles.shippingSummaryValue}>{formState.email || '—'}</span>
-                <button type="button" className={styles.changeLink} onClick={onBackToInformationStep}>
+                <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.contact}</span>
+                <span className={`${styles.shippingSummaryValue} typo-body`}>{formState.email || '—'}</span>
+                <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToInformationStep}>
                   {copy.actions.change}
                 </button>
               </div>
               <div className={styles.shippingSummaryDivider} />
               <div className={styles.shippingSummaryRow}>
-                <span className={styles.shippingSummaryLabel}>{copy.shippingAddress}</span>
-                <span className={styles.shippingSummaryValue}>{shippingAddressLabel || '—'}</span>
-                <button type="button" className={styles.changeLink} onClick={onBackToInformationStep}>
+                <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.shippingAddress}</span>
+                <span className={`${styles.shippingSummaryValue} typo-body`}>{shippingAddressLabel || '—'}</span>
+                <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToInformationStep}>
                   {copy.actions.change}
                 </button>
               </div>
             </section>
 
             <section className={styles.shippingMethodSection}>
-              <h2 className={styles.shippingMethodTitle}>{copy.sections.shippingMethod}</h2>
+              <h2 className={`${styles.shippingMethodTitle} typo-h1`}>{copy.sections.shippingMethod}</h2>
               <div className={styles.shippingMethodCard}>
                 {shippingLoading ? (
-                  <p className={styles.shippingMethodEta}>{copy.messages.shippingLoadingMethods}</p>
+                  <p className={`${styles.shippingMethodEta} typo-body`}>{copy.messages.shippingLoadingMethods}</p>
                 ) : shippingOptions.length === 0 ? (
-                  <p className={styles.shippingMethodEta}>{copy.messages.shippingNoMethods}</p>
+                  <p className={`${styles.shippingMethodEta} typo-body`}>{copy.messages.shippingNoMethods}</p>
                 ) : (
                   <div className={styles.shippingMethodList}>
                     {shippingOptions.map((option) => {
@@ -874,12 +874,12 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                           onClick={() => setSelectedShippingOptionID(option.id)}
                         >
                           <div>
-                            <p className={styles.shippingMethodName}>{option.name}</p>
+                            <p className={`${styles.shippingMethodName} typo-body-lg`}>{option.name}</p>
                             {option.deliveryEstimate ? (
-                              <p className={styles.shippingMethodEta}>{option.deliveryEstimate}</p>
+                              <p className={`${styles.shippingMethodEta} typo-body`}>{option.deliveryEstimate}</p>
                             ) : null}
                           </div>
-                          <strong className={styles.shippingMethodPrice}>
+                          <strong className={`${styles.shippingMethodPrice} typo-h3`}>
                             {formatPrice(option.amount, option.currency)}
                           </strong>
                         </button>
@@ -891,7 +891,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             </section>
 
             {shippingNoticeBlocks.length > 0 ? (
-              <div className={styles.shippingNote}>
+              <div className={`${styles.shippingNote} typo-body`}>
                 {shippingNoticeBlocks.map((block, index) => (
                   <p key={`${block}-${index}`}>{block}</p>
                 ))}
@@ -899,12 +899,12 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             ) : null}
 
             <div className={styles.actionsRow}>
-              <button type="button" className={styles.returnLinkButton} onClick={onBackToInformationStep}>
-                <span className={styles.returnIcon}>‹</span>
+              <button type="button" className={`${styles.returnLinkButton} typo-body`} onClick={onBackToInformationStep}>
+                <span className={`${styles.returnIcon} typo-body-lg`}>‹</span>
                 {copy.actions.returnToInformation}
               </button>
               <button
-                className={styles.continueButton}
+                className={`${styles.continueButton} typo-small-upper`}
                 type="button"
                 disabled={submitting}
                 onClick={onGoToPaymentStep}
@@ -917,24 +917,24 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           <>
             <section className={styles.shippingSummaryCard}>
               <div className={styles.shippingSummaryRow}>
-                <span className={styles.shippingSummaryLabel}>{copy.contact}</span>
-                <span className={styles.shippingSummaryValue}>{formState.email || '—'}</span>
-                <button type="button" className={styles.changeLink} onClick={onBackToInformationStep}>
+                <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.contact}</span>
+                <span className={`${styles.shippingSummaryValue} typo-body`}>{formState.email || '—'}</span>
+                <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToInformationStep}>
                   {copy.actions.change}
                 </button>
               </div>
               <div className={styles.shippingSummaryDivider} />
               <div className={styles.shippingSummaryRow}>
-                <span className={styles.shippingSummaryLabel}>{copy.shippingAddress}</span>
-                <span className={styles.shippingSummaryValue}>{shippingAddressLabel || '—'}</span>
-                <button type="button" className={styles.changeLink} onClick={onBackToInformationStep}>
+                <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.shippingAddress}</span>
+                <span className={`${styles.shippingSummaryValue} typo-body`}>{shippingAddressLabel || '—'}</span>
+                <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToInformationStep}>
                   {copy.actions.change}
                 </button>
               </div>
               <div className={styles.shippingSummaryDivider} />
               <div className={styles.shippingSummaryRow}>
-                <span className={styles.shippingSummaryLabel}>{copy.sections.shippingMethod}</span>
-                <span className={styles.shippingSummaryValue}>
+                <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.sections.shippingMethod}</span>
+                <span className={`${styles.shippingSummaryValue} typo-body`}>
                   {selectedShippingOption
                     ? `${selectedShippingOption.name} · ${formatPrice(
                         selectedShippingOption.amount,
@@ -942,17 +942,17 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                       )}`
                     : shippingLabel}
                 </span>
-                <button type="button" className={styles.changeLink} onClick={onBackToShippingStep}>
+                <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToShippingStep}>
                   {copy.actions.change}
                 </button>
               </div>
             </section>
 
             <section className={styles.paymentSection}>
-              <h2 className={styles.paymentTitle}>{copy.sections.payment}</h2>
-              <p className={styles.paymentDescription}>{copy.messages.secureTransactions}</p>
+              <h2 className={`${styles.paymentTitle} typo-h1`}>{copy.sections.payment}</h2>
+              <p className={`${styles.paymentDescription} typo-body`}>{copy.messages.secureTransactions}</p>
               {!paymentSession && submitting ? (
-                <div className={styles.paymentLoading}>{copy.messages.loadingPaymentElement}</div>
+                <div className={`${styles.paymentLoading} typo-body`}>{copy.messages.loadingPaymentElement}</div>
               ) : null}
               {paymentSession && stripePromise && stripeOptions ? (
                 <Elements stripe={stripePromise} options={stripeOptions}>
@@ -968,7 +968,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 </Elements>
               ) : null}
               {!paymentSession && !submitting && error ? (
-                <div className={styles.paymentLoadingError}>
+                <div className={`${styles.paymentLoadingError} typo-body`}>
                   {copy.messages.paymentElementLoadErrorPrefix} {error}
                 </div>
               ) : null}
@@ -976,7 +976,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           </>
         )}
 
-        <div className={styles.footerLinks}>
+        <div className={`${styles.footerLinks} typo-small`}>
           <Link href={`/${locale}/refund`} className={styles.footerLink}>
             {copy.footer.refundPolicy}
           </Link>
@@ -997,12 +997,12 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
 
       <aside className={styles.summary}>
         {items.length === 0 ? (
-          <div className={styles.summaryMeta}>{copy.messages.cartEmpty}</div>
+          <div className={`${styles.summaryMeta} typo-small`}>{copy.messages.cartEmpty}</div>
         ) : (
           items.map((item) => (
             <div key={item.id} className={styles.summaryItem}>
               <div className={styles.summaryThumb}>
-                <span className={styles.summaryQtyBadge}>{item.quantity}</span>
+                <span className={`${styles.summaryQtyBadge} typo-caption`}>{item.quantity}</span>
                 {normalizeThumbnailSrc(item.coverImage) ? (
                   <Image
                     src={normalizeThumbnailSrc(item.coverImage) || ''}
@@ -1015,10 +1015,10 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 ) : null}
               </div>
               <div>
-                <p className={styles.summaryTitle}>{item.title}</p>
-                <div className={styles.summaryMeta}>{item.brand || copy.messages.defaultProductLabel}</div>
+                <p className={`${styles.summaryTitle} typo-body-lg`}>{item.title}</p>
+                <div className={`${styles.summaryMeta} typo-small`}>{item.brand || copy.messages.defaultProductLabel}</div>
               </div>
-              <div className={styles.summaryPrice}>
+              <div className={`${styles.summaryPrice} typo-body-lg`}>
                 {typeof item.price === 'number'
                   ? formatPrice(item.price * item.quantity, item.currency)
                   : '—'}
@@ -1028,32 +1028,32 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         )}
 
         <div className={styles.codeRow}>
-          <input className={styles.input} placeholder={copy.placeholders.discountCode} />
-          <button type="button" className={styles.applyButton}>
+          <input className={`${styles.input} typo-body`} placeholder={copy.placeholders.discountCode} />
+          <button type="button" className={`${styles.applyButton} typo-body`}>
             {copy.actions.apply}
           </button>
         </div>
 
-        <div className={styles.summaryRow}>
+        <div className={`${styles.summaryRow} typo-body-lg`}>
           <span>{copy.summary.subtotal}</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
-        <div className={styles.summaryRow}>
+        <div className={`${styles.summaryRow} typo-body-lg`}>
           <span>{copy.summary.shipping}</span>
-          <span className={styles.summaryMeta}>{shippingLabel}</span>
+          <span className={`${styles.summaryMeta} typo-small`}>{shippingLabel}</span>
         </div>
-        <div className={styles.totalRow}>
+        <div className={`${styles.totalRow} typo-h2`}>
           <span>{copy.summary.total}</span>
           <span>{formatPrice(totalAmount, effectiveShippingCurrency)}</span>
         </div>
-        <p className={styles.summaryTaxNote}>{copy.messages.includingTaxes}</p>
+        <p className={`${styles.summaryTaxNote} typo-body`}>{copy.messages.includingTaxes}</p>
 
-        <h3 className={styles.summaryRecoTitle}>{copy.sections.recommendations}</h3>
+        <h3 className={`${styles.summaryRecoTitle} typo-h2`}>{copy.sections.recommendations}</h3>
         <div className={styles.summaryRecoList}>
           {recommendedLoading ? (
-            <p className={styles.summaryMeta}>{copy.messages.loadingRecommendations}</p>
+            <p className={`${styles.summaryMeta} typo-small`}>{copy.messages.loadingRecommendations}</p>
           ) : recommended.length === 0 ? (
-            <p className={styles.summaryMeta}>{copy.messages.noRecommendations}</p>
+            <p className={`${styles.summaryMeta} typo-small`}>{copy.messages.noRecommendations}</p>
           ) : (
             recommended.map((product) => (
               <div key={product.id} className={styles.summaryRecoItem}>
@@ -1070,15 +1070,15 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                   ) : null}
                 </div>
                 <div className={styles.summaryRecoContent}>
-                  <p className={styles.summaryRecoName}>{product.title}</p>
-                  {product.format ? <p className={styles.summaryRecoFormat}>{product.format}</p> : null}
+                  <p className={`${styles.summaryRecoName} typo-body-lg`}>{product.title}</p>
+                  {product.format ? <p className={`${styles.summaryRecoFormat} typo-body`}>{product.format}</p> : null}
                   {typeof product.price === 'number' ? (
-                    <p className={styles.summaryRecoPrice}>{formatPrice(product.price, product.currency)}</p>
+                    <p className={`${styles.summaryRecoPrice} typo-body`}>{formatPrice(product.price, product.currency)}</p>
                   ) : null}
                 </div>
                 <button
                   type="button"
-                  className={styles.summaryRecoAction}
+                  className={`${styles.summaryRecoAction} typo-body`}
                   onClick={() => addRecommendedToCart(product)}
                 >
                   {copy.actions.add}

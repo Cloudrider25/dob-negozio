@@ -17,7 +17,7 @@ export function ProductFaqAccordion({ items }: { items: FaqItem[] }) {
       {items.map((item) => {
         const isOpen = item.question === openId
         return (
-          <div key={item.question} className={styles.faqItem}>
+          <div key={item.question} className={`${styles.faqItem} typo-body-upper`}>
             <button
               type="button"
               className={styles.faqTrigger}
@@ -26,12 +26,12 @@ export function ProductFaqAccordion({ items }: { items: FaqItem[] }) {
             >
               <span className={styles.faqQuestionRow}>
                 <span>{item.question}</span>
-                <span className={styles.faqIcon}>{isOpen ? '−' : '+'}</span>
+                <span className={`${styles.faqIcon} typo-body`}>{isOpen ? '−' : '+'}</span>
               </span>
             </button>
             {isOpen && item.answerHtml ? (
               <div
-                className={styles.faqAnswer}
+                className={`${styles.faqAnswer} typo-body`}
                 dangerouslySetInnerHTML={{ __html: item.answerHtml }}
               />
             ) : null}

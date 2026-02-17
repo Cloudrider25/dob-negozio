@@ -41,7 +41,7 @@ Azione: completare matrice stati unica e verifica contrasto AA su `default/hover
 - [ ] **Pulizia typography locale residua**  
 Scope: componenti frontend con `font-size`/`font-family` hardcoded  
 Evidenza: restano override tipografici non allineati alla scala globale.  
-Azione: migrare progressivamente su layer tipografico condiviso e token `clamp()` mobile-first.
+Azione: migrare progressivamente su utility tipografiche complete centralizzate (non solo `text-*`) e token `clamp()` mobile-first.
 
 ## Media Governance (operativo)
 - `media/`: storage upload runtime di Payload (configurato come `staticDir` in `src/collections/Media.ts`).
@@ -54,109 +54,50 @@ Le voci completate e i batch storici sono stati spostati in:
 - `Docs/archive/style-design-audit-completed.legacy.md`
 ## Typography Refactor Site-Wide (Checklist monitor)
 
-Obiettivo: uniformare la tipografia su tutto il progetto con pipeline Tailwind + token condivisi, rimuovendo custom CSS locali e usando `clamp()` in logica mobile-first.
+Stato programma: completato (Fasi 0→6 chiuse il 2026-02-17).
 
-- [x] **Fase 0 - Baseline e inventario**
-Scope: intero `src/` frontend (route + components + module css)  
-Evidenza: presenza di molti `font-size`, `font-family`, `letter-spacing`, `line-height` custom per componente.  
-Azione:
-- creare baseline visuale su pagine chiave (home, shop, services, detail, checkout, account)
-- censire override tipografici nel codebase
-- classificare per priorita (`critico`, `legacy`, `eccezione accettata`)
-Stato: completata il 2026-02-17 con inventario in `Docs/typography-baseline-inventory.md` (617 occorrenze censite, classificazione priorita e baseline pagine QA).
+Riferimenti ufficiali:
+- Baseline e inventario: `Docs/typography-baseline-inventory.md`
+- Scala tipografica e mapping token: `Docs/typography-scale.md`
+- Governance, regole vincolanti, eccezioni deliberate: `Docs/typography-governance.md`
+- Checklist PR operativa: `Docs/pr-checklist-typography.md`
+- Storico batch dettagliato: `Docs/archive/style-design-audit-completed.legacy.md`
 
-- [x] **Fase 1 - Definizione scala tipografica unica**
-Scope: `src/styles/tokens.css`, `src/styles/typography.css`, `tailwind.config.*`  
-Evidenza: assenza di mapping globale coerente per heading/body tramite tailwind base.  
-Azione:
-- definire livelli (`display`, `h1`, `h2`, `h3`, `body-lg`, `body`, `small`, `caption`)
-- fissare per livello: `font-family`, `font-weight`, `line-height`, `letter-spacing`
-- definire `clamp(min, vw, max)` mobile-first per ogni livello
-Stato: completata il 2026-02-17. Scala definita in `src/styles/typography.css` (token semantici) e documentata in `Docs/typography-scale.md`.
-
-- [x] **Fase 2 - Integrazione Tailwind base + utilities**
-Scope: `src/styles/typography.css`, `tailwind.config.*`  
-Evidenza: heading HTML non governati da una policy tipografica centralizzata.  
-Azione:
-- aggiungere regole in `@layer base` per `h1..h6`, `p`, `small`, `label`
-- estendere tailwind con classi semantiche (`text-h1`, `text-h2`, ecc.) e font (`font-display`, `font-body`)
-- verificare che i tag senza classi custom ereditino correttamente
-Stato: completata il 2026-02-17. Applicate regole `@layer base` in `src/styles/typography.css` e utility semantiche in `tailwind.config.ts`; documentazione aggiornata in `Docs/typography-scale.md`.
-
-- [x] **Fase 3 - Migrazione componenti core (mobile-first)**
-Scope: hero, sections, carousel, switcher, card, form principali  
-Evidenza: componenti ad alta visibilita con sizing tipografico locale non allineato.  
-Azione:
-- sostituire custom typography con token/shared utilities
-- mantenere solo eccezioni deliberate e documentate
-- usare base mobile + override `min-width` solo se necessario
-Stato: completata il 2026-02-17 (batch core) su `StoryHero`, `ValuesSection`, `UIC_Carousel`, `UIC_CarouselCard`, `ProgramsSplitSection` con migrazione a token `--type-*` e rimozione font locali (`Inter`) nei punti principali.
-
-- [ ] **Fase 4 - Rimozione custom CSS e duplicati**
-Scope: module css in `src/components/**` e `src/app/**`  
-Evidenza: duplicazione di regole tipografiche e override locali confliggenti.  
-Azione:
-- eliminare `font-size`/`font-family` locali ridondanti
-- consolidare stili ripetuti in scala globale
-- preservare solo casi speciali giustificati
-Stato: in corso (batch 1+2+3+4+5+6 completati il 2026-02-17) su `ServiceRoutineBuilderSplitSection`, `ServicesTreatmentReveal`, `ProtocolSplit`, `StoryValuesSection`, `ServicesProtocol`, `StoryTeamSection`, `ListinoTradizionale` + pagine `src/app/(frontend)/[locale]/services/[category]/page.tsx`, `src/app/(frontend)/[locale]/journal/page.tsx`, `src/app/(frontend)/[locale]/layout.tsx`, `src/app/(checkout)/[locale]/checkout/checkout.module.css` e convergenza tipografica estesa in `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css` con migrazione a token `--type-*` e rimozione font locali hardcoded.
-
-- [ ] **Fase 5 - QA e regressioni**
-Scope: verifica visuale e tecnica finale  
-Evidenza: rischio regressioni cross-page / dark-light / responsive.  
-Azione:
-- QA visuale su breakpoint 320 / 375 / 768 / 1024 / 1440
-- QA light/dark e gerarchia heading
-- eseguire `tsc --noEmit` e build
-Stato: in corso (tecnico completato il 2026-02-17): `pnpm build` OK e `tsc --noEmit` OK. Restano da completare i check visuali manuali cross-breakpoint e light/dark.
-
-- [ ] **Fase 6 - Governance futura**
-Scope: processo e controllo continuo  
-Evidenza: rischio reintroduzione custom typography fuori standard.  
-Azione:
-- definire regola: niente `font-size` hardcoded fuori token salvo eccezioni documentate
-- aggiornare doc con matrice tipografica finale
-- aggiungere checklist PR per controllo typography
+Nota: in questo file restano solo backlog aperti e stato operativo corrente; i dettagli implementativi storici sono stati decentrati nei documenti tematici.
 
 ### Criteri di completamento
 
-- [ ] heading/body principali allineati alla scala tipografica unica
-- [ ] `clamp()` applicato ai livelli previsti in approccio mobile-first
-- [ ] rimozione dei custom typography ridondanti nelle aree core
+- [x] heading/body principali allineati alla scala tipografica unica
+- [x] `clamp()` applicato ai livelli previsti in approccio mobile-first
+- [x] rimozione dei custom typography ridondanti nelle aree core (module css “layout-only”)
+- [x] adozione classi `typo-*` complete nei consumer principali
+- [x] hardening visivo completato su componenti core (`Fase 3b`) con eccezioni documentate
 - [x] nessuna regressione tecnica (`tsc --noEmit` + build ok)
 
 ## Estensione piano: leggibilita e motion safety (solo pulsanti)
 
-Obiettivo: garantire visibilita costante del testo nei pulsanti (light/dark) e comportamento coerente durante effetti Framer Motion.
+Stato programma: completato (batch 1→4, 2026-02-17).
 
-- [ ] **Contrasto testo/sfondo pulsanti (light + dark)**
-Scope: `button`, `button-link`, CTA, filter pill, card button, hero button  
-Evidenza: rischio combinazioni `testo chiaro su sfondo chiaro` o `testo scuro su sfondo scuro`.  
-Azione:
-- vincolare colori button a token tema (`--text-primary`, `--text-inverse`, `--paper`, `--stroke`)
-- eliminare colori hardcoded nei pulsanti
-- mantenere coerenza tra `main` / `card` / `hero` e inversione dark
+Riferimento ufficiale:
+- `Docs/button-governance.md`
 
-- [ ] **Stati interattivi button**
-Scope: `default`, `hover`, `active`, `focus-visible`, `disabled`  
-Evidenza: stati non omogenei tra light/dark e tra componenti.  
-Azione:
-- definire matrice unica stati per i pulsanti
-- garantire contrasto WCAG AA in ogni stato
-- verificare outline focus sempre visibile
+Sintesi:
+- contrasto light/dark centralizzato su token
+- stati `default/hover/active/focus-visible/disabled` unificati
+- motion safety completata con fallback `prefers-reduced-motion`
+- QA tecnica chiusa (`pnpm build`, `pnpm tsc --noEmit --incremental false`)
 
-- [ ] **Framer Motion sui button**
-Scope: effetti di inversione colore e overlay motion nei pulsanti  
-Evidenza: durante animazione il testo puo perdere contrasto.  
-Azione:
-- validare contrasto in stati intermedi (non solo inizio/fine)
-- impedire opacita/transizioni che rendono il label illeggibile
-- mantenere parita visuale tra light e dark durante l'effetto
+Nota: validazione visuale manuale cross-page resta in handoff UAT/design signoff.
 
-- [ ] **QA finale pulsanti**
-Scope: tutte le pagine con CTA e controlli interattivi  
-Evidenza: rischio regressioni cross-page.  
+
+## Estensione piano: deduplica strutturale stili/componenti
+
+- [ ] **Estensione - Deduplica strutturale stili/componenti**  
+Scope: componenti con varianti duplicate e wrapper legacy (`sections`, `carousel`, `auth/account`, `shop/services`)  
+Evidenza: stili e markup simili replicati in file diversi, rischio drift visuale e costo manutenzione alto.  
 Azione:
-- test visuale su light/dark e breakpoint principali
-- test con e senza motion (`prefers-reduced-motion`)
-- blocco merge se contrasto button insufficiente
+- accorpare pattern ripetuti in componenti shared (`ui/*`, `sections/*`) con API minima
+- rimuovere alias/wrapper non necessari dove i consumer possono usare il componente core diretto
+- unificare regole visuali duplicate (CTA/filter pills/cards) su token + varianti standard
+- eliminare file legacy non referenziati dopo migrazione (con verifica `rg` + build/tsc)
+Stato: da avviare.

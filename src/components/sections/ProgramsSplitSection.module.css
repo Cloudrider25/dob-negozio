@@ -104,10 +104,6 @@
 
 .title {
   margin: 0;
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  letter-spacing: var(--type-h2-track);
-  text-transform: uppercase;
   color: #6b6761;
   max-width: 24rem;
   grid-row: 1;
@@ -116,9 +112,6 @@
 .subtitle {
   margin: 0;
   color: #7a756f;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
   max-width: 28rem;
   margin-left: auto;
   margin-right: auto;
@@ -195,10 +188,6 @@
 
 .stepBadge {
   margin-right: -40%;
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  letter-spacing: var(--type-h1-track);
-  text-transform: uppercase;
   color: var(--text-muted);
   background: transparent;
   pointer-events: none;
@@ -209,19 +198,12 @@
 
 .stepTitle {
   margin: 0;
-  font-size: var(--type-small-size);
-  line-height: var(--type-small-line);
-  letter-spacing: var(--type-h3-track);
-  text-transform: uppercase;
   color: #6b6761;
 }
 
 .stepSubtitle {
   margin: 0.35rem 0 0;
   color: #7a756f;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
 }
 
 .metaRow {
@@ -241,17 +223,12 @@
 }
 
 .counter {
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  letter-spacing: var(--type-h3-track);
   font-weight: 600;
   color: #7a756f;
 }
 
 .counterLarge {
-  font-size: var(--type-h1-size);
-  line-height: var(--type-h1-line);
-  letter-spacing: var(--type-h2-track);
+  font-weight: 600;
 }
 
 .stepZero .subtitle {

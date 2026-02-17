@@ -71,15 +71,15 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
       <div className={styles.grid}>
         <div className={styles.panel}>
           <div>
-            <p className={styles.eyebrow}>{eyebrow}</p>
+            <p className={`${styles.eyebrow} typo-caption-upper`}>{eyebrow}</p>
             <div className={styles.textSlider}>
               {resolvedSteps.map((step, index) => (
                 <div
                   key={step.id}
                   className={`${styles.slide} ${styles.textSlide} ${getSlideState(index)}`}
                 >
-                  <h3 className={styles.title}>{step.title}</h3>
-                  <p className={styles.subtitle}>{step.subtitle}</p>
+                  <h3 className={`${styles.title} typo-h2-upper`}>{step.title}</h3>
+                  <p className={`${styles.subtitle} typo-body`}>{step.subtitle}</p>
                 </div>
               ))}
             </div>
@@ -91,7 +91,7 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
             {resolvedSteps.map((step, index) => (
               <div key={step.id} className={styles.step}>
                 <button
-                  className={`${styles.stepBtn} ${index === activeIndex ? styles.stepBtnActive : ''}`}
+                  className={`${styles.stepBtn} typo-small-upper ${index === activeIndex ? styles.stepBtnActive : ''}`}
                   type="button"
                   aria-pressed={index === activeIndex}
                   onMouseEnter={() => activateStep(index)}
@@ -100,7 +100,7 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
                 >
                   {step.id}
                 </button>
-                <p className={styles.stepLabel}>{step.label}</p>
+                <p className={`${styles.stepLabel} typo-caption-upper`}>{step.label}</p>
               </div>
             ))}
           </div>

@@ -7,8 +7,6 @@
 .title {
   margin: 0 0 0.25rem;
   text-align: center;
-  font-size: clamp(2.1rem, 1.9rem + 1.2vw, 3.4rem);
-  line-height: 1.05;
   color: #66625d;
   font-weight: 700;
 }
@@ -17,7 +15,6 @@
   margin: 0 0 1.6rem;
   text-align: center;
   color: #66625d;
-  font-size: 1.05rem;
 }
 
 .field {
@@ -28,7 +25,6 @@
   display: block;
   margin-bottom: 0.34rem;
   text-align: center;
-  font-size: 0.8rem;
   color: #66625d;
 }
 
@@ -38,7 +34,6 @@
   border-radius: 14px;
   height: 58px;
   padding: 0 18px;
-  font-size: 1.05rem;
   color: #44413e;
   background: transparent;
 }
@@ -72,10 +67,8 @@
   border: 1px solid #66625d;
   background: transparent;
   color: #66625d;
-  font-size: 1.05rem;
   padding: 0.4rem 1.2rem;
   cursor: pointer;
-  text-transform: uppercase;
 }
 
 .submit:disabled {
@@ -86,13 +79,11 @@
 .link {
   color: #66625d;
   text-decoration: underline;
-  font-size: 0.95rem;
 }
 
 .muted {
   margin: 0;
   text-align: center;
-  font-size: 0.95rem;
   color: #66625d;
 }
 
@@ -100,7 +91,6 @@
   margin: 0 0 1rem;
   border-radius: 10px;
   padding: 0.75rem 0.95rem;
-  font-size: 0.92rem;
 }
 
 .error {
@@ -116,20 +106,7 @@
 }
 
 @media (max-width: 1024px) {
-  .title {
-    font-size: clamp(1.9rem, 5vw, 2.8rem);
-  }
-
-  .subtitle,
-  .muted,
-  .submit,
-  .link,
-  .message {
-    font-size: clamp(0.88rem, 2.7vw, 1rem);
-  }
-
   .input {
     height: 52px;
-    font-size: 1rem;
   }
 }

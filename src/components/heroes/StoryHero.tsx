@@ -28,8 +28,8 @@ export const StoryHero = ({ locale, title, body, ctaLabel, ctaHref, media }: Sto
         />
       </div>
       <div className={styles.card}>
-        <h2 className={styles.title}>{title || 'il necessario, fatto davvero bene'}</h2>
-        <p className={styles.body}>
+        <h2 className={`${styles.title} typo-h3`}>{title || 'il necessario, fatto davvero bene'}</h2>
+        <p className={`${styles.body} typo-body`}>
           {body ||
             'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'}
         </p>

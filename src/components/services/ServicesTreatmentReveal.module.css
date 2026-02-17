@@ -81,18 +81,11 @@
 
 .treatmentTitle {
   margin: 0;
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  letter-spacing: var(--type-h2-track);
-  text-transform: lowercase;
   color: var(--text-primary);
 }
 
 .treatmentText {
   margin: 0;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
 }
 
@@ -100,10 +93,6 @@
   margin: 0.5rem 0 0;
   padding-left: 1.2rem;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
-  text-transform: none;
 }
 
 .treatmentAltBody {
@@ -179,12 +168,7 @@
   color: #fff;
   writing-mode: vertical-rl;
   text-align: center;
-  text-transform: uppercase;
   text-decoration-thickness: bold;
-  letter-spacing: var(--type-h1-track);
-  font-family: var(--font-body);
-  font-size: var(--type-body-lg-size);
-  line-height: var(--type-body-lg-line);
 }
 
 .treatmentRailButton {
@@ -197,7 +181,6 @@
 .treatmentRailText {
   transform: rotate(180deg);
   padding: 4px;
-  line-height: 1;
   text-align: center;
   font-weight: 700;
 }
@@ -213,7 +196,6 @@
 
 .treatmentRailBottom {
   align-self: center;
-  letter-spacing: var(--type-small-track);
   margin-bottom: 0.2rem;
 }
 

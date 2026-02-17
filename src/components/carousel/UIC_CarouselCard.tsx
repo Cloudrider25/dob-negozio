@@ -17,23 +17,23 @@ export const UICCarouselCard = ({
   mediaClassName?: string
 }) => {
   return (
-    <article className={`${styles.card} ${cardClassName ?? ''}`}>
+    <article className={`${styles.card} typo-body ${cardClassName ?? ''}`}>
       <div className={`${styles.media} ${mediaClassName ?? ''}`}>
-        {item.badgeLeft && <span className={styles.badgeLeft}>{item.badgeLeft}</span>}
+        {item.badgeLeft && <span className={`${styles.badgeLeft} typo-caption-upper`}>{item.badgeLeft}</span>}
         {(item.badgeRight || item.tag) && (
-          <span className={styles.badgeRight}>{item.badgeRight || item.tag}</span>
+          <span className={`${styles.badgeRight} typo-caption-upper`}>{item.badgeRight || item.tag}</span>
         )}
         <Image src={item.image.url} alt={item.image.alt || item.title} fill sizes="(max-width: 1024px) 70vw, 33vw" />
       </div>
       <div className={styles.titleBlock}>
         <div className={styles.titleRow}>
-          <h3 className={styles.title}>{item.title}</h3>
+          <h3 className={`${styles.title} typo-body-lg-upper`}>{item.title}</h3>
           <span className={styles.price}>{item.price || ''}</span>
         </div>
-        <p className={`${styles.meta} ${styles.subtitle}`}>{item.subtitle || ''}</p>
+        <p className={`${styles.meta} ${styles.subtitle} typo-small`}>{item.subtitle || ''}</p>
       </div>
       <div className={styles.bottomBlock}>
-        <div className={`${styles.meta} ${styles.metaRow}`}>
+        <div className={`${styles.meta} ${styles.metaRow} typo-small`}>
           <span>{item.duration || ''}</span>
         </div>
         {item.href ? (

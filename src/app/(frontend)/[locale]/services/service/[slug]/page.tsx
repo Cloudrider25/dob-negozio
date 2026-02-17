@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
@@ -15,6 +14,7 @@ import { FaqAccordion } from './FaqAccordion'
 import type { Treatment } from '@/payload-types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { Button } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ui/button-link'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -466,37 +466,40 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
 
         <div className={styles.heroPanel}>
           <div className={styles.titleRow}>
-            <h1 className={styles.title}>{service.name}</h1>
-            <span className={styles.badge}>
+            <h1 className={`${styles.title} typo-h1`}>{service.name}</h1>
+            <span className={`${styles.badge} typo-caption-upper`}>
               {badgeLabel !== '—' ? badgeLabel : formatServiceType(service.serviceType)}
             </span>
           </div>
 
-          {service.tagline && <div className={styles.eyebrow}>{service.tagline}</div>}
+          {service.tagline && <div className={`${styles.eyebrow} typo-caption-upper`}>{service.tagline}</div>}
 
-          <div className={styles.subtitleRow}>
+          <div className={`${styles.subtitleRow} typo-small-upper`}>
             <span className={styles.subtitle}>{categoryLabel}</span>
-            <span className={styles.rating}>★★★★★</span>
-            <span className={styles.ratingCount}>(1,858)</span>
+            <span className={`${styles.rating} typo-small`}>★★★★★</span>
+            <span className={`${styles.ratingCount} typo-small`}>(1,858)</span>
           </div>
 
           {service.description && (
-            <p className={styles.description}>{service.description}</p>
+            <p className={`${styles.description} typo-body`}>{service.description}</p>
           )}
 
           <div className={styles.divider} />
 
           <div className={styles.relatedBlock}>
-            <div className={styles.label}>Servizi correlati</div>
+            <div className={`${styles.label} typo-caption-upper`}>Servizi correlati</div>
             <div className={styles.relatedList}>
               {(relatedServices.length > 0 ? relatedServices : [
                 { id: 'placeholder-1', name: 'Laser viso totale', slug: '#' },
                 { id: 'placeholder-2', name: 'Laser viso donna', slug: '#' },
                 { id: 'placeholder-3', name: 'Laser viso uomo', slug: '#' },
               ]).map((related) => (
-                <Link
+                <ButtonLink
                   key={related.id}
-                  className={styles.relatedItem}
+                  className={`${styles.relatedItem} typo-caption-upper`}
+                  kind="main"
+                  size="sm"
+                  interactive
                   href={
                     related.slug === '#'
                       ? `/${locale}/services`
@@ -504,16 +507,16 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                   }
                 >
                   {related.name}
-                </Link>
+                </ButtonLink>
               ))}
             </div>
-            <Button className={styles.buyButton} type="button" kind="main" interactive>
+            <Button className={`${styles.buyButton} typo-caption-upper`} type="button" kind="main" interactive>
               Prenota ora
             </Button>
           </div>
 
           <div className={styles.crossSell}>
-            <div className={styles.crossSellTitle}>Aggiungi</div>
+            <div className={`${styles.crossSellTitle} typo-caption-upper`}>Aggiungi</div>
             <div className={styles.crossSellRow}>
               <div className={styles.crossSellItem}>
                 <div className={styles.crossSellThumb}>
@@ -524,13 +527,13 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                   )}
                 </div>
                 <div>
-                  <div className={styles.crossSellName}>
+                  <div className={`${styles.crossSellName} typo-body-upper`}>
                     {crossSell?.name || 'Servizio complementare'}
                   </div>
-                  <div className={styles.crossSellMeta}>Selezione consigliata</div>
+                  <div className={`${styles.crossSellMeta} typo-caption`}>Selezione consigliata</div>
                 </div>
               </div>
-              <Button className={styles.lineupButton} type="button" kind="main" size="sm" interactive>
+              <Button className={`${styles.lineupButton} typo-caption-upper`} type="button" kind="main" size="sm" interactive>
                 Aggiungi
               </Button>
             </div>
@@ -668,7 +671,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
               {imageUrl && (
                 <Image src={imageUrl} alt={imageAlt} fill className={styles.videoPoster} />
               )}
-              <div className={styles.videoOverlay}>Video placeholder</div>
+              <div className={`${styles.videoOverlay} typo-small-upper`}>Video placeholder</div>
             </div>
           )}
         </div>
@@ -690,18 +693,18 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
             )}
           </div>
           <div className={styles.insideContent}>
-            <div className={styles.insideLabel}>what&apos;s included</div>
+            <div className={`${styles.insideLabel} typo-h1-upper`}>what&apos;s included</div>
             {includedContent ? (
               includedContent.type === 'html' ? (
                 <div
-                  className={styles.insideRich}
+                  className={`${styles.insideRich} typo-body`}
                   dangerouslySetInnerHTML={{ __html: includedContent.value }}
                 />
               ) : (
-                <p className={styles.insideLead}>{includedContent.value}</p>
+                <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
               )
             ) : (
-              <p className={styles.insideLead}>
+              <p className={`${styles.insideLead} typo-body`}>
                 {service.name ? `Scopri cosa include ${service.name}.` : ''}
               </p>
             )}
@@ -712,8 +715,8 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
       <section className={styles.faqSection} aria-label="FAQ">
         <div className={styles.faqGrid}>
           <div className={styles.faqCopy}>
-            <h2 className={styles.faqTitle}>{service.faqTitle || 'FAQ'}</h2>
-            <p className={styles.faqSubtitle}>
+            <h2 className={`${styles.faqTitle} typo-h1-upper`}>{service.faqTitle || 'FAQ'}</h2>
+            <p className={`${styles.faqSubtitle} typo-body`}>
               {service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
             </p>
             <div className={styles.faqList}>
@@ -759,7 +762,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
           title: parentTitle || service.name || 'Protocol overview',
           mediaDescription: parentDescription || service.description || '',
           body: (
-            <p className={styles.treatmentText}>
+            <p className={`${styles.treatmentText} typo-body`}>
               {parentTagline || parentDescription || ''}
             </p>
           ),
@@ -785,7 +788,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                   emptyLabel="Nessun servizio disponibile."
                 />
               ) : (
-                <p className={styles.treatmentText}>
+                <p className={`${styles.treatmentText} typo-body`}>
                   Il servizio scelto è unico nel suo genere e non ha alternative.
                 </p>
               )}

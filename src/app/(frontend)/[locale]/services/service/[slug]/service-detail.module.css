@@ -88,7 +88,6 @@
 }
 
 .playIcon {
-  font-size: var(--type-caption-size);
   color: #4b4b4b;
 }
 
@@ -119,9 +118,6 @@
 }
 
 .eyebrow {
-  text-transform: uppercase;
-  font-size: var(--type-caption-size);
-  letter-spacing: var(--type-h1-track);
   color: var(--text-secondary);
 }
 
@@ -135,18 +131,12 @@
 
 .title {
   margin: 0;
-  font-size: var(--type-display-size);
-  letter-spacing: var(--type-body-track);
-  text-transform: lowercase;
   color: var(--text-primary);
 }
 
 .badge {
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
-  font-size: var(--type-caption-size);
-  letter-spacing: var(--type-caption-track);
-  text-transform: uppercase;
   background: #111;
   color: #fff;
 }
@@ -155,9 +145,6 @@
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -165,9 +152,6 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-small-size);
   color: var(--text-secondary);
 }
 
@@ -177,12 +161,9 @@
 
 .rating {
   margin-left: auto;
-  font-size: var(--type-small-size);
-  letter-spacing: var(--type-small-track);
 }
 
 .ratingCount {
-  font-size: var(--type-small-size);
   color: var(--text-secondary);
 }
 
@@ -193,8 +174,6 @@
 .description {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -205,8 +184,6 @@
 .note {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--type-small-size);
-  letter-spacing: var(--type-small-track);
 }
 
 .divider {
@@ -216,9 +193,6 @@
 }
 
 .label {
-  text-transform: uppercase;
-  font-size: var(--type-caption-size);
-  letter-spacing: var(--type-caption-track);
   color: var(--text-secondary);
 }
 
@@ -239,9 +213,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fff;
   padding: 0.35rem 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-caption-size);
   cursor: pointer;
 }
 
@@ -258,14 +229,6 @@
 }
 
 .relatedItem {
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
-  background: #fff;
-  padding: 0.4rem 0.9rem;
-  font-size: var(--type-caption-size);
-  letter-spacing: var(--type-h3-track);
-  text-transform: uppercase;
-  color: var(--text-secondary);
   text-decoration: none;
 }
 
@@ -274,9 +237,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fdfcfa;
   padding: 0.8rem 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: var(--type-caption-track);
-  font-size: var(--type-caption-size);
   cursor: pointer;
   text-align: center;
 }
@@ -288,9 +248,6 @@
 }
 
 .crossSellTitle {
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-caption-size);
   font-weight: 600;
 }
 
@@ -320,13 +277,9 @@
 }
 
 .crossSellName {
-  font-size: var(--type-body-size);
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
 }
 
 .crossSellMeta {
-  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -337,9 +290,6 @@
 }
 
 .lineupTitle {
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-caption-size);
   font-weight: 600;
 }
 
@@ -367,13 +317,9 @@
 }
 
 .lineupName {
-  font-size: var(--type-body-size);
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
 }
 
 .lineupMeta {
-  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -382,9 +328,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fff;
   padding: 0.35rem 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-caption-size);
   cursor: pointer;
 }
 
@@ -407,22 +350,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-caption-size);
   font-weight: 600;
   cursor: pointer;
 }
 
 .accordionIcon {
-  font-size: var(--type-body-size);
 }
 
 .accordionPanel {
   margin-top: 0.6rem;
   color: var(--text-secondary);
-  font-size: var(--type-small-size);
-  line-height: var(--type-body-line);
 }
 
 .accordionPanel ul {
@@ -435,9 +372,6 @@
 }
 
 .inlineLink {
-  text-transform: uppercase;
-  letter-spacing: var(--type-caption-track);
-  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -462,7 +396,6 @@
 
 .value {
   margin: 0.3rem 0 0;
-  font-size: var(--type-body-lg-size);
   color: var(--text-primary);
 }
 
@@ -483,7 +416,6 @@
 
 .sectionTitle {
   margin: 0.4rem 0 0;
-  font-size: var(--type-h3-size);
   color: var(--text-primary);
 }
 
@@ -491,9 +423,6 @@
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding: 0.6rem 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: var(--type-caption-track);
-  font-size: var(--type-caption-size);
   color: var(--text-secondary);
   text-decoration: none;
   background: #fff;
@@ -511,16 +440,12 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   background: #fff;
   padding: 0.4rem 0.9rem;
-  font-size: var(--type-caption-size);
-  letter-spacing: var(--type-caption-track);
-  text-transform: uppercase;
   color: var(--text-secondary);
 }
 
 .empty {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
 }
 
 .ingredientsSection {
@@ -565,9 +490,6 @@
   color: #fff;
   border: 0;
   padding: 0.5rem 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: var(--type-caption-track);
-  font-size: var(--type-caption-size);
   cursor: pointer;
 }
 
@@ -591,23 +513,16 @@
   left: 1rem;
   top: 2.2rem;
   writing-mode: vertical-rl;
-  text-transform: uppercase;
-  letter-spacing: var(--type-caption-track);
-  font-size: var(--type-h1-size);
   color: var(--text-secondary);
 }
 
 .insideLead {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
 }
 
 .insideRich {
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
 }
 
 .insideRich :global(p) {
@@ -620,10 +535,6 @@
   padding-left: 1.2rem;
 }
 
-.insideRich :global(h1) {
-  font-family: var(--font-body);
-}
-
 .insideBlock {
   border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding-top: 1rem;
@@ -631,25 +542,17 @@
 
 .insideBlock h3 {
   margin: 0 0 0.4rem;
-  font-size: var(--type-body-lg-size);
-  text-transform: lowercase;
-  letter-spacing: var(--type-body-track);
   color: var(--text-primary);
 }
 
 .insideBlock p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
 }
 
 .insideNote {
   border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding-top: 1rem;
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -675,16 +578,12 @@
 
 .faqTitle {
   margin: 0;
-  font-size: var(--type-h1-size);
-  letter-spacing: var(--type-small-track);
-  text-transform: uppercase;
   color: var(--text-primary);
 }
 
 .faqSubtitle {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
 }
 
 .faqList {
@@ -703,9 +602,6 @@
   border: 0;
   background: none;
   padding: 0.9rem 0;
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
-  font-size: var(--type-body-size);
   color: var(--text-secondary);
   border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   cursor: pointer;
@@ -731,18 +627,10 @@
 
 .faqAnswer {
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  text-transform: none;
-  letter-spacing: var(--type-body-track);
 }
 
 .faqAnswer :global(p) {
   margin: 0 0 0.5rem;
-}
-
-.faqAnswer :global(h1) {
-  font-family: var(--font-body);
 }
 
 .faqIcon {
@@ -752,7 +640,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   display: grid;
   place-items: center;
-  font-size: var(--type-body-size);
   color: var(--text-secondary);
 }
 
@@ -856,16 +743,11 @@
 
 .treatmentTitle {
   margin: 0;
-  font-size: var(--type-h2-size);
-  letter-spacing: var(--type-body-track);
-  text-transform: lowercase;
   color: var(--text-primary);
 }
 
 .treatmentText {
   margin: 0;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
   color: var(--text-secondary);
 }
 
@@ -873,9 +755,6 @@
   margin: 0.5rem 0 0;
   padding-left: 1.2rem;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  text-transform: none;
 }
 
 .treatmentAltBody {
@@ -956,11 +835,7 @@
   justify-content: space-between;
   padding: 0.8rem 0;
   gap: 0.2rem;
-  text-transform: uppercase;
   text-decoration-thickness: bold;
-  letter-spacing: var(--type-h1-track);
-  font-family: var(--font-body);
-  font-size: var(--type-body-size);
   writing-mode: vertical-rl;
   text-align: center;
 }
@@ -975,7 +850,6 @@
 .treatmentRailText {
   transform: rotate(180deg);
   padding: 4px;
-  line-height: 1;
   text-align: center;
   font-weight: 700;
 }
@@ -987,7 +861,6 @@
 
 .treatmentRailBottom {
   align-self: center;
-  letter-spacing: var(--type-small-track);
   margin-bottom: 0.2rem;
 }
 
@@ -1082,8 +955,5 @@
   inset: 0;
   display: grid;
   place-items: center;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: var(--type-caption-size);
   color: rgba(0, 0, 0, 0.6);
 }

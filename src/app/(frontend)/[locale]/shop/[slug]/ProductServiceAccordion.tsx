@@ -22,7 +22,7 @@ export function ProductServiceAccordion({ items }: { items: AccordionItem[] }) {
           <div key={item.id} className={styles.accordionItem}>
             <button
               type="button"
-              className={styles.accordionTrigger}
+              className={`${styles.accordionTrigger} typo-caption-upper`}
               onClick={() => setOpenId(isOpen ? '' : item.id)}
               aria-expanded={isOpen}
             >
@@ -30,7 +30,7 @@ export function ProductServiceAccordion({ items }: { items: AccordionItem[] }) {
               <span className={styles.accordionIcon}>{isOpen ? '−' : '+'}</span>
             </button>
             {isOpen && (
-              <div className={styles.accordionPanel}>
+              <div className={`${styles.accordionPanel} typo-body`}>
                 {item.body}
                 {item.cta && <div className={styles.accordionCta}>{item.cta}</div>}
               </div>

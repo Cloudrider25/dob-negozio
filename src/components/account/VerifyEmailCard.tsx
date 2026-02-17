@@ -57,9 +57,9 @@ export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
 
   return (
     <div className={styles.card}>
-      <h1 className={styles.title}>{copy.title}</h1>
+      <h1 className={`${styles.title} typo-h1-upper`}>{copy.title}</h1>
       <p
-        className={`${styles.message} ${
+        className={`${styles.message} typo-small ${
           status === 'success' ? styles.success : status === 'error' ? styles.error : styles.muted
         }`}
       >
@@ -67,7 +67,7 @@ export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
       </p>
 
       <div className={styles.actions}>
-        <Link className={styles.submit} href={`/${locale}/signin`}>
+        <Link className={`${styles.submit} typo-small-upper`} href={`/${locale}/signin`}>
           {copy.goToSignIn}
         </Link>
       </div>

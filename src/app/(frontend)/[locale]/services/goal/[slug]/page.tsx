@@ -63,8 +63,8 @@ export default async function GoalDetailPage({ params }: { params: PageParams })
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 py-16">
       <div className="flex flex-col gap-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-text-muted">{t.services.title}</p>
-        <h1 className="text-3xl md:text-4xl text-text-primary">{goal.boxName}</h1>
+        <p className="typo-caption-upper text-text-muted">{t.services.title}</p>
+        <h1 className="typo-h1 text-text-primary">{goal.boxName}</h1>
         {cardDescriptionText && <p className="text-base text-text-secondary">{cardDescriptionText}</p>}
       </div>
 

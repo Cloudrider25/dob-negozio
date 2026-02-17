@@ -45,17 +45,17 @@ export const StoryHeroNote = ({
       <div className={styles.inner}>
         <div className={styles.noteHeader}>
           <span className={styles.bandEdge} aria-hidden="true" />
-          <span className={styles.bandLabel}>{title || 'A note from our founder'}</span>
+          <span className={`${styles.bandLabel} typo-h3-upper`}>{title || 'A note from our founder'}</span>
           <span className={styles.bandEdge} aria-hidden="true" />
         </div>
         <div className={styles.noteCard}>
-          <p className={styles.noteText}>
+          <p className={`${styles.noteText} typo-h2`}>
             {body ||
               'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'}
           </p>
         </div>
         <div className={styles.signature}>
-          <span className={styles.signatureLead}>Xo</span>
+          <span className={`${styles.signatureLead} typo-caption-upper`}>Xo</span>
           <span className={styles.signatureName}>DOB Milano</span>
         </div>
         {ctaLabel ? (

@@ -23,8 +23,8 @@ export default async function CheckoutSuccessPage({
   return (
     <main className="mx-auto w-full max-w-[760px] px-6 py-20">
       <div className="rounded-2xl border border-stroke bg-white p-8 text-center shadow-sm">
-        <p className="text-xs uppercase tracking-[0.2em] text-text-muted">{copy.orderCompleted}</p>
-        <h1 className="mt-3 text-3xl font-semibold text-text-primary">{copy.thankYou}</h1>
+        <p className="typo-caption-upper text-text-muted">{copy.orderCompleted}</p>
+        <h1 className="mt-3 typo-h1 text-text-primary">{copy.thankYou}</h1>
         <p className="mt-4 text-text-secondary">{copy.processingOrder}</p>
         {order ? (
           <p className="mt-2 text-sm text-text-muted">

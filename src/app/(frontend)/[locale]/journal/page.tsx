@@ -127,7 +127,7 @@ export default async function JournalPage({
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 {item.caption && (
-                  <span className={styles.caption}>{item.caption.slice(0, 120)}</span>
+                  <span className={`${styles.caption} typo-caption-upper`}>{item.caption.slice(0, 120)}</span>
                 )}
               </a>
             )
@@ -142,7 +142,7 @@ export default async function JournalPage({
             >
               <h3>{t.placeholders.journalTitle}</h3>
               <p className="">{t.placeholders.journalExcerpt}</p>
-              <span className="text-small uppercase tracking-[var(--type-small-track)]">
+              <span className="typo-small-upper">
                 {t.placeholders.readMore}
               </span>
             </article>

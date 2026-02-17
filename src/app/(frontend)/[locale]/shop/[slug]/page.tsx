@@ -400,11 +400,13 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         <div className={styles.heroPanel}>
           <div className={styles.heroHeader}>
             <div className={styles.titleRow}>
-              <h1 className={styles.title}>{product.title}</h1>
-              <span className={styles.badge}>{resolveBrandLabel(product.brand) || 'DOB'}</span>
+              <h1 className={`${styles.title} typo-h1`}>{product.title}</h1>
+              <span className={`${styles.badge} typo-caption-upper`}>
+                {resolveBrandLabel(product.brand) || 'DOB'}
+              </span>
             </div>
 
-            <p className={styles.description}>{descriptionText || ''}</p>
+            <p className={`${styles.description} typo-body`}>{descriptionText || ''}</p>
           </div>
 
           <AlternativeSelector
@@ -420,14 +422,14 @@ export default async function ProductDetailPage({ params }: { params: PageParams
             }}
             locale={locale}
             fallbackLabel={product.title || t.shop.title}
-            className={styles.buyButton}
+            className={`${styles.buyButton} typo-caption-upper`}
           />
 
           <div className={styles.divider} />
 
           {addOnProduct ? (
             <div className={styles.crossSell}>
-              <div className={styles.crossSellTitle}>Aggiungi</div>
+              <div className={`${styles.crossSellTitle} typo-small-upper`}>Aggiungi</div>
               <div className={styles.crossSellRow}>
                 <div className={styles.crossSellItem}>
                   <div className={styles.crossSellThumb}>
@@ -441,12 +443,16 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                     />
                   </div>
                   <div>
-                    <div className={styles.crossSellName}>{addOnProduct.title || 'Prodotto'}</div>
-                    <div className={styles.crossSellMeta}>Selezione consigliata</div>
+                    <div className={`${styles.crossSellName} typo-body-upper`}>
+                      {addOnProduct.title || 'Prodotto'}
+                    </div>
+                    <div className={`${styles.crossSellMeta} typo-small`}>
+                      Selezione consigliata
+                    </div>
                   </div>
                 </div>
                 <ButtonLink
-                  className={styles.lineupButton}
+                  className={`${styles.lineupButton} typo-caption-upper`}
                   href={
                     addOnProduct.slug ? `/${locale}/shop/${addOnProduct.slug}` : `/${locale}/shop`
                   }
@@ -552,7 +558,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   className={styles.videoPoster}
                 />
               )}
-              <div className={styles.videoOverlay}>Video placeholder</div>
+              <div className={`${styles.videoOverlay} typo-small-upper`}>Video placeholder</div>
             </div>
           )}
         </div>
@@ -561,7 +567,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       <section className={styles.lineSection} aria-label="Linea prodotto">
         <div className={styles.lineGrid}>
           <div className={styles.lineCopy}>
-            <h2 className={styles.lineTitle}>
+            <h2 className={`${styles.lineTitle} typo-h1`}>
               {lineHeadline.split(' ').map((word, index) => (
                 <span
                   key={`${word}-${index}`}
@@ -580,8 +586,8 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                 : lineDetails
               ).map((item) => (
                 <div key={item.label} className={styles.lineRow}>
-                  <span className={styles.lineLabel}>{item.label}</span>
-                  <span className={styles.lineValue}>{item.value}</span>
+                  <span className={`${styles.lineLabel} typo-small-upper`}>{item.label}</span>
+                  <span className={`${styles.lineValue} typo-body`}>{item.value}</span>
                 </div>
               ))}
             </div>
@@ -618,22 +624,22 @@ export default async function ProductDetailPage({ params }: { params: PageParams
             )}
           </div>
           <div className={styles.insideContent}>
-            <div className={styles.insideLabel}>what&apos;s inside</div>
+            <div className={`${styles.insideLabel} typo-h1-upper`}>what&apos;s inside</div>
             {includedContent ? (
               includedContent.type === 'html' ? (
                 <div
-                  className={styles.insideRich}
+                  className={`${styles.insideRich} typo-body`}
                   dangerouslySetInnerHTML={{ __html: includedContent.value }}
                 />
               ) : (
-                <p className={styles.insideLead}>{includedContent.value}</p>
+                <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
               )
             ) : ingredientsText ? (
-              <p className={styles.insideLead}>{ingredientsText}</p>
+              <p className={`${styles.insideLead} typo-body`}>{ingredientsText}</p>
             ) : descriptionText ? (
-              <p className={styles.insideLead}>{descriptionText}</p>
+              <p className={`${styles.insideLead} typo-body`}>{descriptionText}</p>
             ) : (
-              <p className={styles.insideLead}>
+              <p className={`${styles.insideLead} typo-body`}>
                 {product.title ? `Scopri cosa rende speciale ${product.title}.` : ''}
               </p>
             )}
@@ -644,8 +650,8 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       <section className={styles.faqSection} aria-label="FAQ">
         <div className={styles.faqGrid}>
           <div className={styles.faqCopy}>
-            <h2 className={styles.faqTitle}>{faqTitleText || 'FAQ'}</h2>
-            <p className={styles.faqSubtitle}>
+            <h2 className={`${styles.faqTitle} typo-h1-upper`}>{faqTitleText || 'FAQ'}</h2>
+            <p className={`${styles.faqSubtitle} typo-body`}>
               {faqSubtitleText ||
                 (product.title
                   ? `Scopri di più su ${product.title}.`
@@ -712,7 +718,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         primary={{
           title: product.title || 'Protocol overview',
           mediaDescription: descriptionText || '',
-          body: <p className={styles.treatmentText}>{resultsText || ''}</p>,
+          body: <p className={`${styles.treatmentText} typo-body`}>{resultsText || ''}</p>,
           imageUrl: coverFallback?.url || fallbackImage.url,
           imageAlt: coverFallback?.alt || product.title || undefined,
           rail: ['Click here', 'Prodotti alternativi'],
@@ -735,7 +741,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   emptyLabel="Nessun prodotto disponibile."
                 />
               ) : (
-                <p className={styles.treatmentText}>
+                <p className={`${styles.treatmentText} typo-body`}>
                   Il prodotto scelto è unico nel suo genere e non ha alternative.
                 </p>
               )}

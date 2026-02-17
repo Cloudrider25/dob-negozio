@@ -15,19 +15,12 @@
 
 .title {
   margin: 0;
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  text-transform: lowercase;
-  letter-spacing: var(--type-body-track);
   color: var(--text-primary);
 }
 
 .description {
   margin: 0 auto;
   max-width: 60ch;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
 }
 
@@ -77,27 +70,16 @@
 
 .name {
   margin: 0;
-  font-size: var(--type-h3-size);
-  line-height: var(--type-h3-line);
-  text-transform: uppercase;
-  letter-spacing: var(--type-h3-track);
   color: var(--text-primary);
 }
 
 .role {
   margin: 0;
-  font-size: var(--type-body-lg-size);
-  line-height: var(--type-body-lg-line);
-  letter-spacing: var(--type-body-track);
-  text-transform: lowercase;
   color: var(--text-secondary);
 }
 
 .bio {
   margin: 0;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
 }
 

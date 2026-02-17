@@ -41,7 +41,7 @@ export const ThemeToggle = () => {
       <span className={cn(styles.icon, theme === "dark" && styles.iconDark)} aria-hidden="true">
         {theme === "dark" ? <Moon /> : <Sun />}
       </span>
-      <span className={styles.label}>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
+      <span className={`${styles.label} typo-caption-upper`}>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
     </button>
   )
 }

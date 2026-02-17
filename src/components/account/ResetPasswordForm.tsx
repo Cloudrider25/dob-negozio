@@ -75,17 +75,17 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
 
   return (
     <form className={styles.card} onSubmit={onSubmit}>
-      <h1 className={styles.title}>{copy.title}</h1>
-      <p className={styles.subtitle}>{copy.subtitle}</p>
+      <h1 className={`${styles.title} typo-h1-upper`}>{copy.title}</h1>
+      <p className={`${styles.subtitle} typo-body`}>{copy.subtitle}</p>
 
-      {error ? <p className={`${styles.message} ${styles.error}`}>{error}</p> : null}
-      {success ? <p className={`${styles.message} ${styles.success}`}>{success}</p> : null}
-      <p className={styles.subtitle}>{copy.passwordPolicy}</p>
+      {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
+      {success ? <p className={`${styles.message} ${styles.success} typo-small`}>{success}</p> : null}
+      <p className={`${styles.subtitle} typo-body`}>{copy.passwordPolicy}</p>
 
       <div className={styles.inlineGrid}>
         <input
           type="text"
-          className={styles.input}
+          className={`${styles.input} typo-body`}
           value={token}
           onChange={(event) => setToken(event.target.value)}
           placeholder={copy.tokenPlaceholder}
@@ -94,7 +94,7 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
 
         <input
           type="password"
-          className={styles.input}
+          className={`${styles.input} typo-body`}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder={copy.passwordPlaceholder}
@@ -105,11 +105,11 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
       </div>
 
       <div className={styles.actions} style={{ marginTop: '1.25rem' }}>
-        <button className={styles.submit} type="submit" disabled={submitting}>
+        <button className={`${styles.submit} typo-small-upper`} type="submit" disabled={submitting}>
           {submitting ? copy.submitting : copy.submit}
         </button>
 
-        <Link className={styles.link} href={`/${locale}/signin`}>
+        <Link className={`${styles.link} typo-small`} href={`/${locale}/signin`}>
           {copy.backToSignIn}
         </Link>
       </div>

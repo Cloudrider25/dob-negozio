@@ -26,20 +26,12 @@
 
 .kicker {
   margin: 0;
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
-  letter-spacing: var(--type-caption-track);
-  text-transform: uppercase;
   color: #6b6761;
 }
 
 .title {
   margin: 0 !important;
   margin-block-end: 0;
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  letter-spacing: var(--type-h2-track);
-  text-transform: uppercase;
   color: #6b6761;
   margin-bottom: 0;
 }
@@ -63,12 +55,7 @@
   width: 100%;
   padding: 1rem 0;
   text-align: left;
-  font-size: var(--type-body-lg-size);
-  line-height: var(--type-body-lg-line);
-  letter-spacing: var(--type-body-track);
   font-weight: 600;
-  font-family: var(--font-body);
-  text-transform: none;
   color: #6b6761;
   border: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);

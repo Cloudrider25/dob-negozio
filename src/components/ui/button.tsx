@@ -3,12 +3,19 @@
 import { motion } from "framer-motion"
 import { useState } from "react"
 import type { ButtonHTMLAttributes } from "react"
+import type { CSSProperties } from "react"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import type { VariantProps } from "class-variance-authority"
+import { useReducedMotion } from "framer-motion"
 
 import { cn } from "@/lib/cn"
 import { buttonVariants } from "@/lib/ui-variants"
-import { getInteractivePalette, resolveButtonKind } from "@/components/ui/button-theme"
+import {
+  getButtonBasePalette,
+  getButtonStatePalette,
+  getInteractivePalette,
+  resolveButtonKind,
+} from "@/components/ui/button-theme"
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
@@ -43,37 +50,49 @@ const enterVariantByDirection: Record<Direction, { x?: string; y?: string }> = {
   bottom: { x: "0%", y: "110%" },
 }
 
-export const Button = ({ className, kind, size, interactive = false, children, ...props }: ButtonProps) => {
+export const Button = ({ className, kind, size, interactive = false, children, style, ...props }: ButtonProps) => {
   const [phase, setPhase] = useState<"idle" | "enter" | "exit">("idle")
   const [direction, setDirection] = useState<Direction>("left")
+  const prefersReducedMotion = useReducedMotion()
+  const motionEnabled = interactive && !prefersReducedMotion
   const resolvedKind = resolveButtonKind(kind)
-  const isActive = interactive && phase === "enter"
+  const hasOverlay = motionEnabled && (phase === "enter" || phase === "exit")
+  const basePalette = getButtonBasePalette(resolvedKind)
+  const statePalette = getButtonStatePalette(resolvedKind)
   const interactivePalette = getInteractivePalette(resolvedKind)
+  const buttonStyle: CSSProperties = {
+    "--btn-bg": basePalette.bg,
+    "--btn-text": hasOverlay ? interactivePalette.text : basePalette.text,
+    "--btn-border": basePalette.border,
+    "--btn-hover-bg": statePalette.hoverBg,
+    "--btn-hover-text": statePalette.hoverText,
+    "--btn-hover-border": statePalette.hoverBorder,
+    "--btn-active-bg": statePalette.activeBg,
+    "--btn-active-text": statePalette.activeText,
+    "--btn-active-border": statePalette.activeBorder,
+    "--btn-focus-ring": statePalette.focusRing,
+    "--btn-focus-offset": statePalette.focusOffset,
+    ...(style ?? {}),
+  } as CSSProperties
 
   return (
     <button
-      className={cn(buttonVariants({ kind: resolvedKind, size }), interactive && "overflow-hidden isolate", className)}
-      style={
-        isActive
-          ? {
-              color: interactivePalette.text,
-            }
-          : undefined
-      }
+      className={cn(buttonVariants({ kind: resolvedKind, size }), motionEnabled && "overflow-hidden isolate", className)}
+      style={buttonStyle}
       onMouseEnter={(event) => {
-        if (!interactive) return
+        if (!motionEnabled) return
         setDirection(getDirectionFromEvent(event))
         setPhase("enter")
       }}
       onMouseLeave={(event) => {
-        if (!interactive) return
+        if (!motionEnabled) return
         setDirection(getDirectionFromEvent(event))
         setPhase("exit")
       }}
       {...props}
     >
       <span className={cn(interactive && "relative z-[1]")}>{children}</span>
-      {interactive ? (
+      {motionEnabled ? (
         <motion.span
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-0"
@@ -87,6 +106,9 @@ export const Button = ({ className, kind, size, interactive = false, children, .
           }}
           initial={enterVariantByDirection[direction]}
           transition={{ duration: 0.26, ease: "easeOut" }}
+          onAnimationComplete={() => {
+            if (phase === "exit") setPhase("idle")
+          }}
         />
       ) : null}
     </button>

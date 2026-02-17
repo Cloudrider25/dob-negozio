@@ -57,18 +57,11 @@
 
 .title {
   margin: 0;
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  text-transform: lowercase;
-  letter-spacing: var(--type-body-track);
   color: var(--text-primary);
 }
 
 .description {
   margin: 0;
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
   max-width: 46ch;
 }
@@ -86,12 +79,8 @@
   background: transparent;
   text-align: left;
   padding: 0.55rem 0;
-  font-size: var(--type-body-lg-size);
-  line-height: var(--type-body-lg-line);
   font-weight: 600;
   color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
-  text-transform: lowercase;
-  letter-spacing: var(--type-body-track);
   cursor: pointer;
   transition: color 0.2s ease;
 }

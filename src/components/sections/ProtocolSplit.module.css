@@ -28,28 +28,17 @@
 }
 
 .eyebrow {
-  text-transform: uppercase;
-  letter-spacing: var(--type-caption-track);
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
   color: var(--text-secondary);
   margin: 0 0 0.75rem;
 }
 
 .title {
   margin: 0;
-  font-size: var(--type-h2-size);
-  line-height: var(--type-h2-line);
-  letter-spacing: var(--type-h2-track);
-  text-transform: uppercase;
 }
 
 .subtitle {
   margin: 0.6rem 0 0;
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  letter-spacing: var(--type-body-track);
   max-width: 34ch;
 }
 
@@ -74,8 +63,6 @@
   background: #f4f3ef;
   color: var(--text-primary);
   font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease,
     background 0.2s ease, color 0.2s ease;
@@ -97,10 +84,6 @@
 }
 
 .stepLabel {
-  text-transform: uppercase;
-  letter-spacing: var(--type-caption-track);
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
   color: var(--text-secondary);
   margin: 0;
   text-align: center;

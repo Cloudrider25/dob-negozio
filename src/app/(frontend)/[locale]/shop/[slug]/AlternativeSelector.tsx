@@ -95,7 +95,7 @@ export function AlternativeSelector({
   return (
     <>
       <div className={styles.relatedBlock}>
-        <div className={styles.label}>Scegli</div>
+        <div className={`${styles.label} typo-caption-upper`}>Scegli</div>
         <div className={styles.relatedList}>
           {options.map((option) => {
             const label = labelFor(option)
@@ -104,7 +104,7 @@ export function AlternativeSelector({
               <button
                 key={option.key}
                 type="button"
-                className={`${styles.relatedItem} ${isActive ? styles.relatedItemActive : ''}`}
+                className={`${styles.relatedItem} typo-caption-upper ${isActive ? styles.relatedItemActive : ''}`}
                 onClick={() => setSelectedKey(option.key)}
                 aria-pressed={isActive}
               >
@@ -114,7 +114,7 @@ export function AlternativeSelector({
           })}
         </div>
         {hasRefill && (
-          <p className={styles.refillNote}>
+          <p className={`${styles.refillNote} typo-body`}>
             Acquistare il refill è un gesto importante per l&apos;ambiente: riduci gli sprechi e
             contribuisci a un futuro più sostenibile, mantenendo la tua routine di bellezza
             intatta.

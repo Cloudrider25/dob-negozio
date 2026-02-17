@@ -391,12 +391,12 @@ export function RoutineBuilderSplitSection({
           >
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <p className={styles.heading}>
+                <p className={`${styles.heading} typo-h1`}>
                   {routineStep1Title || 'Quando vuoi usare la routine?'}
                 </p>
                 <p
                   key={`${activeArea?.id}-desc`}
-                  className={`${styles.bodyText} ${styles.slideInRight}`}
+                  className={`${styles.bodyText} typo-body ${styles.slideInRight}`}
                 >
                   {activeArea?.description ||
                     'Seleziona il timing ideale per te: mattina, sera o entrambi. Così possiamo personalizzare i passaggi in base al momento della giornata.'}
@@ -406,7 +406,7 @@ export function RoutineBuilderSplitSection({
                     <button
                       key={area.id}
                       type="button"
-                      className={`${styles.circleItem} ${
+                      className={`${styles.circleItem} typo-small ${
                         area.id === activeAreaId ? styles.circleItemActive : ''
                       } ${activeAreaId && area.id !== activeAreaId ? styles.circleItemDim : ''}`}
                       onClick={() => goToNeeds(area.id)}
@@ -421,10 +421,10 @@ export function RoutineBuilderSplitSection({
             </SwiperSlide>
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <p className={styles.heading}>
+                <p className={`${styles.heading} typo-h1`}>
                   {routineStep2Title || 'Quando vuoi usare la routine?'}
                 </p>
-                <p key={`${activeTiming?.id}-desc`} className={`${styles.bodyText} ${styles.slideInRight}`}>
+                <p key={`${activeTiming?.id}-desc`} className={`${styles.bodyText} typo-body ${styles.slideInRight}`}>
                   {activeTiming?.description ||
                     'Seleziona il timing ideale per te: mattina, sera o entrambi. Così possiamo personalizzare i passaggi in base al momento della giornata.'}
                 </p>
@@ -434,7 +434,7 @@ export function RoutineBuilderSplitSection({
                       <button
                         key={timing.id}
                         type="button"
-                        className={`${styles.circleItem} ${
+                        className={`${styles.circleItem} typo-small ${
                           timing.id === activeTimingId ? styles.circleItemActive : ''
                         } ${activeTimingId && timing.id !== activeTimingId ? styles.circleItemDim : ''}`}
                         onMouseEnter={() => setActiveTimingId(timing.id)}
@@ -449,12 +449,12 @@ export function RoutineBuilderSplitSection({
                   )}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={styles.backButton} onClick={goBackToAreas}>
+                  <button type="button" className={`${styles.backButton} typo-small-upper`} onClick={goBackToAreas}>
                     Torna indietro
                   </button>
                   <button
                     type="button"
-                    className={styles.nextButton}
+                    className={`${styles.nextButton} typo-small-upper`}
                     onClick={() => goToSkinTypes(activeTimingId || routineTimings[0]?.id || '')}
                   >
                     Prosegui
@@ -464,8 +464,8 @@ export function RoutineBuilderSplitSection({
             </SwiperSlide>
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <p className={styles.heading}>Che tipo di pelle hai?</p>
-                <p key={`${activeSkinType?.id}-desc`} className={`${styles.bodyText} ${styles.slideInRight}`}>
+                <p className={`${styles.heading} typo-h1`}>Che tipo di pelle hai?</p>
+                <p key={`${activeSkinType?.id}-desc`} className={`${styles.bodyText} typo-body ${styles.slideInRight}`}>
                   {activeSkinType?.description ||
                     'Seleziona il tipo di pelle per personalizzare ulteriormente la routine.'}
                 </p>
@@ -475,7 +475,7 @@ export function RoutineBuilderSplitSection({
                       <button
                         key={skin.id}
                         type="button"
-                        className={`${styles.circleItem} ${
+                        className={`${styles.circleItem} typo-small ${
                           skin.id === activeSkinType?.id ? styles.circleItemActive : ''
                         } ${activeSkinType?.id && skin.id !== activeSkinType?.id ? styles.circleItemDim : ''} ${
                           selectedSkinTypes.has(skin.id) ? styles.circleItemSelected : ''
@@ -503,12 +503,12 @@ export function RoutineBuilderSplitSection({
                   )}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={styles.backButton} onClick={goBackToTimings}>
+                  <button type="button" className={`${styles.backButton} typo-small-upper`} onClick={goBackToTimings}>
                     Torna indietro
                   </button>
                   <button
                     type="button"
-                    className={styles.nextButton}
+                    className={`${styles.nextButton} typo-small-upper`}
                     disabled={selectedSkinTypes.size === 0}
                     onClick={goToNeedsStep}
                   >
@@ -519,8 +519,8 @@ export function RoutineBuilderSplitSection({
             </SwiperSlide>
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <p className={styles.heading}>Quali esigenze vuoi trattare?</p>
-                <p key={`${activeNeed?.id}-desc`} className={`${styles.bodyText} ${styles.slideInRight}`}>
+                <p className={`${styles.heading} typo-h1`}>Quali esigenze vuoi trattare?</p>
+                <p key={`${activeNeed?.id}-desc`} className={`${styles.bodyText} typo-body ${styles.slideInRight}`}>
                   {activeNeed?.description ||
                     'Seleziona le esigenze principali per completare la routine.'}
                 </p>
@@ -530,7 +530,7 @@ export function RoutineBuilderSplitSection({
                       <button
                         key={need.id}
                         type="button"
-                        className={`${styles.circleItem} ${
+                        className={`${styles.circleItem} typo-small ${
                           need.id === activeNeed?.id ? styles.circleItemActive : ''
                         } ${activeNeed?.id && need.id !== activeNeed?.id ? styles.circleItemDim : ''} ${
                           selectedNeedId === need.id ? styles.circleItemSelected : ''
@@ -550,12 +550,12 @@ export function RoutineBuilderSplitSection({
                   )}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={styles.backButton} onClick={goBackToSkinTypes}>
+                  <button type="button" className={`${styles.backButton} typo-small-upper`} onClick={goBackToSkinTypes}>
                     Torna indietro
                   </button>
                   <button
                     type="button"
-                    className={styles.nextButton}
+                    className={`${styles.nextButton} typo-small-upper`}
                     disabled={!selectedNeedId}
                     onClick={goToRoutinesStep}
                   >
@@ -566,21 +566,21 @@ export function RoutineBuilderSplitSection({
             </SwiperSlide>
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <p className={styles.heading}>Routine consigliate</p>
-                <p className={styles.bodyText}>
+                <p className={`${styles.heading} typo-h1`}>Routine consigliate</p>
+                <p className={`${styles.bodyText} typo-body`}>
                   Scegli se partire da una routine prestabilita o creare una routine personalizzata.
                 </p>
                 <div className={styles.choiceGroup}>
                   <button
                     type="button"
-                    className={`${styles.choicePill} ${routineMode === 'preset' ? styles.choicePillActive : ''}`}
+                    className={`${styles.choicePill} typo-small-upper ${routineMode === 'preset' ? styles.choicePillActive : ''}`}
                     onClick={() => setRoutineMode('preset')}
                   >
                     Routine prestabilita
                   </button>
                   <button
                     type="button"
-                    className={`${styles.choicePill} ${routineMode === 'custom' ? styles.choicePillActive : ''}`}
+                    className={`${styles.choicePill} typo-small-upper ${routineMode === 'custom' ? styles.choicePillActive : ''}`}
                     onClick={() => setRoutineMode('custom')}
                   >
                     Routine personalizzata
@@ -591,7 +591,7 @@ export function RoutineBuilderSplitSection({
                     <button
                       key={brand.id}
                       type="button"
-                      className={`${styles.choicePill} ${selectedBrandId === brand.id ? styles.choicePillActive : ''}`}
+                      className={`${styles.choicePill} typo-small-upper ${selectedBrandId === brand.id ? styles.choicePillActive : ''}`}
                       onClick={() => setSelectedBrandId(brand.id)}
                     >
                       {brand.label}
@@ -610,23 +610,23 @@ export function RoutineBuilderSplitSection({
                           }`}
                           onClick={() => setSelectedTemplateId(template.id)}
                         >
-                          <p className={styles.routineCardTitle}>{template.name}</p>
+                          <p className={`${styles.routineCardTitle} typo-body`}>{template.name}</p>
                           {template.description ? (
-                            <p className={styles.routineCardDescription}>{template.description}</p>
+                            <p className={`${styles.routineCardDescription} typo-small`}>{template.description}</p>
                           ) : null}
                         </button>
                       ))
                     ) : (
-                      <p className={styles.bodyText}>Nessuna routine disponibile per i filtri selezionati.</p>
+                      <p className={`${styles.bodyText} typo-body`}>Nessuna routine disponibile per i filtri selezionati.</p>
                     )
                   ) : (
-                    <p className={styles.bodyText}>
+                    <p className={`${styles.bodyText} typo-body`}>
                       Modalità personalizzata: ti guideremo passo per passo nella selezione dei prodotti.
                     </p>
                   )}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={styles.backButton} onClick={goBackToNeeds}>
+                  <button type="button" className={`${styles.backButton} typo-small-upper`} onClick={goBackToNeeds}>
                     Torna indietro
                   </button>
                 </div>
@@ -705,16 +705,16 @@ export function RoutineBuilderSplitSection({
                 <div className={styles.routineBreadcrumb}>
                   <div className={styles.routineBreadcrumbRow}>
                     {selectedArea?.label ? (
-                      <span className={styles.routineBreadcrumbNode}>
-                        <span className={styles.routineBreadcrumbStep}>Area</span>
+                      <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
+                        <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Area</span>
                         {selectedArea.label}
                       </span>
                     ) : null}
                     {activeTiming?.label ? (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
-                        <span className={styles.routineBreadcrumbNode}>
-                          <span className={styles.routineBreadcrumbStep}>Timing</span>
+                        <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
+                          <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Timing</span>
                           {activeTiming.label}
                         </span>
                       </>
@@ -722,8 +722,8 @@ export function RoutineBuilderSplitSection({
                     {selectedSkinTypes.size > 0 ? (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
-                        <span className={styles.routineBreadcrumbNode}>
-                          <span className={styles.routineBreadcrumbStep}>Tipo di pelle</span>
+                        <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
+                          <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Tipo di pelle</span>
                           {skinTypesForArea
                             .filter((skin) => selectedSkinTypes.has(skin.id))
                             .map((skin) => skin.label)
@@ -734,8 +734,8 @@ export function RoutineBuilderSplitSection({
                     {selectedNeedId ? (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
-                        <span className={styles.routineBreadcrumbNode}>
-                          <span className={styles.routineBreadcrumbStep}>Esigenza</span>
+                        <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
+                          <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Esigenza</span>
                           {activeNeed?.label || 'Esigenza'}
                         </span>
                       </>
@@ -743,16 +743,16 @@ export function RoutineBuilderSplitSection({
                     {routineMode === 'preset' ? (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
-                        <span className={styles.routineBreadcrumbNode}>
-                          <span className={styles.routineBreadcrumbStep}>Routine</span>
+                        <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
+                          <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Routine</span>
                           Prestabilita
                         </span>
                       </>
                     ) : (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
-                        <span className={styles.routineBreadcrumbNode}>
-                          <span className={styles.routineBreadcrumbStep}>Routine</span>
+                        <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
+                          <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Routine</span>
                           Personalizzata
                         </span>
                       </>
@@ -760,8 +760,8 @@ export function RoutineBuilderSplitSection({
                     {selectedBrandId && selectedBrandId !== 'multibrand' ? (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
-                        <span className={styles.routineBreadcrumbNode}>
-                          <span className={styles.routineBreadcrumbStep}>Brand</span>
+                        <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
+                          <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Brand</span>
                           {availableBrands.find((brand) => brand.id === selectedBrandId)?.label || 'Brand'}
                         </span>
                       </>
@@ -772,7 +772,7 @@ export function RoutineBuilderSplitSection({
                   {routineMode === 'preset' && selectedTemplate ? (
                     presetSteps.map((step) => (
                       <div key={step.id} className={styles.routineStepGroup}>
-                        <p className={styles.routineStepTitle}>
+                        <p className={`${styles.routineStepTitle} typo-small-upper`}>
                           {step.label}
                           {step.slug === 'esfoliante' && step.required === false ? ' (facoltativo)' : ''}
                         </p>
@@ -794,13 +794,13 @@ export function RoutineBuilderSplitSection({
                                         <div className={styles.routineThumbFallback} />
                                       )}
                                     </div>
-                                    <p className={styles.routineProductTitle}>{product.title}</p>
+                                    <p className={`${styles.routineProductTitle} typo-small`}>{product.title}</p>
                                   </div>
                                 )
                               })}
                             </div>
                           ) : (
-                            <p className={styles.bodyText}>Nessun prodotto assegnato per questo step.</p>
+                            <p className={`${styles.bodyText} typo-body`}>Nessun prodotto assegnato per questo step.</p>
                           )}
                         </div>
                       </div>
@@ -809,7 +809,7 @@ export function RoutineBuilderSplitSection({
                     customSteps.length > 0 ? (
                       customSteps.map((step) => (
                         <div key={step.id} className={styles.routineStepGroup}>
-                          <p className={styles.routineStepTitle}>
+                          <p className={`${styles.routineStepTitle} typo-small-upper`}>
                             {step.label}
                             {step.required ? '' : ' (facoltativo)'}
                             {step.warn ? ' · attenzione' : ''}
@@ -832,13 +832,13 @@ export function RoutineBuilderSplitSection({
                                           <div className={styles.routineThumbFallback} />
                                         )}
                                       </div>
-                                      <p className={styles.routineProductTitle}>{product.title ?? ''}</p>
+                                      <p className={`${styles.routineProductTitle} typo-small`}>{product.title ?? ''}</p>
                                     </div>
                                   )
                                 })}
                               </div>
                             ) : (
-                              <p className={styles.bodyText}>
+                              <p className={`${styles.bodyText} typo-body`}>
                                 Nessun prodotto disponibile per questo step.
                               </p>
                             )}
@@ -846,12 +846,12 @@ export function RoutineBuilderSplitSection({
                         </div>
                       ))
                     ) : (
-                      <p className={styles.bodyText}>
+                      <p className={`${styles.bodyText} typo-body`}>
                         Nessuno step disponibile per questa combinazione.
                       </p>
                     )
                   ) : (
-                    <p className={styles.bodyText}>
+                    <p className={`${styles.bodyText} typo-body`}>
                       Seleziona una routine prestabilita per vedere i passaggi e i prodotti consigliati.
                     </p>
                   )}

@@ -2,9 +2,6 @@
   margin-left: 0.5rem;
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   background: color-mix(in srgb, #fff 16%, transparent);
   color: inherit;
 }
@@ -70,7 +67,6 @@
 
 .dropdownEmpty {
   padding: 0.5rem 0.6rem;
-  font-size: 0.75rem;
   color: var(--text-secondary);
 }
 
@@ -81,8 +77,5 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   border-radius: 999px;
   text-align: center;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   color: var(--text-secondary);
 }

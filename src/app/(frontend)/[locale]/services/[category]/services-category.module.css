@@ -42,9 +42,6 @@
 
 .scrollLabel {
   writing-mode: vertical-rl;
-  text-transform: uppercase;
-  letter-spacing: 0.4em;
-  font-size: 0.65rem;
   opacity: 0.8;
 }
 

@@ -39,9 +39,6 @@
   position: absolute;
   inset: auto 0 0 0;
   padding: 1rem 1.2rem;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
   color: var(--pearl-2);
   opacity: 0;
   transform: translateY(8px);

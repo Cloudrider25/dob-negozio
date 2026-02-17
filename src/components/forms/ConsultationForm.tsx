@@ -136,9 +136,9 @@ export function ConsultationForm({
         <div className={styles.contactIconWrap}>
           <Icon className={iconClassName} />
         </div>
-        <div className={styles.contactText}>
-          <div className={styles.contactLabel}>{label}</div>
-          <div className={styles.contactValue}>{value}</div>
+          <div className={styles.contactText}>
+          <div className={`${styles.contactLabel} typo-small`}>{label}</div>
+          <div className={`${styles.contactValue} typo-body`}>{value}</div>
         </div>
       </>
     )
@@ -189,7 +189,7 @@ export function ConsultationForm({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className={styles.heroTitle}
+          className={`${styles.heroTitle} typo-h2`}
         >
           Skin Analyzer & Consulenza Personalizzata
         </motion.h2>
@@ -197,7 +197,7 @@ export function ConsultationForm({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className={styles.heroSubtitle}
+          className={`${styles.heroSubtitle} typo-body`}
         >
           Compila il form per richiedere un&apos;analisi professionale della tua pelle e ricevere
           una consulenza personalizzata con i nostri esperti.
@@ -235,7 +235,7 @@ export function ConsultationForm({
       >
         <div className={styles.dividerLine} />
         <div className={styles.dividerLabelWrap}>
-          <span className={styles.dividerLabel}>oppure</span>
+          <span className={`${styles.dividerLabel} typo-small`}>oppure</span>
         </div>
       </motion.div>
 
@@ -247,13 +247,13 @@ export function ConsultationForm({
         className={styles.form}
       >
         <div>
-          <h3 className={styles.sectionTitle}>
+          <h3 className={`${styles.sectionTitle} typo-h3`}>
             <span className={styles.sectionDot} />
             Informazioni Personali
           </h3>
           <div className={styles.formGrid}>
             <div>
-              <label className={styles.label}>Nome *</label>
+              <label className={`${styles.label} typo-small`}>Nome *</label>
               <input
                 type="text"
                 required
@@ -264,7 +264,7 @@ export function ConsultationForm({
               />
             </div>
             <div>
-              <label className={styles.label}>Cognome *</label>
+              <label className={`${styles.label} typo-small`}>Cognome *</label>
               <input
                 type="text"
                 required
@@ -275,7 +275,7 @@ export function ConsultationForm({
               />
             </div>
             <div>
-              <label className={styles.label}>Email *</label>
+              <label className={`${styles.label} typo-small`}>Email *</label>
               <input
                 type="email"
                 required
@@ -286,7 +286,7 @@ export function ConsultationForm({
               />
             </div>
             <div>
-              <label className={styles.label}>Telefono *</label>
+              <label className={`${styles.label} typo-small`}>Telefono *</label>
               <input
                 type="tel"
                 required
@@ -300,7 +300,7 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <h3 className={styles.sectionTitle}>
+          <h3 className={`${styles.sectionTitle} typo-h3`}>
             <span className={styles.sectionDot} />
             Tipo di Pelle *
           </h3>
@@ -312,6 +312,7 @@ export function ConsultationForm({
                 onClick={() => setFormData({ ...formData, skinType: type.id })}
                 className={joinClassNames(
                   styles.choiceButton,
+                  'typo-small',
                   formData.skinType === type.id ? styles.choiceActive : undefined,
                 )}
               >
@@ -322,11 +323,11 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <h3 className={styles.sectionTitle}>
+          <h3 className={`${styles.sectionTitle} typo-h3`}>
             <span className={styles.sectionDot} />
             Preoccupazioni della Pelle
           </h3>
-          <p className={styles.heroSubtitle}>Seleziona una o piu problematiche (opzionale)</p>
+          <p className={`${styles.heroSubtitle} typo-body`}>Seleziona una o piu problematiche (opzionale)</p>
           <div className={styles.pillRow}>
             {skinConcerns.map((concern) => (
               <button
@@ -335,6 +336,7 @@ export function ConsultationForm({
                 onClick={() => toggleConcern(concern)}
                 className={joinClassNames(
                   styles.pill,
+                  'typo-caption',
                   formData.concerns.includes(concern) ? styles.pillActive : undefined,
                 )}
               >
@@ -345,7 +347,7 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <h3 className={styles.sectionTitle}>
+          <h3 className={`${styles.sectionTitle} typo-h3`}>
             <span className={styles.sectionDot} />
             Note Aggiuntive
           </h3>
@@ -361,7 +363,7 @@ export function ConsultationForm({
         <div className={styles.submitRow}>
           <button
             type="submit"
-            className={joinClassNames(includeButtonBaseClass ? 'button-base' : undefined, styles.submitButton)}
+            className={joinClassNames(includeButtonBaseClass ? 'button-base' : undefined, styles.submitButton, 'typo-small')}
             disabled={isSubmitting}
           >
             <span className={styles.submitContent}>
@@ -371,8 +373,8 @@ export function ConsultationForm({
             <span className={styles.submitGlow} />
           </button>
         </div>
-        {submitStatus === 'success' ? <p className={styles.submitSuccess}>{submitSuccessMessage}</p> : null}
-        {submitStatus === 'error' ? <p className={styles.submitError}>{submitErrorMessage}</p> : null}
+        {submitStatus === 'success' ? <p className={`${styles.submitSuccess} typo-small`}>{submitSuccessMessage}</p> : null}
+        {submitStatus === 'error' ? <p className={`${styles.submitError} typo-small`}>{submitErrorMessage}</p> : null}
       </motion.form>
 
       <motion.div
@@ -381,7 +383,7 @@ export function ConsultationForm({
         transition={{ delay: 0.5 }}
         className={styles.footer}
       >
-        <p>
+        <p className="typo-small">
           Riceverai una risposta entro 24 ore. I tuoi dati saranno trattati in conformita con la
           nostra Privacy Policy.
         </p>

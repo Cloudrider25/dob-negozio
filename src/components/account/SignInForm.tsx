@@ -63,18 +63,18 @@ export function SignInForm({ locale }: { locale: string }) {
 
   return (
     <form className={styles.card} onSubmit={onSubmit}>
-      <h1 className={styles.title}>{copy.title}</h1>
+      <h1 className={`${styles.title} typo-h1-upper`}>{copy.title}</h1>
 
-      {error ? <p className={`${styles.message} ${styles.error}`}>{error}</p> : null}
+      {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
 
       <div className={styles.field}>
-        <label className={styles.label} htmlFor="signin-email">
+        <label className={`${styles.label} typo-caption-upper`} htmlFor="signin-email">
           {copy.emailLabel}
         </label>
         <input
           id="signin-email"
           type="email"
-          className={styles.input}
+          className={`${styles.input} typo-body`}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder={copy.emailPlaceholder}
@@ -84,13 +84,13 @@ export function SignInForm({ locale }: { locale: string }) {
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label} htmlFor="signin-password">
+        <label className={`${styles.label} typo-caption-upper`} htmlFor="signin-password">
           {copy.passwordLabel}
         </label>
         <input
           id="signin-password"
           type="password"
-          className={styles.input}
+          className={`${styles.input} typo-body`}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder={copy.passwordPlaceholder}
@@ -102,17 +102,17 @@ export function SignInForm({ locale }: { locale: string }) {
       <hr className={styles.separator} />
 
       <div className={styles.actions}>
-        <button className={styles.submit} type="submit" disabled={submitting}>
+        <button className={`${styles.submit} typo-small-upper`} type="submit" disabled={submitting}>
           {submitting ? copy.submitting : copy.submit}
         </button>
 
-        <Link className={styles.link} href={`/${locale}/forgot-password`}>
+        <Link className={`${styles.link} typo-small`} href={`/${locale}/forgot-password`}>
           {copy.forgotPassword}
         </Link>
 
-        <p className={styles.muted}>
+        <p className={`${styles.muted} typo-small`}>
           {copy.noAccount}{' '}
-          <Link className={styles.link} href={`/${locale}/signup`}>
+          <Link className={`${styles.link} typo-small`} href={`/${locale}/signup`}>
             {copy.signupCta}
           </Link>
         </p>

@@ -208,10 +208,10 @@ export default async function ServiceCategoryPage({
           )}
         </div>
         <div className="flex flex-col items-start gap-6 text-left">
-          <span className="text-caption uppercase tracking-[var(--type-caption-track)]">
+          <span className="typo-caption-upper">
             {categoryDoc.dobGroup || 'DOB'}
           </span>
-          <h2 className="text-h1 uppercase tracking-[var(--type-h1-track)]">
+          <h2 className="typo-h1-upper">
             Perchè {categoryTitle} da DOB Milano?
           </h2>
           <p className="max-w-[520px]">
@@ -220,7 +220,7 @@ export default async function ServiceCategoryPage({
           </p>
           <div className="grid w-full grid-cols-2 gap-8 max-[1024px]:grid-cols-1">
             <div>
-              <h3 className="mb-2 text-h3">
+              <h3 className="mb-2 typo-h3-upper">
                 {categoryDoc.highlightPointOneTitle || 'Powered by precision'}
               </h3>
               <p className="m-0">
@@ -229,7 +229,7 @@ export default async function ServiceCategoryPage({
               </p>
             </div>
             <div>
-              <h3 className="mb-2 text-h3">
+              <h3 className="mb-2 typo-h3-upper">
                 {categoryDoc.highlightPointTwoTitle || 'Safe, gentle, lasting'}
               </h3>
               <p className="m-0">
@@ -254,10 +254,10 @@ export default async function ServiceCategoryPage({
       </section>
       <section className="px-[2.5vw] py-[var(--s120)]">
         <div className="flex flex-col gap-6">
-          <p className="text-h3 uppercase tracking-[var(--type-h3-track)]">
+          <p className="typo-h3-upper">
             {t.services.title}
           </p>
-          <h2 className="text-h1 uppercase tracking-[var(--type-h1-track)]">
+          <h2 className="typo-h1-upper">
             {categoryTitle}
           </h2>
           <UICCarousel
@@ -283,14 +283,14 @@ export default async function ServiceCategoryPage({
             emptyLabel="Nessun servizio disponibile."
           />
           {!filteredServices.length && (
-            <p className="text-body">{t.services.note}</p>
+            <p className="typo-body">{t.services.note}</p>
           )}
         </div>
       </section>
       <section className="px-[2.5vw] py-[var(--s120)]">
         <div className={`${styles.ctaCard} grid grid-cols-[1.5fr_1fr] gap-8 rounded-[28px] border p-10 max-[900px]:grid-cols-1`}>
           <div>
-            <p className="text-caption uppercase tracking-[var(--type-caption-track)]">
+            <p className="typo-caption-upper">
               Prenota ora
             </p>
             <h3>Il tuo percorso di bellezza inizia qui.</h3>

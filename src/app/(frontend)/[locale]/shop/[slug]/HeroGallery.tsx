@@ -125,7 +125,7 @@ export function HeroGallery({ cover, items }: HeroGalleryProps) {
               {item.media && !isVideo ? (
                 <Image src={item.media.url} alt="" fill />
               ) : isVideo ? (
-                <span className={styles.playIcon}>▶</span>
+                <span className={`${styles.playIcon} typo-small`}>▶</span>
               ) : (
                 <span className={styles.thumbPlaceholder} />
               )}

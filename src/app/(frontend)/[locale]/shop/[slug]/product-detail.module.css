@@ -89,7 +89,6 @@
 }
 
 .playIcon {
-  font-size: 0.7rem;
   color: #4b4b4b;
 }
 
@@ -129,9 +128,6 @@
 }
 
 .eyebrow {
-  text-transform: uppercase;
-  font-size: 0.7rem;
-  letter-spacing: 0.24em;
   color: var(--text-secondary);
 }
 
@@ -145,18 +141,12 @@
 
 .title {
   margin: 0;
-  font-size: clamp(2.2rem, 2rem + 1vw, 3rem);
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
   color: var(--text-primary);
 }
 
 .badge {
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
   background: #111;
   color: #fff;
 }
@@ -165,9 +155,6 @@
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.7rem;
   color: var(--text-secondary);
 }
 
@@ -175,9 +162,6 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.75rem;
   color: var(--text-secondary);
 }
 
@@ -187,12 +171,9 @@
 
 .rating {
   margin-left: auto;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
 }
 
 .ratingCount {
-  font-size: 0.75rem;
   color: var(--text-secondary);
 }
 
@@ -203,8 +184,6 @@
 .description {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -215,8 +194,6 @@
 .note {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
 }
 
 .divider {
@@ -226,9 +203,6 @@
 }
 
 .label {
-  text-transform: uppercase;
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
   color: var(--text-secondary);
 }
 
@@ -249,9 +223,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fff;
   padding: 0.35rem 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.55rem;
   cursor: pointer;
 }
 
@@ -272,9 +243,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fff;
   padding: 0.4rem 0.9rem;
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--text-secondary);
   text-decoration: none;
 }
@@ -288,8 +256,6 @@
 .refillNote {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  line-height: 1.6;
 }
 
 .buyButton {
@@ -297,9 +263,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fdfcfa;
   padding: 0.8rem 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.65rem;
   cursor: pointer;
   text-align: center;
   width: -webkit-fill-available;
@@ -312,9 +275,6 @@
 }
 
 .crossSellTitle {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.7rem;
   font-weight: 600;
 }
 
@@ -344,13 +304,9 @@
 }
 
 .crossSellName {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
 }
 
 .crossSellMeta {
-  font-size: 0.7rem;
   color: var(--text-secondary);
 }
 
@@ -361,9 +317,6 @@
 }
 
 .lineupTitle {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.7rem;
   font-weight: 600;
 }
 
@@ -391,13 +344,9 @@
 }
 
 .lineupName {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
 }
 
 .lineupMeta {
-  font-size: 0.7rem;
   color: var(--text-secondary);
 }
 
@@ -406,9 +355,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fff;
   padding: 0.35rem 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.55rem;
   cursor: pointer;
 }
 
@@ -431,9 +377,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.65rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -445,8 +388,6 @@
 .accordionPanel {
   margin-top: 0.6rem;
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  line-height: 1.6;
 }
 
 .accordionPanel ul {
@@ -459,9 +400,6 @@
 }
 
 .inlineLink {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.6rem;
   color: var(--text-secondary);
 }
 
@@ -486,7 +424,6 @@
 
 .value {
   margin: 0.3rem 0 0;
-  font-size: 1.1rem;
   color: var(--text-primary);
 }
 
@@ -507,7 +444,6 @@
 
 .sectionTitle {
   margin: 0.4rem 0 0;
-  font-size: 1.4rem;
   color: var(--text-primary);
 }
 
@@ -515,9 +451,6 @@
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding: 0.6rem 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.6rem;
   color: var(--text-secondary);
   text-decoration: none;
   background: #fff;
@@ -535,16 +468,12 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   background: #fff;
   padding: 0.4rem 0.9rem;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
   color: var(--text-secondary);
 }
 
 .empty {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
 }
 
 .ingredientsSection {
@@ -589,9 +518,6 @@
   color: #fff;
   border: 0;
   padding: 0.5rem 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.55rem;
   cursor: pointer;
 }
 
@@ -615,23 +541,16 @@
   left: 1rem;
   top: 2.2rem;
   writing-mode: vertical-rl;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 2rem;
   color: var(--text-secondary);
 }
 
 .insideLead {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
 }
 
 .insideRich {
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
   margin-left: 54px;
 }
 
@@ -645,11 +564,6 @@
   padding-left: 1.2rem;
 }
 
-.insideRich :global(h1) {
-  font-family: 'Inter', sans-serif;
-  
-}
-
 .insideBlock {
   border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding-top: 1rem;
@@ -657,25 +571,17 @@
 
 .insideBlock h3 {
   margin: 0 0 0.4rem;
-  font-size: 1.05rem;
-  text-transform: lowercase;
-  letter-spacing: 0.04em;
   color: var(--text-primary);
 }
 
 .insideBlock p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
 }
 
 .insideNote {
   border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding-top: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.6rem;
   color: var(--text-secondary);
 }
 
@@ -701,16 +607,12 @@
 
 .faqTitle {
   margin: 0;
-  font-size: 2rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--text-primary);
 }
 
 .faqSubtitle {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.95rem;
 }
 
 .faqList {
@@ -729,9 +631,6 @@
   border: 0;
   background: none;
   padding: 0.9rem 0;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.9rem;
   color: var(--text-secondary);
   border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   cursor: pointer;
@@ -757,18 +656,10 @@
 
 .faqAnswer {
   color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.6;
-  text-transform: none;
-  letter-spacing: 0;
 }
 
 .faqAnswer :global(p) {
   margin: 0 0 0.5rem;
-}
-
-.faqAnswer :global(h1) {
-  font-family: 'Inter', sans-serif;
 }
 
 .faqIcon {
@@ -778,7 +669,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   display: grid;
   place-items: center;
-  font-size: 0.9rem;
   color: var(--text-secondary);
 }
 
@@ -882,16 +772,11 @@
 
 .treatmentTitle {
   margin: 0;
-  font-size: clamp(1.8rem, 1.2rem + 1.5vw, 2.6rem);
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
   color: var(--text-primary);
 }
 
 .treatmentText {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
   color: var(--text-secondary);
 }
 
@@ -899,9 +784,6 @@
   margin: 0.5rem 0 0;
   padding-left: 1.2rem;
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  text-transform: none;
 }
 
 .treatmentAltBody {
@@ -982,11 +864,7 @@
   justify-content: space-between;
   padding: 0.8rem 0;
   gap: 0.2rem;
-  text-transform: uppercase;
   text-decoration-thickness: bold;
-  letter-spacing: 0.22em;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
   writing-mode: vertical-rl;
   text-align: center;
 }
@@ -1001,7 +879,6 @@
 .treatmentRailText {
   transform: rotate(180deg);
   padding: 4px;
-  line-height: 1;
   text-align: center;
   font-weight: 700;
 }
@@ -1013,7 +890,6 @@
 
 .treatmentRailBottom {
   align-self: center;
-  letter-spacing: 0.10em;
   margin-bottom: 0.2rem;
 }
 
@@ -1110,9 +986,6 @@
   inset: 0;
   display: grid;
   place-items: center;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 0.7rem;
   color: rgba(0, 0, 0, 0.6);
 }
 
@@ -1137,11 +1010,7 @@
 
 .lineTitle {
   margin: 0;
-  font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.3rem);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: #6a6660;
-  line-height: 1.2;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 0.6rem;
@@ -1167,17 +1036,12 @@
 }
 
 .lineLabel {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.65rem;
   color: #6a6660;
   font-weight: 600;
 }
 
 .lineValue {
-  font-size: 0.95rem;
   color: #6a6660;
-  line-height: 1.6;
 }
 
 .lineMedia {

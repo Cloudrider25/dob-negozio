@@ -73,7 +73,7 @@ export function CartPageClient({ locale }: { locale: string }) {
   return (
     <div className="space-y-12">
       <div className="flex items-center justify-between text-sm text-text-muted">
-        <div className="flex items-center gap-2 uppercase tracking-[0.18em]">
+        <div className="flex items-center gap-2 typo-small-upper">
           <span>{copy.home}</span>
           <span>›</span>
           <span>{copy.cart}</span>
@@ -87,7 +87,7 @@ export function CartPageClient({ locale }: { locale: string }) {
       </div>
 
       <section className="space-y-4">
-        <div className="grid grid-cols-[2.2fr_0.7fr_0.7fr_0.7fr_40px] text-sm uppercase tracking-[0.16em] text-text-muted">
+        <div className="grid grid-cols-[2.2fr_0.7fr_0.7fr_0.7fr_40px] typo-small-upper text-text-muted">
           <span>{copy.product}</span>
           <span>{copy.price}</span>
           <span>{copy.quantity}</span>
@@ -171,7 +171,7 @@ export function CartPageClient({ locale }: { locale: string }) {
           <div className="text-center text-2xl font-semibold text-text-primary">
             {copy.completeOrder}
           </div>
-          <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-text-muted">
+          <div className="flex items-center justify-between typo-caption-upper text-text-muted">
             {[
               copy.steps.login,
               copy.steps.addresses,

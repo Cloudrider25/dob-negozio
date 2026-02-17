@@ -23,8 +23,8 @@ export const StoryTeamSection = ({ title, description, items }: StoryTeamSection
   return (
     <section className={styles.section} aria-label={title || 'Meet the team'}>
       <div className={styles.header}>
-        {title ? <h2 className={styles.title}>{title}</h2> : null}
-        {description ? <p className={styles.description}>{description}</p> : null}
+        {title ? <h2 className={`${styles.title} typo-h2`}>{title}</h2> : null}
+        {description ? <p className={`${styles.description} typo-body`}>{description}</p> : null}
       </div>
       <div className={styles.grid}>
         {items.map((item, index) => (
@@ -41,9 +41,9 @@ export const StoryTeamSection = ({ title, description, items }: StoryTeamSection
                 <div className={styles.imagePlaceholder} />
               )}
             </div>
-            {item.name ? <h3 className={styles.name}>{item.name}</h3> : null}
-            {item.role ? <h4 className={styles.role}>{item.role}</h4> : null}
-            {item.bio ? <div className={styles.bio}>{item.bio}</div> : null}
+            {item.name ? <h3 className={`${styles.name} typo-h3-upper`}>{item.name}</h3> : null}
+            {item.role ? <h4 className={`${styles.role} typo-body-lg`}>{item.role}</h4> : null}
+            {item.bio ? <div className={`${styles.bio} typo-body`}>{item.bio}</div> : null}
           </article>
         ))}
       </div>

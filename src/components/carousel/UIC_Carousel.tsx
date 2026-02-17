@@ -46,7 +46,7 @@ export const UICCarousel = ({
   if (items.length === 0) {
     return (
       <section className={styles.section} aria-label={ariaLabel}>
-        <div className={styles.empty}>{emptyLabel}</div>
+        <div className={`${styles.empty} typo-body`}>{emptyLabel}</div>
       </section>
     )
   }

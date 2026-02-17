@@ -4,13 +4,11 @@
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  font-size: var(--type-body-size);
   font-weight: 400;
   min-height: 0;
   height: auto;
   justify-content: space-between;
   left: 0;
-  line-height: var(--type-body-line);
   list-style-image: none;
   list-style-position: outside;
   list-style-type: none;
@@ -66,10 +64,6 @@
   color: #fff;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
-  letter-spacing: var(--type-caption-track);
-  text-transform: uppercase;
   z-index: 2;
 }
 
@@ -83,10 +77,6 @@
 
 .title {
   margin: 0;
-  font-size: var(--type-body-lg-size);
-  line-height: var(--type-h3-line);
-  letter-spacing: var(--type-h3-track);
-  text-transform: uppercase;
   min-height: calc(2 * 1.2em);
   overflow: hidden;
   display: -webkit-box;
@@ -122,15 +112,11 @@
   align-items: center;
   justify-content: space-between;
   color: var(--text-secondary);
-  font-size: var(--type-small-size);
-  line-height: var(--type-small-line);
-  letter-spacing: var(--type-small-track);
 }
 
 .subtitle {
   padding: 0 16px;
   min-height: 2rem;
-  line-height: var(--type-body-line);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -180,11 +166,6 @@
 
   .media::before {
     padding-bottom: 88.28%;
-  }
-
-  .title {
-    font-size: var(--type-h3-size);
-    letter-spacing: var(--type-h3-track);
   }
 
   .titleRow {

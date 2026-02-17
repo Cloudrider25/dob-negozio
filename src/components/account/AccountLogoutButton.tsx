@@ -59,7 +59,7 @@ export function AccountLogoutButton({
       >
         {submitting ? copy.submitting : label || copy.fallbackLabel}
       </Button>
-      {error ? <p className="m-0 text-xs text-[color:#8a1010]">{error}</p> : null}
+      {error ? <p className="m-0 typo-caption text-[color:#8a1010]">{error}</p> : null}
     </div>
   )
 }
