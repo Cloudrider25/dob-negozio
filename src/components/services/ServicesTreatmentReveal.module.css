@@ -81,16 +81,18 @@
 
 .treatmentTitle {
   margin: 0;
-  font-size: clamp(1.8rem, 1.2rem + 1.5vw, 2.6rem);
-  letter-spacing: 0.04em;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h2-track);
   text-transform: lowercase;
   color: var(--text-primary);
 }
 
 .treatmentText {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
 }
 
@@ -98,8 +100,9 @@
   margin: 0.5rem 0 0;
   padding-left: 1.2rem;
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   text-transform: none;
 }
 
@@ -178,9 +181,10 @@
   text-align: center;
   text-transform: uppercase;
   text-decoration-thickness: bold;
-  letter-spacing: 0.22em;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  letter-spacing: var(--type-h1-track);
+  font-family: var(--font-body);
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-body-lg-line);
 }
 
 .treatmentRailButton {
@@ -209,7 +213,7 @@
 
 .treatmentRailBottom {
   align-self: center;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--type-small-track);
   margin-bottom: 0.2rem;
 }
 

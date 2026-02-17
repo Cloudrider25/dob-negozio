@@ -27,21 +27,22 @@
 
 .brandTitle {
   margin: 0;
-  font-size: clamp(2.6rem, 2.1rem + 2.4vw, 4rem);
-  letter-spacing: 0.08em;
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  letter-spacing: var(--type-h2-track);
   text-transform: uppercase;
   color: #000;
-  font-family: 'DOB Display', 'Times New Roman', serif;
-
+  font-family: var(--font-display);
 }
 
 .steps {
   display: flex;
   gap: 0.9rem;
   align-items: center;
-  font-size: 0.7rem;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: var(--type-caption-track);
   color: #8a857e;
 }
 
@@ -67,9 +68,10 @@
   border: 1px solid rgba(106, 102, 96, 0.2);
   background: #fff;
   padding: 1rem 1.2rem;
-  font-size: 0.85rem;
+  font-size: var(--type-small-size);
   color: #6a6660;
-  line-height: 1.6;
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-small-track);
 }
 
 .express {
@@ -80,8 +82,9 @@
 .expressTitle {
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.65rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   color: #8a857e;
 }
 
@@ -105,8 +108,9 @@
   align-items: center;
   gap: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.6rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   color: #8a857e;
 }
 
@@ -132,7 +136,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   font-weight: 600;
   color: #4f4b46;
 }
@@ -143,7 +149,9 @@
   border: 1px solid rgba(106, 102, 96, 0.3);
   padding: 0.8rem 0.9rem;
   background: #fff;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
 }
 
 .splitRow {
@@ -162,7 +170,9 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  font-size: 0.85rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   color: #6a6660;
 }
 
@@ -180,7 +190,8 @@
   gap: 0.6rem;
   color: #6a6660;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
 .returnLinkButton {
@@ -189,7 +200,8 @@
   gap: 0.6rem;
   color: #6a6660;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   border: 0;
   background: transparent;
   padding: 0;
@@ -197,7 +209,7 @@
 }
 
 .returnIcon {
-  font-size: 1.2rem;
+  font-size: var(--type-body-lg-size);
   line-height: 1;
 }
 
@@ -233,13 +245,16 @@
 
 .shippingSummaryLabel {
   color: #726d67;
-  font-size: 0.85rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
 }
 
 .shippingSummaryValue {
   color: #2f2c29;
-  font-size: 0.95rem;
-  line-height: 1.3;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
 }
 
 .shippingSummaryDivider {
@@ -254,7 +269,8 @@
   text-underline-offset: 3px;
   color: #6a6660;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
 .shippingMethodSection {
@@ -264,8 +280,9 @@
 
 .shippingMethodTitle {
   margin: 0;
-  font-size: 2rem;
-  line-height: 1.1;
+  font-size: var(--type-h1-size);
+  line-height: var(--type-h1-line);
+  letter-spacing: var(--type-h2-track);
   color: #2f2c29;
 }
 
@@ -302,19 +319,23 @@
 
 .shippingMethodName {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-body-lg-line);
   color: #2f2c29;
 }
 
 .shippingMethodEta {
   margin: 0.2rem 0 0;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   color: #7b7670;
 }
 
 .shippingMethodPrice {
   color: #1f1c19;
-  font-size: 1.25rem;
+  font-size: var(--type-h3-size);
+  line-height: var(--type-h3-line);
+  letter-spacing: var(--type-h3-track);
   white-space: nowrap;
 }
 
@@ -324,7 +345,9 @@
   background: #fff;
   padding: 1rem 1.2rem;
   color: #2f2c29;
-  line-height: 1.4;
+  line-height: var(--type-body-line);
+  font-size: var(--type-body-size);
+  letter-spacing: var(--type-body-track);
 }
 
 .shippingNote p {
@@ -342,15 +365,18 @@
 
 .paymentTitle {
   margin: 0;
-  font-size: 2rem;
-  line-height: 1.1;
+  font-size: var(--type-h1-size);
+  line-height: var(--type-h1-line);
+  letter-spacing: var(--type-h2-track);
   color: #2f2c29;
 }
 
 .paymentDescription {
   margin: 0;
   color: #726d67;
-  font-size: 1rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
 }
 
 .paymentEmbeddedBox {
@@ -368,7 +394,9 @@
   background: #fff;
   padding: 0.9rem 1rem;
   color: #5f5a54;
-  font-size: 0.92rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
 }
 
 .paymentLoadingError {
@@ -395,7 +423,9 @@
   text-align: left;
   color: #2f2c29;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
 }
 
 .paymentMethodCard .paymentMethodRow:first-child {
@@ -430,8 +460,9 @@
 .paymentBadges {
   margin-left: auto;
   color: #6a6660;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
 }
 
 .paymentFields {
@@ -449,8 +480,9 @@
 
 .billingTitle {
   margin: 0;
-  font-size: 1.65rem;
-  line-height: 1.1;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h3-track);
   color: #2f2c29;
 }
 
@@ -471,8 +503,9 @@
 .billingNote {
   margin: 0;
   color: #726d67;
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: var(--type-small-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-small-track);
 }
 
 .footerLinks {
@@ -482,7 +515,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1.4rem;
-  font-size: 0.85rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   color: #6a6660;
 }
 
@@ -494,7 +529,9 @@
 
 .cookieLink {
   margin-top: 0.9rem;
-  font-size: 0.85rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   color: #6a6660;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -542,26 +579,33 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   font-weight: 700;
   border: 2px solid var(--bg);
   padding: 0 0.3rem;
 }
 
 .summaryTitle {
-  font-size: 1.05rem;
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-body-lg-line);
+  letter-spacing: var(--type-body-track);
   color: #1e1b19;
   margin: 0;
   font-weight: 600;
 }
 
 .summaryMeta {
-  font-size: 0.8rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   color: #6d6862;
 }
 
 .summaryPrice {
-  font-size: 1.05rem;
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-body-lg-line);
+  letter-spacing: var(--type-body-track);
   color: #1f1c19;
   white-space: nowrap;
   font-weight: 600;
@@ -578,7 +622,9 @@
   border: 1px solid rgba(106, 102, 96, 0.3);
   padding: 0.7rem 1rem;
   background: #ece9e5;
-  font-size: 0.95rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   font-weight: 600;
   color: #6a6660;
 }
@@ -586,7 +632,9 @@
 .totalRow {
   display: flex;
   justify-content: space-between;
-  font-size: 1.8rem;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h3-track);
   font-weight: 600;
   color: #1f1c19;
 }
@@ -596,14 +644,18 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  font-size: 1.05rem;
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-body-lg-line);
+  letter-spacing: var(--type-body-track);
   color: #1f1c19;
 }
 
 .summaryRecoTitle {
   margin: 1.2rem 0 0.2rem;
   text-align: center;
-  font-size: 1.9rem;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h3-track);
   font-weight: 700;
   color: #1f1c19;
 }
@@ -639,20 +691,26 @@
 
 .summaryRecoName {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-body-lg-line);
+  letter-spacing: var(--type-body-track);
   font-weight: 700;
   color: #1f1c19;
 }
 
 .summaryRecoFormat {
   margin: 0.2rem 0 0;
-  font-size: 0.95rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: #69645f;
 }
 
 .summaryRecoPrice {
   margin: 0.2rem 0 0;
-  font-size: 0.95rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: #69645f;
 }
 
@@ -661,14 +719,17 @@
   background: transparent;
   text-decoration: underline;
   text-underline-offset: 3px;
-  font-size: 1rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   color: #6a6660;
   cursor: pointer;
 }
 
 .summaryTaxNote {
   margin: -0.35rem 0 0.2rem;
-  font-size: 0.92rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: #6e6963;
 }
 
@@ -679,8 +740,9 @@
   background: #4f4b46;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.7rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
 }
 
 @media (max-width: 1024px) {
@@ -715,14 +777,14 @@
   }
 
   .paymentMethodRow {
-    font-size: 0.95rem;
+    font-size: var(--type-body-size);
   }
 
   .paymentBadges {
-    font-size: 0.74rem;
+    font-size: var(--type-caption-size);
   }
 
   .paymentTitle {
-    font-size: 1.7rem;
+    font-size: var(--type-h1-size);
   }
 }

@@ -22,5 +22,16 @@ Scala tipografica unica definita in `src/styles/typography.css` con approccio mo
 
 ## Nota
 
-Questa fase definisce la scala e i token.  
-L'applicazione diretta ai tag HTML (`h1..h6`, `p`, ecc.) e alle utility Tailwind e in Fase 2.
+Fase 1 definisce la scala e i token.
+
+## Integrazione Tailwind (Fase 2)
+
+- Base tags via `@layer base` in `src/styles/typography.css`:
+- `h1..h3` su scala display
+- `h4..h6` su scala body-lg
+- `p`, `li`, `small`, `label` su scala body/small
+
+- Utility semantiche in `tailwind.config.ts`:
+- `text-display`, `text-h1`, `text-h2`, `text-h3`
+- `text-body-lg`, `text-body`, `text-small`, `text-caption`
+- `font-display`, `font-body`

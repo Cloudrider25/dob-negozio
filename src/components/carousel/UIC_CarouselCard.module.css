@@ -4,13 +4,13 @@
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  font-size: 16px;
+  font-size: var(--type-body-size);
   font-weight: 400;
   min-height: 0;
   height: auto;
   justify-content: space-between;
   left: 0;
-  line-height: 24px;
+  line-height: var(--type-body-line);
   list-style-image: none;
   list-style-position: outside;
   list-style-type: none;
@@ -66,8 +66,9 @@
   color: #fff;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  letter-spacing: var(--type-caption-track);
   text-transform: uppercase;
   z-index: 2;
 }
@@ -82,9 +83,9 @@
 
 .title {
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.2;
-  letter-spacing: 0.06em;
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-h3-line);
+  letter-spacing: var(--type-h3-track);
   text-transform: uppercase;
   min-height: calc(2 * 1.2em);
   overflow: hidden;
@@ -121,13 +122,15 @@
   align-items: center;
   justify-content: space-between;
   color: var(--text-secondary);
-  font-size: 0.76rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
 }
 
 .subtitle {
   padding: 0 16px;
   min-height: 2rem;
-  line-height: 1.2;
+  line-height: var(--type-body-line);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -164,14 +167,6 @@
     font-size: 1.35rem;
   }
 
-  .title {
-    font-size: 1rem;
-  }
-
-  .meta {
-    font-size: 0.8rem;
-  }
-
   .cta {
     height: 2.5rem;
   }
@@ -188,8 +183,8 @@
   }
 
   .title {
-    font-size: 1.2rem;
-    letter-spacing: 0.08em;
+    font-size: var(--type-h3-size);
+    letter-spacing: var(--type-h3-track);
   }
 
   .titleRow {
@@ -210,10 +205,6 @@
 
   .metaRow {
     padding-inline: 24px;
-  }
-
-  .meta {
-    font-size: 0.9rem;
   }
 
   .cta {

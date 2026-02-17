@@ -61,17 +61,18 @@
 
 .heading {
   margin: 0;
-  font-size: clamp(1.45rem, 1.2rem + 0.7vw, 2.15rem);
-  letter-spacing: 0.06em;
+  font-size: var(--type-h2-size);
+  letter-spacing: var(--type-h2-track);
   text-transform: uppercase;
-  line-height: 1.18;
+  line-height: var(--type-h2-line);
   color: var(--text-primary);
 }
 
 .bodyText {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.58;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
 }
 
@@ -93,8 +94,9 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 0.8rem;
-  letter-spacing: 0.09em;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   text-transform: uppercase;
   color: var(--text-primary);
   transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
@@ -120,8 +122,9 @@
 
 .blockLabel {
   margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  letter-spacing: var(--type-caption-track);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -136,8 +139,9 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
   border-radius: 999px;
   padding: 0.42rem 0.85rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  letter-spacing: var(--type-caption-track);
   text-transform: uppercase;
   color: var(--text-primary);
   background: transparent;
@@ -167,8 +171,9 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
   border-radius: 999px;
   padding: 0.45rem 0.95rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.13em;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  letter-spacing: var(--type-caption-track);
   text-transform: uppercase;
   background: transparent;
   color: var(--text-primary);
@@ -211,20 +216,25 @@
 
 .serviceTitle {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: var(--text-primary);
 }
 
 .serviceMeta {
   margin: 0.35rem 0 0;
-  font-size: 0.78rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
   color: var(--text-secondary);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--type-small-track);
 }
 
 .emptyState {
   margin: 0.2rem 0 0;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
 }
 
@@ -253,8 +263,9 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
   border-radius: 999px;
   padding: 0.32rem 0.7rem;
-  font-size: 0.66rem;
-  letter-spacing: 0.11em;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  letter-spacing: var(--type-caption-track);
   text-transform: uppercase;
   color: var(--text-primary);
 }
@@ -274,20 +285,25 @@
 
 .serviceInfoTitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--type-body-lg-size);
+  line-height: var(--type-body-lg-line);
+  letter-spacing: var(--type-body-track);
   color: var(--text-primary);
 }
 
 .serviceInfoMeta {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   color: var(--text-secondary);
 }
 
 .serviceInfoDescription {
   margin: 0.25rem 0 0;
-  font-size: 0.9rem;
-  line-height: 1.55;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   color: var(--text-secondary);
 }
 
@@ -298,8 +314,9 @@
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
   text-transform: uppercase;
   border: 1px dashed color-mix(in srgb, var(--stroke) 55%, transparent);
   border-radius: 14px;

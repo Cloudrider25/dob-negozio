@@ -29,22 +29,27 @@
 
 .eyebrow {
   text-transform: uppercase;
-  letter-spacing: 0.4em;
-  font-size: 0.7rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   color: var(--text-secondary);
   margin: 0 0 0.75rem;
 }
 
 .title {
   margin: 0;
-  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem);
-  letter-spacing: 0.08em;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h2-track);
   text-transform: uppercase;
 }
 
 .subtitle {
   margin: 0.6rem 0 0;
   color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   max-width: 34ch;
 }
 
@@ -93,8 +98,9 @@
 
 .stepLabel {
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.7rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
   color: var(--text-secondary);
   margin: 0;
   text-align: center;
@@ -183,18 +189,8 @@
 }
 
 @media (max-width: 640px) {
-  .title {
-    font-size: 1.35rem;
-    letter-spacing: 0.05em;
-  }
-
-  .subtitle {
-    font-size: 0.92rem;
-  }
-
   .stepLabel {
     text-align: center;
-    font-size: 0.68rem;
   }
 
   .stepBtn {

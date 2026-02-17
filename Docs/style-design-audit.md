@@ -74,21 +74,23 @@ Azione:
 - definire `clamp(min, vw, max)` mobile-first per ogni livello
 Stato: completata il 2026-02-17. Scala definita in `src/styles/typography.css` (token semantici) e documentata in `Docs/typography-scale.md`.
 
-- [ ] **Fase 2 - Integrazione Tailwind base + utilities**
+- [x] **Fase 2 - Integrazione Tailwind base + utilities**
 Scope: `src/styles/typography.css`, `tailwind.config.*`  
 Evidenza: heading HTML non governati da una policy tipografica centralizzata.  
 Azione:
 - aggiungere regole in `@layer base` per `h1..h6`, `p`, `small`, `label`
 - estendere tailwind con classi semantiche (`text-h1`, `text-h2`, ecc.) e font (`font-display`, `font-body`)
 - verificare che i tag senza classi custom ereditino correttamente
+Stato: completata il 2026-02-17. Applicate regole `@layer base` in `src/styles/typography.css` e utility semantiche in `tailwind.config.ts`; documentazione aggiornata in `Docs/typography-scale.md`.
 
-- [ ] **Fase 3 - Migrazione componenti core (mobile-first)**
+- [x] **Fase 3 - Migrazione componenti core (mobile-first)**
 Scope: hero, sections, carousel, switcher, card, form principali  
 Evidenza: componenti ad alta visibilita con sizing tipografico locale non allineato.  
 Azione:
 - sostituire custom typography con token/shared utilities
 - mantenere solo eccezioni deliberate e documentate
 - usare base mobile + override `min-width` solo se necessario
+Stato: completata il 2026-02-17 (batch core) su `StoryHero`, `ValuesSection`, `UIC_Carousel`, `UIC_CarouselCard`, `ProgramsSplitSection` con migrazione a token `--type-*` e rimozione font locali (`Inter`) nei punti principali.
 
 - [ ] **Fase 4 - Rimozione custom CSS e duplicati**
 Scope: module css in `src/components/**` e `src/app/**`  
@@ -97,6 +99,7 @@ Azione:
 - eliminare `font-size`/`font-family` locali ridondanti
 - consolidare stili ripetuti in scala globale
 - preservare solo casi speciali giustificati
+Stato: in corso (batch 1+2+3+4+5+6 completati il 2026-02-17) su `ServiceRoutineBuilderSplitSection`, `ServicesTreatmentReveal`, `ProtocolSplit`, `StoryValuesSection`, `ServicesProtocol`, `StoryTeamSection`, `ListinoTradizionale` + pagine `src/app/(frontend)/[locale]/services/[category]/page.tsx`, `src/app/(frontend)/[locale]/journal/page.tsx`, `src/app/(frontend)/[locale]/layout.tsx`, `src/app/(checkout)/[locale]/checkout/checkout.module.css` e convergenza tipografica estesa in `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css` con migrazione a token `--type-*` e rimozione font locali hardcoded.
 
 - [ ] **Fase 5 - QA e regressioni**
 Scope: verifica visuale e tecnica finale  
@@ -105,6 +108,7 @@ Azione:
 - QA visuale su breakpoint 320 / 375 / 768 / 1024 / 1440
 - QA light/dark e gerarchia heading
 - eseguire `tsc --noEmit` e build
+Stato: in corso (tecnico completato il 2026-02-17): `pnpm build` OK e `tsc --noEmit` OK. Restano da completare i check visuali manuali cross-breakpoint e light/dark.
 
 - [ ] **Fase 6 - Governance futura**
 Scope: processo e controllo continuo  
@@ -119,7 +123,7 @@ Azione:
 - [ ] heading/body principali allineati alla scala tipografica unica
 - [ ] `clamp()` applicato ai livelli previsti in approccio mobile-first
 - [ ] rimozione dei custom typography ridondanti nelle aree core
-- [ ] nessuna regressione tecnica (`tsc --noEmit` + build ok)
+- [x] nessuna regressione tecnica (`tsc --noEmit` + build ok)
 
 ## Estensione piano: leggibilita e motion safety (solo pulsanti)
 

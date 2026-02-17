@@ -14,5 +14,7 @@
   text-align: center;
   padding: 3rem 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
 }

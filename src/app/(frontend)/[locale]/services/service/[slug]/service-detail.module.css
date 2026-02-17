@@ -88,7 +88,7 @@
 }
 
 .playIcon {
-  font-size: 0.7rem;
+  font-size: var(--type-caption-size);
   color: #4b4b4b;
 }
 
@@ -120,8 +120,8 @@
 
 .eyebrow {
   text-transform: uppercase;
-  font-size: 0.7rem;
-  letter-spacing: 0.24em;
+  font-size: var(--type-caption-size);
+  letter-spacing: var(--type-h1-track);
   color: var(--text-secondary);
 }
 
@@ -135,8 +135,8 @@
 
 .title {
   margin: 0;
-  font-size: clamp(2.2rem, 2rem + 1vw, 3rem);
-  letter-spacing: 0.04em;
+  font-size: var(--type-display-size);
+  letter-spacing: var(--type-body-track);
   text-transform: lowercase;
   color: var(--text-primary);
 }
@@ -144,8 +144,8 @@
 .badge {
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
+  font-size: var(--type-caption-size);
+  letter-spacing: var(--type-caption-track);
   text-transform: uppercase;
   background: #111;
   color: #fff;
@@ -156,8 +156,8 @@
   gap: 0.75rem;
   align-items: center;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.7rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -166,8 +166,8 @@
   align-items: center;
   gap: 0.6rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.75rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-small-size);
   color: var(--text-secondary);
 }
 
@@ -177,12 +177,12 @@
 
 .rating {
   margin-left: auto;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  font-size: var(--type-small-size);
+  letter-spacing: var(--type-small-track);
 }
 
 .ratingCount {
-  font-size: 0.75rem;
+  font-size: var(--type-small-size);
   color: var(--text-secondary);
 }
 
@@ -193,8 +193,8 @@
 .description {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -205,8 +205,8 @@
 .note {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  font-size: var(--type-small-size);
+  letter-spacing: var(--type-small-track);
 }
 
 .divider {
@@ -217,8 +217,8 @@
 
 .label {
   text-transform: uppercase;
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
+  font-size: var(--type-caption-size);
+  letter-spacing: var(--type-caption-track);
   color: var(--text-secondary);
 }
 
@@ -240,8 +240,8 @@
   background: #fff;
   padding: 0.35rem 0.9rem;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.55rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-caption-size);
   cursor: pointer;
 }
 
@@ -262,8 +262,8 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
   background: #fff;
   padding: 0.4rem 0.9rem;
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
+  font-size: var(--type-caption-size);
+  letter-spacing: var(--type-h3-track);
   text-transform: uppercase;
   color: var(--text-secondary);
   text-decoration: none;
@@ -275,8 +275,8 @@
   background: #fdfcfa;
   padding: 0.8rem 1.2rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.65rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
   cursor: pointer;
   text-align: center;
 }
@@ -289,8 +289,8 @@
 
 .crossSellTitle {
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.7rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-caption-size);
   font-weight: 600;
 }
 
@@ -320,13 +320,13 @@
 }
 
 .crossSellName {
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--type-h3-track);
 }
 
 .crossSellMeta {
-  font-size: 0.7rem;
+  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -338,8 +338,8 @@
 
 .lineupTitle {
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.7rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-caption-size);
   font-weight: 600;
 }
 
@@ -367,13 +367,13 @@
 }
 
 .lineupName {
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--type-h3-track);
 }
 
 .lineupMeta {
-  font-size: 0.7rem;
+  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -383,8 +383,8 @@
   background: #fff;
   padding: 0.35rem 0.9rem;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.55rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-caption-size);
   cursor: pointer;
 }
 
@@ -408,21 +408,21 @@
   align-items: center;
   justify-content: space-between;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.65rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-caption-size);
   font-weight: 600;
   cursor: pointer;
 }
 
 .accordionIcon {
-  font-size: 1rem;
+  font-size: var(--type-body-size);
 }
 
 .accordionPanel {
   margin-top: 0.6rem;
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  line-height: 1.6;
+  font-size: var(--type-small-size);
+  line-height: var(--type-body-line);
 }
 
 .accordionPanel ul {
@@ -436,8 +436,8 @@
 
 .inlineLink {
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.6rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -462,7 +462,7 @@
 
 .value {
   margin: 0.3rem 0 0;
-  font-size: 1.1rem;
+  font-size: var(--type-body-lg-size);
   color: var(--text-primary);
 }
 
@@ -483,7 +483,7 @@
 
 .sectionTitle {
   margin: 0.4rem 0 0;
-  font-size: 1.4rem;
+  font-size: var(--type-h3-size);
   color: var(--text-primary);
 }
 
@@ -492,8 +492,8 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding: 0.6rem 1.2rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.6rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
   color: var(--text-secondary);
   text-decoration: none;
   background: #fff;
@@ -511,8 +511,8 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   background: #fff;
   padding: 0.4rem 0.9rem;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
+  font-size: var(--type-caption-size);
+  letter-spacing: var(--type-caption-track);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -520,7 +520,7 @@
 .empty {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
 }
 
 .ingredientsSection {
@@ -566,8 +566,8 @@
   border: 0;
   padding: 0.5rem 1.1rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.55rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-caption-size);
   cursor: pointer;
 }
 
@@ -592,22 +592,22 @@
   top: 2.2rem;
   writing-mode: vertical-rl;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 2rem;
+  letter-spacing: var(--type-caption-track);
+  font-size: var(--type-h1-size);
   color: var(--text-secondary);
 }
 
 .insideLead {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
 .insideRich {
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
 .insideRich :global(p) {
@@ -621,7 +621,7 @@
 }
 
 .insideRich :global(h1) {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 
 .insideBlock {
@@ -631,25 +631,25 @@
 
 .insideBlock h3 {
   margin: 0 0 0.4rem;
-  font-size: 1.05rem;
+  font-size: var(--type-body-lg-size);
   text-transform: lowercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--type-body-track);
   color: var(--text-primary);
 }
 
 .insideBlock p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
 .insideNote {
   border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   padding-top: 1rem;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.6rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-caption-size);
   color: var(--text-secondary);
 }
 
@@ -675,8 +675,8 @@
 
 .faqTitle {
   margin: 0;
-  font-size: 2rem;
-  letter-spacing: 0.08em;
+  font-size: var(--type-h1-size);
+  letter-spacing: var(--type-small-track);
   text-transform: uppercase;
   color: var(--text-primary);
 }
@@ -684,7 +684,7 @@
 .faqSubtitle {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--type-body-size);
 }
 
 .faqList {
@@ -704,8 +704,8 @@
   background: none;
   padding: 0.9rem 0;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.9rem;
+  letter-spacing: var(--type-h3-track);
+  font-size: var(--type-body-size);
   color: var(--text-secondary);
   border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   cursor: pointer;
@@ -731,10 +731,10 @@
 
 .faqAnswer {
   color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   text-transform: none;
-  letter-spacing: 0;
+  letter-spacing: var(--type-body-track);
 }
 
 .faqAnswer :global(p) {
@@ -742,7 +742,7 @@
 }
 
 .faqAnswer :global(h1) {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 
 .faqIcon {
@@ -752,7 +752,7 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
   display: grid;
   place-items: center;
-  font-size: 0.9rem;
+  font-size: var(--type-body-size);
   color: var(--text-secondary);
 }
 
@@ -856,16 +856,16 @@
 
 .treatmentTitle {
   margin: 0;
-  font-size: clamp(1.8rem, 1.2rem + 1.5vw, 2.6rem);
-  letter-spacing: 0.04em;
+  font-size: var(--type-h2-size);
+  letter-spacing: var(--type-body-track);
   text-transform: lowercase;
   color: var(--text-primary);
 }
 
 .treatmentText {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   color: var(--text-secondary);
 }
 
@@ -873,8 +873,8 @@
   margin: 0.5rem 0 0;
   padding-left: 1.2rem;
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   text-transform: none;
 }
 
@@ -958,9 +958,9 @@
   gap: 0.2rem;
   text-transform: uppercase;
   text-decoration-thickness: bold;
-  letter-spacing: 0.22em;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  letter-spacing: var(--type-h1-track);
+  font-family: var(--font-body);
+  font-size: var(--type-body-size);
   writing-mode: vertical-rl;
   text-align: center;
 }
@@ -987,7 +987,7 @@
 
 .treatmentRailBottom {
   align-self: center;
-  letter-spacing: 0.10em;
+  letter-spacing: var(--type-small-track);
   margin-bottom: 0.2rem;
 }
 
@@ -1084,6 +1084,6 @@
   place-items: center;
   text-transform: uppercase;
   letter-spacing: 0.3em;
-  font-size: 0.7rem;
+  font-size: var(--type-caption-size);
   color: rgba(0, 0, 0, 0.6);
 }

@@ -104,8 +104,9 @@
 
 .title {
   margin: 0;
-  font-size: 2.2rem;
-  letter-spacing: 0.08em;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h2-track);
   text-transform: uppercase;
   color: #6b6761;
   max-width: 24rem;
@@ -115,6 +116,9 @@
 .subtitle {
   margin: 0;
   color: #7a756f;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
   max-width: 28rem;
   margin-left: auto;
   margin-right: auto;
@@ -191,9 +195,9 @@
 
 .stepBadge {
   margin-right: -40%;
-  font-size: 2.8rem;
-  font-size: clamp(1rem, 1.8vw, 2.8rem);
-  letter-spacing: 0.22em;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h1-track);
   text-transform: uppercase;
   color: var(--text-muted);
   background: transparent;
@@ -205,8 +209,9 @@
 
 .stepTitle {
   margin: 0;
-  font-size: 1.05rem;
-  letter-spacing: 0.12em;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-h3-track);
   text-transform: uppercase;
   color: #6b6761;
 }
@@ -214,6 +219,9 @@
 .stepSubtitle {
   margin: 0.35rem 0 0;
   color: #7a756f;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  letter-spacing: var(--type-body-track);
 }
 
 .metaRow {
@@ -233,13 +241,17 @@
 }
 
 .counter {
-  font-size: 1.9rem;
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h3-track);
   font-weight: 600;
   color: #7a756f;
 }
 
 .counterLarge {
-  font-size: 2.6rem;
+  font-size: var(--type-h1-size);
+  line-height: var(--type-h1-line);
+  letter-spacing: var(--type-h2-track);
 }
 
 .stepZero .subtitle {
@@ -286,7 +298,6 @@
   }
 
   .title {
-    font-size: clamp(1.3rem, 1.1rem + 1vw, 1.8rem);
     max-width: 100%;
   }
 
@@ -299,8 +310,8 @@
     margin-right: 0;
     transform: none;
     justify-self: start;
-    font-size: 0.8rem;
-    letter-spacing: 0.14em;
+    font-size: var(--type-small-size);
+    letter-spacing: var(--type-small-track);
   }
 
   .stepMedia {
@@ -316,6 +327,8 @@
 
   .counter,
   .counterLarge {
-    font-size: 1.4rem;
+    font-size: var(--type-h3-size);
+    line-height: var(--type-h3-line);
+    letter-spacing: var(--type-h3-track);
   }
 }

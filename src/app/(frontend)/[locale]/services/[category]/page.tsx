@@ -208,10 +208,10 @@ export default async function ServiceCategoryPage({
           )}
         </div>
         <div className="flex flex-col items-start gap-6 text-left">
-          <span className="text-[0.75rem] uppercase tracking-[0.4em]">
+          <span className="text-caption uppercase tracking-[var(--type-caption-track)]">
             {categoryDoc.dobGroup || 'DOB'}
           </span>
-          <h2 className="text-[2.6rem] uppercase tracking-[0.12em]">
+          <h2 className="text-h1 uppercase tracking-[var(--type-h1-track)]">
             Perchè {categoryTitle} da DOB Milano?
           </h2>
           <p className="max-w-[520px]">
@@ -220,7 +220,7 @@ export default async function ServiceCategoryPage({
           </p>
           <div className="grid w-full grid-cols-2 gap-8 max-[1024px]:grid-cols-1">
             <div>
-              <h3 className="mb-2 text-[1.2rem]">
+              <h3 className="mb-2 text-h3">
                 {categoryDoc.highlightPointOneTitle || 'Powered by precision'}
               </h3>
               <p className="m-0">
@@ -229,7 +229,7 @@ export default async function ServiceCategoryPage({
               </p>
             </div>
             <div>
-              <h3 className="mb-2 text-[1.2rem]">
+              <h3 className="mb-2 text-h3">
                 {categoryDoc.highlightPointTwoTitle || 'Safe, gentle, lasting'}
               </h3>
               <p className="m-0">
@@ -254,10 +254,10 @@ export default async function ServiceCategoryPage({
       </section>
       <section className="px-[2.5vw] py-[var(--s120)]">
         <div className="flex flex-col gap-6">
-          <p className="text-[1.5rem] uppercase tracking-[0.4em]">
+          <p className="text-h3 uppercase tracking-[var(--type-h3-track)]">
             {t.services.title}
           </p>
-          <h2 className="text-[2.6rem] uppercase tracking-[0.08em]">
+          <h2 className="text-h1 uppercase tracking-[var(--type-h1-track)]">
             {categoryTitle}
           </h2>
           <UICCarousel
@@ -283,14 +283,14 @@ export default async function ServiceCategoryPage({
             emptyLabel="Nessun servizio disponibile."
           />
           {!filteredServices.length && (
-            <p className="text-[0.9rem]">{t.services.note}</p>
+            <p className="text-body">{t.services.note}</p>
           )}
         </div>
       </section>
       <section className="px-[2.5vw] py-[var(--s120)]">
         <div className={`${styles.ctaCard} grid grid-cols-[1.5fr_1fr] gap-8 rounded-[28px] border p-10 max-[900px]:grid-cols-1`}>
           <div>
-            <p className="text-[0.75rem] uppercase tracking-[0.4em]">
+            <p className="text-caption uppercase tracking-[var(--type-caption-track)]">
               Prenota ora
             </p>
             <h3>Il tuo percorso di bellezza inizia qui.</h3>

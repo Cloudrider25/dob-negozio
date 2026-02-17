@@ -142,7 +142,7 @@ export default async function JournalPage({
             >
               <h3>{t.placeholders.journalTitle}</h3>
               <p className="">{t.placeholders.journalExcerpt}</p>
-              <span className="text-[0.85rem] uppercase tracking-[0.08em]">
+              <span className="text-small uppercase tracking-[var(--type-small-track)]">
                 {t.placeholders.readMore}
               </span>
             </article>
