@@ -10,6 +10,7 @@ import type { Swiper as SwiperInstance } from 'swiper/types'
 import styles from './UIC_Carousel.module.css'
 import { UICCarouselCard } from './UIC_CarouselCard'
 import type { ServicesCarouselItem } from './types'
+import { ChevronLeft, ChevronRight } from '@/components/ui/icons'
 
 export type UICCarouselProps = {
   items: ServicesCarouselItem[]
@@ -54,7 +55,7 @@ export const UICCarousel = ({
     <section className={styles.section} aria-label={ariaLabel}>
       <div className={styles.wrap}>
         <button ref={prevRef} className={`${styles.nav} ${styles.prev}`} aria-label="Previous">
-          ‹
+          <ChevronLeft size={42} className={styles.chevron} />
         </button>
         <Swiper
           className={styles.carousel}
@@ -82,7 +83,7 @@ export const UICCarousel = ({
           ))}
         </Swiper>
         <button ref={nextRef} className={`${styles.nav} ${styles.next}`} aria-label="Next">
-          ›
+          <ChevronRight size={42} className={styles.chevron} />
         </button>
       </div>
     </section>

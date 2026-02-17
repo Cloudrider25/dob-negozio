@@ -35,8 +35,6 @@
 .title {
   margin: 0 !important;
   margin-block-end: 0;
-  font-family: Swiss, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
-  font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.4rem);
   line-height: 1.2;
   color: #6b6761;
   margin-bottom: 0;
@@ -113,10 +111,6 @@
 
   .media {
     aspect-ratio: 4 / 5;
-  }
-
-  .title {
-    font-size: clamp(1.25rem, 1rem + 1.2vw, 1.8rem);
   }
 
   .listItem {
