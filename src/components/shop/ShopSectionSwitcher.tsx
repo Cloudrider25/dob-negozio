@@ -595,7 +595,7 @@ export function ShopSectionSwitcher({
       )}
 
       {activeSection === 'consulenza' && (
-        <section id="consulenza" className={`${styles.sectionBlockTop} w-full bg-[var(--bg)] px-[2.5vw] py-20`}>
+        <section id="consulenza" className={`${styles.sectionBlockTop} w-full bg-[var(--bg)] px-[2.5vw] pt-8 pb-20`}>
           <ConsulenzaSection contactLinks={contactLinks} source="shop-consultation" />
         </section>
       )}

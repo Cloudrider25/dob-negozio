@@ -11,11 +11,13 @@
 }
 
 .form {
-  background: #fff;
+  background: var(--paper);
   padding: clamp(1.4rem, 2vw, 2.2rem) clamp(2rem, 4vw, 4.2rem);
   max-width: 700px;
   width: 100%;
   justify-self: end;
+  display: grid;
+  gap: 1.2rem;
 }
 
 .brand {
@@ -27,84 +29,63 @@
 
 .brandTitle {
   margin: 0;
-  color: #000;
+  color: var(--text-primary);
 }
 
 .steps {
   display: flex;
   gap: 0.9rem;
   align-items: center;
-  color: #8a857e;
+  color: var(--text-muted);
 }
 
 .stepItem {
-  color: #7f7a74;
+  color: var(--text-muted);
 }
 
 .stepItemActive {
-  color: #2f2c29;
+  color: var(--text-primary);
   font-weight: 700;
 }
 
 .stepItemDone {
-  color: #4a4642;
+  color: var(--text-secondary);
 }
 
 .stepSeparator {
-  color: #8a857e;
+  color: var(--text-muted);
 }
 
 .notice {
   border-radius: 14px;
-  border: 1px solid rgba(106, 102, 96, 0.2);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 1rem 1.2rem;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
-.express {
+.expressPaymentSection {
   display: grid;
   gap: 0.7rem;
 }
 
 .expressTitle {
   text-align: center;
-  color: #8a857e;
+  color: var(--text-muted);
 }
 
-.expressRow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.6rem;
+.expressEmbeddedBox {
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
+  padding: 0.65rem;
+  overflow: hidden;
+  min-height: 56px;
 }
 
-.expressButton {
-  border-radius: 10px;
-  border: 1px solid rgba(106, 102, 96, 0.2);
-  padding: 0.6rem 0.8rem;
-  background: #fff;
-  font-weight: 600;
-  text-align: center;
-}
-
-.orDivider {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  color: #8a857e;
-}
-
-.orDivider::before,
-.orDivider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(106, 102, 96, 0.2);
-}
-
-.form {
-  display: grid;
-  gap: 1.2rem;
+.expressUnavailableNote {
+  margin: 0;
+  color: var(--text-secondary);
 }
 
 .fieldGroup {
@@ -117,15 +98,16 @@
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
-  color: #4f4b46;
+  color: var(--text-secondary);
 }
 
 .input,
 .select {
   border-radius: 10px;
-  border: 1px solid rgba(106, 102, 96, 0.3);
+  border: 1px solid var(--stroke);
   padding: 0.8rem 0.9rem;
-  background: #fff;
+  background: var(--paper);
+  color: var(--text-primary);
 }
 
 .splitRow {
@@ -140,13 +122,6 @@
   gap: 0.8rem;
 }
 
-.checkboxRow {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: #6a6660;
-}
-
 .actionsRow {
   margin-top: 1.6rem;
   display: flex;
@@ -159,7 +134,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  color: #6a6660;
+  color: var(--text-secondary);
   text-decoration: none;
 }
 
@@ -167,7 +142,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  color: #6a6660;
+  color: var(--text-secondary);
   text-decoration: none;
   border: 0;
   background: transparent;
@@ -183,8 +158,8 @@
   border-radius: 10px;
   border: 0;
   padding: 0.85rem 1.4rem;
-  background: #5c5751;
-  color: #fff;
+  background: var(--panel);
+  color: var(--text-inverse);
   font-weight: 600;
   cursor: pointer;
 }
@@ -196,8 +171,8 @@
 
 .shippingSummaryCard {
   border-radius: 14px;
-  border: 1px solid rgba(106, 102, 96, 0.25);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 0.9rem 1rem;
 }
 
@@ -210,16 +185,16 @@
 }
 
 .shippingSummaryLabel {
-  color: #726d67;
+  color: var(--text-secondary);
 }
 
 .shippingSummaryValue {
-  color: #2f2c29;
+  color: var(--text-primary);
 }
 
 .shippingSummaryDivider {
   height: 1px;
-  background: rgba(106, 102, 96, 0.2);
+  background: var(--stroke);
 }
 
 .changeLink {
@@ -227,7 +202,7 @@
   background: transparent;
   text-decoration: underline;
   text-underline-offset: 3px;
-  color: #6a6660;
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
@@ -238,13 +213,13 @@
 
 .shippingMethodTitle {
   margin: 0;
-  color: #2f2c29;
+  color: var(--text-primary);
 }
 
 .shippingMethodCard {
   border-radius: 12px;
-  border: 1px solid rgba(106, 102, 96, 0.35);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 1rem 1.2rem;
 }
 
@@ -256,8 +231,8 @@
 .shippingMethodOption {
   width: 100%;
   border-radius: 10px;
-  border: 1px solid rgba(106, 102, 96, 0.25);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 0.85rem 0.95rem;
   display: flex;
   justify-content: space-between;
@@ -268,31 +243,31 @@
 }
 
 .shippingMethodOptionActive {
-  border-color: #5c5751;
-  box-shadow: inset 0 0 0 1px #5c5751;
+  border-color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--text-primary);
 }
 
 .shippingMethodName {
   margin: 0;
-  color: #2f2c29;
+  color: var(--text-primary);
 }
 
 .shippingMethodEta {
   margin: 0.2rem 0 0;
-  color: #7b7670;
+  color: var(--text-secondary);
 }
 
 .shippingMethodPrice {
-  color: #1f1c19;
+  color: var(--text-primary);
   white-space: nowrap;
 }
 
 .shippingNote {
   border-radius: 14px;
-  border: 1px solid rgba(106, 102, 96, 0.2);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 1rem 1.2rem;
-  color: #2f2c29;
+  color: var(--text-primary);
 }
 
 .shippingNote p {
@@ -310,18 +285,18 @@
 
 .paymentTitle {
   margin: 0;
-  color: #2f2c29;
+  color: var(--text-primary);
 }
 
 .paymentDescription {
   margin: 0;
-  color: #726d67;
+  color: var(--text-secondary);
 }
 
 .paymentEmbeddedBox {
   border-radius: 14px;
-  border: 1px solid rgba(106, 102, 96, 0.2);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 0.5rem;
   overflow: hidden;
 }
@@ -329,51 +304,40 @@
 .paymentLoading,
 .paymentLoadingError {
   border-radius: 12px;
-  border: 1px solid rgba(106, 102, 96, 0.2);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 0.9rem 1rem;
-  color: #5f5a54;
+  color: var(--text-secondary);
 }
 
 .paymentLoadingError {
-  border-color: rgba(146, 62, 62, 0.3);
-  color: #7f2f2f;
-}
-
-.paymentMethodCard {
-  border-radius: 14px;
-  border: 1px solid rgba(106, 102, 96, 0.35);
-  background: #fff;
-  overflow: hidden;
+  border-color: var(--ui-accent);
+  color: var(--ui-accent);
 }
 
 .paymentMethodRow {
   width: 100%;
   border: 0;
-  border-top: 1px solid rgba(106, 102, 96, 0.2);
-  background: #fff;
+  border-top: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 1rem 1.1rem;
   display: flex;
   align-items: center;
   gap: 0.8rem;
   text-align: left;
-  color: #2f2c29;
+  color: var(--text-primary);
   cursor: pointer;
 }
 
-.paymentMethodCard .paymentMethodRow:first-child {
-  border-top: 0;
-}
-
 .paymentMethodRowActive {
-  background: #fbfaf8;
+  background: var(--sand);
 }
 
 .radioDot {
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 1px solid rgba(106, 102, 96, 0.45);
+  border: 1px solid var(--stroke);
   position: relative;
   flex-shrink: 0;
 }
@@ -383,24 +347,11 @@
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: #6a6660;
+  background: var(--text-secondary);
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-.paymentBadges {
-  margin-left: auto;
-  color: #6a6660;
-}
-
-.paymentFields {
-  border-top: 1px solid rgba(106, 102, 96, 0.2);
-  padding: 1rem 1.1rem;
-  display: grid;
-  gap: 0.7rem;
-  background: #fff;
 }
 
 .billingSection {
@@ -410,36 +361,31 @@
 
 .billingTitle {
   margin: 0;
-  color: #2f2c29;
+  color: var(--text-primary);
 }
 
 .billingChoiceCard {
   border-radius: 14px;
-  border: 1px solid rgba(106, 102, 96, 0.35);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   overflow: hidden;
 }
 
 .billingElementBox {
   border-radius: 14px;
-  border: 1px solid rgba(106, 102, 96, 0.32);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 0.65rem;
-}
-
-.billingNote {
-  margin: 0;
-  color: #726d67;
 }
 
 .footerLinks {
   margin-top: 2rem;
   padding-top: 1.4rem;
-  border-top: 1px solid rgba(106, 102, 96, 0.2);
+  border-top: 1px solid var(--stroke);
   display: flex;
   flex-wrap: wrap;
   gap: 1.4rem;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .footerLink {
@@ -448,22 +394,15 @@
   text-underline-offset: 3px;
 }
 
-.cookieLink {
-  margin-top: 0.9rem;
-  color: #6a6660;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 .summary {
+  display: none;
   background: var(--bg);
-  border-left: 1px solid rgba(106, 102, 96, 0.18);
+  border-left: 1px solid var(--stroke);
   border-radius: 0;
   padding: clamp(2.2rem, 3vw, 3.1rem) clamp(2rem, 3.3vw, 3.3rem) clamp(1.4rem, 2vw, 2.2rem);
   max-width: none;
   width: 100%;
   justify-self: start;
-  display: flex;
   flex-direction: column;
   gap: 1.2rem;
 }
@@ -481,7 +420,7 @@
   height: 56px;
   border-radius: 12px;
   overflow: visible;
-  background: #e6e1db;
+  background: var(--sand);
 }
 
 .summaryQtyBadge {
@@ -492,8 +431,8 @@
   min-width: 24px;
   height: 24px;
   border-radius: 999px;
-  background: #111;
-  color: #fff;
+  background: var(--panel);
+  color: var(--text-inverse);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -503,17 +442,17 @@
 }
 
 .summaryTitle {
-  color: #1e1b19;
+  color: var(--text-primary);
   margin: 0;
   font-weight: 600;
 }
 
 .summaryMeta {
-  color: #6d6862;
+  color: var(--text-secondary);
 }
 
 .summaryPrice {
-  color: #1f1c19;
+  color: var(--text-primary);
   white-space: nowrap;
   font-weight: 600;
 }
@@ -526,18 +465,18 @@
 
 .applyButton {
   border-radius: 10px;
-  border: 1px solid rgba(106, 102, 96, 0.3);
+  border: 1px solid var(--stroke);
   padding: 0.7rem 1rem;
-  background: #ece9e5;
+  background: var(--sand);
   font-weight: 600;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .totalRow {
   display: flex;
   justify-content: space-between;
   font-weight: 600;
-  color: #1f1c19;
+  color: var(--text-primary);
 }
 
 .summaryRow {
@@ -545,14 +484,14 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  color: #1f1c19;
+  color: var(--text-primary);
 }
 
 .summaryRecoTitle {
   margin: 1.2rem 0 0.2rem;
   text-align: center;
   font-weight: 700;
-  color: #1f1c19;
+  color: var(--text-primary);
 }
 
 .summaryRecoList {
@@ -561,10 +500,10 @@
 }
 
 .summaryRecoItem {
-  border: 1px solid rgba(106, 102, 96, 0.25);
+  border: 1px solid var(--stroke);
   border-radius: 14px;
   padding: 0.9rem;
-  background: #f6f4f1;
+  background: var(--sand);
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) auto;
   gap: 0.9rem;
@@ -577,7 +516,7 @@
   height: 64px;
   border-radius: 12px;
   overflow: hidden;
-  background: #e8e4de;
+  background: var(--paper);
 }
 
 .summaryRecoContent {
@@ -587,17 +526,17 @@
 .summaryRecoName {
   margin: 0;
   font-weight: 700;
-  color: #1f1c19;
+  color: var(--text-primary);
 }
 
 .summaryRecoFormat {
   margin: 0.2rem 0 0;
-  color: #69645f;
+  color: var(--text-secondary);
 }
 
 .summaryRecoPrice {
   margin: 0.2rem 0 0;
-  color: #69645f;
+  color: var(--text-secondary);
 }
 
 .summaryRecoAction {
@@ -605,28 +544,26 @@
   background: transparent;
   text-decoration: underline;
   text-underline-offset: 3px;
-  color: #6a6660;
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
 .summaryTaxNote {
   margin: -0.35rem 0 0.2rem;
-  color: #6e6963;
+  color: var(--text-secondary);
 }
 
-.checkoutButton {
-  border-radius: 999px;
-  border: 0;
-  padding: 0.9rem 1.2rem;
-  background: #4f4b46;
-  color: #fff;
+@media (min-width: 1025px) {
+  .summary {
+    display: flex;
+  }
 }
 
 @media (max-width: 1024px) {
   .page {
     grid-template-columns: 1fr;
     max-width: none;
-    background: #fff;
+    background: var(--paper);
     padding: 0 0.75rem;
   }
 
@@ -636,16 +573,9 @@
     padding: 1rem;
   }
 
-  .summary {
-    max-width: none;
-    justify-self: stretch;
-    border-left: 0;
-    padding: 1rem;
-  }
-
   .actionsRow {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
   }
 
   .shippingSummaryRow {

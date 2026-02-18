@@ -139,7 +139,7 @@ export const Header = ({
           </div>
         </div>
       </header>
-      <div className={styles.menuOverlay} aria-hidden="true">
+      <div className={styles.menuOverlay}>
         <div className={styles.menuGrid}>
           <div className={styles.menuLeft}>
             <label className={styles.menuClose} htmlFor="menu-toggle" aria-label="Chiudi menu">

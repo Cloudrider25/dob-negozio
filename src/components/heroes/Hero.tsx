@@ -104,6 +104,7 @@ export const Hero = ({
                 key={cta.href}
                 href={cta.href}
                 kind={resolveButtonKind(cta.kind)}
+                className={styles.heroCta}
                 external={cta.external}
                 interactive
               >

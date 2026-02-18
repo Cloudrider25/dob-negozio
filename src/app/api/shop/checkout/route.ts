@@ -85,21 +85,34 @@ export async function POST(request: Request) {
     const authenticatedUser =
       authResult && authResult.user && typeof authResult.user === 'object' ? authResult.user : null
 
+    const isPaymentElementMode = checkoutMode === 'payment_element'
     const authenticatedEmail = toString(authenticatedUser?.email)
-    const email = authenticatedEmail || toString(customer.email)
-    const firstName = toString(customer.firstName) || toString(authenticatedUser?.firstName)
-    const lastName = toString(customer.lastName) || toString(authenticatedUser?.lastName)
-    const address = toString(customer.address)
-    const postalCode = toString(customer.postalCode)
-    const city = toString(customer.city)
-    const province = toString(customer.province)
+    const fallbackGuestEmail = `guest-${Date.now()}@dob.local`
+    const email = authenticatedEmail || toString(customer.email) || (isPaymentElementMode ? fallbackGuestEmail : '')
+    const firstName =
+      toString(customer.firstName) ||
+      toString(authenticatedUser?.firstName) ||
+      (isPaymentElementMode ? 'Cliente' : '')
+    const lastName =
+      toString(customer.lastName) ||
+      toString(authenticatedUser?.lastName) ||
+      (isPaymentElementMode ? 'Express' : '')
+    const address = toString(customer.address) || (isPaymentElementMode ? 'Da confermare via wallet' : '')
+    const postalCode = toString(customer.postalCode) || (isPaymentElementMode ? '00000' : '')
+    const city = toString(customer.city) || (isPaymentElementMode ? 'Da confermare' : '')
+    const province = toString(customer.province) || (isPaymentElementMode ? 'EE' : '')
     const phone = toString(customer.phone)
+    const hasShippingAddressInput =
+      Boolean(toString(customer.address)) &&
+      Boolean(toString(customer.postalCode)) &&
+      Boolean(toString(customer.city)) &&
+      Boolean(toString(customer.province))
     const shippingOptionID = toString(body.shippingOptionID)
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Email non valida.' }, { status: 400 })
     }
-    if (!firstName || !lastName || !address || !postalCode || !city || !province) {
+    if (!isPaymentElementMode && (!firstName || !lastName || !address || !postalCode || !city || !province)) {
       return NextResponse.json(
         { error: 'Compila tutti i campi obbligatori di spedizione.' },
         { status: 400 },
@@ -214,7 +227,7 @@ export async function POST(request: Request) {
 
       const subtotal = lineItems.reduce((sum, item) => sum + item.lineTotal, 0)
       let shippingAmount = 0
-      if (!isFreeShippingUnlocked(subtotal)) {
+      if (!isFreeShippingUnlocked(subtotal) && (!isPaymentElementMode || hasShippingAddressInput)) {
         const shippingOptions = await getSendcloudShippingOptions({
           payload,
           toCountry: 'IT',

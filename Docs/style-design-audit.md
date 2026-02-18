@@ -157,3 +157,54 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - `src/components/carousel/UIC_Carousel.module.css`: rimossi `color-mix` dai controlli nav (`border/background`) sostituiti con token diretti (`--stroke`, `--paper`, `--bg`).
   - `src/components/carousel/UIC_Carousel.tsx`: aggiunto `type=\"button\"` ai pulsanti prev/next; key slide resa più robusta (`href/title + index`) per ridurre collisioni su titoli duplicati.
   - Verifica: `pnpm -s tsc --noEmit` ok; ricerca `rg` conferma assenza `color-mix` e hardcoded `#...` nei file del blocco.
+- 2026-02-18 | Blocco CSS-011 (`CartDrawer` token migration + visual parity)
+  - Scope: review di `src/components/cart/CartDrawer.module.css`.
+  - Decisione: migrare totalmente i colori hardcoded (`#...`, `rgba(...)`) ai token globali esistenti, preservando layout e comportamento UI.
+  - Implementazione:
+  - sostituiti colori testo/sfondo/bordi con token (`--text-primary`, `--text-secondary`, `--text-muted`, `--text-inverse`, `--stroke`, `--paper`, `--bg`);
+  - overlay/backdrop convertito a token (`background: var(--bg)`) con opacità gestita nello stato `open`;
+  - bottoni principali (`routineButton`, `checkoutButton`) allineati a palette token-based;
+  - shadow pannello allineata a token (`--shadow-soft`).
+  - Verifica: `pnpm -s tsc --noEmit` ok; `rg` conferma assenza di `#...` e `rgba(...)` nel modulo.
+- 2026-02-18 | Blocco CSS-012 (`CartDrawer` thumbnail fallback routine recommendations)
+  - Scope: fix visuale `CartDrawer_routine__...` quando il prodotto consigliato non espone `coverImage` ma solo gallery `images`.
+  - Decisione: applicare lo stesso fallback media già adottato in altri flussi cart/checkout.
+  - Implementazione:
+  - `src/app/api/shop/recommendations/route.ts`: aggiunto `images` nel `select`; `coverImage` response ora risolve `doc.coverImage` con fallback a `doc.images[0]`.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-18 | Blocco CSS-013 (`CartDrawer` refactor mobile-first)
+  - Scope: inversione breakpoint strategy del modulo `src/components/cart/CartDrawer.module.css`.
+  - Decisione: base CSS mobile-first e override desktop con `@media (min-width: 701px)`.
+  - Implementazione:
+  - base mobile: drawer `100vw`, item grid `120px 1fr`, thumb `120x120`, price full-row;
+  - desktop override: drawer `min(50vw)`, item grid `144px 1fr auto`, thumb `144x144`, price inline.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-18 | Blocco CSS-014 (`checkout.module.css` cleanup + token migration)
+  - Scope: review e pulizia di `src/components/checkout/CheckoutClient.module.css`.
+  - Decisione: rimuovere classi non usate/no-op, consolidare duplicati e migrare i colori hardcoded esclusivamente su token già presenti in `src/styles`.
+  - Implementazione:
+  - unificata la doppia definizione di `.form` in un unico blocco;
+  - rimosse classi inutilizzate: `.checkboxRow`, `.paymentMethodCard`, `.paymentBadges`, `.paymentFields`, `.billingNote`, `.cookieLink`, `.checkoutButton` e relativo selector discendente;
+  - sostituiti `#...` e `rgba(...)` con token globali (`--paper`, `--stroke`, `--text-primary`, `--text-secondary`, `--text-muted`, `--text-inverse`, `--bg`, `--panel`, `--sand`, `--ui-accent`);
+  - aggiornato anche il `background` mobile della `.page` da hardcoded a token.
+  - Verifica: `rg` su `checkout.module.css` conferma assenza di `#...`, `rgba(...)`, `color-mix(...)` e assenza delle classi rimosse.
+- 2026-02-18 | Blocco CSS-015 (`CheckoutClient` UX checkout + theme/layout + typography)
+  - Scope: review completa di `src/components/checkout/CheckoutClient.tsx`, `src/components/checkout/CheckoutClient.module.css`, `src/styles/globals.css`, `src/app/api/shop/checkout/route.ts`.
+  - Decisione: consolidare checkout theme-aware desktop/mobile, integrare Express Checkout Stripe reale, allineare CTA ai componenti shared e ridurre gerarchia tipografica.
+  - Implementazione:
+  - Express checkout: rimozione bottoni custom e integrazione `ExpressCheckoutElement` con fallback/error state (`Riprova`), prefetch sessione in step informazioni e blocco loop retry automatici;
+  - backend checkout: policy aggiornata per consentire creazione sessione `payment_element` anche con form shipping incompleto (supporto wallet data), mantenendo validazioni standard per il flusso non-express;
+  - theme-aware desktop: gradiente checkout in `src/styles/globals.css` migrato da `#fff` a `var(--paper)` per coerenza dark/light;
+  - summary checkout: resa desktop-only (non renderizzata su mobile in TSX + regole CSS coerenti);
+  - CTA shared: `Vai alla spedizione`, `Continua al pagamento`, `Paga ora` migrati a `Button` shared (`kind="main"`);
+  - typography pass: ridotti livelli heading nel checkout (`shippingMethodTitle`, `paymentTitle`, `billingTitle`, `totalRow`, `summaryRecoTitle` a `typo-h3`).
+  - Verifica: `pnpm -s tsc --noEmit` ok dopo ciascun batch; regressioni `POST /api/shop/checkout` in loop risolte con guard frontend.
+- 2026-02-18 | Blocco CSS-016 (`ConsultationForm` token-only pass + cleanup)
+  - Scope: review di `src/components/forms/ConsultationForm.module.css`.
+  - Decisione: rimuovere `color-mix`/hardcoded colore, usare solo token esistenti in `src/styles` e ripulire classi legacy non usate.
+  - Implementazione:
+  - `heroBadge` e `contactIconWrap` migrati da `color-mix(...)` a token (`--sand`, `--stroke`);
+  - `contactIconWhatsapp` migrata da hardcoded `#22c55e` a `--tech-cyan`;
+  - `submitSuccess`/`submitError` migrati da hardcoded (`#0f766e`, `#b91c1c`) a token (`--tech-cyan`, `--neon-red`);
+  - rimossa classe `.contactLink` (non usata) e relativo override responsive.
+  - Verifica: `rg` su `ConsultationForm.module.css` conferma assenza di `#...`, `rgba(...)`, `color-mix(...)`; `pnpm -s tsc --noEmit` ok.

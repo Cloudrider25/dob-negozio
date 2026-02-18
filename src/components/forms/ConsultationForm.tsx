@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
-import { ArrowRight, Beaker, Phone, WhatsApp, type IconProps } from '@/components/ui/icons'
+import { Phone, WhatsApp, type IconProps } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input, Textarea } from '@/components/ui/input'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
@@ -161,14 +162,6 @@ export function ConsultationForm({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className={styles.heroBadge}
-        >
-          <Beaker className={styles.heroIcon} />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
           <SectionTitle as="h2" size="h2" className={styles.heroTitle}>
@@ -230,7 +223,7 @@ export function ConsultationForm({
         className={styles.form}
       >
         <div>
-          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
+          <SectionTitle as="h4" size="h4" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Informazioni Personali
           </SectionTitle>
@@ -291,7 +284,7 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
+          <SectionTitle as="h4" size="h4" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Tipo di Pelle *
           </SectionTitle>
@@ -314,7 +307,7 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
+          <SectionTitle as="h4" size="h4" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Preoccupazioni della Pelle
           </SectionTitle>
@@ -340,7 +333,7 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
+          <SectionTitle as="h4" size="h4" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Note Aggiuntive
           </SectionTitle>
@@ -354,17 +347,9 @@ export function ConsultationForm({
         </div>
 
         <div className={styles.submitRow}>
-          <button
-            type="submit"
-            className={joinClassNames(styles.submitButton, 'typo-small')}
-            disabled={isSubmitting}
-          >
-            <span className={styles.submitContent}>
-              {isSubmitting ? 'Invio in corso...' : 'Invia Richiesta di Consulenza'}
-              <ArrowRight className={styles.submitIcon} />
-            </span>
-            <span className={styles.submitGlow} />
-          </button>
+          <Button kind="main" size="lg" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Invio in corso...' : 'Invia Richiesta di Consulenza'}
+          </Button>
         </div>
         {submitStatus === 'success' ? <p className={`${styles.submitSuccess} typo-small`}>{submitSuccessMessage}</p> : null}
         {submitStatus === 'error' ? <p className={`${styles.submitError} typo-small`}>{submitErrorMessage}</p> : null}

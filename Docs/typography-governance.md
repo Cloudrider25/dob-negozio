@@ -26,7 +26,7 @@ Evitare la reintroduzione di tipografia custom non standard e mantenere coerenza
 - `src/components/admin/RoutineTemplateBuilder.module.css` (admin Payload in uso)
 - `src/components/carousel/UIC_CarouselCard.module.css` (sizing prezzo responsive)
 - `src/components/layout/Header.module.css` (`menuClose` glyph)
-- `src/app/(checkout)/[locale]/checkout/checkout.module.css` (`returnIcon` line-height)
+- `src/components/checkout/CheckoutClient.module.css` (`returnIcon` line-height)
 - `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css` (`accordionIcon`)
 - `src/components/sections/ProgramsSplitSection.module.css` (override responsive badge/counter)
 - `src/components/heroes/StoryHeroNote.module.css` (firma display dedicata)

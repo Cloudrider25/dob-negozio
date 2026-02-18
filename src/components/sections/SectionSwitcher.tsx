@@ -35,6 +35,7 @@ export function SectionSwitcher({
           key={item.key}
           kind="main"
           size="md"
+          className={styles.pillButton}
           interactive
           aria-pressed={activeKey === item.key}
           onClick={() => onChange(item.key)}
@@ -47,6 +48,7 @@ export function SectionSwitcher({
           key={action.key}
           kind="main"
           size="md"
+          className={styles.pillButton}
           interactive
           aria-pressed={action.active}
           onClick={action.onClick}

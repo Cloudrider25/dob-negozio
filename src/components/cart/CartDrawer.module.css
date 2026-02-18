@@ -8,7 +8,7 @@
 .backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--bg);
   opacity: 0;
   transition: opacity 0.35s ease;
 }
@@ -18,14 +18,14 @@
   top: 0;
   right: 0;
   height: 100%;
-  width: min(50vw);
+  width: 100vw;
   background: var(--bg);
-  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-soft);
   transform: translateX(110%);
   transition: transform 0.4s ease;
   display: flex;
   flex-direction: column;
-  padding: 1.6rem 1.8rem 1.8rem;
+  padding: 1.4rem;
   gap: 1.2rem;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .open .backdrop {
-  opacity: 1;
+  opacity: 0.45;
 }
 
 .open .panel {
@@ -46,32 +46,32 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .closeButton {
   border: 0;
   background: transparent;
   cursor: pointer;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .progress {
   height: 6px;
   border-radius: 999px;
-  background: rgba(106, 102, 96, 0.2);
+  background: var(--stroke);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
   width: 60%;
-  background: #6a6660;
+  background: var(--text-secondary);
 }
 
 .freeNote {
   text-align: center;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .list {
@@ -85,33 +85,33 @@
 
 .item {
   display: grid;
-  grid-template-columns: 144px 1fr auto;
+  grid-template-columns: 120px 1fr;
   gap: 1rem;
-  align-items: center;
+  align-items: start;
 }
 
 .thumb {
   position: relative;
-  width: 144px;
-  height: 144px;
+  width: 120px;
+  height: 120px;
   border-radius: 16px;
-  background: #e6e1db;
+  background: var(--paper);
   overflow: hidden;
 }
 
 .itemTitle {
   margin: 0;
-  color: #4f4b46;
+  color: var(--text-primary);
 }
 
 .itemMeta {
-  color: #7a756f;
+  color: var(--text-muted);
 }
 
 .qtyRow {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(106, 102, 96, 0.35);
+  border: 1px solid var(--stroke);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -121,23 +121,24 @@
   background: transparent;
   padding: 0.2rem 0.5rem;
   cursor: pointer;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .qtyValue {
   padding: 0.2rem 0.6rem;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .price {
-  color: #6a6660;
+  color: var(--text-secondary);
   white-space: nowrap;
+  grid-column: 1 / -1;
 }
 
 .removeButton {
   border: 0;
   background: transparent;
-  color: #8c8781;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.2rem;
   display: inline-flex;
@@ -152,7 +153,7 @@
 
 .routine {
   border-radius: 18px;
-  background: #fff;
+  background: var(--paper);
   padding: 1rem 1.2rem;
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr) auto;
@@ -165,7 +166,7 @@
   width: 52px;
   height: 52px;
   border-radius: 12px;
-  background: #e6e1db;
+  background: var(--paper);
   overflow: hidden;
 }
 
@@ -175,19 +176,19 @@
 
 .routineTitle {
   margin: 0;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .routineButton {
   border-radius: 999px;
-  border: 1px solid rgba(106, 102, 96, 0.35);
+  border: 1px solid var(--stroke);
   padding: 0.35rem 0.9rem;
-  background: #6a6660;
-  color: #fff;
+  background: var(--text-secondary);
+  color: var(--text-inverse);
 }
 
 .summary {
-  border-top: 1px solid rgba(106, 102, 96, 0.2);
+  border-top: 1px solid var(--stroke);
   padding-top: 1.2rem;
   display: flex;
   flex-direction: column;
@@ -197,7 +198,7 @@
 .summaryRow {
   display: flex;
   justify-content: space-between;
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .checkoutButton {
@@ -205,28 +206,38 @@
   border-radius: 999px;
   border: 0;
   padding: 0.8rem 1.2rem;
-  background: #6a6660;
-  color: #fff;
+  background: var(--text-secondary);
+  color: var(--text-inverse);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   cursor: pointer;
 }
 
 .empty {
   text-align: center;
-  color: #7a756f;
+  color: var(--text-muted);
   padding: 2rem 0;
 }
 
-@media (max-width: 700px) {
+@media (min-width: 701px) {
   .panel {
-    padding: 1.4rem;
-    width: 92vw;
+    padding: 1.6rem 1.8rem 1.8rem;
+    width: min(50vw);
   }
 
   .item {
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 144px 1fr auto;
+    align-items: center;
+  }
+
+  .thumb {
+    width: 144px;
+    height: 144px;
   }
 
   .price {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 }

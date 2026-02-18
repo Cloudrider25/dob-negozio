@@ -64,7 +64,7 @@ body {
 
 body.checkout-site {
   padding: 0;
-  background: linear-gradient(to right, #fff 0 50%, var(--bg) 50% 100%);
+  background: linear-gradient(to right, var(--paper) 0 50%, var(--bg) 50% 100%);
 }
 
 main [data-theme="light"]{
@@ -81,7 +81,7 @@ main [data-theme="dark"]{
 }
 
 body.checkout-site main {
-  background: linear-gradient(to right, #fff 0 50%, var(--bg) 50% 100%);
+  background: linear-gradient(to right, var(--paper) 0 50%, var(--bg) 50% 100%);
   row-gap: 0;
   min-height: 100dvh;
 }

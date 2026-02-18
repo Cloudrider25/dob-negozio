@@ -36,6 +36,11 @@ const mediaUrl = (value: unknown) => {
   return normalizeThumbnailSrc(value) || ''
 }
 
+const firstGalleryMedia = (value: unknown): unknown => {
+  if (!Array.isArray(value) || value.length === 0) return null
+  return value[0]
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const productId = asNumber(url.searchParams.get('productId'))
@@ -99,6 +104,7 @@ export async function GET(request: Request) {
       price: true,
       format: true,
       coverImage: true,
+      images: true,
       brand: true,
       brandLine: true,
     },
@@ -118,7 +124,7 @@ export async function GET(request: Request) {
       price: typeof doc.price === 'number' ? doc.price : null,
       currency: 'EUR',
       format: asString(doc.format),
-      coverImage: mediaUrl(doc.coverImage),
+      coverImage: mediaUrl(doc.coverImage) || mediaUrl(firstGalleryMedia(doc.images)),
       lineName,
       brandName,
     }

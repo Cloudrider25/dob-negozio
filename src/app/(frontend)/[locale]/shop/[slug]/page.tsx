@@ -93,6 +93,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
   const coverMedia = resolveMedia(product.coverImage, product.title || '')
   const galleryItems = await resolveGalleryItems(product.images, product.title || '')
+  const cartCoverImage = coverMedia?.url ?? galleryItems[0]?.media?.url ?? null
 
   const formatPrice = (value?: number | null, currency?: string | null) => {
     if (typeof value !== 'number') return ''
@@ -217,7 +218,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       isRefill: product.isRefill === true,
       price: product.price ?? null,
       currency: 'EUR',
-      coverImage: coverMedia?.url ?? null,
+      coverImage: cartCoverImage,
       brand: resolveBrandLabel(product.brand),
       isCurrent: true,
     },
@@ -427,7 +428,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                 price: product.price ?? undefined,
                 currency: 'EUR',
                 brand: resolveBrandLabel(product.brand),
-                coverImage: coverMedia?.url ?? null,
+                coverImage: cartCoverImage,
               }}
               locale={locale}
               fallbackLabel={product.title || t.shop.title}

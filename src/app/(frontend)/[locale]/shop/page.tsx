@@ -555,10 +555,6 @@ export default async function ShopPage({
           mediaDark={heroDark || undefined}
           mediaLight={heroLight || undefined}
           eagerMedia="dark"
-          ctas={[
-            { href: '#routine-builder', label: 'Routine consigliata', kind: 'hero' },
-            { href: '#shop-all', label: 'Esplora prodotti', kind: 'hero' },
-          ]}
         />
       )}
       <ShopSectionSwitcher

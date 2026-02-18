@@ -4,12 +4,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AddressElement, Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
+import { AddressElement, Elements, ExpressCheckoutElement, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import type { StripeElementLocale } from '@stripe/stripe-js'
+import type { StripeExpressCheckoutElementConfirmEvent } from '@stripe/stripe-js'
 import type { StripeElementsOptions } from '@stripe/stripe-js'
 
-import styles from '@/app/(checkout)/[locale]/checkout/checkout.module.css'
+import styles from '@/components/checkout/CheckoutClient.module.css'
+import { Button } from '@/components/ui/button'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
 import {
@@ -78,52 +80,65 @@ function PaymentElementForm({
   const [confirming, setConfirming] = useState(false)
   const [billingMode, setBillingMode] = useState<'same' | 'different'>('same')
 
+  const confirmPaymentIntent = async (expressEvent?: StripeExpressCheckoutElementConfirmEvent) => {
+    if (!stripe || !elements || confirming) return
+    const orderCode = paymentSession.orderNumber || String(paymentSession.orderId || '')
+    const returnUrl = `${window.location.origin}/${locale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: returnUrl,
+        ...(billingMode === 'same' && !expressEvent
+          ? {
+              payment_method_data: {
+                billing_details: {
+                  name: `${customer.firstName} ${customer.lastName}`.trim() || undefined,
+                  email: customer.email || undefined,
+                  phone: customer.phone || undefined,
+                  address: {
+                    line1: customer.address || undefined,
+                    city: customer.city || undefined,
+                    state: customer.province || undefined,
+                    postal_code: customer.postalCode || undefined,
+                    country: 'IT',
+                  },
+                },
+              },
+            }
+          : {}),
+      },
+      redirect: 'if_required',
+    })
+
+    if (error) {
+      expressEvent?.paymentFailed({
+        reason: 'fail',
+        message: error.message || copy.messages.paymentFailedRetry,
+      })
+      onError(error.message || copy.messages.paymentFailedRetry)
+      return
+    }
+
+    if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
+      onSuccess()
+      return
+    }
+
+    expressEvent?.paymentFailed({
+      reason: 'fail',
+      message: copy.messages.paymentIncomplete,
+    })
+    onError(copy.messages.paymentIncomplete)
+  }
+
   const handlePay = async () => {
     if (!stripe || !elements || confirming) return
     setConfirming(true)
     onError('')
 
     try {
-      const orderCode = paymentSession.orderNumber || String(paymentSession.orderId || '')
-      const returnUrl = `${window.location.origin}/${locale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`
-
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: returnUrl,
-          ...(billingMode === 'same'
-            ? {
-                payment_method_data: {
-                  billing_details: {
-                    name: `${customer.firstName} ${customer.lastName}`.trim() || undefined,
-                    email: customer.email || undefined,
-                    phone: customer.phone || undefined,
-                    address: {
-                      line1: customer.address || undefined,
-                      city: customer.city || undefined,
-                      state: customer.province || undefined,
-                      postal_code: customer.postalCode || undefined,
-                      country: 'IT',
-                    },
-                  },
-                },
-              }
-            : {}),
-        },
-        redirect: 'if_required',
-      })
-
-      if (error) {
-        onError(error.message || copy.messages.paymentFailedRetry)
-        return
-      }
-
-      if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
-        onSuccess()
-        return
-      }
-
-      onError(copy.messages.paymentIncomplete)
+      await confirmPaymentIntent()
     } finally {
       setConfirming(false)
     }
@@ -144,7 +159,7 @@ function PaymentElementForm({
       </div>
 
       <section className={styles.billingSection}>
-        <h3 className={`${styles.billingTitle} typo-h2`}>{copy.sections.billingAddress}</h3>
+        <h3 className={`${styles.billingTitle} typo-h3`}>{copy.sections.billingAddress}</h3>
         <p className={`${styles.paymentDescription} typo-body`}>{copy.messages.billingAddressDescription}</p>
         <div className={styles.billingChoiceCard}>
           <button
@@ -194,11 +209,102 @@ function PaymentElementForm({
           <span className={`${styles.returnIcon} typo-body-lg`}>‹</span>
           {copy.actions.returnToShipping}
         </button>
-        <button className={`${styles.continueButton} typo-small-upper`} type="button" onClick={handlePay} disabled={confirming}>
+        <Button kind="main" size="md" type="button" onClick={handlePay} disabled={confirming}>
           {confirming ? copy.actions.processing : copy.actions.payNow}
-        </button>
+        </Button>
       </div>
     </>
+  )
+}
+
+function ExpressCheckoutQuickForm({
+  locale,
+  paymentSession,
+  copy,
+  onError,
+  onSuccess,
+}: {
+  locale: string
+  paymentSession: PaymentSession
+  copy: ReturnType<typeof getJourneyDictionary>['checkout']
+  onError: (message: string) => void
+  onSuccess: () => void
+}) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [confirming, setConfirming] = useState(false)
+  const [hasExpressMethods, setHasExpressMethods] = useState(true)
+
+  const handleExpressConfirm = async (event: StripeExpressCheckoutElementConfirmEvent) => {
+    if (!stripe || !elements || confirming) return
+    setConfirming(true)
+    onError('')
+
+    try {
+      const orderCode = paymentSession.orderNumber || String(paymentSession.orderId || '')
+      const returnUrl = `${window.location.origin}/${locale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: returnUrl,
+        },
+        redirect: 'if_required',
+      })
+
+      if (error) {
+        event.paymentFailed({
+          reason: 'fail',
+          message: error.message || copy.messages.paymentFailedRetry,
+        })
+        onError(error.message || copy.messages.paymentFailedRetry)
+        return
+      }
+
+      if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
+        onSuccess()
+        return
+      }
+
+      event.paymentFailed({
+        reason: 'fail',
+        message: copy.messages.paymentIncomplete,
+      })
+      onError(copy.messages.paymentIncomplete)
+    } finally {
+      setConfirming(false)
+    }
+  }
+
+  return (
+    <section className={styles.expressPaymentSection}>
+      <p className={`${styles.expressTitle} typo-caption-upper`}>{copy.expressCheckout}</p>
+      <div className={styles.expressEmbeddedBox}>
+        <ExpressCheckoutElement
+          onConfirm={handleExpressConfirm}
+          onReady={({ availablePaymentMethods }) => {
+            setHasExpressMethods(Boolean(availablePaymentMethods))
+          }}
+          options={{
+            layout: {
+              maxColumns: 3,
+              maxRows: 1,
+              overflow: 'auto',
+            },
+            paymentMethodOrder: ['apple_pay', 'google_pay', 'paypal', 'link'],
+            paymentMethods: {
+              applePay: 'always',
+              googlePay: 'always',
+              paypal: 'auto',
+              link: 'auto',
+            },
+          }}
+        />
+      </div>
+      {!hasExpressMethods ? (
+        <p className={`${styles.expressUnavailableNote} typo-body`}>{copy.messages.shippingNoMethods}</p>
+      ) : null}
+    </section>
   )
 }
 
@@ -236,6 +342,9 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   const [items, setItems] = useState<CartItem[]>([])
   const [recommended, setRecommended] = useState<RecommendedProduct[]>([])
   const [recommendedLoading, setRecommendedLoading] = useState(false)
+  const [expressPrefetchTried, setExpressPrefetchTried] = useState(false)
+  const [expressPrefetchError, setExpressPrefetchError] = useState<string | null>(null)
+  const [isDesktopViewport, setIsDesktopViewport] = useState(false)
 
   useEffect(() => {
     const syncCart = () => {
@@ -248,6 +357,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     return () => {
       window.removeEventListener(CART_UPDATED_EVENT, syncCart)
     }
+  }, [])
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 1025px)')
+    const syncViewport = () => setIsDesktopViewport(media.matches)
+    syncViewport()
+    media.addEventListener('change', syncViewport)
+    return () => media.removeEventListener('change', syncViewport)
   }, [])
 
   useEffect(() => {
@@ -266,7 +383,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     const controller = new AbortController()
     const params = new URLSearchParams({
       productId: String(seedId),
-      locale,
+      locale: resolvedLocale,
       limit: '2',
       exclude: items.map((item) => item.id).join(','),
     })
@@ -296,7 +413,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
 
     void run()
     return () => controller.abort()
-  }, [items, locale])
+  }, [items, resolvedLocale])
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + (item.price ?? 0) * item.quantity, 0),
@@ -360,6 +477,10 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     ? selectedShippingOption.currency
     : shippingCurrency
   const totalAmount = subtotal + effectiveShippingAmount
+  const cartFingerprint = useMemo(
+    () => items.map((item) => `${item.id}:${item.quantity}`).join('|'),
+    [items],
+  )
 
   const shippingNoticeBlocks = useMemo(() => {
     const normalized = (notice ?? '').trim()
@@ -471,19 +592,26 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     subtotal,
   ])
 
-  const createPaymentSession = async () => {
+  const createPaymentSession = async ({
+    silent = false,
+    allowIncompleteForExpress = false,
+  }: {
+    silent?: boolean
+    allowIncompleteForExpress?: boolean
+  } = {}) => {
     if (submitting) return
-    if (!isFormComplete) {
-      setError(copy.messages.completeRequiredFields)
+    if (!allowIncompleteForExpress && !isFormComplete) {
+      if (!silent) setError(copy.messages.completeRequiredFields)
       return
     }
     if (items.length === 0) {
-      setError(copy.messages.cartEmptyError)
+      if (!silent) setError(copy.messages.cartEmptyError)
       return
     }
 
     setSubmitting(true)
-    setError(null)
+    if (!silent) setError(null)
+    if (silent) setExpressPrefetchError(null)
 
     try {
       const response = await fetch('/api/shop/checkout', {
@@ -493,7 +621,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         },
         body: JSON.stringify({
           checkoutMode: 'payment_element',
-          locale,
+          locale: resolvedLocale,
           customer: formState,
           items: items.map((item: CartItem) => ({ id: item.id, quantity: item.quantity })),
           shippingOptionID: selectedShippingOptionID,
@@ -538,6 +666,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           orderNumber: data.orderNumber,
           orderId: data.orderId,
         })
+        setExpressPrefetchError(null)
         return
       }
 
@@ -547,7 +676,9 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
 
       throw new Error(copy.messages.checkoutResponseInvalid)
     } catch (err) {
-      setError(err instanceof Error ? err.message : copy.messages.checkoutFailed)
+      const message = err instanceof Error ? err.message : copy.messages.checkoutFailed
+      if (silent) setExpressPrefetchError(message)
+      if (!silent) setError(message)
     } finally {
       setSubmitting(false)
     }
@@ -588,6 +719,19 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     setActiveStep('shipping')
   }
 
+  useEffect(() => {
+    if (activeStep !== 'information') return
+    if (items.length === 0) return
+    if (paymentSession || submitting || expressPrefetchTried) return
+    setExpressPrefetchTried(true)
+    void createPaymentSession({ silent: true, allowIncompleteForExpress: true })
+  }, [activeStep, items.length, paymentSession, submitting, expressPrefetchTried])
+
+  useEffect(() => {
+    setExpressPrefetchTried(false)
+    setExpressPrefetchError(null)
+  }, [cartFingerprint, resolvedLocale])
+
   const stripePromise = useMemo(() => {
     if (!paymentSession?.publishableKey) return null
     return loadStripe(paymentSession.publishableKey)
@@ -608,38 +752,38 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             appearance: {
               theme: 'flat' as const,
               variables: {
-                colorPrimary: '#6a6660',
-                colorBackground: '#ffffff',
-                colorText: '#1f1c19',
-                colorTextSecondary: '#726d67',
-                colorDanger: '#b42318',
+                colorPrimary: 'var(--text-secondary)',
+                colorBackground: 'var(--paper)',
+                colorText: 'var(--text-primary)',
+                colorTextSecondary: 'var(--text-secondary)',
+                colorDanger: 'var(--neon-red)',
                 borderRadius: '12px',
                 spacingUnit: '4px',
                 fontFamily: 'Instrument Sans, system-ui, sans-serif',
               },
               rules: {
                 '.AccordionItem': {
-                  border: '1px solid #a39d95',
+                  border: '1px solid var(--stroke)',
                   boxShadow: 'none',
                 },
                 '.AccordionItem--selected': {
-                  borderColor: '#6a6660',
+                  borderColor: 'var(--text-secondary)',
                 },
                 '.Input': {
-                  border: '1px solid #c8c3bd',
+                  border: '1px solid var(--stroke)',
                   boxShadow: 'none',
                 },
                 '.Block': {
-                  border: '1px solid #c8c3bd',
+                  border: '1px solid var(--stroke)',
                   boxShadow: 'none',
                 },
                 '.Tab': {
-                  border: '1px solid #a39d95',
+                  border: '1px solid var(--stroke)',
                   boxShadow: 'none',
                 },
                 '.Tab--selected': {
-                  borderColor: '#6a6660',
-                  boxShadow: '0 0 0 1px #6a6660',
+                  borderColor: 'var(--text-secondary)',
+                  boxShadow: '0 0 0 1px var(--text-secondary)',
                 },
                 '.Label': {
                   fontWeight: '500',
@@ -656,25 +800,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     writeCart([])
     emitCartUpdated()
     const orderCode = paymentSession?.orderNumber || String(paymentSession?.orderId || '')
-    router.push(`/${locale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`)
+    router.push(`/${resolvedLocale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`)
   }
 
   useEffect(() => {
     if (activeStep === 'information') {
       setPaymentSession(null)
     }
-  }, [
-    activeStep,
-    formState.email,
-    formState.firstName,
-    formState.lastName,
-    formState.address,
-    formState.postalCode,
-    formState.city,
-    formState.province,
-    formState.phone,
-    selectedShippingOptionID,
-  ])
+  }, [activeStep])
 
   return (
     <div className={styles.page}>
@@ -706,36 +839,37 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
 
         {activeStep === 'information' ? (
           <>
-            <section className={styles.express}>
-              <p className={`${styles.expressTitle} typo-caption-upper`}>{copy.expressCheckout}</p>
-              <div className={styles.expressRow}>
-                <button
-                  type="button"
-                  className={`${styles.expressButton} typo-small`}
-                  onClick={onGoToPaymentStep}
-                  disabled={submitting}
-                >
-                  Shop Pay
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.expressButton} typo-small`}
-                  onClick={onGoToPaymentStep}
-                  disabled={submitting}
-                >
-                  PayPal
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.expressButton} typo-small`}
-                  onClick={onGoToPaymentStep}
-                  disabled={submitting}
-                >
-                  GPay
-                </button>
+            {paymentSession && stripePromise && stripeOptions ? (
+              <Elements stripe={stripePromise} options={stripeOptions}>
+                <ExpressCheckoutQuickForm
+                  locale={resolvedLocale}
+                  paymentSession={paymentSession}
+                  copy={copy}
+                  onError={(message) => setError(message || null)}
+                  onSuccess={onPaymentComplete}
+                />
+              </Elements>
+            ) : submitting ? (
+              <div className={`${styles.paymentLoading} typo-body`}>{copy.messages.loadingPaymentElement}</div>
+            ) : expressPrefetchTried && expressPrefetchError ? (
+              <div className={`${styles.paymentLoadingError} typo-body`}>
+                {expressPrefetchError}
+                <div className={styles.actionsRow}>
+                  <button
+                    className={`${styles.continueButton} typo-small-upper`}
+                    type="button"
+                    onClick={() => {
+                      setExpressPrefetchTried(false)
+                      setExpressPrefetchError(null)
+                    }}
+                  >
+                    Riprova
+                  </button>
+                </div>
               </div>
-              <div className={`${styles.orDivider} typo-caption-upper`}>{copy.orDivider}</div>
-            </section>
+            ) : (
+              <div className={`${styles.paymentLoading} typo-body`}>{copy.messages.loadingPaymentElement}</div>
+            )}
 
             <div className={styles.fieldGroup}>
               <div className={`${styles.labelRow} typo-small`}>
@@ -821,18 +955,19 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             </div>
 
             <div className={styles.actionsRow}>
-              <Link className={`${styles.returnLink} typo-body`} href={`/${locale}/cart`}>
+              <Link className={`${styles.returnLink} typo-body`} href={`/${resolvedLocale}/cart`}>
                 <span className={`${styles.returnIcon} typo-body-lg`}>‹</span>
                 {copy.actions.returnToCart}
               </Link>
-              <button
-                className={`${styles.continueButton} typo-small-upper`}
+              <Button
+                kind="main"
+                size="md"
                 type="button"
                 disabled={submitting}
                 onClick={onGoToShippingStep}
               >
                 {copy.actions.goToShipping}
-              </button>
+              </Button>
             </div>
           </>
         ) : activeStep === 'shipping' ? (
@@ -856,7 +991,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             </section>
 
             <section className={styles.shippingMethodSection}>
-              <h2 className={`${styles.shippingMethodTitle} typo-h1`}>{copy.sections.shippingMethod}</h2>
+              <h2 className={`${styles.shippingMethodTitle} typo-h3`}>{copy.sections.shippingMethod}</h2>
               <div className={styles.shippingMethodCard}>
                 {shippingLoading ? (
                   <p className={`${styles.shippingMethodEta} typo-body`}>{copy.messages.shippingLoadingMethods}</p>
@@ -903,14 +1038,9 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 <span className={`${styles.returnIcon} typo-body-lg`}>‹</span>
                 {copy.actions.returnToInformation}
               </button>
-              <button
-                className={`${styles.continueButton} typo-small-upper`}
-                type="button"
-                disabled={submitting}
-                onClick={onGoToPaymentStep}
-              >
+              <Button kind="main" size="md" type="button" disabled={submitting} onClick={onGoToPaymentStep}>
                 {copy.actions.continueToPayment}
-              </button>
+              </Button>
             </div>
           </>
         ) : (
@@ -949,7 +1079,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             </section>
 
             <section className={styles.paymentSection}>
-              <h2 className={`${styles.paymentTitle} typo-h1`}>{copy.sections.payment}</h2>
+              <h2 className={`${styles.paymentTitle} typo-h3`}>{copy.sections.payment}</h2>
               <p className={`${styles.paymentDescription} typo-body`}>{copy.messages.secureTransactions}</p>
               {!paymentSession && submitting ? (
                 <div className={`${styles.paymentLoading} typo-body`}>{copy.messages.loadingPaymentElement}</div>
@@ -957,7 +1087,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
               {paymentSession && stripePromise && stripeOptions ? (
                 <Elements stripe={stripePromise} options={stripeOptions}>
                   <PaymentElementForm
-                    locale={locale}
+                    locale={resolvedLocale}
                     paymentSession={paymentSession}
                     customer={formState}
                     copy={copy}
@@ -977,24 +1107,25 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         )}
 
         <div className={`${styles.footerLinks} typo-small`}>
-          <Link href={`/${locale}/refund`} className={styles.footerLink}>
+          <Link href={`/${resolvedLocale}/refund`} className={styles.footerLink}>
             {copy.footer.refundPolicy}
           </Link>
-          <Link href={`/${locale}/shipping`} className={styles.footerLink}>
+          <Link href={`/${resolvedLocale}/shipping`} className={styles.footerLink}>
             {copy.footer.shipping}
           </Link>
-          <Link href={`/${locale}/privacy`} className={styles.footerLink}>
+          <Link href={`/${resolvedLocale}/privacy`} className={styles.footerLink}>
             {copy.footer.privacyPolicy}
           </Link>
-          <Link href={`/${locale}/terms`} className={styles.footerLink}>
+          <Link href={`/${resolvedLocale}/terms`} className={styles.footerLink}>
             {copy.footer.termsOfService}
           </Link>
-          <Link href={`/${locale}/contact`} className={styles.footerLink}>
+          <Link href={`/${resolvedLocale}/contact`} className={styles.footerLink}>
             {copy.footer.contact}
           </Link>
         </div>
       </section>
 
+      {isDesktopViewport ? (
       <aside className={styles.summary}>
         {items.length === 0 ? (
           <div className={`${styles.summaryMeta} typo-small`}>{copy.messages.cartEmpty}</div>
@@ -1042,13 +1173,13 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           <span>{copy.summary.shipping}</span>
           <span className={`${styles.summaryMeta} typo-small`}>{shippingLabel}</span>
         </div>
-        <div className={`${styles.totalRow} typo-h2`}>
+        <div className={`${styles.totalRow} typo-h3`}>
           <span>{copy.summary.total}</span>
           <span>{formatPrice(totalAmount, effectiveShippingCurrency)}</span>
         </div>
         <p className={`${styles.summaryTaxNote} typo-body`}>{copy.messages.includingTaxes}</p>
 
-        <h3 className={`${styles.summaryRecoTitle} typo-h2`}>{copy.sections.recommendations}</h3>
+        <h3 className={`${styles.summaryRecoTitle} typo-h3`}>{copy.sections.recommendations}</h3>
         <div className={styles.summaryRecoList}>
           {recommendedLoading ? (
             <p className={`${styles.summaryMeta} typo-small`}>{copy.messages.loadingRecommendations}</p>
@@ -1088,6 +1219,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           )}
         </div>
       </aside>
+      ) : null}
     </div>
   )
 }

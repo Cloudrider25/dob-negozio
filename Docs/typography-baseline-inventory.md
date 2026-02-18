@@ -16,7 +16,7 @@ Scope: `src/` frontend (`app`, `components`, `styles`)
 - Top file con override tipografici:
 - `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css` (99)
 - `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css` (90)
-- `src/app/(checkout)/[locale]/checkout/checkout.module.css` (59)
+- `src/components/checkout/CheckoutClient.module.css` (59)
 - `src/components/account/AccountDashboardClient.module.css` (37)
 - `src/components/shop/RoutineBuilderSplitSection.module.css` (30)
 - `src/styles/globals.css` (27)
@@ -36,7 +36,7 @@ Scope: `src/` frontend (`app`, `components`, `styles`)
 ### Critico
 - `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`
 - `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css`
-- `src/app/(checkout)/[locale]/checkout/checkout.module.css`
+- `src/components/checkout/CheckoutClient.module.css`
 - `src/components/account/AccountDashboardClient.module.css`
 - `src/components/shop/RoutineBuilderSplitSection.module.css`
 - `src/styles/globals.css`
