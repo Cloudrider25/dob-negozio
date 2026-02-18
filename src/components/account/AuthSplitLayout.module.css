@@ -1,6 +1,6 @@
 .page {
   min-height: 100dvh;
-  background: #ececeb;
+  background: var(--page-bg);
   padding: clamp(12px, 1.2vw, 20px);
 }
 
@@ -10,7 +10,7 @@
   overflow: hidden;
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
-  background: #ececeb;
+  background: var(--bg);
 }
 
 .visual {
@@ -35,8 +35,10 @@
 
 .formCol {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: clamp(20px, 2.4vw, 32px);
   padding: clamp(24px, 5vw, 72px) clamp(20px, 4vw, 64px);
 }
 
@@ -44,18 +46,88 @@
   width: min(100%, 780px);
 }
 
+.brand {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.85rem, 1.2vw, 1.2rem);
+  margin-top: 5vw;
+  margin-bottom: 5vw;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brandMark {
+  position: relative;
+  display: inline-flex;
+  height: clamp(62px, 6vw, 78px);
+  width: clamp(62px, 6vw, 78px);
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLight {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.2s ease;
+  opacity: 1;
+}
+
+.logoDark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.2s ease;
+  opacity: 0;
+}
+
+.brandTitle {
+  margin: 0;
+  font-size: clamp(3.9rem, 6.2vw, 4.9rem);
+  line-height: 1;
+}
+
 @media (max-width: 1024px) {
   .shell {
     grid-template-columns: 1fr;
-    min-height: auto;
+    min-height: calc(100dvh - clamp(24px, 2.4vw, 40px));
   }
 
   .visual {
-    min-height: 360px;
+    display: none;
   }
 
   .formCol {
-    padding-top: 28px;
-    padding-bottom: 42px;
+    justify-content: center;
+    padding: clamp(24px, 7vw, 42px) clamp(20px, 5vw, 32px);
   }
+
+  .brand {
+    margin-top: 0;
+    margin-bottom: 10vw;
+  }
+}
+
+:global(body[data-theme="light"]) .logoLight,
+:global(body.header-on-light) .logoLight {
+  opacity: 0;
+}
+
+:global(body[data-theme="light"]) .logoDark,
+:global(body.header-on-light) .logoDark {
+  opacity: 1;
+}
+
+:global(body[data-theme="light"]) .brand,
+:global(html[data-theme="light"]) .brand,
+:global(body.light) .brand {
+  color: var(--text-primary);
+}
+
+:global(body[data-theme="dark"]) .brand,
+:global(html[data-theme="dark"]) .brand,
+:global(body.dark) .brand {
+  color: var(--text-primary);
 }

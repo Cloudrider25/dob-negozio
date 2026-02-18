@@ -135,3 +135,25 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - `src/components/account/AccountDashboardClient.tsx`: allineati heading e label (`styles.title` su `h2`, `styles.subHeading` su `h3` + `uppercase`, menu button da `typo-h3` a `typo-body-lg`, `styles.value` da `typo-h3` a `typo-body-lg`).
   - `src/styles/typography.css`: aumentato tracking globale `--type-h3-track` (`0.1em` -> `0.12em`).
   - Verifica: `pnpm -s tsc --noEmit` ok; controlli `rg` su account css confermano assenza di `#...`, `--account-*` e `color-mix(...)` locali.
+- 2026-02-18 | Blocco CSS-008 (`AuthSplitLayout` mobile UX + branding + CMS control)
+  - Scope: revisione completa layout auth (signin/signup/forgot/reset/verify) su mobile e desktop, con gestione contenuti visual da Payload.
+  - Decisione: nascondere visual media su mobile, mantenere colonna form full-height e centrata; introdurre brand block coerente con header; rendere configurabili da admin testo+immagine visual auth.
+  - Implementazione:
+  - `src/components/account/AuthSplitLayout.module.css`: `.visual` nascosto sotto `1024px`; `.shell` mobile a full-height utile; `.formCol` centrata verticalmente; brand block centrato con spacing responsive; `page/shell` resi theme-aware (`--page-bg`, `--bg`); swap logo dark/light coerente col tema.
+  - `src/components/account/AuthSplitLayout.tsx`: aggiunto brand (logo + wordmark) in testa alla form column; `AuthSplitLayout` convertito ad async server component con fetch `site-settings`.
+  - `src/globals/SiteSettings.ts`: nuova tab `Auth` con gruppo `authLayout` e campi admin `visualOverlay` (localized), `visualImage` (upload media), `visualImageAlt` (localized).
+  - Tipi e runtime: `locale` tipizzato con `Locale` in `AuthSplitLayout`.
+  - Verifica: `pnpm -s generate:types` ok; `pnpm -s generate:importmap` ok; `pnpm -s tsc --noEmit` ok.
+- 2026-02-18 | Blocco CSS-009 (`UIC_CarouselCard` cleanup strutturale + token colors)
+  - Scope: review del componente card carousel shared (`src/components/carousel/UIC_CarouselCard.*`).
+  - Decisione: mantenere struttura/layout invariati, rimuovere proprietà CSS legacy ridondanti e migrare hardcoded colore a token.
+  - Implementazione:
+  - `src/components/carousel/UIC_CarouselCard.module.css`: semplificato blocco `.card` (rimozione proprietà non necessarie da computed style); `media` background migrato da `#fff` a `var(--paper)`; badge text/background migrati a token (`var(--pearl-1)` + `color-mix` token-based); fix formattazione `object-position`.
+  - Verifica: `pnpm -s tsc --noEmit` ok; ricerca hardcoded `#...` nel modulo non restituisce match.
+- 2026-02-18 | Blocco CSS-010 (`UIC_Carousel` token-only + robustness)
+  - Scope: review del container carousel shared (`src/components/carousel/UIC_Carousel.*`).
+  - Decisione: allineare il CSS alla policy token-only (no `color-mix`), mantenendo comportamento invariato; rafforzare il markup dei controlli.
+  - Implementazione:
+  - `src/components/carousel/UIC_Carousel.module.css`: rimossi `color-mix` dai controlli nav (`border/background`) sostituiti con token diretti (`--stroke`, `--paper`, `--bg`).
+  - `src/components/carousel/UIC_Carousel.tsx`: aggiunto `type=\"button\"` ai pulsanti prev/next; key slide resa più robusta (`href/title + index`) per ridurre collisioni su titoli duplicati.
+  - Verifica: `pnpm -s tsc --noEmit` ok; ricerca `rg` conferma assenza `color-mix` e hardcoded `#...` nei file del blocco.

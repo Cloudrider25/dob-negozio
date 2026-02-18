@@ -61,6 +61,34 @@ export const SiteSettings: GlobalConfig = {
           ],
         },
         {
+          label: 'Auth',
+          fields: [
+            {
+              name: 'authLayout',
+              type: 'group',
+              fields: [
+                {
+                  name: 'visualOverlay',
+                  type: 'text',
+                  localized: true,
+                  defaultValue: "E' il momento di investire nella tua PELLE.",
+                },
+                {
+                  name: 'visualImage',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+                {
+                  name: 'visualImageAlt',
+                  type: 'text',
+                  localized: true,
+                  defaultValue: 'Auth visual',
+                },
+              ],
+            },
+          ],
+        },
+        {
           label: 'SMTP',
           fields: [
             {

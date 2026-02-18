@@ -15,7 +15,7 @@ export const getInputPalette = (kind: InputKind) => {
   }
 
   return {
-    bg: 'var(--theme-elevation-0)',
+    bg: 'var(--paper)',
     text: 'var(--text-primary)',
     border: 'var(--stroke)',
     placeholder: 'var(--text-muted)',

@@ -31,7 +31,7 @@
   width: 63px;
   height: 63px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   background: var(--paper);
   color: var(--text-primary);
   display: inline-flex;
@@ -57,9 +57,9 @@
 :global(html[data-theme='dark']) .nav,
 :global(body[data-theme='dark']) .nav,
 :global(body.dark) .nav {
-  background: color-mix(in srgb, var(--bg) 92%, #ffffff 8%);
+  background: var(--bg);
   color: var(--text-primary);
-  border-color: color-mix(in srgb, var(--stroke) 70%, transparent);
+  border-color: var(--stroke);
 }
 
 .prev {

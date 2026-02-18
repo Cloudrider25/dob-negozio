@@ -52,7 +52,7 @@ export const UICCarousel = ({
   return (
     <section className={styles.section} aria-label={ariaLabel}>
       <div className={styles.wrap}>
-        <button ref={prevRef} className={`${styles.nav} ${styles.prev}`} aria-label="Previous">
+        <button type="button" ref={prevRef} className={`${styles.nav} ${styles.prev}`} aria-label="Previous">
           <ChevronLeft size={42} className={styles.chevron} />
         </button>
         <Swiper
@@ -71,7 +71,7 @@ export const UICCarousel = ({
           }}
         >
           {items.map((item, index) => (
-            <SwiperSlide key={item.title} className={styles.slide}>
+            <SwiperSlide key={`${item.href ?? item.title}-${index}`} className={styles.slide}>
               <UICCarouselCard
                 item={item}
                 cardClassName={cardClassName}
@@ -81,7 +81,7 @@ export const UICCarousel = ({
             </SwiperSlide>
           ))}
         </Swiper>
-        <button ref={nextRef} className={`${styles.nav} ${styles.next}`} aria-label="Next">
+        <button type="button" ref={nextRef} className={`${styles.nav} ${styles.next}`} aria-label="Next">
           <ChevronRight size={42} className={styles.chevron} />
         </button>
       </div>

@@ -2476,6 +2476,11 @@ export interface SiteSetting {
     facebook?: string | null;
     instagram?: string | null;
   };
+  authLayout?: {
+    visualOverlay?: string | null;
+    visualImage?: (number | null) | Media;
+    visualImageAlt?: string | null;
+  };
   /**
    * Configurazione SMTP per invio email. In produzione mantieni sincronizzati questi valori con le variabili ambiente.
    */
@@ -2535,6 +2540,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         facebook?: T;
         instagram?: T;
+      };
+  authLayout?:
+    | T
+    | {
+        visualOverlay?: T;
+        visualImage?: T;
+        visualImageAlt?: T;
       };
   smtp?:
     | T
