@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { useState } from 'react'
 import Link from 'next/link'
 
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import styles from './ServicesTreatmentReveal.module.css'
 
 type PanelContent = {
@@ -33,12 +35,14 @@ function Panel({
   const copyContent = (
     <>
       {!content.imageInCopy ? (
-        <h2 className={`${styles.treatmentTitle} typo-h2`}>{content.title}</h2>
+        <SectionTitle as="h2" size="h2" className={styles.treatmentTitle}>
+          {content.title}
+        </SectionTitle>
       ) : null}
       {!content.imageInCopy ? (
         <>
           {typeof content.body === 'string' ? (
-            <p className={`${styles.treatmentText} typo-body`}>{content.body}</p>
+            <SectionSubtitle className={styles.treatmentText}>{content.body}</SectionSubtitle>
           ) : (
             content.body
           )}
@@ -60,6 +64,8 @@ function Panel({
             height={300}
             sizes="(max-width: 768px) 60vw, 220px"
             className={styles.treatmentDiagramThumbImage}
+            loading="lazy"
+            fetchPriority="auto"
           />
         </div>
       ) : null}
@@ -95,13 +101,15 @@ function Panel({
         >
           {content.imageInCopy ? (
             <div className={styles.treatmentMediaTitle}>
-              <h2 className={`${styles.treatmentTitle} typo-h2`}>{content.title}</h2>
+              <SectionTitle as="h2" size="h2" className={styles.treatmentTitle}>
+                {content.title}
+              </SectionTitle>
             </div>
           ) : null}
           {content.imageInCopy && content.mediaDescription ? (
             <div className={styles.treatmentMediaDescription}>
               {typeof content.mediaDescription === 'string' ? (
-                <p className={`${styles.treatmentText} typo-body`}>{content.mediaDescription}</p>
+                <SectionSubtitle className={styles.treatmentText}>{content.mediaDescription}</SectionSubtitle>
               ) : (
                 content.mediaDescription
               )}
@@ -117,6 +125,8 @@ function Panel({
               height={300}
               sizes="(max-width: 768px) 60vw, 220px"
               className={styles.treatmentDiagramThumbImage}
+              loading="lazy"
+              fetchPriority="auto"
             />
           ) : null}
           <button

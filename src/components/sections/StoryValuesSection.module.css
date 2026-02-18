@@ -53,12 +53,10 @@
 
 .title {
   margin: 0;
-  color: var(--text-primary);
 }
 
 .description {
   margin: 0;
-  color: var(--text-secondary);
   max-width: 46ch;
 }
 
@@ -76,7 +74,6 @@
   text-align: left;
   padding: 0.55rem 0;
   font-weight: 600;
-  color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -84,7 +81,6 @@
 .listItemActive,
 .listItem:hover,
 .listItem:focus-visible {
-  color: var(--text-primary);
 }
 
 @media (max-width: 1024px) {

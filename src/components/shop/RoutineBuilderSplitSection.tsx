@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import type { Swiper as SwiperInstance } from 'swiper/types'
-import 'swiper/css'
 import styles from './RoutineBuilderSplitSection.module.css'
 import { SplitSection } from '@/components/ui/SplitSection'
+import { StateCircleButton } from '@/components/ui/StateCircleButton'
+import { Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
 
 type ProductAreaItem = {
   id: string
@@ -155,8 +154,8 @@ export function RoutineBuilderSplitSection({
   const [selectedBrandId, setSelectedBrandId] = useState<string>('multibrand')
   const [routineMode, setRoutineMode] = useState<'preset' | 'custom'>('preset')
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
-  const leftSwiperRef = useRef<SwiperInstance | null>(null)
-  const rightSwiperRef = useRef<SwiperInstance | null>(null)
+  const leftSwiperRef = useRef<UISwiperInstance | null>(null)
+  const rightSwiperRef = useRef<UISwiperInstance | null>(null)
   const selectedArea = orderedAreas.find((area) => area.id === selectedAreaId) ?? orderedAreas[0]
   const activeArea = orderedAreas.find((area) => area.id === activeAreaId) ?? selectedArea
   const activeTiming =
@@ -405,18 +404,18 @@ export function RoutineBuilderSplitSection({
                 </p>
                 <div className={`${styles.circleList} ${getCircleSizeClass(orderedAreas.length)}`}>
                   {orderedAreas.map((area) => (
-                    <button
+                    <StateCircleButton
                       key={area.id}
-                      type="button"
-                      className={`${styles.circleItem} typo-small ${
-                        area.id === activeAreaId ? styles.circleItemActive : ''
-                      } ${activeAreaId && area.id !== activeAreaId ? styles.circleItemDim : ''}`}
+                      baseClassName={styles.circleItem}
+                      typographyClassName="typo-small"
+                      active={area.id === activeAreaId}
+                      dimmed={Boolean(activeAreaId && area.id !== activeAreaId)}
                       onClick={() => goToNeeds(area.id)}
                       onMouseEnter={() => setActiveAreaId(area.id)}
                       onMouseLeave={() => setActiveAreaId(selectedAreaId)}
                     >
                       {area.label}
-                    </button>
+                    </StateCircleButton>
                   ))}
                 </div>
               </div>
@@ -433,18 +432,18 @@ export function RoutineBuilderSplitSection({
                 <div className={`${styles.circleList} ${getCircleSizeClass(routineTimings.length)}`}>
                   {routineTimings.length > 0 ? (
                     routineTimings.map((timing) => (
-                      <button
+                      <StateCircleButton
                         key={timing.id}
-                        type="button"
-                        className={`${styles.circleItem} typo-small ${
-                          timing.id === activeTimingId ? styles.circleItemActive : ''
-                        } ${activeTimingId && timing.id !== activeTimingId ? styles.circleItemDim : ''}`}
+                        baseClassName={styles.circleItem}
+                        typographyClassName="typo-small"
+                        active={timing.id === activeTimingId}
+                        dimmed={Boolean(activeTimingId && timing.id !== activeTimingId)}
                         onMouseEnter={() => setActiveTimingId(timing.id)}
                         onFocus={() => setActiveTimingId(timing.id)}
                         onClick={() => goToSkinTypes(timing.id)}
                       >
                         {timing.label}
-                      </button>
+                      </StateCircleButton>
                     ))
                   ) : (
                     <div className={styles.mediaPlaceholder} />
@@ -474,14 +473,13 @@ export function RoutineBuilderSplitSection({
                 <div className={`${styles.circleList} ${getCircleSizeClass(skinTypesForArea.length)}`}>
                   {skinTypesForArea.length > 0 ? (
                     skinTypesForArea.map((skin) => (
-                      <button
+                      <StateCircleButton
                         key={skin.id}
-                        type="button"
-                        className={`${styles.circleItem} typo-small ${
-                          skin.id === activeSkinType?.id ? styles.circleItemActive : ''
-                        } ${activeSkinType?.id && skin.id !== activeSkinType?.id ? styles.circleItemDim : ''} ${
-                          selectedSkinTypes.has(skin.id) ? styles.circleItemSelected : ''
-                        }`}
+                        baseClassName={styles.circleItem}
+                        typographyClassName="typo-small"
+                        active={skin.id === activeSkinType?.id}
+                        dimmed={Boolean(activeSkinType?.id && skin.id !== activeSkinType?.id)}
+                        selected={selectedSkinTypes.has(skin.id)}
                         onMouseEnter={() => setActiveSkinTypeId(skin.id)}
                         onFocus={() => setActiveSkinTypeId(skin.id)}
                         onClick={() => {
@@ -498,7 +496,7 @@ export function RoutineBuilderSplitSection({
                         }}
                       >
                         {skin.label}
-                      </button>
+                      </StateCircleButton>
                     ))
                   ) : (
                     <div className={styles.mediaPlaceholder} />
@@ -529,14 +527,13 @@ export function RoutineBuilderSplitSection({
                 <div className={`${styles.circleList} ${getCircleSizeClass(needsForSelection.length)}`}>
                   {needsForSelection.length > 0 ? (
                     needsForSelection.map((need) => (
-                      <button
+                      <StateCircleButton
                         key={need.id}
-                        type="button"
-                        className={`${styles.circleItem} typo-small ${
-                          need.id === activeNeed?.id ? styles.circleItemActive : ''
-                        } ${activeNeed?.id && need.id !== activeNeed?.id ? styles.circleItemDim : ''} ${
-                          selectedNeedId === need.id ? styles.circleItemSelected : ''
-                        }`}
+                        baseClassName={styles.circleItem}
+                        typographyClassName="typo-small"
+                        active={need.id === activeNeed?.id}
+                        dimmed={Boolean(activeNeed?.id && need.id !== activeNeed?.id)}
+                        selected={selectedNeedId === need.id}
                         onMouseEnter={() => setActiveNeedId(need.id)}
                         onFocus={() => setActiveNeedId(need.id)}
                         onClick={() => {
@@ -545,7 +542,7 @@ export function RoutineBuilderSplitSection({
                         }}
                       >
                         {need.label}
-                      </button>
+                      </StateCircleButton>
                     ))
                   ) : (
                     <div className={styles.mediaPlaceholder} />

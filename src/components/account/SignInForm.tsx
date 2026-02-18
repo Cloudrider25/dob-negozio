@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 
 import styles from './AuthForms.module.css'
 
@@ -64,7 +66,9 @@ export function SignInForm({ locale }: { locale: string }) {
 
   return (
     <form className={styles.card} onSubmit={onSubmit}>
-      <h1 className={`${styles.title} typo-h1-upper`}>{copy.title}</h1>
+      <SectionTitle as="h1" size="h1" uppercase className={styles.title}>
+        {copy.title}
+      </SectionTitle>
 
       {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
 
@@ -72,7 +76,7 @@ export function SignInForm({ locale }: { locale: string }) {
         <Label className={styles.label} htmlFor="signin-email" variant="section">
           {copy.emailLabel}
         </Label>
-        <input
+        <Input
           id="signin-email"
           type="email"
           className={`${styles.input} typo-body`}
@@ -88,7 +92,7 @@ export function SignInForm({ locale }: { locale: string }) {
         <Label className={styles.label} htmlFor="signin-password" variant="section">
           {copy.passwordLabel}
         </Label>
-        <input
+        <Input
           id="signin-password"
           type="password"
           className={`${styles.input} typo-body`}

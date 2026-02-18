@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=12000\" NEXT_DISABLE_SWC_MINIFY=1 NEXT_TELEMETRY_DISABLED=1 NEXT_DISABLE_ESLINT=1 next build --no-lint",
+    "build:perf": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=12000\" NEXT_TELEMETRY_DISABLED=1 NEXT_DISABLE_ESLINT=1 next build --no-lint",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
@@ -22,9 +23,23 @@
     "test:shop:admin-alignment": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/test-shop-admin-alignment.ts",
     "test:shop:tamper": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/test-shop-tamper.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "start:perf": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 111",
+      "edge >= 111",
+      "firefox >= 113",
+      "safari >= 16.4"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

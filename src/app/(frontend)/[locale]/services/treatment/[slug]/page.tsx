@@ -70,7 +70,16 @@ export default async function TreatmentDetailPage({ params }: { params: PagePara
 
       {imageUrl && (
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stroke">
-          <Image src={imageUrl} alt={imageAlt} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 960px" />
+          <Image
+            src={imageUrl}
+            alt={imageAlt}
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 960px"
+            priority
+            loading="eager"
+            fetchPriority="high"
+          />
         </div>
       )}
     </div>

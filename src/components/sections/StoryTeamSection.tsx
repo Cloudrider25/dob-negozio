@@ -1,6 +1,8 @@
 import Image from 'next/image'
 
 import styles from './StoryTeamSection.module.css'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 
 export type StoryTeamItem = {
   name?: string | null
@@ -23,8 +25,8 @@ export const StoryTeamSection = ({ title, description, items }: StoryTeamSection
   return (
     <section className={styles.section} aria-label={title || 'Meet the team'}>
       <div className={styles.header}>
-        {title ? <h2 className={`${styles.title} typo-h2`}>{title}</h2> : null}
-        {description ? <p className={`${styles.description} typo-body`}>{description}</p> : null}
+        {title ? <SectionTitle as="h2" size="h2" className={styles.title}>{title}</SectionTitle> : null}
+        {description ? <SectionSubtitle className={styles.description}>{description}</SectionSubtitle> : null}
       </div>
       <div className={styles.grid}>
         {items.map((item, index) => (
@@ -36,14 +38,20 @@ export const StoryTeamSection = ({ title, description, items }: StoryTeamSection
                   alt={item.image.alt || item.name || ''}
                   fill
                   sizes="100vw"
+                  loading="lazy"
+                  fetchPriority="auto"
                 />
               ) : (
                 <div className={styles.imagePlaceholder} />
               )}
             </div>
-            {item.name ? <h3 className={`${styles.name} typo-h3-upper`}>{item.name}</h3> : null}
-            {item.role ? <h4 className={`${styles.role} typo-body-lg`}>{item.role}</h4> : null}
-            {item.bio ? <div className={`${styles.bio} typo-body`}>{item.bio}</div> : null}
+            {item.name ? (
+              <SectionTitle as="h3" size="h3" uppercase className={styles.name}>
+                {item.name}
+              </SectionTitle>
+            ) : null}
+            {item.role ? <SectionSubtitle as="p" size="body-lg" className={styles.role}>{item.role}</SectionSubtitle> : null}
+            {item.bio ? <SectionSubtitle as="div" className={styles.bio}>{item.bio}</SectionSubtitle> : null}
           </article>
         ))}
       </div>

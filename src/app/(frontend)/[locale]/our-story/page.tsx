@@ -220,7 +220,7 @@ export default async function OurStoryPage({
   })
 
   const fallbackImage = {
-    url: '/media/493b3205c13b5f67b36cf794c2222583.jpg',
+    url: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg',
     alt: t.services.title,
   }
 

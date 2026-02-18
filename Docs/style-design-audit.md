@@ -1,6 +1,6 @@
 # Style & Design Audit (Active)
 
-Ultimo aggiornamento: 2026-02-17  
+Ultimo aggiornamento: 2026-02-18  
 Owner: Team DOB Milano
 
 ## Obiettivo
@@ -13,6 +13,9 @@ Mantenere coerenza visuale e di interaction design sul frontend, riducendo custo
 - Sistema label consolidato su `src/components/ui/label.tsx` + `label-theme.ts` con palette/varianti condivise.
 - Sezioni switcher allineate con spacing verticale coerente (`2.5vw`).
 - Form consulenza convergente su componente shared (`src/components/services/ConsulenzaSection.tsx`).
+- `SplitSection` unificata in classi globali (`.ui-split-section`, `.ui-split-column`) con adozione estesa nelle split principali.
+- `HeroGallery` unificata su componente shared (`src/components/ui/HeroGallery.tsx`) con consumer diretti in shop/service detail.
+- Layer Swiper centralizzato (`src/components/ui/swiper/index.ts`) con import CSS unificati.
 
 ## Standard attivi
 - Breakpoint split/layout: `1024px`.
@@ -34,82 +37,101 @@ Azione: continuare migrazione verso CSS module/local scope e mantenere `globals.
 
 ### P2 - Design system quality
 
-- [ ] **Hardening coerenza button states (light/dark + motion)**  
-Scope: `src/components/ui/button*` + consumer CTA/filter/pill  
-Evidenza: rischio incoerenze di contrasto durante stati interattivi e motion.  
-Azione: completare matrice stati unica e verifica contrasto AA su `default/hover/active/focus/disabled`.
-
-- [ ] **Pulizia typography locale residua**  
-Scope: componenti frontend con `font-size`/`font-family` hardcoded  
-Evidenza: restano override tipografici non allineati alla scala globale.  
-Azione: migrare progressivamente su utility tipografiche complete centralizzate (non solo `text-*`) e token `clamp()` mobile-first.
-
-## Media Governance (operativo)
-- `media/`: storage upload runtime di Payload (configurato come `staticDir` in `src/collections/Media.ts`).
-- `public/media/`: fallback statici legacy ancora referenziati da path hardcoded `/media/...`.
-- Decisione corrente: mantenere `public/media` fino a migrazione completa dei fallback su asset gestiti da Payload.
-- Regola cleanup: non eliminare file in `public/media` se referenziati da fallback attivi.
+- [ ] **Eliminazione colori hardcoded nelle pagine (`#...`)**  
+Scope: `src/app/**` (`tsx` + `module.css`)  
+Evidenza audit: hardcoded rilevati in `checkout.module.css` (73), `product-detail.module.css` (37), `service-detail.module.css` (26), `layout.tsx` (15).  
+Azione: migrare a token globali (`--text-*`, `--bg`, `--paper`, `--stroke`) garantendo contrasto/stati in light+dark.  
+Stato: in corso, batch completati `layout.tsx` + `service-detail.module.css` (hardcoded `#...` azzerati in entrambi i file).
 
 ## Storico completato
 Le voci completate e i batch storici sono stati spostati in:
 - `Docs/archive/style-design-audit-completed.legacy.md`
-## Typography Refactor Site-Wide (Checklist monitor)
 
-Stato programma: completato (Fasi 0→6 chiuse il 2026-02-17).
+## Metodo di lavoro (operativo da ora)
 
-Riferimenti ufficiali:
-- Baseline e inventario: `Docs/typography-baseline-inventory.md`
-- Scala tipografica e mapping token: `Docs/typography-scale.md`
-- Governance, regole vincolanti, eccezioni deliberate: `Docs/typography-governance.md`
-- Checklist PR operativa: `Docs/pr-checklist-typography.md`
-- Storico batch dettagliato: `Docs/archive/style-design-audit-completed.legacy.md`
+Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra module CSS, global CSS, classi Tailwind e inline style.
 
-Nota: in questo file restano solo backlog aperti e stato operativo corrente; i dettagli implementativi storici sono stati decentrati nei documenti tematici.
+1. Input blocco
+- Ricevo snippet CSS + file sorgente (module/path) come riferimento.
 
-### Criteri di completamento
+2. Ricerca istanze simili/uguali (scope completo frontend runtime)
+- CSS module: selector e declaration simili/uguali.
+- Global CSS: regole equivalenti o in conflitto.
+- TSX/JSX: className Tailwind equivalenti.
+- TSX/JSX: `style={{ ... }}` inline equivalenti.
 
-- [x] heading/body principali allineati alla scala tipografica unica
-- [x] `clamp()` applicato ai livelli previsti in approccio mobile-first
-- [x] rimozione dei custom typography ridondanti nelle aree core (module css “layout-only”)
-- [x] adozione classi `typo-*` complete nei consumer principali
-- [x] hardening visivo completato su componenti core (`Fase 3b`) con eccezioni documentate
-- [x] nessuna regressione tecnica (`tsc --noEmit` + build ok)
+3. Classificazione pattern
+- `Single-use`: usato in un solo punto.
+- `Repeated`: usato in piu consumer (stesso pattern o variante minima).
+- `System-level`: regola base trasversale (reset/foundation/theme).
 
-## Estensione piano: leggibilita e motion safety (solo pulsanti)
+4. Decisione tecnica (decision tree)
+- `Single-use`: resta locale nel module del componente.
+- `Repeated` + semantica UI: creare/riusare componente shared (`ui/*` o `sections/*`).
+- `Repeated` + utility visuale semplice: usare Tailwind utility (inline className) o utility condivisa.
+- `System-level`: spostare in `globals.css` dentro layer appropriato:
+  - `@layer base` per elementi HTML/foundation
+  - `@layer components` per classi shared di componente
+  - `@layer utilities` per utility globali riusabili
 
-Stato programma: completato (batch 1→4, 2026-02-17).
+5. Implementazione
+- Applico la decisione approvata.
+- Aggiorno i consumer.
+- Rimuovo CSS legacy/duplicato residuo (module, global, inline).
 
-Riferimento ufficiale:
-- `Docs/button-governance.md`
+6. Verifica
+- Ricerca post-migrazione (`rg`) per confermare rimozione duplicati/vecchi selector.
+- Verifica tecnica: `pnpm -s tsc --noEmit` (e build quando richiesto dal blocco).
 
-Sintesi:
-- contrasto light/dark centralizzato su token
-- stati `default/hover/active/focus-visible/disabled` unificati
-- motion safety completata con fallback `prefers-reduced-motion`
-- QA tecnica chiusa (`pnpm build`, `pnpm tsc --noEmit --incremental false`)
+7. Log chiusura blocco
+- Ogni blocco chiuso viene registrato in `Log blocchi chiusi` qui sotto (data, scope, decisione, file toccati, verifica).
 
-Nota: validazione visuale manuale cross-page resta in handoff UAT/design signoff.
+## Log blocchi chiusi
 
-
-## Estensione piano: deduplica strutturale stili/componenti
-
-- [ ] **Estensione - Deduplica strutturale stili/componenti**  
-Scope: componenti con varianti duplicate e wrapper legacy (`sections`, `carousel`, `auth/account`, `shop/services`)  
-Evidenza: stili e markup simili replicati in file diversi, rischio drift visuale e costo manutenzione alto.  
-Azione:
-- accorpare pattern ripetuti in componenti shared (`ui/*`, `sections/*`) con API minima
-- rimuovere alias/wrapper non necessari dove i consumer possono usare il componente core diretto
-- unificare regole visuali duplicate (CTA/filter pills/cards) su token + varianti standard
-- eliminare file legacy non referenziati dopo migrazione (con verifica `rg` + build/tsc)
-Stato: avviata analisi baseline, implementazione da pianificare a batch.
-
-Baseline ricerca (2026-02-17, scope `src/**/*.module.css`):
-- file analizzati: `34`
-- ripetizioni selector (stesso nome classe): `.title (13)`, `.section (11)`, `.card (8)`, `.subtitle (7)`, `.page (6)`, `.media (6)`, `.label (4)`, `.input (4)`, `.pill (3)`, `.pills (3)`, `.sectionTitle (3)`
-- pattern CSS ricorrenti: `display:flex (171)`, `border-radius:999px (52)`, `background:transparent (46)`, `border:1px solid var(--stroke) (8)`, `text-transform:uppercase (6)`
-
-Priorita operativa suggerita (alto impatto / basso rischio):
-- Batch A: `ui/input` + `input-theme` (riduzione duplicati su `AuthForms`, `AccountDashboard`, `ConsultationForm`, `RoutineTemplateBuilder`)
-- Batch B: `ui/chip` (pill/tag/filter) unificato per `shop/services/section-switcher/detail`
-- Batch C: `sections/SectionHeader` shared (`title/subtitle/sectionTitle`) con API minima
-- Batch D: cleanup wrapper/alias legacy + rimozione file non referenziati (con `rg` + `pnpm tsc --noEmit` + build)
+- 2026-02-18 | Metodo operativo deduplica CSS attivato
+  - Scope: workflow decisionale `module/global/component/tailwind` con inclusione inline styles
+  - Esito: protocollo definito e adottato come standard operativo per i prossimi blocchi
+- 2026-02-18 | Blocco CSS-001 (`ProgramsSplitSection.module.css` -> `.left`)
+  - Input: `position: relative; overflow: hidden;`
+  - Ricerca: pattern molto ricorrente nel codebase, ma istanza `.left` legata a consumer singolo (`SplitSection leftClassName`) con override responsive locale.
+  - Inline/Tailwind: trovate istanze utility `relative overflow-hidden`, ma con semantica diversa (media wrappers/cards), non consolidabili su componente shared.
+  - Decisione: mantenere locale nel module (single-use), nessuno spostamento in global/layer/component.
+  - Implementazione: cleanup minimo formattazione (rimozione riga vuota nel blocco).
+- 2026-02-18 | Rollback `object-fit` (richiesta utente, opzione 1)
+  - Scope: annullata completamente la migrazione object-fit verso utility Tailwind (`@apply object-cover/object-contain`).
+  - Esito: ripristinate le dichiarazioni `object-fit` locali nei CSS module e ripristinato `ProgramsSplitSection` allo stato pre-migrazione object-fit.
+- 2026-02-18 | Blocco CSS-002 (`ProgramsSplitSection` object-fit -> Tailwind inline)
+  - Scope: rimozione regole locali `object-fit` in `src/components/sections/ProgramsSplitSection.module.css` su `.left img` e `.productMedia img`.
+  - Decisione: applicare utility Tailwind inline sul consumer attivo (`Image` della colonna sinistra) con `object-cover`; nessuna migrazione `object-contain` per `.productMedia img` per assenza di consumer attivo nel TSX.
+  - Implementazione: aggiunta `object-cover` in `src/components/sections/ProgramsSplitSection.tsx`; rimozione dei due blocchi CSS dal module.
+  - Verifica: ricerca selector/declaration conferma assenza di `.left img` e `.productMedia img` nel file module.
+- 2026-02-18 | Blocco CSS-003 (Circle step/button visual style centralizzato)
+  - Scope: uniformare l'aspetto dei circle controls in `RoutineBuilderSplitSection`, `ServiceBuilderSplitSection`, `ProtocolSplit` mantenendo locali solo dimensione/posizione.
+  - Decisione: centralizzare lo stile visuale/stati (`hover`, `active`, `selected`, `dimmed`) in `src/components/ui/StateCircleButton.module.css` e riusare `StateCircleButton` come wrapper unico.
+  - Implementazione: aggiornato `src/components/ui/StateCircleButton.tsx`; alleggeriti i CSS module locali mantenendo solo `width/height/min/padding`; rimossi modifier locali duplicati (`circleItemActive/Selected/Dim`, `stepBtnActive`) dai consumer.
+  - Verifica: `pnpm -s tsc --noEmit` ok, `pnpm -s generate:importmap` ok.
+- 2026-02-18 | Blocco CSS-004 (`ProgramsSplitSection` dots visibility/accessibility)
+  - Scope: migliorare visibilità dei dot indicators nello slider sinistro.
+  - Decisione: mantenere stile locale nel module e aumentare contrasto/stacking del blocco dots.
+  - Implementazione: in `src/components/sections/ProgramsSplitSection.module.css` aggiunti `z-index: 2` su `.dots`, aumento size `.dot` (`9px`), contrasto su `.dot`/`.dotActive` tramite `background` + `box-shadow`.
+  - Verifica: controllata associazione classi nel consumer `src/components/sections/ProgramsSplitSection.tsx` (`styles.dots`, `styles.dot`, `styles.dotActive`).
+- 2026-02-18 | Blocco CSS-005 (`ProgramsSplitSection` cleanup legacy + binding)
+  - Scope: rimozione regole legacy/non usate e allineamento class binding nel TSX.
+  - Decisione: eliminare classi inutilizzate locali (`.productMedia`, `.price`), rimuovere riferimento mancante `styles.subtitleCentered`, normalizzare stacking dots a livello locale.
+  - Implementazione: aggiornati `src/components/sections/ProgramsSplitSection.module.css` (rimossi `.productMedia` e `.price`, `z-index` dots impostato a `2`) e `src/components/sections/ProgramsSplitSection.tsx` (subtitle con sola `styles.subtitle`).
+  - Verifica: ricerca `rg` conferma assenza di `subtitleCentered`, `.productMedia`, `.price` CSS e `z-index: 9999` nel blocco.
+- 2026-02-18 | Blocco CSS-006 (`AccountDashboardClient` cleanup + token migration)
+  - Scope: review e allineamento di `src/components/account/AccountDashboardClient.module.css` e relativo TSX.
+  - Decisione: rimozione classi no-op nel TSX, rimozione CSS legacy inutilizzato, migrazione hardcoded color a token/variabili locali, cleanup regole ridondanti.
+  - Implementazione:
+  - `src/components/account/AccountDashboardClient.tsx`: rimossi riferimenti a classi inesistenti (`styles.menuButtonLabel`, `styles.logoutButton`).
+  - `src/components/account/AccountDashboardClient.module.css`: rimossa `.orderEmpty`; introdotte variabili locali token-based (`--account-text`, `--account-divider`, `--account-dot-active`, `--account-success`, `--account-error`); convertiti i colori hardcoded a token/`color-mix`; eliminata regola duplicata `.input` nel media query.
+  - Verifica: `rg` conferma assenza classi no-op/legacy e hardcoded `#...` nel file; check classi CSS↔TSX allineato; `pnpm -s tsc --noEmit` ok.
+- 2026-02-18 | Blocco CSS-007 (`AccountDashboardClient` typography pass + token-only policy)
+  - Scope: rifinitura tipografica account e allineamento definitivo alla regola "solo token da `src/styles`".
+  - Decisione: nessuna variabile colore locale nei module CSS; uso esclusivo di token globali (`--text-*`, `--stroke`, `--tech-cyan`, `--neon-red`).
+  - Implementazione:
+  - `src/components/account/AccountDashboardClient.module.css`: rimossi i custom color vars locali introdotti nel batch precedente; mantenuti solo token globali.
+  - `src/components/account/AccountDashboardClient.tsx`: allineati heading e label (`styles.title` su `h2`, `styles.subHeading` su `h3` + `uppercase`, menu button da `typo-h3` a `typo-body-lg`, `styles.value` da `typo-h3` a `typo-body-lg`).
+  - `src/styles/typography.css`: aumentato tracking globale `--type-h3-track` (`0.1em` -> `0.12em`).
+  - Verifica: `pnpm -s tsc --noEmit` ok; controlli `rg` su account css confermano assenza di `#...`, `--account-*` e `color-mix(...)` locali.

@@ -7,6 +7,7 @@ import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { ShopAllSection } from '@/components/shop/ShopAllSection'
 import { ConsulenzaSection } from '@/components/services/ConsulenzaSection'
 import { SectionSwitcher } from '@/components/sections/SectionSwitcher'
+import filterStyles from '@/components/sections/SectionFilters.module.css'
 import { Button } from '@/components/ui/button'
 import type { ProductCard } from '@/components/shop/shop-navigator.types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
@@ -445,7 +446,7 @@ export function ShopSectionSwitcher({
                     <>
                       {copy.filters}
                       {activeFilterCount > 0 && (
-                        <span className={`${styles.filterCount} typo-caption-upper`}>{activeFilterCount}</span>
+                        <span className={`${filterStyles.filterCount} typo-caption-upper`}>{activeFilterCount}</span>
                       )}
                     </>
                   ),
@@ -477,8 +478,8 @@ export function ShopSectionSwitcher({
       />
 
       {activeSection === 'shop-all' && showFilters && (
-        <section className={styles.filters}>
-          <div className={styles.filterRow} ref={filterRowRef}>
+        <section className={filterStyles.filters}>
+          <div className={filterStyles.filterRow} ref={filterRowRef}>
             {[
               { key: 'needs', label: copy.needs, options: filterOptions.needs },
               { key: 'textures', label: copy.texture, options: filterOptions.textures },
@@ -488,12 +489,12 @@ export function ShopSectionSwitcher({
               { key: 'brands', label: copy.brand, options: filterOptions.brands },
               { key: 'brandLines', label: copy.brandLine, options: filterOptions.brandLines },
             ].map((group) => (
-              <div key={group.key} className={styles.filterGroup}>
+              <div key={group.key} className={filterStyles.filterGroup}>
                 <Button
                   kind="main"
                   size="sm"
                   interactive
-                  className={styles.filterPill}
+                  className={filterStyles.filterPill}
                   onClick={() => {
                     setOpenFilter((prev) => (prev === group.key ? null : group.key))
                   }}
@@ -501,9 +502,9 @@ export function ShopSectionSwitcher({
                   {group.label}
                 </Button>
                 {openFilter === group.key && (
-                  <div className={styles.dropdown}>
+                  <div className={filterStyles.dropdown}>
                     {group.options.length === 0 && (
-                      <div className={`${styles.dropdownEmpty} typo-small`}>{copy.noOptions}</div>
+                      <div className={`${filterStyles.dropdownEmpty} typo-small`}>{copy.noOptions}</div>
                     )}
                     {group.options.map((option) => (
                       <Button
@@ -512,9 +513,9 @@ export function ShopSectionSwitcher({
                         size="sm"
                         interactive
                         aria-pressed={filters[group.key as keyof typeof filters].has(option.id)}
-                        className={`${styles.dropdownItem} ${
+                        className={`${filterStyles.dropdownItem} ${
                           filters[group.key as keyof typeof filters].has(option.id)
-                            ? styles.dropdownItemActive
+                            ? filterStyles.dropdownItemActive
                             : ''
                         }`}
                         onClick={() =>
@@ -529,12 +530,12 @@ export function ShopSectionSwitcher({
               </div>
             ))}
 
-            <div className={styles.filterGroup}>
+            <div className={filterStyles.filterGroup}>
               <Button
                 kind="main"
                 size="sm"
                 interactive
-                className={styles.filterPill}
+                className={filterStyles.filterPill}
                 onClick={() => {
                   setOpenFilter((prev) => (prev === 'order' ? null : 'order'))
                 }}
@@ -542,7 +543,7 @@ export function ShopSectionSwitcher({
                 {copy.orderBy}
               </Button>
               {openFilter === 'order' && (
-                <div className={styles.dropdown}>
+                <div className={filterStyles.dropdown}>
                   {[
                     { id: 'recent', label: copy.orderRecent },
                     { id: 'price-asc', label: copy.orderPriceAsc },
@@ -555,8 +556,8 @@ export function ShopSectionSwitcher({
                       size="sm"
                       interactive
                       aria-pressed={orderBy === option.id}
-                      className={`${styles.dropdownItem} ${
-                        orderBy === option.id ? styles.dropdownItemActive : ''
+                      className={`${filterStyles.dropdownItem} ${
+                        orderBy === option.id ? filterStyles.dropdownItemActive : ''
                       }`}
                       onClick={() => setOrderBy(option.id as typeof orderBy)}
                     >

@@ -7,7 +7,6 @@ import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import styles from './product-detail.module.css'
-import { HeroGallery } from './HeroGallery'
 import { AlternativeSelector } from './AlternativeSelector'
 import { ProductServiceAccordion } from './ProductServiceAccordion'
 import { ProductFaqAccordion } from './ProductFaqAccordion'
@@ -15,6 +14,10 @@ import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatment
 import { UICCarousel } from '@/components/carousel/UIC_Carousel'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { ButtonLink } from '@/components/ui/button-link'
+import { SplitSection } from '@/components/ui/SplitSection'
+import { UIHeroGallery } from '@/components/ui/HeroGallery'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -298,7 +301,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
   const fallbackImage = coverMedia
     ? { url: coverMedia.url, alt: coverMedia.alt }
-    : { url: '/media/493b3205c13b5f67b36cf794c2222583.jpg', alt: t.shop.title }
+    : { url: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg', alt: t.shop.title }
 
   const toCarouselItem = (doc: typeof product): ServicesCarouselItem | null => {
     const title = doc.title || ''
@@ -388,158 +391,169 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
   return (
     <div className={styles.page}>
-      <section className={styles.hero}>
-        <HeroGallery
-          cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
-          items={galleryItems.map((item) => ({
-            media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
-            mediaType: item.mediaType,
-          }))}
-        />
-
-        <div className={styles.heroPanel}>
-          <div className={styles.heroHeader}>
-            <div className={styles.titleRow}>
-              <h1 className={`${styles.title} typo-h1`}>{product.title}</h1>
-              <span className={`${styles.badge} typo-caption-upper`}>
-                {resolveBrandLabel(product.brand) || 'DOB'}
-              </span>
-            </div>
-
-            <p className={`${styles.description} typo-body`}>{descriptionText || ''}</p>
-          </div>
-
-          <AlternativeSelector
-            options={formatOptions}
-            baseProduct={{
-              id: String(product.id),
-              title: product.title || t.shop.title,
-              slug: product.slug || undefined,
-              price: product.price ?? undefined,
-              currency: 'EUR',
-              brand: resolveBrandLabel(product.brand),
-              coverImage: coverMedia?.url ?? null,
-            }}
-            locale={locale}
-            fallbackLabel={product.title || t.shop.title}
-            className={`${styles.buyButton} typo-caption-upper`}
+      <SplitSection
+        className={styles.hero}
+        left={
+          <UIHeroGallery
+            cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
+            items={galleryItems.map((item) => ({
+              media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
+              mediaType: item.mediaType,
+            }))}
+            styles={styles}
           />
-
-          <div className={styles.divider} />
-
-          {addOnProduct ? (
-            <div className={styles.crossSell}>
-              <div className={`${styles.crossSellTitle} typo-small-upper`}>Aggiungi</div>
-              <div className={styles.crossSellRow}>
-                <div className={styles.crossSellItem}>
-                  <div className={styles.crossSellThumb}>
-                    <Image
-                      src={
-                        resolveProductMedia(addOnProduct.coverImage, addOnProduct.title || '')
-                          ?.url || fallbackImage.url
-                      }
-                      alt={addOnProduct.title || 'Prodotto'}
-                      fill
-                    />
-                  </div>
-                  <div>
-                    <div className={`${styles.crossSellName} typo-body-upper`}>
-                      {addOnProduct.title || 'Prodotto'}
-                    </div>
-                    <div className={`${styles.crossSellMeta} typo-small`}>
-                      Selezione consigliata
-                    </div>
-                  </div>
-                </div>
-                <ButtonLink
-                  className={`${styles.lineupButton} typo-caption-upper`}
-                  href={
-                    addOnProduct.slug ? `/${locale}/shop/${addOnProduct.slug}` : `/${locale}/shop`
-                  }
-                  kind="main"
-                  size="sm"
-                  interactive
-                >
-                  Scopri
-                </ButtonLink>
+        }
+        right={
+          <div className={styles.heroPanel}>
+            <div className={styles.heroHeader}>
+              <div className={styles.titleRow}>
+                <SectionTitle as="h1" size="h1" className={styles.title}>
+                  {product.title}
+                </SectionTitle>
+                <span className={`${styles.badge} typo-caption-upper`}>
+                  {resolveBrandLabel(product.brand) || 'DOB'}
+                </span>
               </div>
-            </div>
-          ) : null}
 
-          <ProductServiceAccordion
-            items={[
-              ...(resultsText
-                ? [
-                    {
-                      id: 'benefits',
-                      title: 'Benefici',
-                      body: (() => {
-                        const bullets = normalizeBullets(resultsText)
-                        if (bullets.length) {
-                          return (
-                            <ul>
-                              {bullets.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
-                          )
+              <SectionSubtitle className={styles.description}>{descriptionText || ''}</SectionSubtitle>
+            </div>
+
+            <AlternativeSelector
+              options={formatOptions}
+              baseProduct={{
+                id: String(product.id),
+                title: product.title || t.shop.title,
+                slug: product.slug || undefined,
+                price: product.price ?? undefined,
+                currency: 'EUR',
+                brand: resolveBrandLabel(product.brand),
+                coverImage: coverMedia?.url ?? null,
+              }}
+              locale={locale}
+              fallbackLabel={product.title || t.shop.title}
+              className={`${styles.buyButton} typo-caption-upper`}
+            />
+
+            <div className={styles.divider} />
+
+            {addOnProduct ? (
+              <div className={styles.crossSell}>
+                <div className={`${styles.crossSellTitle} typo-small-upper`}>Aggiungi</div>
+                <div className={styles.crossSellRow}>
+                  <div className={styles.crossSellItem}>
+                    <div className={styles.crossSellThumb}>
+                      <Image
+                        src={
+                          resolveProductMedia(addOnProduct.coverImage, addOnProduct.title || '')
+                            ?.url || fallbackImage.url
                         }
-                        return <p>{resultsText}</p>
-                      })(),
-                    },
-                  ]
-                : []),
-              ...(usageText
-                ? [
-                    {
-                      id: 'usage',
-                      title: "Modo d'uso",
-                      body: (() => {
-                        const bullets = normalizeBullets(usageText)
-                        if (bullets.length) {
-                          return (
-                            <ul>
-                              {bullets.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
-                          )
-                        }
-                        return <p>{usageText}</p>
-                      })(),
-                    },
-                  ]
-                : []),
-              ...(ingredientsText
-                ? [
-                    {
-                      id: 'ingredients',
-                      title: 'Principi attivi',
-                      body: (() => {
-                        const bullets = normalizeBullets(ingredientsText)
-                        if (bullets.length) {
-                          return (
-                            <ul>
-                              {bullets.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
-                          )
-                        }
-                        return <p>{ingredientsText}</p>
-                      })(),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </div>
-      </section>
+                        alt={addOnProduct.title || 'Prodotto'}
+                        fill
+                        loading="lazy"
+                        fetchPriority="auto"
+                      />
+                    </div>
+                    <div>
+                      <div className={`${styles.crossSellName} typo-body-upper`}>
+                        {addOnProduct.title || 'Prodotto'}
+                      </div>
+                      <div className={`${styles.crossSellMeta} typo-small`}>
+                        Selezione consigliata
+                      </div>
+                    </div>
+                  </div>
+                  <ButtonLink
+                    className={`${styles.lineupButton} typo-caption-upper`}
+                    href={
+                      addOnProduct.slug
+                        ? `/${locale}/shop/${addOnProduct.slug}`
+                        : `/${locale}/shop`
+                    }
+                    kind="main"
+                    size="sm"
+                    interactive
+                  >
+                    Scopri
+                  </ButtonLink>
+                </div>
+              </div>
+            ) : null}
+
+            <ProductServiceAccordion
+              items={[
+                ...(resultsText
+                  ? [
+                      {
+                        id: 'benefits',
+                        title: 'Benefici',
+                        body: (() => {
+                          const bullets = normalizeBullets(resultsText)
+                          if (bullets.length) {
+                            return (
+                              <ul>
+                                {bullets.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            )
+                          }
+                          return <p>{resultsText}</p>
+                        })(),
+                      },
+                    ]
+                  : []),
+                ...(usageText
+                  ? [
+                      {
+                        id: 'usage',
+                        title: "Modo d'uso",
+                        body: (() => {
+                          const bullets = normalizeBullets(usageText)
+                          if (bullets.length) {
+                            return (
+                              <ul>
+                                {bullets.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            )
+                          }
+                          return <p>{usageText}</p>
+                        })(),
+                      },
+                    ]
+                  : []),
+                ...(ingredientsText
+                  ? [
+                      {
+                        id: 'ingredients',
+                        title: 'Principi attivi',
+                        body: (() => {
+                          const bullets = normalizeBullets(ingredientsText)
+                          if (bullets.length) {
+                            return (
+                              <ul>
+                                {bullets.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            )
+                          }
+                          return <p>{ingredientsText}</p>
+                        })(),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </div>
+        }
+      />
 
       <section className={styles.videoSection} aria-label="Product video">
         <div className={styles.videoWrap}>
           {videoMedia ? (
-            <video className={styles.video} src={videoMedia.url} controls playsInline />
+            <video className={styles.video} src={videoMedia.url} controls playsInline preload="none" />
           ) : videoEmbed ? (
             <iframe
               className={styles.video}
@@ -556,6 +570,8 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   alt={videoPosterMedia?.alt || coverFallback?.alt || product.title || t.shop.title}
                   fill
                   className={styles.videoPoster}
+                  loading="lazy"
+                  fetchPriority="auto"
                 />
               )}
               <div className={`${styles.videoOverlay} typo-small-upper`}>Video placeholder</div>
@@ -565,160 +581,183 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       </section>
 
       <section className={styles.lineSection} aria-label="Linea prodotto">
-        <div className={styles.lineGrid}>
-          <div className={styles.lineCopy}>
-            <h2 className={`${styles.lineTitle} typo-h1`}>
-              {lineHeadline.split(' ').map((word, index) => (
-                <span
-                  key={`${word}-${index}`}
-                  className={index > 1 && index < 4 ? styles.lineTitleAccent : undefined}
-                >
-                  {word}
-                </span>
-              ))}
-            </h2>
-            <div className={styles.lineDetails}>
-              {(Array.isArray(product.lineDetails) && product.lineDetails.length
-                ? product.lineDetails.map((item) => ({
-                    label: resolveText(item?.label) || '',
-                    value: resolveText(item?.value) || '',
-                  }))
-                : lineDetails
-              ).map((item) => (
-                <div key={item.label} className={styles.lineRow}>
-                  <span className={`${styles.lineLabel} typo-small-upper`}>{item.label}</span>
-                  <span className={`${styles.lineValue} typo-body`}>{item.value}</span>
-                </div>
-              ))}
+        <SplitSection
+          left={
+            <div className={styles.lineCopy}>
+              <SectionTitle as="h2" size="h1" className={styles.lineTitle}>
+                {lineHeadline.split(' ').map((word, index) => (
+                  <span
+                    key={`${word}-${index}`}
+                    className={index > 1 && index < 4 ? styles.lineTitleAccent : undefined}
+                  >
+                    {word}
+                  </span>
+                ))}
+              </SectionTitle>
+              <div className={styles.lineDetails}>
+                {(Array.isArray(product.lineDetails) && product.lineDetails.length
+                  ? product.lineDetails.map((item) => ({
+                      label: resolveText(item?.label) || '',
+                      value: resolveText(item?.value) || '',
+                    }))
+                  : lineDetails
+                ).map((item) => (
+                  <div key={item.label} className={styles.lineRow}>
+                    <span className={`${styles.lineLabel} typo-small-upper`}>{item.label}</span>
+                    <span className={`${styles.lineValue} typo-body`}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className={styles.lineMedia}>
-            {lineMediaResolved?.url || coverFallback?.url ? (
-              <Image
-                src={lineMediaResolved?.url || coverFallback?.url || ''}
-                alt={lineMediaResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
-                fill
-                className={styles.lineImage}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            ) : (
-              <div className={styles.linePlaceholder} />
-            )}
-          </div>
-        </div>
+          }
+          right={
+            <div className={styles.lineMedia}>
+              {lineMediaResolved?.url || coverFallback?.url ? (
+                <Image
+                  src={lineMediaResolved?.url || coverFallback?.url || ''}
+                  alt={lineMediaResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
+                  fill
+                  className={styles.lineImage}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
+                  fetchPriority="auto"
+                />
+              ) : (
+                <div className={styles.linePlaceholder} />
+              )}
+            </div>
+          }
+        />
       </section>
 
       <section className={styles.insideSection} aria-label="Cosa contiene">
-        <div className={styles.insideGrid}>
-          <div className={styles.insideMedia}>
-            {includedResolved?.url || coverFallback?.url ? (
-              <Image
-                src={includedResolved?.url || coverFallback?.url || ''}
-                alt={includedResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
-                fill
-                className={styles.insideImage}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            ) : (
-              <div className={styles.insidePlaceholder} />
-            )}
-          </div>
-          <div className={styles.insideContent}>
-            <div className={`${styles.insideLabel} typo-h1-upper`}>what&apos;s inside</div>
-            {includedContent ? (
-              includedContent.type === 'html' ? (
-                <div
-                  className={`${styles.insideRich} typo-body`}
-                  dangerouslySetInnerHTML={{ __html: includedContent.value }}
+        <SplitSection
+          rightClassName={styles.insideColumn}
+          left={
+            <div className={styles.insideMedia}>
+              {includedResolved?.url || coverFallback?.url ? (
+                <Image
+                  src={includedResolved?.url || coverFallback?.url || ''}
+                  alt={includedResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
+                  fill
+                  className={styles.insideImage}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
+                  fetchPriority="auto"
                 />
               ) : (
-                <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
-              )
-            ) : ingredientsText ? (
-              <p className={`${styles.insideLead} typo-body`}>{ingredientsText}</p>
-            ) : descriptionText ? (
-              <p className={`${styles.insideLead} typo-body`}>{descriptionText}</p>
-            ) : (
-              <p className={`${styles.insideLead} typo-body`}>
-                {product.title ? `Scopri cosa rende speciale ${product.title}.` : ''}
-              </p>
-            )}
-          </div>
-        </div>
+                <div className={styles.insidePlaceholder} />
+              )}
+            </div>
+          }
+          right={
+            <div className={styles.insideContent}>
+              <SectionTitle as="div" size="h1" uppercase className={styles.insideLabel}>
+                what&apos;s inside
+              </SectionTitle>
+              {includedContent ? (
+                includedContent.type === 'html' ? (
+                  <div
+                    className={`${styles.insideRich} typo-body`}
+                    dangerouslySetInnerHTML={{ __html: includedContent.value }}
+                  />
+                ) : (
+                  <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
+                )
+              ) : ingredientsText ? (
+                <p className={`${styles.insideLead} typo-body`}>{ingredientsText}</p>
+              ) : descriptionText ? (
+                <p className={`${styles.insideLead} typo-body`}>{descriptionText}</p>
+              ) : (
+                <p className={`${styles.insideLead} typo-body`}>
+                  {product.title ? `Scopri cosa rende speciale ${product.title}.` : ''}
+                </p>
+              )}
+            </div>
+          }
+        />
       </section>
 
       <section className={styles.faqSection} aria-label="FAQ">
-        <div className={styles.faqGrid}>
-          <div className={styles.faqCopy}>
-            <h2 className={`${styles.faqTitle} typo-h1-upper`}>{faqTitleText || 'FAQ'}</h2>
-            <p className={`${styles.faqSubtitle} typo-body`}>
-              {faqSubtitleText ||
-                (product.title
-                  ? `Scopri di più su ${product.title}.`
-                  : 'Scopri di più su questo prodotto.')}
-            </p>
-            <div className={styles.faqList}>
-              {Array.isArray(product.faqItems) && product.faqItems.length ? (
-                <ProductFaqAccordion
-                  items={
-                    product.faqItems
-                      .map((item) => {
-                        const question = resolveText(item?.q) || ''
-                        if (!question) return null
-                        const answer = resolveText(item?.a) || ''
-                        return {
-                          question,
-                          answerHtml: answer ? `<p>${escapeHtml(answer)}</p>` : '',
-                        }
-                      })
-                      .filter(Boolean) as Array<{ question: string; answerHtml: string }>
-                  }
+        <SplitSection
+          left={
+            <div className={styles.faqCopy}>
+              <SectionTitle as="h2" size="h1" uppercase className={styles.faqTitle}>
+                {faqTitleText || 'FAQ'}
+              </SectionTitle>
+              <SectionSubtitle className={styles.faqSubtitle}>
+                {faqSubtitleText ||
+                  (product.title
+                    ? `Scopri di più su ${product.title}.`
+                    : 'Scopri di più su questo prodotto.')}
+              </SectionSubtitle>
+              <div className={styles.faqList}>
+                {Array.isArray(product.faqItems) && product.faqItems.length ? (
+                  <ProductFaqAccordion
+                    items={
+                      product.faqItems
+                        .map((item) => {
+                          const question = resolveText(item?.q) || ''
+                          if (!question) return null
+                          const answer = resolveText(item?.a) || ''
+                          return {
+                            question,
+                            answerHtml: answer ? `<p>${escapeHtml(answer)}</p>` : '',
+                          }
+                        })
+                        .filter(Boolean) as Array<{ question: string; answerHtml: string }>
+                    }
+                  />
+                ) : (
+                  <ProductFaqAccordion
+                    items={[
+                      {
+                        question: 'Come si applica?',
+                        answerHtml: `<p>${escapeHtml(
+                          usageText || 'Usa il prodotto come indicato nella routine consigliata.',
+                        )}</p>`,
+                      },
+                      {
+                        question: 'Per che tipo di pelle è indicato?',
+                        answerHtml:
+                          '<p>Adatto a più tipi di pelle. Se hai dubbi chiedi una consulenza.</p>',
+                      },
+                      {
+                        question: 'Ogni quanto si usa?',
+                        answerHtml:
+                          '<p>Consigliato 1-2 volte al giorno in base alle esigenze personali.</p>',
+                      },
+                    ]}
+                  />
+                )}
+              </div>
+            </div>
+          }
+          right={
+            <div className={styles.faqMedia}>
+              {faqResolved?.url || coverFallback?.url ? (
+                <Image
+                  src={faqResolved?.url || coverFallback?.url || ''}
+                  alt={faqResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
+                  fill
+                  className={styles.faqImage}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
+                  fetchPriority="auto"
                 />
               ) : (
-                <ProductFaqAccordion
-                  items={[
-                    {
-                      question: 'Come si applica?',
-                      answerHtml: `<p>${escapeHtml(
-                        usageText || 'Usa il prodotto come indicato nella routine consigliata.',
-                      )}</p>`,
-                    },
-                    {
-                      question: 'Per che tipo di pelle è indicato?',
-                      answerHtml:
-                        '<p>Adatto a più tipi di pelle. Se hai dubbi chiedi una consulenza.</p>',
-                    },
-                    {
-                      question: 'Ogni quanto si usa?',
-                      answerHtml:
-                        '<p>Consigliato 1-2 volte al giorno in base alle esigenze personali.</p>',
-                    },
-                  ]}
-                />
+                <div className={styles.faqPlaceholder} />
               )}
             </div>
-          </div>
-          <div className={styles.faqMedia}>
-            {faqResolved?.url || coverFallback?.url ? (
-              <Image
-                src={faqResolved?.url || coverFallback?.url || ''}
-                alt={faqResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
-                fill
-                className={styles.faqImage}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            ) : (
-              <div className={styles.faqPlaceholder} />
-            )}
-          </div>
-        </div>
+          }
+        />
       </section>
 
       <ServicesTreatmentReveal
         primary={{
           title: product.title || 'Protocol overview',
           mediaDescription: descriptionText || '',
-          body: <p className={`${styles.treatmentText} typo-body`}>{resultsText || ''}</p>,
+          body: <SectionSubtitle className={styles.treatmentText}>{resultsText || ''}</SectionSubtitle>,
           imageUrl: coverFallback?.url || fallbackImage.url,
           imageAlt: coverFallback?.alt || product.title || undefined,
           rail: ['Click here', 'Prodotti alternativi'],
@@ -741,9 +780,9 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   emptyLabel="Nessun prodotto disponibile."
                 />
               ) : (
-                <p className={`${styles.treatmentText} typo-body`}>
+                <SectionSubtitle className={styles.treatmentText}>
                   Il prodotto scelto è unico nel suo genere e non ha alternative.
-                </p>
+                </SectionSubtitle>
               )}
             </div>
           ),

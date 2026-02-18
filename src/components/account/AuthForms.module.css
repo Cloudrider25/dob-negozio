@@ -28,17 +28,8 @@
 }
 
 .input {
-  width: 100%;
-  border: 1px solid #4e4b47;
-  border-radius: 14px;
   height: 58px;
   padding: 0 18px;
-  color: #44413e;
-  background: transparent;
-}
-
-.input::placeholder {
-  color: #66625d;
 }
 
 .inlineGrid {

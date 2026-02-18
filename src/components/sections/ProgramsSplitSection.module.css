@@ -1,11 +1,6 @@
 .left {
   position: relative;
   overflow: hidden;
-  background: #d9d6d2;
-}
-
-.left img {
-  object-fit: cover;
 }
 
 .dots {
@@ -15,19 +10,22 @@
   transform: translateX(-50%);
   display: flex;
   gap: 8px;
+  z-index: 2;
 }
 
 .dot {
-  width: 7px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
   border-radius: 999px;
   border: 0;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }
 
 .dotActive {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
 .right {
@@ -38,18 +36,6 @@
   gap: 1rem;
   align-content: stretch;
   grid-template-rows: auto 1fr auto;
-}
-
-.productMedia {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  background: transparent;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.productMedia img {
-  object-fit: contain;
 }
 
 .controls {
@@ -70,40 +56,20 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  color: #7b756f;
   line-height: 1;
 }
 
-.arrowIcon {
-  width: 56px;
-  height: 56px;
-  display: block;
-}
 
-.price {
-  color: #5a5651;
-  font-weight: 600;
-}
-
-.title {
-  margin: 0;
-  color: #6b6761;
-  max-width: 24rem;
-  grid-row: 1;
-}
 
 .subtitle {
   margin: 0;
-  color: #7a756f;
   max-width: 28rem;
   margin-left: auto;
   margin-right: auto;
-  text-align: left;
+
 }
 
-.subtitleCentered {
-  align-self: center;
-}
+
 
 .stepMediaRow {
   display: grid;
@@ -171,7 +137,6 @@
 
 .stepBadge {
   margin-right: -40%;
-  color: var(--text-muted);
   background: transparent;
   pointer-events: none;
   transform: rotate(-90deg);
@@ -181,12 +146,10 @@
 
 .stepTitle {
   margin: 0;
-  color: #6b6761;
 }
 
 .stepSubtitle {
   margin: 0.35rem 0 0;
-  color: #7a756f;
 }
 
 .metaRow {
@@ -207,7 +170,6 @@
 
 .counter {
   font-weight: 600;
-  color: #7a756f;
 }
 
 .counterLarge {

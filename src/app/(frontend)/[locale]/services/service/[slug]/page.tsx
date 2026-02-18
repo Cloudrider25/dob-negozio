@@ -9,14 +9,16 @@ import { UICCarousel } from '@/components/carousel/UIC_Carousel'
 import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatmentReveal'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import type { SerializedEditorState } from 'lexical'
-import { HeroGallery } from './HeroGallery'
 import { FaqAccordion } from './FaqAccordion'
 import type { Treatment } from '@/payload-types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { Button } from '@/components/ui/button'
 import { ButtonLink } from '@/components/ui/button-link'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import { LabelText } from '@/components/ui/label'
 import { SplitSection } from '@/components/ui/SplitSection'
+import { UIHeroGallery } from '@/components/ui/HeroGallery'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -386,7 +388,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
 
   const fallbackImage = imageUrl
     ? { url: imageUrl, alt: imageAlt }
-    : { url: '/media/493b3205c13b5f67b36cf794c2222583.jpg', alt: t.services.title }
+    : { url: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg', alt: t.services.title }
 
   let alternativeServiceItems: ServicesCarouselItem[] = []
   if (intentId && zoneId && genderValue) {
@@ -460,18 +462,21 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     <div className={styles.page}>
       <SplitSection
         left={
-          <HeroGallery
+          <UIHeroGallery
             cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
             items={galleryItems.map((item) => ({
               media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
               mediaType: item.mediaType,
             }))}
+            styles={styles}
           />
         }
         right={
           <div className={styles.heroPanel}>
             <div className={styles.titleRow}>
-              <h1 className={`${styles.title} typo-h1`}>{service.name}</h1>
+              <SectionTitle as="h1" size="h1" className={styles.title}>
+                {service.name}
+              </SectionTitle>
               <span className={`${styles.badge} typo-caption-upper`}>
                 {badgeLabel !== '—' ? badgeLabel : formatServiceType(service.serviceType)}
               </span>
@@ -487,9 +492,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
               <span className={`${styles.ratingCount} typo-small`}>(1,858)</span>
             </div>
 
-            {service.description && (
-              <p className={`${styles.description} typo-body`}>{service.description}</p>
-            )}
+            {service.description ? (
+              <SectionSubtitle className={styles.description}>{service.description}</SectionSubtitle>
+            ) : null}
 
             <div className={styles.divider} />
 
@@ -536,7 +541,13 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                 <div className={styles.crossSellItem}>
                   <div className={styles.crossSellThumb}>
                     {crossSellThumb ? (
-                      <Image src={crossSellThumb} alt={crossSell?.name || 'Servizio'} fill />
+                      <Image
+                        src={crossSellThumb}
+                        alt={crossSell?.name || 'Servizio'}
+                        fill
+                        loading="lazy"
+                        fetchPriority="auto"
+                      />
                     ) : (
                       <span />
                     )}
@@ -681,7 +692,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
       <section className={styles.videoSection} aria-label="Service video">
         <div className={styles.videoWrap}>
           {videoMedia ? (
-            <video className={styles.video} src={videoMedia.url} controls playsInline />
+            <video className={styles.video} src={videoMedia.url} controls playsInline preload="none" />
           ) : videoEmbed ? (
             <iframe
               className={styles.video}
@@ -693,7 +704,14 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
           ) : (
             <div className={styles.videoPlaceholder}>
               {imageUrl && (
-                <Image src={imageUrl} alt={imageAlt} fill className={styles.videoPoster} />
+                <Image
+                  src={imageUrl}
+                  alt={imageAlt}
+                  fill
+                  className={styles.videoPoster}
+                  loading="lazy"
+                  fetchPriority="auto"
+                />
               )}
               <div className={`${styles.videoOverlay} typo-small-upper`}>Video placeholder</div>
             </div>
@@ -713,6 +731,8 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                 fill
                 className={styles.insideImage}
                 sizes="(max-width: 1024px) 100vw, 50vw"
+                loading="lazy"
+                fetchPriority="auto"
               />
             ) : (
               <div className={styles.insidePlaceholder} />
@@ -720,7 +740,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
           }
           right={
             <>
-              <div className={`${styles.insideLabel} typo-h1-upper`}>what&apos;s included</div>
+              <SectionTitle as="div" size="h1" uppercase className={styles.insideLabel}>
+                what&apos;s included
+              </SectionTitle>
               {includedContent ? (
                 includedContent.type === 'html' ? (
                   <div
@@ -728,12 +750,12 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                     dangerouslySetInnerHTML={{ __html: includedContent.value }}
                   />
                 ) : (
-                  <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
+                  <SectionSubtitle className={styles.insideLead}>{includedContent.value}</SectionSubtitle>
                 )
               ) : (
-                <p className={`${styles.insideLead} typo-body`}>
+                <SectionSubtitle className={styles.insideLead}>
                   {service.name ? `Scopri cosa include ${service.name}.` : ''}
-                </p>
+                </SectionSubtitle>
               )}
             </>
           }
@@ -744,10 +766,12 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
         <SplitSection
           left={
             <div className={styles.faqCopy}>
-              <h2 className={`${styles.faqTitle} typo-h1-upper`}>{service.faqTitle || 'FAQ'}</h2>
-              <p className={`${styles.faqSubtitle} typo-body`}>
+              <SectionTitle as="h2" size="h1" uppercase className={styles.faqTitle}>
+                {service.faqTitle || 'FAQ'}
+              </SectionTitle>
+              <SectionSubtitle className={styles.faqSubtitle}>
                 {service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
-              </p>
+              </SectionSubtitle>
               <div className={styles.faqList}>
                 {Array.isArray(service.faqItems) && service.faqItems.length ? (
                   <FaqAccordion
@@ -782,6 +806,8 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                   fill
                   className={styles.faqImage}
                   sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
+                  fetchPriority="auto"
                 />
               ) : (
                 <div className={styles.faqPlaceholder} />
@@ -796,9 +822,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
           title: parentTitle || service.name || 'Protocol overview',
           mediaDescription: parentDescription || service.description || '',
           body: (
-            <p className={`${styles.treatmentText} typo-body`}>
+            <SectionSubtitle className={styles.treatmentText}>
               {parentTagline || parentDescription || ''}
-            </p>
+            </SectionSubtitle>
           ),
           imageUrl: parentImageUrl,
           imageAlt: parentImageAlt || undefined,
@@ -822,9 +848,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                   emptyLabel="Nessun servizio disponibile."
                 />
               ) : (
-                <p className={`${styles.treatmentText} typo-body`}>
+                <SectionSubtitle className={styles.treatmentText}>
                   Il servizio scelto è unico nel suo genere e non ha alternative.
-                </p>
+                </SectionSubtitle>
               )}
             </div>
           ),

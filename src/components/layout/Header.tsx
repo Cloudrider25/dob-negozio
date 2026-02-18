@@ -1,12 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import type { CSSProperties } from 'react'
 
 import { MenuLink } from '@/components/layout/MenuLink'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { cn } from '@/lib/cn'
+import { buttonVariants } from '@/lib/ui-variants'
 import { CartDrawerTrigger } from '@/components/cart/CartDrawerTrigger'
 import { ShoppingBag, User } from '@/components/ui/icons'
-import { ButtonLink } from '@/components/ui/button-link'
+import { getButtonBasePalette, getButtonStatePalette } from '@/components/ui/button-theme'
 import styles from './Header.module.css'
 
 type HeaderProps = {
@@ -41,6 +43,22 @@ export const Header = ({
   whatsappLink,
   phoneLink,
 }: HeaderProps) => {
+  const mainBase = getButtonBasePalette('main')
+  const mainState = getButtonStatePalette('main')
+  const ctaStyle = {
+    '--btn-bg': mainBase.bg,
+    '--btn-text': mainBase.text,
+    '--btn-border': mainBase.border,
+    '--btn-hover-bg': mainState.hoverBg,
+    '--btn-hover-text': mainState.hoverText,
+    '--btn-hover-border': mainState.hoverBorder,
+    '--btn-active-bg': mainState.activeBg,
+    '--btn-active-text': mainState.activeText,
+    '--btn-active-border': mainState.activeBorder,
+    '--btn-focus-ring': mainState.focusRing,
+    '--btn-focus-offset': mainState.focusOffset,
+  } as CSSProperties
+
   return (
     <>
       <input className={styles.menuToggle} id="menu-toggle" type="checkbox" />
@@ -78,16 +96,15 @@ export const Header = ({
           </Link>
         </div>
         <div className={styles.right}>
-          <ButtonLink
-            className={`${styles.cta} typo-small-upper`}
+          <a
+            className={cn(buttonVariants({ kind: 'main', size: 'sm' }), styles.cta, 'typo-small-upper')}
             href={whatsappLink}
-            external
-            kind="main"
-            size="sm"
-            interactive
+            rel="noreferrer"
+            target="_blank"
+            style={ctaStyle}
           >
             {t.cta.appointment}
-          </ButtonLink>
+          </a>
           <div className={styles.iconRow} aria-label="Account e carrello">
             <Link
               href={accountHref}
@@ -165,16 +182,15 @@ export const Header = ({
               </MenuLink>
             </div>
             <div className={styles.menuActions}>
-              <ButtonLink
-                className={`${styles.cta} typo-small-upper`}
+              <a
+                className={cn(buttonVariants({ kind: 'main', size: 'sm' }), styles.cta, 'typo-small-upper')}
                 href={whatsappLink}
-                external
-                kind="main"
-                size="sm"
-                interactive
+                rel="noreferrer"
+                target="_blank"
+                style={ctaStyle}
               >
                 {t.cta.appointment}
-              </ButtonLink>
+              </a>
               <div className={styles.iconRow} aria-label="Account e carrello">
                 <Link
                   href={accountHref}

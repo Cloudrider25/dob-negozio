@@ -1,11 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/navigation'
-import type { Swiper as SwiperInstance } from 'swiper/types'
+import { Navigation, Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
 
 import styles from './UIC_Carousel.module.css'
 import { UICCarouselCard } from './UIC_CarouselCard'
@@ -17,6 +13,7 @@ export type UICCarouselProps = {
   single?: boolean
   cardClassName?: string
   mediaClassName?: string
+  prioritizeFirstSlideImage?: boolean
   ariaLabel?: string
   emptyLabel?: string
 }
@@ -26,12 +23,13 @@ export const UICCarousel = ({
   single = false,
   cardClassName,
   mediaClassName,
+  prioritizeFirstSlideImage = false,
   ariaLabel = 'Carousel',
   emptyLabel = 'Nessun elemento disponibile.',
 }: UICCarouselProps) => {
   const prevRef = useRef<HTMLButtonElement | null>(null)
   const nextRef = useRef<HTMLButtonElement | null>(null)
-  const [swiper, setSwiper] = useState<SwiperInstance | null>(null)
+  const [swiper, setSwiper] = useState<UISwiperInstance | null>(null)
 
   useEffect(() => {
     if (!swiper || !prevRef.current || !nextRef.current) return
@@ -72,12 +70,13 @@ export const UICCarousel = ({
             1024: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 48 },
           }}
         >
-          {items.map((item) => (
+          {items.map((item, index) => (
             <SwiperSlide key={item.title} className={styles.slide}>
               <UICCarouselCard
                 item={item}
                 cardClassName={cardClassName}
                 mediaClassName={mediaClassName}
+                prioritizeImage={prioritizeFirstSlideImage && index === 0}
               />
             </SwiperSlide>
           ))}

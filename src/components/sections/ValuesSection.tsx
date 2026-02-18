@@ -6,6 +6,7 @@ import { useState } from 'react'
 import styles from './ValuesSection.module.css'
 import { ButtonLink } from '@/components/ui/button-link'
 import { SplitSection } from '@/components/ui/SplitSection'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 
 export type ValuesSectionItem = {
   id: string
@@ -38,7 +39,9 @@ export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
       left={
         <>
           <div className={styles.contentTop}>
-            <h3 className={`${styles.title} typo-body`}>{active.title}</h3>
+            <SectionTitle as="h3" size="body" className={styles.title}>
+              {active.title}
+            </SectionTitle>
             {active.ctaHref && active.ctaLabel ? (
               <ButtonLink
                 href={active.ctaHref}
@@ -69,10 +72,12 @@ export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
       }
       right={
         <Image
-          src={media?.url || '/media/hero_homepage_light.png'}
+          src={media?.url || '/api/media/file/hero_homepage_light-1.png'}
           alt={media?.alt || 'Texture DOB'}
           fill
           sizes="(max-width: 1024px) 100vw, 48vw"
+          loading="lazy"
+          fetchPriority="auto"
         />
       }
     />

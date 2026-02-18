@@ -1,7 +1,6 @@
 .protocol {
   padding: 4.375rem;
   background: #f1f0ec;
-  color: var(--text-primary);
   position: relative;
   overflow: hidden;
   border-radius: 12px;
@@ -25,7 +24,6 @@
 }
 
 .eyebrow {
-  color: var(--protocol-accent);
 }
 
 .title {
@@ -61,7 +59,6 @@
   align-items: center;
   justify-content: center;
   gap: 1.2rem;
-  color: var(--text-primary);
   background: var(--protocol-surface);
   box-shadow: 0 0 28px var(--protocol-accent-glow),
     0 0 80px color-mix(in srgb, var(--protocol-accent) 35%, transparent);
@@ -182,7 +179,6 @@
   padding: 0.35rem 1rem;
   border-radius: 999px;
   border: 1px solid var(--protocol-accent-strong);
-  color: var(--text-primary);
   background: var(--protocol-surface-strong);
   box-shadow: 0 0 14px var(--protocol-accent-glow);
 }
@@ -231,11 +227,9 @@
 
 .cardBody {
   margin: 0;
-  color: var(--text-secondary);
 }
 
 :global(body[data-theme="light"]) .protocol {
-  color: var(--text-primary);
   width: 100%;
   margin-left: 0;
   margin-right: 0;

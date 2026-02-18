@@ -114,7 +114,7 @@ export default async function HomePage({
           label: record.label || `0${index + 1}`,
           title: record.title,
           subtitle: record.subtitle,
-          image: media?.url || '/media/hero_homepage_light.png',
+          image: media?.url || '/api/media/file/hero_homepage_light-1.png',
           imageAlt: media?.alt || record.title,
         } satisfies ProtocolSplitStep
       }),
@@ -190,7 +190,7 @@ export default async function HomePage({
   }
 
   const fallbackImage = {
-    url: '/media/493b3205c13b5f67b36cf794c2222583.jpg',
+    url: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg',
     alt: t.shop.title,
   }
 

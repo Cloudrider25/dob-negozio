@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
+import { Input } from '@/components/ui/input'
 
 import styles from './AuthForms.module.css'
 
@@ -75,15 +78,17 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
 
   return (
     <form className={styles.card} onSubmit={onSubmit}>
-      <h1 className={`${styles.title} typo-h1-upper`}>{copy.title}</h1>
-      <p className={`${styles.subtitle} typo-body`}>{copy.subtitle}</p>
+      <SectionTitle as="h1" size="h1" uppercase className={styles.title}>
+        {copy.title}
+      </SectionTitle>
+      <SectionSubtitle className={styles.subtitle}>{copy.subtitle}</SectionSubtitle>
 
       {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
       {success ? <p className={`${styles.message} ${styles.success} typo-small`}>{success}</p> : null}
-      <p className={`${styles.subtitle} typo-body`}>{copy.passwordPolicy}</p>
+      <SectionSubtitle className={styles.subtitle}>{copy.passwordPolicy}</SectionSubtitle>
 
       <div className={styles.inlineGrid}>
-        <input
+        <Input
           type="text"
           className={`${styles.input} typo-body`}
           value={token}
@@ -92,7 +97,7 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
           required
         />
 
-        <input
+        <Input
           type="password"
           className={`${styles.input} typo-body`}
           value={password}

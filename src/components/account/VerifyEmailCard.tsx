@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 
 import styles from './AuthForms.module.css'
 
@@ -57,7 +58,9 @@ export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
 
   return (
     <div className={styles.card}>
-      <h1 className={`${styles.title} typo-h1-upper`}>{copy.title}</h1>
+      <SectionTitle as="h1" size="h1" uppercase className={styles.title}>
+        {copy.title}
+      </SectionTitle>
       <p
         className={`${styles.message} typo-small ${
           status === 'success' ? styles.success : status === 'error' ? styles.error : styles.muted

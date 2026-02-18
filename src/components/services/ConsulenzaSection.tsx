@@ -3,7 +3,6 @@
 import { ConsultationForm } from '@/components/forms/ConsultationForm'
 import type { ConsultationFormData } from '@/components/forms/ConsultationForm'
 import styles from '@/components/forms/ConsultationForm.module.css'
-import { GlassCard } from '@/components/ui/glass-card'
 import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
 
 type ContactLinks = {
@@ -36,12 +35,7 @@ export function ConsulenzaSection({ contactLinks, source = 'service-navigator' }
       phoneDisplay={contactLinks.phoneDisplay}
       whatsappDisplay={contactLinks.whatsappDisplay}
       styles={styles}
-      contactStyleVariant="glass-card"
-      includeButtonBaseClass
       onSubmit={handleSubmit}
-      GlassCard={({ paddingClassName, children }) => (
-        <GlassCard paddingClassName={paddingClassName}>{children}</GlassCard>
-      )}
     />
   )
 }

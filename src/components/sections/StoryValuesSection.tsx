@@ -2,10 +2,10 @@
 
 import { useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import type { Swiper as SwiperInstance } from 'swiper/types'
-import 'swiper/css'
 import { SplitSection } from '@/components/ui/SplitSection'
+import { Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 
 import styles from './StoryValuesSection.module.css'
 
@@ -22,7 +22,7 @@ type StoryValuesSectionProps = {
 
 export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
-  const swiperRef = useRef<SwiperInstance | null>(null)
+  const swiperRef = useRef<UISwiperInstance | null>(null)
 
   const normalizedItems = useMemo(
     () =>
@@ -66,6 +66,8 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
                   fill
                   sizes="(max-width: 1024px) 100vw, 55vw"
                   className={styles.mediaImage}
+                  loading={index === activeIndex ? 'eager' : 'lazy'}
+                  fetchPriority="auto"
                 />
               ) : (
                 <div className={styles.mediaPlaceholder} />
@@ -77,9 +79,11 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
       right={
         <>
         <div className={styles.contentTop}>
-          <h2 className={`${styles.title} typo-h2`}>{activeItem?.title}</h2>
+          <SectionTitle as="h2" size="h2" className={styles.title}>
+            {activeItem?.title}
+          </SectionTitle>
           {activeItem?.description && (
-            <p className={`${styles.description} typo-body`}>{activeItem.description}</p>
+            <SectionSubtitle className={styles.description}>{activeItem.description}</SectionSubtitle>
           )}
         </div>
 

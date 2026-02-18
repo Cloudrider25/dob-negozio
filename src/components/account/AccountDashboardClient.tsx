@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import { LabelText } from '@/components/ui/label'
+import { Input, Select } from '@/components/ui/input'
 
 import { AccountLogoutButton } from './AccountLogoutButton'
 import styles from './AccountDashboardClient.module.css'
@@ -188,16 +190,16 @@ export function AccountDashboardClient({
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
         <nav className={styles.menu} aria-label={copy.nav.ariaLabel}>
-          <button className={`${styles.menuButton} typo-h3`} type="button" onClick={() => setSection('overview')}>
-            <span className={`${styles.menuButtonLabel} typo-h3`}>{copy.nav.overview}</span>
+          <button className={`${styles.menuButton} typo-body-lg`} type="button" onClick={() => setSection('overview')}>
+            <span className="typo-body-lg">{copy.nav.overview}</span>
             <span className={`${styles.menuDot} ${section === 'overview' ? styles.menuDotActive : ''}`} />
           </button>
-          <button className={`${styles.menuButton} typo-h3`} type="button" onClick={() => setSection('orders')}>
-            <span className={`${styles.menuButtonLabel} typo-h3`}>{copy.nav.orders}</span>
+          <button className={`${styles.menuButton} typo-body-lg`} type="button" onClick={() => setSection('orders')}>
+            <span className="typo-body-lg">{copy.nav.orders}</span>
             <span className={`${styles.menuDot} ${section === 'orders' ? styles.menuDotActive : ''}`} />
           </button>
-          <button className={`${styles.menuButton} typo-h3`} type="button" onClick={() => setSection('addresses')}>
-            <span className={`${styles.menuButtonLabel} typo-h3`}>{copy.nav.addresses}</span>
+          <button className={`${styles.menuButton} typo-body-lg`} type="button" onClick={() => setSection('addresses')}>
+            <span className="typo-body-lg">{copy.nav.addresses}</span>
             <span className={`${styles.menuDot} ${section === 'addresses' ? styles.menuDotActive : ''}`} />
           </button>
         </nav>
@@ -210,27 +212,29 @@ export function AccountDashboardClient({
         </p>
 
         <div className={styles.logoutWrap}>
-          <AccountLogoutButton locale={locale} className={`${styles.logoutButton} typo-small-upper`} label="LOG OUT" />
+          <AccountLogoutButton locale={locale} className="typo-small-upper" label="LOG OUT" />
         </div>
       </aside>
 
       <section className={styles.content}>
         {section === 'overview' ? (
           <>
-            <h1 className={`${styles.title} typo-h1`}>
+            <SectionTitle as="h2" size="h2" className={styles.title}>
               {copy.overview.greeting}, {firstName || copy.fallbackCustomer}
-            </h1>
+            </SectionTitle>
             <hr className={styles.sectionDivider} />
 
             <div className={styles.block}>
-              <h2 className={`${styles.subHeading} typo-h2`}>{copy.overview.yourInfo}</h2>
+              <SectionTitle as="h3" size="h3" uppercase className={styles.subHeading}>
+                {copy.overview.yourInfo}
+              </SectionTitle>
               <form className={styles.profileForm} onSubmit={onSaveProfile}>
                 <div className={styles.infoGrid}>
                   <label className={styles.profileField}>
                     <LabelText className={styles.label} variant="field">
                       {copy.overview.firstName}
                     </LabelText>
-                    <input
+                    <Input
                       className={`${styles.profileInput} typo-body`}
                       value={profileDraft.firstName}
                       onChange={(event) =>
@@ -243,7 +247,7 @@ export function AccountDashboardClient({
                     <LabelText className={styles.label} variant="field">
                       {copy.overview.lastName}
                     </LabelText>
-                    <input
+                    <Input
                       className={`${styles.profileInput} typo-body`}
                       value={profileDraft.lastName}
                       onChange={(event) =>
@@ -256,7 +260,7 @@ export function AccountDashboardClient({
                     <LabelText className={styles.label} variant="field">
                       {copy.overview.phone}
                     </LabelText>
-                    <input
+                    <Input
                       className={`${styles.profileInput} typo-body`}
                       value={profileDraft.phone}
                       onChange={(event) =>
@@ -269,7 +273,7 @@ export function AccountDashboardClient({
                     <LabelText className={styles.label} variant="field">
                       {copy.overview.email}
                     </LabelText>
-                    <p className={`${styles.value} typo-h3`}>{email}</p>
+                    <p className={`${styles.value} typo-body-lg`}>{email}</p>
                   </div>
                 </div>
                 <div className={styles.formActions}>
@@ -287,7 +291,9 @@ export function AccountDashboardClient({
 
             <div className={styles.block}>
               <div className={styles.rowBetween}>
-                <h2 className={`${styles.subHeading} typo-h2`}>{copy.overview.defaultAddress}</h2>
+                <SectionTitle as="h3" size="h3" uppercase className={styles.subHeading}>
+                  {copy.overview.defaultAddress}
+                </SectionTitle>
                 <button
                   type="button"
                   className={`${styles.inlineLink} typo-caption-upper`}
@@ -296,7 +302,7 @@ export function AccountDashboardClient({
                   {copy.overview.viewAddressBook}
                 </button>
               </div>
-              <p className={`${styles.value} typo-h3`}>
+              <p className={`${styles.value} typo-body-lg`}>
                 {defaultAddress
                   ? `${defaultAddress.country}`
                   : copy.overview.noDefaultAddress}
@@ -311,12 +317,14 @@ export function AccountDashboardClient({
         {section === 'orders' ? (
           <>
             {sortedOrders.length === 0 ? (
-              <h2 className={`${styles.title} typo-h1`}>{copy.orders.empty}</h2>
+              <SectionTitle as="h2" size="h2" className={styles.title}>
+                {copy.orders.empty}
+              </SectionTitle>
             ) : (
               <>
-                <h2 className={`${styles.title} typo-h1`}>
+                <SectionTitle as="h2" size="h2" className={styles.title}>
                   {copy.orders.title}, {firstName || copy.fallbackCustomer}
-                </h2>
+                </SectionTitle>
                 <hr className={styles.sectionDivider} />
                 <div className={styles.ordersList}>
                   {sortedOrders.map((order) => (
@@ -338,15 +346,17 @@ export function AccountDashboardClient({
 
         {section === 'addresses' ? (
           <>
-            <h2 className={`${styles.title} typo-h1`}>
+            <SectionTitle as="h2" size="h2" className={styles.title}>
               {copy.addresses.title}, {firstName || copy.fallbackCustomer}
-            </h2>
+            </SectionTitle>
             <hr className={styles.sectionDivider} />
             <div className={styles.block}>
               <div className={styles.rowBetween}>
                 <div>
-                  <h2 className={`${styles.subHeading} typo-h2`}>{copy.addresses.defaultAddress}</h2>
-                  <p className={`${styles.value} typo-h3`}>
+                  <SectionTitle as="h3" size="h3" uppercase className={styles.subHeading}>
+                    {copy.addresses.defaultAddress}
+                  </SectionTitle>
+                  <p className={`${styles.value} typo-body-lg`}>
                     {defaultAddress
                       ? `${defaultAddress.address}, ${defaultAddress.postalCode} ${defaultAddress.city} ${defaultAddress.province}, ${defaultAddress.country}`
                       : copy.addresses.noAddress}
@@ -370,8 +380,10 @@ export function AccountDashboardClient({
 
             {showAddressForm ? (
               <form className={styles.addressForm} onSubmit={onSaveAddress}>
-                <h2 className={`${styles.addressFormTitle} typo-h2`}>{copy.addresses.formTitle}</h2>
-                <input
+                <SectionTitle as="h3" size="h3" className={styles.addressFormTitle}>
+                  {copy.addresses.formTitle}
+                </SectionTitle>
+                <Input
                   className={`${styles.input} typo-body`}
                   placeholder={copy.addresses.firstName}
                   value={addressDraft.firstName}
@@ -379,7 +391,7 @@ export function AccountDashboardClient({
                     setAddressDraft((prev) => ({ ...prev, firstName: event.target.value }))
                   }
                 />
-                <input
+                <Input
                   className={`${styles.input} typo-body`}
                   placeholder={copy.addresses.lastName}
                   value={addressDraft.lastName}
@@ -387,7 +399,7 @@ export function AccountDashboardClient({
                     setAddressDraft((prev) => ({ ...prev, lastName: event.target.value }))
                   }
                 />
-                <input
+                <Input
                   className={`${styles.input} typo-body`}
                   placeholder={copy.addresses.company}
                   value={addressDraft.company}
@@ -395,7 +407,7 @@ export function AccountDashboardClient({
                     setAddressDraft((prev) => ({ ...prev, company: event.target.value }))
                   }
                 />
-                <input
+                <Input
                   className={`${styles.input} typo-body`}
                   placeholder={copy.addresses.streetAddress}
                   maxLength={30}
@@ -405,7 +417,7 @@ export function AccountDashboardClient({
                   }
                 />
                 <p className={`${styles.limitHint} typo-caption`}>{copy.addresses.limitHint}</p>
-                <input
+                <Input
                   className={`${styles.input} typo-body`}
                   placeholder={copy.addresses.apartment}
                   maxLength={30}
@@ -425,7 +437,7 @@ export function AccountDashboardClient({
                   }
                 />
                 <p className={`${styles.limitHint} typo-caption`}>{copy.addresses.limitHint}</p>
-                <select
+                <Select
                   className={`${styles.select} typo-body`}
                   value={addressDraft.country}
                   onChange={(event) =>
@@ -433,8 +445,8 @@ export function AccountDashboardClient({
                   }
                 >
                   <option value="Italy">{copy.addresses.countryItaly}</option>
-                </select>
-                <select
+                </Select>
+                <Select
                   className={`${styles.select} typo-body`}
                   value={addressDraft.province}
                   onChange={(event) =>
@@ -444,8 +456,8 @@ export function AccountDashboardClient({
                   <option value="">{copy.addresses.province}</option>
                   <option value="Monza and Brianza">{copy.addresses.provinceMonza}</option>
                   <option value="Milano">{copy.addresses.provinceMilano}</option>
-                </select>
-                <input
+                </Select>
+                <Input
                   className={`${styles.input} typo-body`}
                   placeholder={copy.addresses.postalCode}
                   value={addressDraft.postalCode}
@@ -453,7 +465,7 @@ export function AccountDashboardClient({
                     setAddressDraft((prev) => ({ ...prev, postalCode: event.target.value }))
                   }
                 />
-                <input
+                <Input
                   className={`${styles.input} typo-body`}
                   placeholder={copy.addresses.phone}
                   value={addressDraft.phone}

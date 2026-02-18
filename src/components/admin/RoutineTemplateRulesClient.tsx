@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDocumentInfo, useLocale } from '@payloadcms/ui'
+import { Select } from '@/components/ui/input'
 import styles from './RoutineTemplateBuilder.module.css'
 
 type StepOption = { id: string; label: string; slug?: string }
@@ -288,8 +289,9 @@ export function RoutineTemplateRulesClient({
                 ) : (
                   stepRules.map((rule, index) => (
                     <div key={rule.id ?? `${rule.routineStepId}-${index}`} className={styles.ruleRow}>
-                      <select
-                        className={styles.select}
+                      <Select
+                        kind="admin"
+                        size="compact"
                         value={rule.ruleType}
                         onChange={(event) => {
                           const value = event.target.value as StepRule['ruleType']
@@ -303,9 +305,10 @@ export function RoutineTemplateRulesClient({
                             {type}
                           </option>
                         ))}
-                      </select>
-                      <select
-                        className={styles.select}
+                      </Select>
+                      <Select
+                        kind="admin"
+                        size="compact"
                         value={rule.timingId ?? ''}
                         onChange={(event) => {
                           const value = event.target.value || null
@@ -320,9 +323,10 @@ export function RoutineTemplateRulesClient({
                             {timing.label}
                           </option>
                         ))}
-                      </select>
-                      <select
-                        className={styles.select}
+                      </Select>
+                      <Select
+                        kind="admin"
+                        size="compact"
                         value={rule.skinTypeId ?? ''}
                         onChange={(event) => {
                           const value = event.target.value || null
@@ -337,7 +341,7 @@ export function RoutineTemplateRulesClient({
                             {skin.label}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                       <button
                         type="button"
                         className={styles.ghostButton}

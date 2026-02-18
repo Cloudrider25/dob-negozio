@@ -125,6 +125,8 @@ export default async function JournalPage({
                   width={640}
                   height={640}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  loading="lazy"
+                  fetchPriority="auto"
                 />
                 {item.caption && (
                   <span className={`${styles.caption} typo-caption-upper`}>{item.caption.slice(0, 120)}</span>

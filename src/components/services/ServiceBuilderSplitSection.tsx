@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import type { Swiper as SwiperInstance } from 'swiper/types'
-import 'swiper/css'
 
 import type { NavigatorData } from '@/components/services/navigator-data-context'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
+import { Button } from '@/components/ui/button'
+import { StateCircleButton } from '@/components/ui/StateCircleButton'
 import { SplitSection } from '@/components/ui/SplitSection'
+import { Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
 import styles from './ServiceBuilderSplitSection.module.css'
 
 type ServiceBuilderSplitSectionProps = {
@@ -37,8 +39,8 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
   const [selectedTreatmentId, setSelectedTreatmentId] = useState<string | null>(null)
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null)
 
-  const leftSwiperRef = useRef<SwiperInstance | null>(null)
-  const rightSwiperRef = useRef<SwiperInstance | null>(null)
+  const leftSwiperRef = useRef<UISwiperInstance | null>(null)
+  const rightSwiperRef = useRef<UISwiperInstance | null>(null)
 
   const selectedArea =
     orderedAreas.find((area) => area.id === selectedAreaId) ?? orderedAreas[0] ?? null
@@ -144,83 +146,95 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
           >
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h2 className={`${styles.heading} typo-h2-upper`}>Scegli il risultato. Al resto pensiamo noi.</h2>
-                <p className={`${styles.bodyText} typo-body`}>
+                <SectionTitle as="h2" size="h2" uppercase className={styles.heading}>
+                  Scegli il risultato. Al resto pensiamo noi.
+                </SectionTitle>
+                <SectionSubtitle className={styles.bodyText}>
                   Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
-                </p>
+                </SectionSubtitle>
                 <div className={styles.stepActions}>
                   <span className={styles.stepActionSpacer} aria-hidden="true" />
-                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(1)}>
+                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(1)}>
                     Inizia
-                  </button>
+                  </Button>
                 </div>
               </div>
             </SwiperSlide>
 
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h2 className={`${styles.heading} typo-h2-upper`}>Parti dall&apos;area da trattare</h2>
-                <p className={`${styles.bodyText} typo-body`}>
+                <SectionTitle as="h2" size="h2" uppercase className={styles.heading}>
+                  Parti dall&apos;area da trattare
+                </SectionTitle>
+                <SectionSubtitle className={styles.bodyText}>
                   {activeArea?.description ||
                     "Seleziona l'area su cui vuoi intervenire per iniziare la configurazione."}
-                </p>
+                </SectionSubtitle>
                 <div className={styles.circleList}>
                   {orderedAreas.map((area) => (
-                    <button
+                    <StateCircleButton
                       key={area.id}
-                      type="button"
-                      className={`${styles.circleItem} typo-small-upper ${
-                        area.id === activeAreaId ? styles.circleItemActive : ''
-                      } ${selectedAreaId === area.id ? styles.circleItemSelected : ''}`}
+                      baseClassName={styles.circleItem}
+                      typographyClassName="typo-small-upper"
+                      active={area.id === activeAreaId}
+                      selected={selectedAreaId === area.id}
                       onMouseEnter={() => setActiveAreaId(area.id)}
                       onFocus={() => setActiveAreaId(area.id)}
                       onMouseLeave={() => setActiveAreaId(selectedAreaId)}
                       onClick={() => handleAreaSelect(area.id)}
                     >
                       {area.label}
-                    </button>
+                    </StateCircleButton>
                   ))}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(0)}>
+                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(0)}>
                     Torna indietro
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    kind="main"
+                    size="sm"
+                    interactive
                     type="button"
-                    className={`${styles.navButton} typo-caption-upper`}
+                    className={styles.navButton}
                     disabled={!selectedAreaId}
                     onClick={() => goToStep(2)}
                   >
                     Prosegui
-                  </button>
+                  </Button>
                 </div>
               </div>
             </SwiperSlide>
 
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h2 className={`${styles.heading} typo-h2-upper`}>Definisci obiettivo e trattamento</h2>
-                <p className={`${styles.bodyText} typo-body`}>
+                <SectionTitle as="h2" size="h2" uppercase className={styles.heading}>
+                  Definisci obiettivo e trattamento
+                </SectionTitle>
+                <SectionSubtitle className={styles.bodyText}>
                   {selectedGoal?.description ||
                     selectedTreatment?.description ||
                     'Scegli il percorso più adatto al risultato che vuoi ottenere.'}
-                </p>
+                </SectionSubtitle>
 
                 {goalsForArea.length > 0 ? (
                   <div className={styles.block}>
                     <p className={`${styles.blockLabel} typo-caption-upper`}>Obiettivo</p>
                     <div className={styles.pillList}>
                       {goalsForArea.map((goal) => (
-                        <button
+                        <Button
+                          kind="main"
+                          size="sm"
+                          interactive
                           key={goal.id}
                           type="button"
-                          className={`${styles.pillItem} typo-caption-upper ${
+                          className={`${styles.pillItem} ${
                             selectedGoal?.id === goal.id ? styles.pillItemActive : ''
                           }`}
                           onClick={() => setSelectedGoalId(goal.id)}
                         >
                           {goal.label}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -230,44 +244,52 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                   <p className={`${styles.blockLabel} typo-caption-upper`}>Trattamento</p>
                   <div className={styles.pillList}>
                     {treatmentsForSelection.map((treatment) => (
-                      <button
+                      <Button
+                        kind="main"
+                        size="sm"
+                        interactive
                         key={treatment.id}
                         type="button"
-                        className={`${styles.pillItem} typo-caption-upper ${
+                        className={`${styles.pillItem} ${
                           selectedTreatment?.id === treatment.id ? styles.pillItemActive : ''
                         }`}
                         onClick={() => setSelectedTreatmentId(treatment.id)}
                       >
                         {treatment.label}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
 
                 <div className={styles.stepActions}>
-                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(1)}>
+                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(1)}>
                     Torna indietro
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    kind="main"
+                    size="sm"
+                    interactive
                     type="button"
-                    className={`${styles.navButton} typo-caption-upper`}
+                    className={styles.navButton}
                     disabled={!selectedTreatment}
                     onClick={() => goToStep(3)}
                   >
                     Prosegui
-                  </button>
+                  </Button>
                 </div>
               </div>
             </SwiperSlide>
 
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
-                <h2 className={`${styles.heading} typo-h2-upper`}>Servizi suggeriti</h2>
-                <p className={`${styles.bodyText} typo-body`}>
+                <SectionTitle as="h2" size="h2" uppercase className={styles.heading}>
+                  Servizi suggeriti
+                </SectionTitle>
+                <SectionSubtitle className={styles.bodyText}>
                   {selectedTreatment
                     ? `Seleziona un servizio per ${selectedTreatment.label.toLowerCase()}.`
                     : 'Seleziona prima un trattamento.'}
-                </p>
+                </SectionSubtitle>
                 <div className={styles.serviceList}>
                   {servicesForTreatment.length > 0 ? (
                     servicesForTreatment.map((service) => (
@@ -279,7 +301,7 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                         }`}
                         onClick={() => setActiveServiceId(service.id)}
                       >
-                        <p className={`${styles.serviceTitle} typo-body`}>{service.title}</p>
+                        <SectionSubtitle className={styles.serviceTitle}>{service.title}</SectionSubtitle>
                         <p className={`${styles.serviceMeta} typo-small`}>
                           {service.durationMin > 0 ? `${service.durationMin} min` : 'Durata su richiesta'}
                           {service.price ? ` · ${formatPrice(service.price)}` : ''}
@@ -287,13 +309,15 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                       </button>
                     ))
                   ) : (
-                    <p className={`${styles.emptyState} typo-body`}>Nessun servizio disponibile per la selezione corrente.</p>
+                    <SectionSubtitle className={styles.emptyState}>
+                      Nessun servizio disponibile per la selezione corrente.
+                    </SectionSubtitle>
                   )}
                 </div>
                 <div className={styles.stepActions}>
-                  <button type="button" className={`${styles.navButton} typo-caption-upper`} onClick={() => goToStep(2)}>
+                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(2)}>
                     Torna indietro
-                  </button>
+                  </Button>
                 </div>
               </div>
             </SwiperSlide>
@@ -367,7 +391,9 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
 
                 {activeService ? (
                   <div className={styles.serviceInfo}>
-                    <p className={`${styles.serviceInfoTitle} typo-body-lg`}>{activeService.title}</p>
+                    <SectionSubtitle size="body-lg" className={styles.serviceInfoTitle}>
+                      {activeService.title}
+                    </SectionSubtitle>
                     <p className={`${styles.serviceInfoMeta} typo-small`}>
                       {activeService.durationMin > 0
                         ? `${activeService.durationMin} min`
@@ -375,7 +401,9 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                       {activeService.price ? ` · ${formatPrice(activeService.price)}` : ''}
                     </p>
                     {activeService.description ? (
-                      <p className={`${styles.serviceInfoDescription} typo-body`}>{activeService.description}</p>
+                      <SectionSubtitle className={styles.serviceInfoDescription}>
+                        {activeService.description}
+                      </SectionSubtitle>
                     ) : null}
                   </div>
                 ) : null}

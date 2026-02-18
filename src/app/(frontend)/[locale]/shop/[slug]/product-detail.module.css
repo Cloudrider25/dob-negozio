@@ -11,11 +11,7 @@
   margin-top: 2.5vw;
 }
 
-.hero,
-.insideGrid,
-.faqGrid,
-.treatmentGrid,
-.lineGrid {
+.treatmentGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--split-gap);
@@ -483,8 +479,10 @@
   width: 100%;
 }
 
-.insideGrid {
-  align-items: stretch;
+.insideColumn {
+  min-height: 0;
+  height: 640px;
+  overflow: hidden;
 }
 
 .insideMedia {
@@ -521,15 +519,19 @@
   background: var(--bg);
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  padding: 2.2rem 3.2rem 2.2rem 2.4rem;
+  padding: 2.2rem 3.2rem 2.2rem calc(2.4rem + 54px);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
   position: relative;
-  min-height: 640px;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
   justify-content: flex-end;
-  align-items: flex-end;
   text-align: left;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .insideLabel {
@@ -547,7 +549,6 @@
 
 .insideRich {
   color: var(--text-secondary);
-  margin-left: 54px;
 }
 
 .insideRich :global(p) {
@@ -583,10 +584,6 @@
 
 .faqSection {
   width: 100%;
-}
-
-.faqGrid {
-  align-items: stretch;
 }
 
 .faqCopy {
@@ -899,11 +896,8 @@
   }
 
   .hero,
-  .insideGrid,
-  .faqGrid,
   .detailGrid,
-  .treatmentGrid,
-  .lineGrid {
+  .treatmentGrid {
     grid-template-columns: 1fr;
   }
 
@@ -919,6 +913,10 @@
   .insideLabel {
     position: static;
     writing-mode: horizontal-tb;
+  }
+
+  .insideContent {
+    padding-left: 2.4rem;
   }
 
   .treatmentRail {
@@ -987,10 +985,6 @@
 
 .lineSection {
   width: 100%;
-}
-
-.lineGrid {
-  align-items: stretch;
 }
 
 .lineCopy {

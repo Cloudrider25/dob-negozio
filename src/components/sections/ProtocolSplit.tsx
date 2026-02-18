@@ -4,6 +4,9 @@ import Image from 'next/image'
 import { useState } from 'react'
 
 import styles from './ProtocolSplit.module.css'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
+import { StateCircleButton } from '@/components/ui/StateCircleButton'
 import { SplitSection } from '@/components/ui/SplitSection'
 
 export type ProtocolSplitStep = {
@@ -21,7 +24,7 @@ const defaultSteps: ProtocolSplitStep[] = [
     label: 'Diagnosi',
     title: 'Diagnosi su misura',
     subtitle: 'Analisi approfondita della pelle e degli obiettivi per definire il protocollo.',
-    image: '/media/hero_homepage_light.png',
+    image: '/api/media/file/hero_homepage_light-1.png',
     imageAlt: 'Diagnosi su misura',
   },
   {
@@ -29,7 +32,7 @@ const defaultSteps: ProtocolSplitStep[] = [
     label: 'Tecnologia',
     title: 'Tecnologia mirata',
     subtitle: 'Tecniche avanzate e macchinari selezionati per risultati visibili e duraturi.',
-    image: '/media/hero_homepage_dark.png',
+    image: '/api/media/file/hero_homepage_dark-1.png',
     imageAlt: 'Tecnologia mirata',
   },
   {
@@ -37,7 +40,7 @@ const defaultSteps: ProtocolSplitStep[] = [
     label: 'Rituale',
     title: 'Rituale personalizzato',
     subtitle: 'Rituali di bellezza calibrati per mantenere e potenziare i risultati.',
-    image: '/media/493b3205c13b5f67b36cf794c2222583.jpg',
+    image: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg',
     imageAlt: 'Rituale personalizzato',
   },
 ]
@@ -82,8 +85,10 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
                   key={step.id}
                   className={`${styles.slide} ${styles.textSlide} ${getSlideState(index)}`}
                 >
-                  <h3 className={`${styles.title} typo-h2-upper`}>{step.title}</h3>
-                  <p className={`${styles.subtitle} typo-body`}>{step.subtitle}</p>
+                  <SectionTitle as="h3" size="h2" uppercase>
+                    {step.title}
+                  </SectionTitle>
+                  <SectionSubtitle className={styles.subtitle}>{step.subtitle}</SectionSubtitle>
                 </div>
               ))}
             </div>
@@ -94,16 +99,17 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
           >
             {resolvedSteps.map((step, index) => (
               <div key={step.id} className={styles.step}>
-                <button
-                  className={`${styles.stepBtn} typo-small-upper ${index === activeIndex ? styles.stepBtnActive : ''}`}
-                  type="button"
+                <StateCircleButton
+                  baseClassName={styles.stepBtn}
+                  typographyClassName="typo-small-upper"
+                  active={index === activeIndex}
                   aria-pressed={index === activeIndex}
                   onMouseEnter={() => activateStep(index)}
                   onFocus={() => activateStep(index)}
                   onClick={() => activateStep(index)}
                 >
                   {step.id}
-                </button>
+                </StateCircleButton>
                 <p className={`${styles.stepLabel} typo-caption-upper`}>{step.label}</p>
               </div>
             ))}
@@ -112,17 +118,18 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
       }
       right={
         <div className={styles.imageSlider}>
-          {resolvedSteps.map((step, index) => (
-            <div key={step.id} className={`${styles.slide} ${getSlideState(index)}`}>
+          {resolvedSteps[activeIndex] && (
+            <div key={resolvedSteps[activeIndex].id} className={`${styles.slide} ${styles.slideActive}`}>
               <Image
-                src={step.image}
-                alt={step.imageAlt}
+                src={resolvedSteps[activeIndex].image}
+                alt={resolvedSteps[activeIndex].imageAlt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                priority={index === 0}
+                loading="lazy"
+                fetchPriority="auto"
               />
             </div>
-          ))}
+          )}
         </div>
       }
     />

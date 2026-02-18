@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react'
 
 import styles from './ProgramsSplitSection.module.css'
 import serviceCardStyles from '@/components/carousel/UIC_CarouselCard.module.css'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import { Button } from '@/components/ui/button'
 import { ButtonLink } from '@/components/ui/button-link'
 import { CircleArrowLeft, CircleArrowRight } from '@/components/ui/icons'
@@ -62,7 +64,9 @@ export const ProgramsSplitSection = ({
               alt={leftMedia.alt || 'Program media'}
               fill
               sizes="(max-width: 1024px) 100vw, 48vw"
-              className={direction === 'next' ? styles.slideNext : styles.slidePrev}
+              className={`object-cover ${direction === 'next' ? styles.slideNext : styles.slidePrev}`}
+              loading="lazy"
+              fetchPriority="auto"
             />
           )}
           <div className={styles.dots}>
@@ -106,8 +110,12 @@ export const ProgramsSplitSection = ({
         </div>
         {activeIndex === 0 ? (
           <>
-            <h3 className={`${styles.title} typo-h2-upper`}>{program.title}</h3>
-            <p className={`${styles.subtitle} ${styles.subtitleCentered} typo-body`}>{program.description}</p>
+            <SectionTitle as="h3" size="h2" uppercase className={styles.title}>
+              {program.title}
+            </SectionTitle>
+            <SectionSubtitle className={styles.subtitle}>
+              {program.description}
+            </SectionSubtitle>
             <div className={styles.metaRow}>
               {programHref ? (
                 <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
@@ -125,9 +133,15 @@ export const ProgramsSplitSection = ({
           </>
         ) : (
           <>
-            <h3 className={`${styles.title} typo-h2-upper`}>{program.title}</h3>
+            <SectionTitle as="h3" size="h2" uppercase className={styles.title}>
+              {program.title}
+            </SectionTitle>
             <div className={styles.stepMediaRow}>
-              {activeStep?.badge && <span className={`${styles.stepBadge} typo-h2-upper`}>{activeStep.badge}</span>}
+              {activeStep?.badge && (
+                <SectionTitle as="span" size="h2" uppercase className={styles.stepBadge}>
+                  {activeStep.badge}
+                </SectionTitle>
+              )}
               <div className={styles.stepMedia}>
                 {activeStep?.detailMedia?.url && (
                   <Image
@@ -136,14 +150,18 @@ export const ProgramsSplitSection = ({
                     fill
                     sizes="(max-width: 1024px) 100vw, 40vw"
                     className={direction === 'next' ? styles.slideNext : styles.slidePrev}
+                    loading="lazy"
+                    fetchPriority="auto"
                   />
                 )}
               </div>
             </div>
             <div className={styles.stepFooter}>
               <div className={styles.stepInfo}>
-                <p className={`${styles.stepTitle} typo-small-upper`}>{activeStep?.title}</p>
-                <p className={`${styles.stepSubtitle} typo-body`}>{activeStep?.subtitle}</p>
+                <SectionSubtitle size="small" uppercase className={styles.stepTitle}>
+                  {activeStep?.title}
+                </SectionSubtitle>
+                <SectionSubtitle className={styles.stepSubtitle}>{activeStep?.subtitle}</SectionSubtitle>
                 {programHref ? (
                   <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
                     Scopri {program.title}

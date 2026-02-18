@@ -1,0 +1,62 @@
+.filterCount {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-primary) 14%, transparent);
+}
+
+.filters {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  margin-top: 2.5vw;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+}
+
+.filterGroup {
+  position: relative;
+  z-index: 15;
+  overflow: visible;
+}
+
+.filterPill {
+  white-space: nowrap;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 0;
+  min-width: 220px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  box-shadow: none;
+  z-index: 20;
+}
+
+.dropdownItem {
+  white-space: nowrap;
+  background: var(--bg);
+}
+
+.dropdownItemActive {
+  font-weight: 600;
+}
+
+.dropdownEmpty {
+  padding: 0.5rem 0.6rem;
+}

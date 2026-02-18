@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDocumentInfo, useLocale } from '@payloadcms/ui'
+import { Input, Select } from '@/components/ui/input'
 import styles from './RoutineTemplateBuilder.module.css'
 
 type StepOption = { id: string; label: string; slug?: string }
@@ -208,8 +209,9 @@ export function RoutineTemplateBuilderClient({
           <section className={styles.panel}>
             <h3 className={styles.panelTitle}>Step del template</h3>
             <div className={styles.stepAddRow}>
-              <select
-                className={styles.select}
+              <Select
+                kind="admin"
+                size="compact"
                 value={newStepId}
                 onChange={(event) => setNewStepId(event.target.value)}
               >
@@ -219,7 +221,7 @@ export function RoutineTemplateBuilderClient({
                     {step.label}
                   </option>
                 ))}
-              </select>
+              </Select>
               <button type="button" className={styles.secondaryButton} onClick={handleAddStep}>
                 Aggiungi
               </button>
@@ -235,9 +237,10 @@ export function RoutineTemplateBuilderClient({
                     </div>
                     <label className={styles.inlineField}>
                       Ordine
-                      <input
+                      <Input
+                        kind="admin"
                         type="number"
-                        className={styles.input}
+                        size="compact"
                         value={step.stepOrder}
                         onChange={(event) => {
                           const value = Number.parseInt(event.target.value, 10)

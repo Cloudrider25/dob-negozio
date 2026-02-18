@@ -13,7 +13,7 @@ export function AuthSplitLayout({ children, locale }: { children: ReactNode; loc
       <div className={styles.shell}>
         <aside className={styles.visual} aria-hidden>
           <Image
-            src="/media/493b3205c13b5f67b36cf794c2222583.jpg"
+            src="/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg"
             alt=""
             fill
             priority

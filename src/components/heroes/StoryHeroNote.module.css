@@ -18,7 +18,7 @@
 
 .media img {
   object-fit: cover;
-  filter: saturate(0.85);
+filter: saturate(0.85);
 }
 
 .inner {

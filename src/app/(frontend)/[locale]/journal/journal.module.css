@@ -19,7 +19,7 @@
   height: 100%;
   width: 100%;
   object-fit: cover;
-  transition: transform 0.8s var(--ease-lux);
+transition: transform 0.8s var(--ease-lux);
 }
 
 .card::after {

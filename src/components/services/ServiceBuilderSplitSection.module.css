@@ -58,12 +58,10 @@
 
 .heading {
   margin: 0;
-  color: var(--text-primary);
 }
 
 .bodyText {
   margin: 0;
-  color: var(--text-secondary);
 }
 
 .circleList {
@@ -77,27 +75,6 @@
   min-width: 112px;
   min-height: 112px;
   padding: 0.8rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
-  background: transparent;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--text-primary);
-  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
-}
-
-.circleItem:hover,
-.circleItemActive {
-  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
-  transform: translateY(-1px);
-}
-
-.circleItemSelected {
-  background: color-mix(in srgb, var(--text-primary) 86%, transparent);
-  border-color: color-mix(in srgb, var(--text-primary) 86%, transparent);
-  color: var(--text-inverse);
 }
 
 .block {
@@ -108,7 +85,6 @@
 
 .blockLabel {
   margin: 0;
-  color: var(--text-secondary);
 }
 
 .pillList {
@@ -118,18 +94,13 @@
 }
 
 .pillItem {
-  border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
-  border-radius: 999px;
-  padding: 0.42rem 0.85rem;
-  color: var(--text-primary);
-  background: transparent;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
 }
 
-.pillItemActive,
-.pillItem:hover {
-  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
+.pillItemActive {
+  --btn-bg: var(--btn-active-bg);
+  --btn-text: var(--btn-active-text);
+  --btn-border: var(--btn-active-border);
 }
 
 .stepActions {
@@ -146,21 +117,7 @@
 }
 
 .navButton {
-  border: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
-  border-radius: 999px;
-  padding: 0.45rem 0.95rem;
-  background: transparent;
-  color: var(--text-primary);
-  transition: border-color 0.2s ease, opacity 0.2s ease;
-}
-
-.navButton:hover {
-  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
-}
-
-.navButton:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
+  flex-shrink: 0;
 }
 
 .serviceList {
@@ -190,24 +147,21 @@
 
 .serviceTitle {
   margin: 0;
-  color: var(--text-primary);
 }
 
 .serviceMeta {
   margin: 0.35rem 0 0;
-  color: var(--text-secondary);
 }
 
 .emptyState {
   margin: 0.2rem 0 0;
-  color: var(--text-secondary);
 }
 
 .mediaImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+display: block;
 }
 
 .summaryPanel {
@@ -228,7 +182,6 @@
   border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
   border-radius: 999px;
   padding: 0.32rem 0.7rem;
-  color: var(--text-primary);
 }
 
 .serviceImage {
@@ -236,7 +189,7 @@
   aspect-ratio: 16 / 9;
   border-radius: 14px;
   object-fit: cover;
-  border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
+border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
 }
 
 .serviceInfo {
@@ -246,17 +199,14 @@
 
 .serviceInfoTitle {
   margin: 0;
-  color: var(--text-primary);
 }
 
 .serviceInfoMeta {
   margin: 0;
-  color: var(--text-secondary);
 }
 
 .serviceInfoDescription {
   margin: 0.25rem 0 0;
-  color: var(--text-secondary);
 }
 
 .mediaPlaceholder {
@@ -265,7 +215,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
   border: 1px dashed color-mix(in srgb, var(--stroke) 55%, transparent);
   border-radius: 14px;
 }

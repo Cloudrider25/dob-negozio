@@ -1,5 +1,7 @@
 import Image from 'next/image'
 
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import styles from './StoryHero.module.css'
 import { ButtonLink } from '@/components/ui/button-link'
 
@@ -20,7 +22,7 @@ export const StoryHero = ({ locale, title, body, ctaLabel, ctaHref, media }: Sto
     <section className={styles.section} aria-label="Story highlight">
       <div className={styles.media}>
         <Image
-          src={media?.url || '/media/hero_homepage_light.png'}
+          src={media?.url || '/api/media/file/hero_homepage_light-1.png'}
           alt={media?.alt || ''}
           fill
           priority={false}
@@ -28,11 +30,13 @@ export const StoryHero = ({ locale, title, body, ctaLabel, ctaHref, media }: Sto
         />
       </div>
       <div className={styles.card}>
-        <h2 className={`${styles.title} typo-h3`}>{title || 'il necessario, fatto davvero bene'}</h2>
-        <p className={`${styles.body} typo-body`}>
+        <SectionTitle as="h2" size="h3" className={styles.title}>
+          {title || 'il necessario, fatto davvero bene'}
+        </SectionTitle>
+        <SectionSubtitle className={styles.body}>
           {body ||
             'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'}
-        </p>
+        </SectionSubtitle>
         <ButtonLink href={ctaHref || `/${locale}/shop`} kind="main" interactive>
           {ctaLabel || 'Scopri DOB'}
         </ButtonLink>

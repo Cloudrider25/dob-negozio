@@ -11,7 +11,7 @@ import { ServicesToggle } from '@/components/services/ServicesToggle'
 import { ButtonLink } from '@/components/ui/button-link'
 import styles from './services-category.module.css'
 
-const fallbackImage = '/media/493b3205c13b5f67b36cf794c2222583.jpg'
+const fallbackImage = '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg'
 const highlightFallbackLeft =
   'https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&fit=crop&w=800&q=80'
 const highlightFallbackRight =
@@ -197,13 +197,15 @@ export default async function ServiceCategoryPage({
       >
         <div className={styles.highlightMedia}>
           {highlightImageLeft.mimeType?.startsWith('video/') ? (
-            <video src={highlightImageLeft.url} autoPlay muted loop playsInline />
+            <video src={highlightImageLeft.url} autoPlay muted loop playsInline preload="none" />
           ) : (
             <Image
               src={highlightImageLeft.url}
               alt={highlightImageLeft.alt}
               fill
               sizes="(max-width: 1024px) 100vw, 320px"
+              loading="lazy"
+              fetchPriority="auto"
             />
           )}
         </div>
@@ -241,13 +243,15 @@ export default async function ServiceCategoryPage({
         </div>
         <div className={styles.highlightMedia}>
           {highlightImageRight.mimeType?.startsWith('video/') ? (
-            <video src={highlightImageRight.url} autoPlay muted loop playsInline />
+            <video src={highlightImageRight.url} autoPlay muted loop playsInline preload="none" />
           ) : (
             <Image
               src={highlightImageRight.url}
               alt={highlightImageRight.alt}
               fill
               sizes="(max-width: 1024px) 100vw, 320px"
+              loading="lazy"
+              fetchPriority="auto"
             />
           )}
         </div>
@@ -279,6 +283,7 @@ export default async function ServiceCategoryPage({
                   : null,
               href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
             }))}
+            prioritizeFirstSlideImage
             ariaLabel="Services carousel"
             emptyLabel="Nessun servizio disponibile."
           />

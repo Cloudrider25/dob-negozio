@@ -5,6 +5,9 @@ import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { ArrowRight, Beaker, Phone, WhatsApp, type IconProps } from '@/components/ui/icons'
 import { Label } from '@/components/ui/label'
+import { Input, Textarea } from '@/components/ui/input'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import type { ConsultationLeadInput } from '@/lib/consultation/types'
 
 export type ConsultationFormData = ConsultationLeadInput
@@ -19,12 +22,8 @@ type ConsultationFormState = {
   message: string
 }
 
-type ContactStyleVariant = 'glass-card' | 'plain'
-
 type ConsultationFormStyles = Record<string, string>
 type IconComponent = (props: IconProps) => ReactNode
-
-type GlassCardComponent = (props: { paddingClassName?: string; children: ReactNode }) => ReactNode
 
 export type ConsultationFormProps = {
   phoneLink: string
@@ -32,9 +31,6 @@ export type ConsultationFormProps = {
   phoneDisplay: string
   whatsappDisplay: string
   styles: ConsultationFormStyles
-  contactStyleVariant?: ContactStyleVariant
-  includeButtonBaseClass?: boolean
-  GlassCard?: GlassCardComponent
   onSubmit?: (data: ConsultationFormData) => Promise<void> | void
   submitSuccessMessage?: string
   submitErrorMessage?: string
@@ -68,9 +64,6 @@ export function ConsultationForm({
   phoneDisplay,
   whatsappDisplay,
   styles,
-  contactStyleVariant = 'plain',
-  includeButtonBaseClass = false,
-  GlassCard,
   onSubmit,
   submitSuccessMessage = 'Richiesta inviata con successo. Ti ricontatteremo entro 24 ore.',
   submitErrorMessage = 'Impossibile inviare la richiesta al momento. Riprova tra poco.',
@@ -144,19 +137,6 @@ export function ConsultationForm({
       </>
     )
 
-    if (contactStyleVariant === 'glass-card' && GlassCard) {
-      return (
-        <a
-          href={href}
-          className={styles.contactLink}
-          target={external ? '_blank' : undefined}
-          rel={external ? 'noopener noreferrer' : undefined}
-        >
-          {GlassCard({ paddingClassName: styles.contactButton, children: buttonContent })}
-        </a>
-      )
-    }
-
     return (
       <a
         href={href}
@@ -186,23 +166,25 @@ export function ConsultationForm({
         >
           <Beaker className={styles.heroIcon} />
         </motion.div>
-        <motion.h2
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className={`${styles.heroTitle} typo-h2`}
         >
-          Skin Analyzer & Consulenza Personalizzata
-        </motion.h2>
-        <motion.p
+          <SectionTitle as="h2" size="h2" className={styles.heroTitle}>
+            Skin Analyzer & Consulenza Personalizzata
+          </SectionTitle>
+        </motion.div>
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className={`${styles.heroSubtitle} typo-body`}
         >
-          Compila il form per richiedere un&apos;analisi professionale della tua pelle e ricevere
-          una consulenza personalizzata con i nostri esperti.
-        </motion.p>
+          <SectionSubtitle className={styles.heroSubtitle}>
+            Compila il form per richiedere un&apos;analisi professionale della tua pelle e ricevere
+            una consulenza personalizzata con i nostri esperti.
+          </SectionSubtitle>
+        </motion.div>
       </div>
 
       <motion.div
@@ -248,16 +230,16 @@ export function ConsultationForm({
         className={styles.form}
       >
         <div>
-          <h3 className={`${styles.sectionTitle} typo-h3`}>
+          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Informazioni Personali
-          </h3>
+          </SectionTitle>
           <div className={styles.formGrid}>
             <div>
               <Label className={styles.label} variant="field" required>
                 Nome
               </Label>
-              <input
+              <Input
                 type="text"
                 required
                 value={formData.firstName}
@@ -270,7 +252,7 @@ export function ConsultationForm({
               <Label className={styles.label} variant="field" required>
                 Cognome
               </Label>
-              <input
+              <Input
                 type="text"
                 required
                 value={formData.lastName}
@@ -283,7 +265,7 @@ export function ConsultationForm({
               <Label className={styles.label} variant="field" required>
                 Email
               </Label>
-              <input
+              <Input
                 type="email"
                 required
                 value={formData.email}
@@ -296,7 +278,7 @@ export function ConsultationForm({
               <Label className={styles.label} variant="field" required>
                 Telefono
               </Label>
-              <input
+              <Input
                 type="tel"
                 required
                 value={formData.phone}
@@ -309,10 +291,10 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <h3 className={`${styles.sectionTitle} typo-h3`}>
+          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Tipo di Pelle *
-          </h3>
+          </SectionTitle>
           <div className={styles.choiceRow}>
             {skinTypes.map((type) => (
               <button
@@ -332,11 +314,13 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <h3 className={`${styles.sectionTitle} typo-h3`}>
+          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Preoccupazioni della Pelle
-          </h3>
-          <p className={`${styles.heroSubtitle} typo-body`}>Seleziona una o piu problematiche (opzionale)</p>
+          </SectionTitle>
+          <SectionSubtitle className={styles.heroSubtitle}>
+            Seleziona una o piu problematiche (opzionale)
+          </SectionSubtitle>
           <div className={styles.pillRow}>
             {skinConcerns.map((concern) => (
               <button
@@ -356,11 +340,11 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <h3 className={`${styles.sectionTitle} typo-h3`}>
+          <SectionTitle as="h3" size="h3" className={styles.sectionTitle}>
             <span className={styles.sectionDot} />
             Note Aggiuntive
-          </h3>
-          <textarea
+          </SectionTitle>
+          <Textarea
             value={formData.message}
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             rows={5}
@@ -372,7 +356,7 @@ export function ConsultationForm({
         <div className={styles.submitRow}>
           <button
             type="submit"
-            className={joinClassNames(includeButtonBaseClass ? 'button-base' : undefined, styles.submitButton, 'typo-small')}
+            className={joinClassNames(styles.submitButton, 'typo-small')}
             disabled={isSubmitting}
           >
             <span className={styles.submitContent}>

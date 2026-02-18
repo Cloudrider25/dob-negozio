@@ -73,7 +73,7 @@ export default async function DobProtocolPage({
           label: record.label || `0${index + 1}`,
           title: record.title,
           subtitle: record.subtitle,
-          image: media?.url || '/media/hero_homepage_light.png',
+          image: media?.url || '/api/media/file/hero_homepage_light-1.png',
           imageAlt: media?.alt || record.title,
         } satisfies ProtocolSplitStep
       }),

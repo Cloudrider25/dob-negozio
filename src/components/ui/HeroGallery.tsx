@@ -2,26 +2,23 @@
 
 import { useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay } from 'swiper/modules'
-import type { Swiper as SwiperInstance } from 'swiper/types'
-import 'swiper/css'
+import { Autoplay, Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
 
-import styles from './service-detail.module.css'
-
-type GalleryItem = {
+export type HeroGalleryItem = {
   media?: { url: string; alt: string }
   mediaType?: string | null
 }
 
-type HeroGalleryProps = {
+type UIHeroGalleryProps = {
   cover: { url: string; alt: string } | null
-  items: GalleryItem[]
+  items: HeroGalleryItem[]
+  styles: Record<string, string>
 }
 
-export function HeroGallery({ cover, items }: HeroGalleryProps) {
-  const swiperRef = useRef<SwiperInstance | null>(null)
+export function UIHeroGallery({ cover, items, styles }: UIHeroGalleryProps) {
+  const swiperRef = useRef<UISwiperInstance | null>(null)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
+
   const normalizedItems = useMemo(() => {
     const base = items.filter((item) => item.media?.url)
     if (base.length) return base
@@ -93,6 +90,9 @@ export function HeroGallery({ cover, items }: HeroGalleryProps) {
                   fill
                   className={styles.heroImage}
                   sizes="(max-width: 1024px) 100vw, 60vw"
+                  priority={index === 0}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
                 />
               )}
             </SwiperSlide>
@@ -123,7 +123,13 @@ export function HeroGallery({ cover, items }: HeroGalleryProps) {
               }}
             >
               {item.media && !isVideo ? (
-                <Image src={item.media.url} alt="" fill />
+                <Image
+                  src={item.media.url}
+                  alt=""
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 1024px) 20vw, 8vw"
+                />
               ) : isVideo ? (
                 <span className={`${styles.playIcon} typo-small`}>▶</span>
               ) : (

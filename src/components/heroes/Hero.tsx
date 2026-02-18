@@ -2,6 +2,7 @@ import Image from 'next/image'
 
 import { ButtonLink } from '@/components/ui/button-link'
 import { resolveButtonKind } from '@/components/ui/button-theme'
+import styles from './Hero.module.css'
 
 export type HeroMedia = {
   url: string
@@ -42,13 +43,13 @@ export const Hero = ({
   return (
     <section
       data-hero="true"
-      className={`hero-global ${variant === 'style2' ? 'hero-global--style2' : 'hero-global--style1'}`}
+      className={`${styles.hero} ${variant === 'style2' ? styles.style2 : styles.style1}`}
     >
-      <div className="hero-global__media-wrap">
+      <div className={styles.mediaWrap}>
         {mediaDark &&
           (mediaDark.mimeType?.startsWith('video/') ? (
             <video
-              className="hero-global__media hero-global__media--dark"
+              className={`${styles.media} ${styles.mediaDark}`}
               src={mediaDark.url}
               autoPlay
               muted
@@ -57,7 +58,7 @@ export const Hero = ({
             />
           ) : (
             <Image
-              className="hero-global__media hero-global__media--dark"
+              className={`${styles.media} ${styles.mediaDark}`}
               src={mediaDark.url}
               alt={mediaDark.alt}
               fill
@@ -71,7 +72,7 @@ export const Hero = ({
         {mediaLight &&
           (mediaLight.mimeType?.startsWith('video/') ? (
             <video
-              className="hero-global__media hero-global__media--light"
+              className={`${styles.media} ${styles.mediaLight}`}
               src={mediaLight.url}
               autoPlay
               muted
@@ -80,7 +81,7 @@ export const Hero = ({
             />
           ) : (
             <Image
-              className="hero-global__media hero-global__media--light"
+              className={`${styles.media} ${styles.mediaLight}`}
               src={mediaLight.url}
               alt={mediaLight.alt}
               fill
@@ -92,12 +93,12 @@ export const Hero = ({
             />
           ))}
       </div>
-      <div className="hero-global__overlay" />
-      <div className={`hero-global__content ${variant === 'style2' ? 'hero-global__content--center' : ''}`}>
+      <div className={styles.overlay} />
+      <div className={`${styles.content} ${variant === 'style2' ? styles.contentCenter : ''}`}>
         <h1>{title}</h1>
-        {description && <p className="hero-global__description">{description}</p>}
+        {description && <p className={styles.description}>{description}</p>}
         {variant === 'style1' && ctas.length > 0 && (
-          <div className="hero-global__cta-row">
+          <div className={styles.ctaRow}>
             {ctas.map((cta) => (
               <ButtonLink
                 key={cta.href}
@@ -105,7 +106,6 @@ export const Hero = ({
                 kind={resolveButtonKind(cta.kind)}
                 external={cta.external}
                 interactive
-                className="pill"
               >
                 {cta.label}
               </ButtonLink>

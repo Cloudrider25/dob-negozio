@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
+import { Input } from '@/components/ui/input'
 
 import styles from './AuthForms.module.css'
 
@@ -61,14 +64,16 @@ export function ForgotPasswordForm({ locale }: { locale: string }) {
 
   return (
     <form className={styles.card} onSubmit={onSubmit}>
-      <h1 className={`${styles.title} typo-h1-upper`}>{copy.title}</h1>
-      <p className={`${styles.subtitle} typo-body`}>{copy.subtitle}</p>
+      <SectionTitle as="h1" size="h1" uppercase className={styles.title}>
+        {copy.title}
+      </SectionTitle>
+      <SectionSubtitle className={styles.subtitle}>{copy.subtitle}</SectionSubtitle>
 
       {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
       {success ? <p className={`${styles.message} ${styles.success} typo-small`}>{success}</p> : null}
 
       <div className={styles.field}>
-        <input
+        <Input
           type="email"
           className={`${styles.input} typo-body`}
           value={email}

@@ -198,46 +198,14 @@
 .circleItem {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   padding: 0.6rem;
-  color: color-mix(in srgb, var(--text) 90%, transparent);
-  background: transparent;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.circleItemDim {
-  opacity: 0.45;
-}
-
-.circleItem:hover {
-  border-color: color-mix(in srgb, var(--text) 80%, transparent);
-  color: color-mix(in srgb, var(--text) 100%, transparent);
-  transform: scale(1.02);
-}
-
-.circleItemActive {
-  border-color: color-mix(in srgb, var(--text) 70%, transparent);
-  color: color-mix(in srgb, var(--text) 95%, transparent);
-  transform: scale(1.02);
-}
-
-.circleItemSelected {
-  background: #000;
-  color: #fff;
-  border-color: #000;
 }
 
 .areaMedia {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+display: block;
 }
 
 .slideInRight {
@@ -350,7 +318,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+display: block;
 }
 
 .routineThumbFallback {

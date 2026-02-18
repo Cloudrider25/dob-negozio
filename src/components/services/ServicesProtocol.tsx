@@ -3,6 +3,8 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { cn } from '@/lib/cn'
+import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
+import { SectionTitle } from '@/components/sections/SectionTitle'
 import styles from './ServicesProtocol.module.css'
 
 type ServicesProtocolProps = {
@@ -185,7 +187,9 @@ export const ServicesProtocol = ({
     <section className={styles.protocol}>
       <div className={styles.intro}>
         <span className={`${styles.eyebrow} typo-caption-upper`}>{eyebrow}</span>
-        <h2 className={`${styles.title} typo-display-upper`}>{title}</h2>
+        <SectionTitle as="h2" size="h1" uppercase className={styles.title}>
+          {title}
+        </SectionTitle>
       </div>
       <div ref={flowRef} className={styles.flow}>
         <motion.div
@@ -254,11 +258,13 @@ export const ServicesProtocol = ({
               }}
             >
               <span className={styles.icon} aria-hidden="true" />
-              <h3 className={`${styles.cardTitle} typo-body-lg-upper`}>Analisi / consulenza</h3>
-              <p className={`${styles.cardBody} typo-body`}>
+              <SectionSubtitle as="h3" size="body-lg" uppercase className={styles.cardTitle}>
+                Analisi / consulenza
+              </SectionSubtitle>
+              <SectionSubtitle className={styles.cardBody}>
                 Diagnosi personalizzata, ascolto e definizione degli obiettivi per costruire il
                 percorso più efficace.
-              </p>
+              </SectionSubtitle>
             </motion.div>
           </div>
           <div className={styles.step}>
@@ -294,11 +300,13 @@ export const ServicesProtocol = ({
               }}
             >
               <span className={styles.icon} aria-hidden="true" />
-              <h3 className={`${styles.cardTitle} typo-body-lg-upper`}>Trattamento + tecnologia</h3>
-              <p className={`${styles.cardBody} typo-body`}>
+              <SectionSubtitle as="h3" size="body-lg" uppercase className={styles.cardTitle}>
+                Trattamento + tecnologia
+              </SectionSubtitle>
+              <SectionSubtitle className={styles.cardBody}>
                 Manualità esperte e protocolli avanzati per massimizzare i risultati in tempi
                 misurabili.
-              </p>
+              </SectionSubtitle>
             </motion.div>
           </div>
           <div className={styles.step}>
@@ -334,10 +342,12 @@ export const ServicesProtocol = ({
               }}
             >
               <span className={styles.icon} aria-hidden="true" />
-              <h3 className={`${styles.cardTitle} typo-body-lg-upper`}>Follow-up + mantenimento</h3>
-              <p className={`${styles.cardBody} typo-body`}>
+              <SectionSubtitle as="h3" size="body-lg" uppercase className={styles.cardTitle}>
+                Follow-up + mantenimento
+              </SectionSubtitle>
+              <SectionSubtitle className={styles.cardBody}>
                 Piano di mantenimento e monitoraggio continuo per risultati duraturi e progressivi.
-              </p>
+              </SectionSubtitle>
             </motion.div>
           </div>
         </div>

@@ -1,5 +1,3 @@
 export * from './UIC_Carousel'
 export * from './UIC_CarouselCard'
-export * from './ServicesCarousel'
-export * from './ShopCarousel'
 export * from './types'

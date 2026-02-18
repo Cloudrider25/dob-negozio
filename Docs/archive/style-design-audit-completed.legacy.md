@@ -178,3 +178,46 @@ Azione: batch 1-2 verificati con `pnpm -s tsc --noEmit` e `pnpm exec payload gen
 - `public/media/`: fallback statici legacy ancora referenziati da path hardcoded `/media/...`.
 - Decisione corrente: mantenere `public/media` fino a migrazione completa dei fallback su asset gestiti da Payload.
 - Regola cleanup: non eliminare file in `public/media` se referenziati da fallback attivi.
+
+## Aggiornamento storico 2026-02-18 (spostato da file active)
+
+- [x] **Split section convergence**  
+Scope: split layout in `sections`, `shop`, `services`, `service detail`, `product detail`.  
+Esito: adozione estesa `SplitSection` + convergenza su service/product detail.
+
+- [x] **SplitSection styles centralized**  
+Scope: `src/components/ui/SplitSection.*`, `src/styles/globals.css`.  
+Esito: rimosso `SplitSection.module.css`, stili shared consolidati.
+
+- [x] **Swiper deduplica tecnica (batch 1)**  
+Scope: `UIC_Carousel`, `UIHeroGallery`, `StoryValuesSection`, `RoutineBuilderSplitSection`, `ServiceBuilderSplitSection`.  
+Esito: creato `src/components/ui/swiper/index.ts`, import Swiper CSS/exports centralizzati.
+
+- [x] **HeroGallery deduplica completa**  
+Scope: `shop/[slug]`, `services/service/[slug]`, `ui`.  
+Esito: componente shared `src/components/ui/HeroGallery.tsx`, rimossi wrapper locali.
+
+- [x] **Cleanup legacy UI glass/pill + heroes legacy**  
+Scope: `globals.css`, hero CTA legacy, `ui/glass-card.tsx`, `HeroScrollSnap.tsx`, `ConsultationForm`.  
+Esito: rimossi stili/componenti legacy e API obsolete; CTA hero convergono su `kind="hero"`.
+
+- [x] **Hardening coerenza button states (light/dark + motion)**  
+Scope: `src/components/ui/button*` + consumer CTA/filter/pill.  
+Esito: matrice stati consolidata e contrasto verificato.
+
+- [x] **Pulizia typography locale residua**  
+Scope: componenti frontend con override tipografici locali.  
+Esito: chiusa con eccezioni deliberate tracciate (`UIC_CarouselCard`, `Header`, `StoryHeroNote`, `product-detail`, `RoutineTemplateBuilder` admin).
+
+- [x] **Media Governance (operativo) - completata**  
+Esito: fallback legacy `/media/...` migrati a `/api/media/file/...`; `public/media/` rimosso; regola futura su fallback solo da asset Payload.
+
+## Estensione piano: deduplica strutturale stili/componenti (storico 2026-02-18)
+
+- [x] Batch A - Input shared (`ui/input` + `input-theme`)
+- [x] Batch B - Button-only per pill/tag/filter
+- [x] Batch C - Section header shared (`SectionTitle` + `SectionSubtitle`)
+- [x] Batch D - Cleanup wrapper/alias legacy
+  - [x] D1: rimossi `src/components/carousel/ServicesCarousel.tsx`, `src/components/carousel/ShopCarousel.tsx`
+  - [x] D2: rimossi `src/components/shop/ProductTabs.tsx`, `src/components/layout/CinematicBackground.tsx`, `src/components/layout/CinematicBackground.module.css`
+- Verifiche batch: `rg` consumer check + `pnpm -s tsc --noEmit` + `pnpm -s build`
