@@ -190,3 +190,17 @@ label {
   line-height: var(--type-small-line);
   letter-spacing: var(--type-small-track);
 }
+
+.ui-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  margin: 0;
+  color: var(--label-color, var(--text-secondary));
+  font-family: var(--font-body);
+  font-size: var(--label-size, var(--type-small-size));
+  line-height: var(--label-line, var(--type-small-line));
+  letter-spacing: var(--label-track, var(--type-small-track));
+  text-transform: var(--label-transform, none);
+  font-weight: var(--label-weight, 400);
+}

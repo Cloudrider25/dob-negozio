@@ -15,6 +15,8 @@ import type { Treatment } from '@/payload-types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { Button } from '@/components/ui/button'
 import { ButtonLink } from '@/components/ui/button-link'
+import { LabelText } from '@/components/ui/label'
+import { SplitSection } from '@/components/ui/SplitSection'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -314,7 +316,6 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
   const zoneId = resolveRelId(service.zone)
   const genderValue = typeof service.gender === 'string' ? service.gender : null
 
-
   const relatedResult = await payload.find({
     collection: 'services',
     locale,
@@ -352,15 +353,15 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
   })
   const crossSell = crossSellResult.docs[0]
   const crossSellThumb = crossSell
-    ? (await resolveGalleryCover(crossSell.gallery, crossSell.name || t.services.title))?.url ?? null
+    ? ((await resolveGalleryCover(crossSell.gallery, crossSell.name || t.services.title))?.url ??
+      null)
     : null
   const galleryItems = await resolveGalleryItems(service.gallery, service.name || t.services.title)
   const coverMedia = await resolveGalleryCover(service.gallery, service.name || t.services.title)
   const imageUrl = coverMedia?.url ?? null
   const imageAlt = coverMedia?.alt ?? (service.name || t.services.title)
 
-  const galleryFallback =
-    (galleryItems.find((item) => !item.isCover)?.media ?? coverMedia) ?? null
+  const galleryFallback = galleryItems.find((item) => !item.isCover)?.media ?? coverMedia ?? null
 
   const includedMedia = await resolveMediaFromId(service.includedMedia)
   const includedResolved = includedMedia
@@ -372,7 +373,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
   const faqResolved = faqMedia ? resolveMedia(faqMedia, service.name || t.services.title) : null
 
   const videoUpload = await resolveMediaFromId(service.videoUpload)
-  const videoMedia = videoUpload ? resolveMedia(videoUpload, service.name || t.services.title) : null
+  const videoMedia = videoUpload
+    ? resolveMedia(videoUpload, service.name || t.services.title)
+    : null
 
   const videoEmbed =
     typeof service.videoEmbedUrl === 'string' && service.videoEmbedUrl
@@ -455,204 +458,225 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
 
   return (
     <div className={styles.page}>
-      <section className={styles.hero}>
-        <HeroGallery
-          cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
-          items={galleryItems.map((item) => ({
-            media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
-            mediaType: item.mediaType,
-          }))}
-        />
+      <SplitSection
+        left={
+          <HeroGallery
+            cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
+            items={galleryItems.map((item) => ({
+              media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
+              mediaType: item.mediaType,
+            }))}
+          />
+        }
+        right={
+          <div className={styles.heroPanel}>
+            <div className={styles.titleRow}>
+              <h1 className={`${styles.title} typo-h1`}>{service.name}</h1>
+              <span className={`${styles.badge} typo-caption-upper`}>
+                {badgeLabel !== '—' ? badgeLabel : formatServiceType(service.serviceType)}
+              </span>
+            </div>
 
-        <div className={styles.heroPanel}>
-          <div className={styles.titleRow}>
-            <h1 className={`${styles.title} typo-h1`}>{service.name}</h1>
-            <span className={`${styles.badge} typo-caption-upper`}>
-              {badgeLabel !== '—' ? badgeLabel : formatServiceType(service.serviceType)}
-            </span>
-          </div>
+            {service.tagline && (
+              <div className={`${styles.eyebrow} typo-caption-upper`}>{service.tagline}</div>
+            )}
 
-          {service.tagline && <div className={`${styles.eyebrow} typo-caption-upper`}>{service.tagline}</div>}
+            <div className={`${styles.subtitleRow} typo-small-upper`}>
+              <span className={styles.subtitle}>{categoryLabel}</span>
+              <span className={`${styles.rating} typo-small`}>★★★★★</span>
+              <span className={`${styles.ratingCount} typo-small`}>(1,858)</span>
+            </div>
 
-          <div className={`${styles.subtitleRow} typo-small-upper`}>
-            <span className={styles.subtitle}>{categoryLabel}</span>
-            <span className={`${styles.rating} typo-small`}>★★★★★</span>
-            <span className={`${styles.ratingCount} typo-small`}>(1,858)</span>
-          </div>
+            {service.description && (
+              <p className={`${styles.description} typo-body`}>{service.description}</p>
+            )}
 
-          {service.description && (
-            <p className={`${styles.description} typo-body`}>{service.description}</p>
-          )}
+            <div className={styles.divider} />
 
-          <div className={styles.divider} />
+            <div className={styles.relatedBlock}>
+              <LabelText variant="section">Servizi correlati</LabelText>
+              <div className={styles.relatedList}>
+                {(relatedServices.length > 0
+                  ? relatedServices
+                  : [
+                      { id: 'placeholder-1', name: 'Laser viso totale', slug: '#' },
+                      { id: 'placeholder-2', name: 'Laser viso donna', slug: '#' },
+                      { id: 'placeholder-3', name: 'Laser viso uomo', slug: '#' },
+                    ]
+                ).map((related) => (
+                  <ButtonLink
+                    key={related.id}
+                    className={`${styles.relatedItem} typo-caption-upper`}
+                    kind="main"
+                    size="sm"
+                    interactive
+                    href={
+                      related.slug === '#'
+                        ? `/${locale}/services`
+                        : `/${locale}/services/service/${related.slug}`
+                    }
+                  >
+                    {related.name}
+                  </ButtonLink>
+                ))}
+              </div>
+              <Button
+                className={`${styles.buyButton} typo-caption-upper`}
+                type="button"
+                kind="main"
+                interactive
+              >
+                Prenota ora
+              </Button>
+            </div>
 
-          <div className={styles.relatedBlock}>
-            <div className={`${styles.label} typo-caption-upper`}>Servizi correlati</div>
-            <div className={styles.relatedList}>
-              {(relatedServices.length > 0 ? relatedServices : [
-                { id: 'placeholder-1', name: 'Laser viso totale', slug: '#' },
-                { id: 'placeholder-2', name: 'Laser viso donna', slug: '#' },
-                { id: 'placeholder-3', name: 'Laser viso uomo', slug: '#' },
-              ]).map((related) => (
-                <ButtonLink
-                  key={related.id}
-                  className={`${styles.relatedItem} typo-caption-upper`}
+            <div className={styles.crossSell}>
+              <div className={`${styles.crossSellTitle} typo-caption-upper`}>Aggiungi</div>
+              <div className={styles.crossSellRow}>
+                <div className={styles.crossSellItem}>
+                  <div className={styles.crossSellThumb}>
+                    {crossSellThumb ? (
+                      <Image src={crossSellThumb} alt={crossSell?.name || 'Servizio'} fill />
+                    ) : (
+                      <span />
+                    )}
+                  </div>
+                  <div>
+                    <div className={`${styles.crossSellName} typo-body-upper`}>
+                      {crossSell?.name || 'Servizio complementare'}
+                    </div>
+                    <div className={`${styles.crossSellMeta} typo-caption`}>
+                      Selezione consigliata
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  className={`${styles.lineupButton} typo-caption-upper`}
+                  type="button"
                   kind="main"
                   size="sm"
                   interactive
-                  href={
-                    related.slug === '#'
-                      ? `/${locale}/services`
-                      : `/${locale}/services/service/${related.slug}`
-                  }
                 >
-                  {related.name}
-                </ButtonLink>
-              ))}
-            </div>
-            <Button className={`${styles.buyButton} typo-caption-upper`} type="button" kind="main" interactive>
-              Prenota ora
-            </Button>
-          </div>
-
-          <div className={styles.crossSell}>
-            <div className={`${styles.crossSellTitle} typo-caption-upper`}>Aggiungi</div>
-            <div className={styles.crossSellRow}>
-              <div className={styles.crossSellItem}>
-                <div className={styles.crossSellThumb}>
-                  {crossSellThumb ? (
-                    <Image src={crossSellThumb} alt={crossSell?.name || 'Servizio'} fill />
-                  ) : (
-                    <span />
-                  )}
-                </div>
-                <div>
-                  <div className={`${styles.crossSellName} typo-body-upper`}>
-                    {crossSell?.name || 'Servizio complementare'}
-                  </div>
-                  <div className={`${styles.crossSellMeta} typo-caption`}>Selezione consigliata</div>
-                </div>
+                  Aggiungi
+                </Button>
               </div>
-              <Button className={`${styles.lineupButton} typo-caption-upper`} type="button" kind="main" size="sm" interactive>
-                Aggiungi
-              </Button>
             </div>
-          </div>
 
-          <ServiceAccordion
-            items={[
-              ...(service.results
-                ? [
-                    {
-                      id: 'benefits',
-                      title: 'Benefici',
-                      body: (() => {
-                        const bullets = normalizeBullets(service.results)
-                        if (bullets.length) {
-                          return (
-                            <ul>
-                              {bullets.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
+            <ServiceAccordion
+              items={[
+                ...(service.results
+                  ? [
+                      {
+                        id: 'benefits',
+                        title: 'Benefici',
+                        body: (() => {
+                          const bullets = normalizeBullets(service.results)
+                          if (bullets.length) {
+                            return (
+                              <ul>
+                                {bullets.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            )
+                          }
+                          const content = renderRichText(service.results)
+                          if (!content) return null
+                          return content.type === 'html' ? (
+                            <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                          ) : (
+                            <p>{content.value}</p>
                           )
-                        }
-                        const content = renderRichText(service.results)
-                        if (!content) return null
-                        return content.type === 'html' ? (
-                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
-                        ) : (
-                          <p>{content.value}</p>
-                        )
-                      })(),
-                    },
-                  ]
-                : []),
-              ...(service.indications
-                ? [
-                    {
-                      id: 'application',
-                      title: 'Aree trattate e indicazioni',
-                      body: (() => {
-                        const bullets = normalizeBullets(service.indications)
-                        if (bullets.length) {
-                          return (
-                            <ul>
-                              {bullets.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
+                        })(),
+                      },
+                    ]
+                  : []),
+                ...(service.indications
+                  ? [
+                      {
+                        id: 'application',
+                        title: 'Aree trattate e indicazioni',
+                        body: (() => {
+                          const bullets = normalizeBullets(service.indications)
+                          if (bullets.length) {
+                            return (
+                              <ul>
+                                {bullets.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            )
+                          }
+                          const content = renderRichText(service.indications)
+                          if (!content) return null
+                          return content.type === 'html' ? (
+                            <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                          ) : (
+                            <p>{content.value}</p>
                           )
-                        }
-                        const content = renderRichText(service.indications)
-                        if (!content) return null
-                        return content.type === 'html' ? (
-                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
-                        ) : (
-                          <p>{content.value}</p>
-                        )
-                      })(),
-                    },
-                  ]
-                : []),
-              ...(service.techProtocolShort
-                ? [
-                    {
-                      id: 'ingredients',
-                      title: 'Tecnologia e protocollo',
-                      body: (() => {
-                        const bullets = normalizeBullets(service.techProtocolShort)
-                        if (bullets.length) {
-                          return (
-                            <ul>
-                              {bullets.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
+                        })(),
+                      },
+                    ]
+                  : []),
+                ...(service.techProtocolShort
+                  ? [
+                      {
+                        id: 'ingredients',
+                        title: 'Tecnologia e protocollo',
+                        body: (() => {
+                          const bullets = normalizeBullets(service.techProtocolShort)
+                          if (bullets.length) {
+                            return (
+                              <ul>
+                                {bullets.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            )
+                          }
+                          const content = renderRichText(service.techProtocolShort)
+                          if (!content) return null
+                          return content.type === 'html' ? (
+                            <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                          ) : (
+                            <p>{content.value}</p>
                           )
-                        }
-                        const content = renderRichText(service.techProtocolShort)
-                        if (!content) return null
-                        return content.type === 'html' ? (
-                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
-                        ) : (
-                          <p>{content.value}</p>
-                        )
-                      })(),
-                    },
-                  ]
-                : []),
-              ...(service.downtime
-                ? [
-                    {
-                      id: 'downtime',
-                      title: 'Downtime',
-                      body: (() => {
-                        const bullets = normalizeBullets(service.downtime)
-                        if (bullets.length) {
-                          return (
-                            <ul>
-                              {bullets.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
+                        })(),
+                      },
+                    ]
+                  : []),
+                ...(service.downtime
+                  ? [
+                      {
+                        id: 'downtime',
+                        title: 'Downtime',
+                        body: (() => {
+                          const bullets = normalizeBullets(service.downtime)
+                          if (bullets.length) {
+                            return (
+                              <ul>
+                                {bullets.map((item) => (
+                                  <li key={item}>{item}</li>
+                                ))}
+                              </ul>
+                            )
+                          }
+                          const content = renderRichText(service.downtime)
+                          if (!content) return null
+                          return content.type === 'html' ? (
+                            <div dangerouslySetInnerHTML={{ __html: content.value }} />
+                          ) : (
+                            <p>{content.value}</p>
                           )
-                        }
-                        const content = renderRichText(service.downtime)
-                        if (!content) return null
-                        return content.type === 'html' ? (
-                          <div dangerouslySetInnerHTML={{ __html: content.value }} />
-                        ) : (
-                          <p>{content.value}</p>
-                        )
-                      })(),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </div>
-      </section>
+                        })(),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </div>
+        }
+      />
 
       <section className={styles.videoSection} aria-label="Service video">
         <div className={styles.videoWrap}>
@@ -678,9 +702,11 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
       </section>
 
       <section className={styles.insideSection} aria-label="Cosa include il trattamento">
-        <div className={styles.insideGrid}>
-          <div className={styles.insideMedia}>
-            {includedResolved?.url || imageUrl ? (
+        <SplitSection
+          leftClassName={styles.insideMedia}
+          rightClassName={styles.insideContent}
+          left={
+            includedResolved?.url || imageUrl ? (
               <Image
                 src={includedResolved?.url || imageUrl || ''}
                 alt={includedResolved?.alt || imageAlt}
@@ -690,71 +716,79 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
               />
             ) : (
               <div className={styles.insidePlaceholder} />
-            )}
-          </div>
-          <div className={styles.insideContent}>
-            <div className={`${styles.insideLabel} typo-h1-upper`}>what&apos;s included</div>
-            {includedContent ? (
-              includedContent.type === 'html' ? (
-                <div
-                  className={`${styles.insideRich} typo-body`}
-                  dangerouslySetInnerHTML={{ __html: includedContent.value }}
-                />
+            )
+          }
+          right={
+            <>
+              <div className={`${styles.insideLabel} typo-h1-upper`}>what&apos;s included</div>
+              {includedContent ? (
+                includedContent.type === 'html' ? (
+                  <div
+                    className={`${styles.insideRich} typo-body`}
+                    dangerouslySetInnerHTML={{ __html: includedContent.value }}
+                  />
+                ) : (
+                  <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
+                )
               ) : (
-                <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
-              )
-            ) : (
-              <p className={`${styles.insideLead} typo-body`}>
-                {service.name ? `Scopri cosa include ${service.name}.` : ''}
-              </p>
-            )}
-          </div>
-        </div>
+                <p className={`${styles.insideLead} typo-body`}>
+                  {service.name ? `Scopri cosa include ${service.name}.` : ''}
+                </p>
+              )}
+            </>
+          }
+        />
       </section>
 
       <section className={styles.faqSection} aria-label="FAQ">
-        <div className={styles.faqGrid}>
-          <div className={styles.faqCopy}>
-            <h2 className={`${styles.faqTitle} typo-h1-upper`}>{service.faqTitle || 'FAQ'}</h2>
-            <p className={`${styles.faqSubtitle} typo-body`}>
-              {service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
-            </p>
-            <div className={styles.faqList}>
-              {Array.isArray(service.faqItems) && service.faqItems.length ? (
-                <FaqAccordion
-                  items={service.faqItems
-                    .map((item) => {
-                      const question = typeof item?.q === 'string' ? item.q : ''
-                      if (!question) return null
-                      const answerContent = renderRichText(item?.a)
-                      if (!answerContent) {
-                        return { question, answerHtml: '' }
-                      }
-                      const html =
-                        answerContent.type === 'html'
-                          ? answerContent.value
-                          : `<p>${escapeHtml(answerContent.value)}</p>`
-                      return { question, answerHtml: html }
-                    })
-                    .filter(Boolean) as Array<{ question: string; answerHtml: string }>}
-                />
-              ) : null}
+        <SplitSection
+          left={
+            <div className={styles.faqCopy}>
+              <h2 className={`${styles.faqTitle} typo-h1-upper`}>{service.faqTitle || 'FAQ'}</h2>
+              <p className={`${styles.faqSubtitle} typo-body`}>
+                {service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
+              </p>
+              <div className={styles.faqList}>
+                {Array.isArray(service.faqItems) && service.faqItems.length ? (
+                  <FaqAccordion
+                    items={
+                      service.faqItems
+                        .map((item) => {
+                          const question = typeof item?.q === 'string' ? item.q : ''
+                          if (!question) return null
+                          const answerContent = renderRichText(item?.a)
+                          if (!answerContent) {
+                            return { question, answerHtml: '' }
+                          }
+                          const html =
+                            answerContent.type === 'html'
+                              ? answerContent.value
+                              : `<p>${escapeHtml(answerContent.value)}</p>`
+                          return { question, answerHtml: html }
+                        })
+                        .filter(Boolean) as Array<{ question: string; answerHtml: string }>
+                    }
+                  />
+                ) : null}
+              </div>
             </div>
-          </div>
-          <div className={styles.faqMedia}>
-            {faqResolved?.url || galleryFallback?.url || imageUrl ? (
-              <Image
-                src={faqResolved?.url || galleryFallback?.url || imageUrl || ''}
-                alt={faqResolved?.alt || galleryFallback?.alt || imageAlt}
-                fill
-                className={styles.faqImage}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            ) : (
-              <div className={styles.faqPlaceholder} />
-            )}
-          </div>
-        </div>
+          }
+          right={
+            <div className={styles.faqMedia}>
+              {faqResolved?.url || galleryFallback?.url || imageUrl ? (
+                <Image
+                  src={faqResolved?.url || galleryFallback?.url || imageUrl || ''}
+                  alt={faqResolved?.alt || galleryFallback?.alt || imageAlt}
+                  fill
+                  className={styles.faqImage}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              ) : (
+                <div className={styles.faqPlaceholder} />
+              )}
+            </div>
+          }
+        />
       </section>
 
       <ServicesTreatmentReveal

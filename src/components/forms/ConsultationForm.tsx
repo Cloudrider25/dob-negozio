@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { ArrowRight, Beaker, Phone, WhatsApp, type IconProps } from '@/components/ui/icons'
+import { Label } from '@/components/ui/label'
 import type { ConsultationLeadInput } from '@/lib/consultation/types'
 
 export type ConsultationFormData = ConsultationLeadInput
@@ -253,7 +254,9 @@ export function ConsultationForm({
           </h3>
           <div className={styles.formGrid}>
             <div>
-              <label className={`${styles.label} typo-small`}>Nome *</label>
+              <Label className={styles.label} variant="field" required>
+                Nome
+              </Label>
               <input
                 type="text"
                 required
@@ -264,7 +267,9 @@ export function ConsultationForm({
               />
             </div>
             <div>
-              <label className={`${styles.label} typo-small`}>Cognome *</label>
+              <Label className={styles.label} variant="field" required>
+                Cognome
+              </Label>
               <input
                 type="text"
                 required
@@ -275,7 +280,9 @@ export function ConsultationForm({
               />
             </div>
             <div>
-              <label className={`${styles.label} typo-small`}>Email *</label>
+              <Label className={styles.label} variant="field" required>
+                Email
+              </Label>
               <input
                 type="email"
                 required
@@ -286,7 +293,9 @@ export function ConsultationForm({
               />
             </div>
             <div>
-              <label className={`${styles.label} typo-small`}>Telefono *</label>
+              <Label className={styles.label} variant="field" required>
+                Telefono
+              </Label>
               <input
                 type="tel"
                 required

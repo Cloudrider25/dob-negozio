@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { LabelText } from '@/components/ui/label'
 
 import { AccountLogoutButton } from './AccountLogoutButton'
 import styles from './AccountDashboardClient.module.css'
@@ -226,7 +227,9 @@ export function AccountDashboardClient({
               <form className={styles.profileForm} onSubmit={onSaveProfile}>
                 <div className={styles.infoGrid}>
                   <label className={styles.profileField}>
-                    <span className={`${styles.label} typo-small`}>{copy.overview.firstName}</span>
+                    <LabelText className={styles.label} variant="field">
+                      {copy.overview.firstName}
+                    </LabelText>
                     <input
                       className={`${styles.profileInput} typo-body`}
                       value={profileDraft.firstName}
@@ -237,7 +240,9 @@ export function AccountDashboardClient({
                     />
                   </label>
                   <label className={styles.profileField}>
-                    <span className={`${styles.label} typo-small`}>{copy.overview.lastName}</span>
+                    <LabelText className={styles.label} variant="field">
+                      {copy.overview.lastName}
+                    </LabelText>
                     <input
                       className={`${styles.profileInput} typo-body`}
                       value={profileDraft.lastName}
@@ -248,7 +253,9 @@ export function AccountDashboardClient({
                     />
                   </label>
                   <label className={styles.profileField}>
-                    <span className={`${styles.label} typo-small`}>{copy.overview.phone}</span>
+                    <LabelText className={styles.label} variant="field">
+                      {copy.overview.phone}
+                    </LabelText>
                     <input
                       className={`${styles.profileInput} typo-body`}
                       value={profileDraft.phone}
@@ -259,7 +266,9 @@ export function AccountDashboardClient({
                     />
                   </label>
                   <div className={styles.profileField}>
-                    <span className={`${styles.label} typo-small`}>{copy.overview.email}</span>
+                    <LabelText className={styles.label} variant="field">
+                      {copy.overview.email}
+                    </LabelText>
                     <p className={`${styles.value} typo-h3`}>{email}</p>
                   </div>
                 </div>

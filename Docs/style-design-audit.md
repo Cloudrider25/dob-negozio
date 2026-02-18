@@ -10,6 +10,7 @@ Mantenere coerenza visuale e di interaction design sul frontend, riducendo custo
 - Riorganizzazione `src/components` completata per domini principali.
 - Navigator legacy rimossi; i tipi sono stati migrati in `src/components/shop` e `src/components/services`.
 - Sistema button consolidato su `kind: main | card | hero` con motion condiviso.
+- Sistema label consolidato su `src/components/ui/label.tsx` + `label-theme.ts` con palette/varianti condivise.
 - Sezioni switcher allineate con spacing verticale coerente (`2.5vw`).
 - Form consulenza convergente su componente shared (`src/components/services/ConsulenzaSection.tsx`).
 
@@ -100,4 +101,15 @@ Azione:
 - rimuovere alias/wrapper non necessari dove i consumer possono usare il componente core diretto
 - unificare regole visuali duplicate (CTA/filter pills/cards) su token + varianti standard
 - eliminare file legacy non referenziati dopo migrazione (con verifica `rg` + build/tsc)
-Stato: da avviare.
+Stato: avviata analisi baseline, implementazione da pianificare a batch.
+
+Baseline ricerca (2026-02-17, scope `src/**/*.module.css`):
+- file analizzati: `34`
+- ripetizioni selector (stesso nome classe): `.title (13)`, `.section (11)`, `.card (8)`, `.subtitle (7)`, `.page (6)`, `.media (6)`, `.label (4)`, `.input (4)`, `.pill (3)`, `.pills (3)`, `.sectionTitle (3)`
+- pattern CSS ricorrenti: `display:flex (171)`, `border-radius:999px (52)`, `background:transparent (46)`, `border:1px solid var(--stroke) (8)`, `text-transform:uppercase (6)`
+
+Priorita operativa suggerita (alto impatto / basso rischio):
+- Batch A: `ui/input` + `input-theme` (riduzione duplicati su `AuthForms`, `AccountDashboard`, `ConsultationForm`, `RoutineTemplateBuilder`)
+- Batch B: `ui/chip` (pill/tag/filter) unificato per `shop/services/section-switcher/detail`
+- Batch C: `sections/SectionHeader` shared (`title/subtitle/sectionTitle`) con API minima
+- Batch D: cleanup wrapper/alias legacy + rimozione file non referenziati (con `rg` + `pnpm tsc --noEmit` + build)

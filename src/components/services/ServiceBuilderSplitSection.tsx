@@ -6,9 +6,10 @@ import type { Swiper as SwiperInstance } from 'swiper/types'
 import 'swiper/css'
 
 import type { NavigatorData } from '@/components/services/navigator-data-context'
-import styles from './ServiceRoutineBuilderSplitSection.module.css'
+import { SplitSection } from '@/components/ui/SplitSection'
+import styles from './ServiceBuilderSplitSection.module.css'
 
-type ServiceRoutineBuilderSplitSectionProps = {
+type ServiceBuilderSplitSectionProps = {
   data: NavigatorData
 }
 
@@ -17,7 +18,7 @@ const formatPrice = (price?: number) => {
   return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(price)
 }
 
-export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilderSplitSectionProps) {
+export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionProps) {
   const orderedAreas = useMemo(() => {
     const list = [...data.areas]
     list.sort((a, b) => {
@@ -125,8 +126,11 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
   }
 
   return (
-    <section className={styles.section}>
-      <div className={styles.panel}>
+    <SplitSection
+      className={styles.split}
+      leftClassName={styles.panel}
+      rightClassName={`${styles.panel} ${styles.panelMedia}`}
+      left={
         <div className={styles.panelContent}>
           <Swiper
             className={styles.leftSwiper}
@@ -295,9 +299,8 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
             </SwiperSlide>
           </Swiper>
         </div>
-      </div>
-
-      <div className={`${styles.panel} ${styles.panelMedia}`}>
+      }
+      right={
         <div className={styles.panelContentMedia}>
           <Swiper
             className={styles.mediaSwiper}
@@ -380,7 +383,7 @@ export function ServiceRoutineBuilderSplitSection({ data }: ServiceRoutineBuilde
             </SwiperSlide>
           </Swiper>
         </div>
-      </div>
-    </section>
+      }
+    />
   )
 }

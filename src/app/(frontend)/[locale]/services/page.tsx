@@ -7,7 +7,7 @@ import { NavigatorDataProvider } from '@/components/services/navigator-data-cont
 import { ListinoTradizionale } from '@/components/services/ListinoTradizionale'
 import { ConsulenzaSection } from '@/components/services/ConsulenzaSection'
 import { ServicesSectionSwitcher } from '@/components/services/ServicesSectionSwitcher'
-import { ServiceRoutineBuilderSplitSection } from '@/components/services/ServiceRoutineBuilderSplitSection'
+import { ServiceBuilderSplitSection } from '@/components/services/ServiceBuilderSplitSection'
 import type { NavigatorData } from '@/components/services/navigator-data-context'
 import type {
   AreaData,
@@ -326,7 +326,7 @@ export default async function ServicesPage({
       <ServicesSectionSwitcher currentView={initialViewMode} />
       {initialViewMode === 'navigator' ? (
         <div className="mt-[2.5vw]">
-          <ServiceRoutineBuilderSplitSection data={navigatorData} />
+          <ServiceBuilderSplitSection data={navigatorData} />
         </div>
       ) : null}
       {initialViewMode === 'consulenza' ? (

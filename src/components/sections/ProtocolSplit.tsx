@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 
 import styles from './ProtocolSplit.module.css'
+import { SplitSection } from '@/components/ui/SplitSection'
 
 export type ProtocolSplitStep = {
   id: string
@@ -67,9 +68,12 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
   }
 
   return (
-    <section className={styles.section} aria-label="DOB protocol split">
-      <div className={styles.grid}>
-        <div className={styles.panel}>
+    <SplitSection
+      aria-label="DOB protocol split"
+      leftClassName={styles.panel}
+      rightClassName={styles.media}
+      left={
+        <>
           <div>
             <p className={`${styles.eyebrow} typo-caption-upper`}>{eyebrow}</p>
             <div className={styles.textSlider}>
@@ -104,23 +108,23 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
               </div>
             ))}
           </div>
+        </>
+      }
+      right={
+        <div className={styles.imageSlider}>
+          {resolvedSteps.map((step, index) => (
+            <div key={step.id} className={`${styles.slide} ${getSlideState(index)}`}>
+              <Image
+                src={step.image}
+                alt={step.imageAlt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority={index === 0}
+              />
+            </div>
+          ))}
         </div>
-        <div className={styles.media}>
-          <div className={styles.imageSlider}>
-            {resolvedSteps.map((step, index) => (
-              <div key={step.id} className={`${styles.slide} ${getSlideState(index)}`}>
-                <Image
-                  src={step.image}
-                  alt={step.imageAlt}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority={index === 0}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
+      }
+    />
   )
 }

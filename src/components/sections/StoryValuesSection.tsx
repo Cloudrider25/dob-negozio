@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import type { Swiper as SwiperInstance } from 'swiper/types'
 import 'swiper/css'
+import { SplitSection } from '@/components/ui/SplitSection'
 
 import styles from './StoryValuesSection.module.css'
 
@@ -40,8 +41,12 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
   }
 
   return (
-    <section className={styles.section} aria-label="Our values">
-      <div className={styles.mediaPanel}>
+    <SplitSection
+      aria-label="Our values"
+      className={styles.split}
+      leftClassName={styles.mediaPanel}
+      rightClassName={styles.contentPanel}
+      left={
         <Swiper
           className={styles.mediaSlider}
           slidesPerView={1}
@@ -68,9 +73,9 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
-
-      <div className={styles.contentPanel}>
+      }
+      right={
+        <>
         <div className={styles.contentTop}>
           <h2 className={`${styles.title} typo-h2`}>{activeItem?.title}</h2>
           {activeItem?.description && (
@@ -101,7 +106,8 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
             </button>
           ))}
         </div>
-      </div>
-    </section>
+        </>
+      }
+    />
   )
 }

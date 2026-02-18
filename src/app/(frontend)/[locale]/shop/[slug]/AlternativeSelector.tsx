@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import styles from './product-detail.module.css'
 import { ProductPurchase } from '@/components/shop/ProductPurchase'
+import { LabelText } from '@/components/ui/label'
 
 type AlternativeOption = {
   key: string
@@ -95,7 +96,7 @@ export function AlternativeSelector({
   return (
     <>
       <div className={styles.relatedBlock}>
-        <div className={`${styles.label} typo-caption-upper`}>Scegli</div>
+        <LabelText variant="section">Scegli</LabelText>
         <div className={styles.relatedList}>
           {options.map((option) => {
             const label = labelFor(option)

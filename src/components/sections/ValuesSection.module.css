@@ -1,20 +1,9 @@
-.section {
-  display: grid;
-  gap: 2.5vw;
-  background: transparent;
-  border-radius: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  min-height: 560px;
-  align-items: stretch;
-}
-
 .card {
   background: var(--bg);
   border-radius: 12px;
   padding: clamp(1.5rem, 2vw, 2.4rem);
   display: grid;
   gap: 0;
-  min-height: 560px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
@@ -34,6 +23,7 @@
   margin-block-end: 0;
   color: #6b6761;
   margin-bottom: 0;
+  min-height: 120px;
 }
 
 
@@ -76,7 +66,6 @@
   position: relative;
   border-radius: 12px;
   overflow: hidden;
-  min-height: 560px;
   background: #d9d6d2;
 }
 
@@ -85,7 +74,6 @@
 }
 
 @media (max-width: 1024px) {
-  .section,
   .card,
   .media {
     min-height: 460px;
@@ -93,12 +81,6 @@
 
   .card,
   .media {
-    min-height: 0;
-  }
-
-  .section {
-    grid-template-columns: 1fr;
-    gap: 1rem;
     min-height: 0;
   }
 

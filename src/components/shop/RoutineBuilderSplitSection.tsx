@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import type { Swiper as SwiperInstance } from 'swiper/types'
 import 'swiper/css'
 import styles from './RoutineBuilderSplitSection.module.css'
+import { SplitSection } from '@/components/ui/SplitSection'
 
 type ProductAreaItem = {
   id: string
@@ -372,11 +373,12 @@ export function RoutineBuilderSplitSection({
   }
 
   return (
-    <section
-      className={styles.section}
+    <SplitSection
+      aria-label="Routine Builder"
       style={{ ['--routine-slide-duration' as string]: '1000ms' }}
-    >
-      <div className={styles.panel}>
+      leftClassName={styles.panel}
+      rightClassName={`${styles.panel} ${styles.panelMedia}`}
+      left={
         <div className={styles.panelContent}>
           <Swiper
             className={styles.leftSwiper}
@@ -634,8 +636,8 @@ export function RoutineBuilderSplitSection({
             </SwiperSlide>
           </Swiper>
         </div>
-      </div>
-      <div className={`${styles.panel} ${styles.panelMedia}`}>
+      }
+      right={
         <div className={styles.panelContentMedia}>
           <Swiper
             className={styles.mediaSwiper}
@@ -860,7 +862,7 @@ export function RoutineBuilderSplitSection({
             </SwiperSlide>
           </Swiper>
         </div>
-      </div>
-    </section>
+      }
+    />
   )
 }

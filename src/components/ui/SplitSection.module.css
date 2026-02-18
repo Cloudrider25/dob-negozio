@@ -1,0 +1,19 @@
+.splitSection {
+  margin-top: 2.5vw;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1rem, 2.5vw, 2.5rem);
+}
+
+.splitColumn {
+  background: var(--bg);
+  border-radius: 12px;
+  min-height: 620px;
+}
+
+@media (max-width: 1024px) {
+  .splitSection {
+    grid-template-columns: 1fr;
+    gap: clamp(1rem, 2.5vw, 2.5rem);
+  }
+}

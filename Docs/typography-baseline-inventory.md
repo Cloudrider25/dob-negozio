@@ -20,7 +20,7 @@ Scope: `src/` frontend (`app`, `components`, `styles`)
 - `src/components/account/AccountDashboardClient.module.css` (37)
 - `src/components/shop/RoutineBuilderSplitSection.module.css` (30)
 - `src/styles/globals.css` (27)
-- `src/components/services/ServiceRoutineBuilderSplitSection.module.css` (25)
+- `src/components/services/ServiceBuilderSplitSection.module.css` (25)
 - `src/components/shop/RoutineBuilderSection.module.css` (23)
 - `src/components/layout/Header.module.css` (20)
 - `src/components/admin/RoutineTemplateBuilder.module.css` (19)
@@ -42,7 +42,7 @@ Scope: `src/` frontend (`app`, `components`, `styles`)
 - `src/styles/globals.css`
 
 ### Legacy
-- `src/components/services/ServiceRoutineBuilderSplitSection.module.css`
+- `src/components/services/ServiceBuilderSplitSection.module.css`
 - `src/components/shop/RoutineBuilderSection.module.css`
 - `src/components/layout/Header.module.css`
 - `src/components/cart/CartDrawer.module.css`

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/cn"
 import { Moon, Sun } from "@/components/ui/icons"
+import { LabelText } from "@/components/ui/label"
 import styles from "./ThemeToggle.module.css"
 
 const storageKey = "dob-theme"
@@ -41,7 +42,9 @@ export const ThemeToggle = () => {
       <span className={cn(styles.icon, theme === "dark" && styles.iconDark)} aria-hidden="true">
         {theme === "dark" ? <Moon /> : <Sun />}
       </span>
-      <span className={`${styles.label} typo-caption-upper`}>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
+      <LabelText className={styles.label} variant="section">
+        {theme === "dark" ? "Dark Mode" : "Light Mode"}
+      </LabelText>
     </button>
   )
 }

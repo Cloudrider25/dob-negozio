@@ -8,6 +8,7 @@ import serviceCardStyles from '@/components/carousel/UIC_CarouselCard.module.css
 import { Button } from '@/components/ui/button'
 import { ButtonLink } from '@/components/ui/button-link'
 import { CircleArrowLeft, CircleArrowRight } from '@/components/ui/icons'
+import { SplitSection } from '@/components/ui/SplitSection'
 
 type ProgramStep = {
   id: string
@@ -49,30 +50,36 @@ export const ProgramsSplitSection = ({
   const programHref = program.slug ? `/${locale}/programs/${program.slug}` : undefined
 
   return (
-    <section className={styles.section} aria-label="Programmi DOB">
-      <div className={styles.left}>
-        {leftMedia?.url && (
-          <Image
-            src={leftMedia.url}
-            alt={leftMedia.alt || 'Program media'}
-            fill
-            sizes="(max-width: 1024px) 100vw, 48vw"
-            className={direction === 'next' ? styles.slideNext : styles.slidePrev}
-          />
-        )}
-        <div className={styles.dots}>
-          {steps.map((item, index) => (
-            <button
-              key={item.id}
-              className={`${styles.dot} ${index === activeIndex ? styles.dotActive : ''}`}
-              onClick={() => setActiveIndex(index)}
-              type="button"
-              aria-label={`Vai a ${item.title || `Step ${index}`}`}
+    <SplitSection
+      aria-label="Programmi DOB"
+      leftClassName={styles.left}
+      rightClassName={`${styles.right} ${activeIndex === 0 ? styles.stepZero : ''}`}
+      left={
+        <>
+          {leftMedia?.url && (
+            <Image
+              src={leftMedia.url}
+              alt={leftMedia.alt || 'Program media'}
+              fill
+              sizes="(max-width: 1024px) 100vw, 48vw"
+              className={direction === 'next' ? styles.slideNext : styles.slidePrev}
             />
-          ))}
-        </div>
-      </div>
-      <div className={`${styles.right} ${activeIndex === 0 ? styles.stepZero : ''}`}>
+          )}
+          <div className={styles.dots}>
+            {steps.map((item, index) => (
+              <button
+                key={item.id}
+                className={`${styles.dot} ${index === activeIndex ? styles.dotActive : ''}`}
+                onClick={() => setActiveIndex(index)}
+                type="button"
+                aria-label={`Vai a ${item.title || `Step ${index}`}`}
+              />
+            ))}
+          </div>
+        </>
+      }
+      right={
+        <>
         <div className={styles.controls}>
           <button
             className={styles.arrow}
@@ -153,7 +160,8 @@ export const ProgramsSplitSection = ({
             </div>
           </>
         )}
-      </div>
-    </section>
+        </>
+      }
+    />
   )
 }

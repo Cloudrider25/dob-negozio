@@ -11,17 +11,10 @@
   margin-top: 2.5vw;
 }
 
-.hero,
-.insideGrid,
-.faqGrid,
 .treatmentGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--split-gap);
-}
-
-.hero {
-  align-items: start;
 }
 
 .heroMedia {
@@ -190,10 +183,6 @@
   height: 1px;
   background: color-mix(in srgb, var(--stroke) 70%, transparent);
   width: 100%;
-}
-
-.label {
-  color: var(--text-secondary);
 }
 
 .sizeBlock {
@@ -459,10 +448,6 @@
   width: 100%;
 }
 
-.insideGrid {
-  align-items: stretch;
-}
-
 .insideMedia {
   position: relative;
   border-radius: 18px;
@@ -558,10 +543,6 @@
 
 .faqSection {
   width: 100%;
-}
-
-.faqGrid {
-  align-items: stretch;
 }
 
 .faqCopy {
@@ -873,12 +854,6 @@
     padding: 0;
   }
 
-  .hero {
-    grid-template-columns: 1fr;
-  }
-
-  .insideGrid,
-  .faqGrid,
   .treatmentGrid,
   .detailGrid {
     grid-template-columns: 1fr;

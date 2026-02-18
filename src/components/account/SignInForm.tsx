@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { Label } from '@/components/ui/label'
 
 import styles from './AuthForms.module.css'
 
@@ -68,9 +69,9 @@ export function SignInForm({ locale }: { locale: string }) {
       {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
 
       <div className={styles.field}>
-        <label className={`${styles.label} typo-caption-upper`} htmlFor="signin-email">
+        <Label className={styles.label} htmlFor="signin-email" variant="section">
           {copy.emailLabel}
-        </label>
+        </Label>
         <input
           id="signin-email"
           type="email"
@@ -84,9 +85,9 @@ export function SignInForm({ locale }: { locale: string }) {
       </div>
 
       <div className={styles.field}>
-        <label className={`${styles.label} typo-caption-upper`} htmlFor="signin-password">
+        <Label className={styles.label} htmlFor="signin-password" variant="section">
           {copy.passwordLabel}
-        </label>
+        </Label>
         <input
           id="signin-password"
           type="password"
