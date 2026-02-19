@@ -65,7 +65,7 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
                   alt={item.media.alt || ''}
                   fill
                   sizes="(max-width: 1024px) 100vw, 55vw"
-                  className={styles.mediaImage}
+                  className="object-cover"
                   loading={index === activeIndex ? 'eager' : 'lazy'}
                   fetchPriority="auto"
                 />
@@ -100,6 +100,12 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
                 }
               }}
               onFocus={() => {
+                setActiveIndex(index)
+                if (swiperRef.current) {
+                  swiperRef.current.slideTo(index)
+                }
+              }}
+              onClick={() => {
                 setActiveIndex(index)
                 if (swiperRef.current) {
                   swiperRef.current.slideTo(index)

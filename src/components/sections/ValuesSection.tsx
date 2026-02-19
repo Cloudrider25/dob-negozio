@@ -76,6 +76,7 @@ export const ValuesSection = ({ items, media }: ValuesSectionProps) => {
           alt={media?.alt || 'Texture DOB'}
           fill
           sizes="(max-width: 1024px) 100vw, 48vw"
+          className="object-cover"
           loading="lazy"
           fetchPriority="auto"
         />

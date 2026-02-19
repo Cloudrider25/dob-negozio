@@ -370,3 +370,45 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - `ProtocolSplit.module.css`: rimossa regola discendente `.media img { object-fit: cover; }`;
   - `ProtocolSplit.tsx`: aggiunto `className="object-cover"` all’`Image` del media slider.
   - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-032 (`ProtocolSplit` mobile-first + text overlap hardening)
+  - Scope: `src/components/sections/ProtocolSplit.module.css`.
+  - Decisione: convertire il modulo a mobile-first e stabilizzare lo spazio del blocco testuale per evitare overlap con i controls step.
+  - Implementazione:
+  - conversione breakpoint strategy da `max-width` a `min-width` (`641px` e `1025px`);
+  - base mobile portata nel root (`panel/media order`, radius, aspect ratio, spacing compatto);
+  - desktop ripristinato in `@media (min-width: 1025px)` con min-height/padding/gap originali;
+  - tuning `textSlider`/`subtitle` min-height per prevenire sovrapposizione testo su cerchi/label step.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-033 (`ProtocolSplit` content hydration robustness da Pages)
+  - Scope: `src/app/(frontend)/[locale]/page.tsx`, `src/app/(frontend)/[locale]/dob-protocol/page.tsx`.
+  - Decisione: rendere più robusto il rendering dei contenuti `protocolSplit` caricati da Payload (`pages`) in presenza di localizzazioni parziali.
+  - Implementazione:
+  - aggiunto `fallbackLocale: 'it'` alle query `pages` (`home` e `dob-protocol`);
+  - parsing step aggiornato: lo step viene scartato solo se manca `title` (non più se manca `subtitle`);
+  - `subtitle` normalizzata a stringa vuota quando assente per evitare drop dell’intero step.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-034 (`ValuesSection` mobile visual pass + mobile-first conversion)
+  - Scope: `src/components/sections/ValuesSection.tsx`, `src/components/sections/ValuesSection.module.css`.
+  - Decisione: riallineare il blocco valori al target mobile (image-first + content card sotto), mantenendo desktop coerente con split section global e policy token-only.
+  - Implementazione:
+  - `ValuesSection.tsx`: `object-fit` spostato inline su `Image` (`className="object-cover"`).
+  - `ValuesSection.module.css`:
+  - migrati residui hardcoded/rgba a token (`--stroke`, `--text-muted`, `--text-primary`);
+  - rimossa classe legacy non usata `.kicker`;
+  - rimossa regola discendente `.media img`;
+  - eliminata regola duplicata/no-op su `min-height`;
+  - conversione completa mobile-first (`base mobile`, override `min-width: 641px` e `min-width: 1025px`);
+  - stabilizzazione anti-layout-shift su titolo (`.title` con `min-height` in mobile);
+  - in desktop ripristinata `min-height: 620px` su `.card` e `.media` per coerenza con `ui-split-column`.
+  - Verifica: `pnpm -s tsc --noEmit` ok; ricerca `rg` su file blocco conferma assenza `#...`, `rgba(...)`, `color-mix(...)`.
+- 2026-02-19 | Blocco CSS-035 (`StoryValuesSection` token cleanup + interaction fix)
+  - Scope: `src/components/sections/StoryValuesSection.tsx`, `src/components/sections/StoryValuesSection.module.css`.
+  - Decisione: mantenere struttura visuale invariata, eliminare residui hardcoded/`color-mix` e correggere l’interazione lista valori su touch/mobile.
+  - Implementazione:
+  - `StoryValuesSection.tsx`: aggiunto `onClick` sui bottoni lista per aggiornare stato attivo e `slideTo` (prima erano gestiti solo hover/focus);
+  - `StoryValuesSection.tsx`: `object-fit` spostato inline su `Image` (`className="object-cover"`);
+  - `StoryValuesSection.module.css`: media background e placeholder migrati a token (`--paper`);
+  - `StoryValuesSection.module.css`: border `contentPanel/list` migrati da `color-mix(...)` a `var(--stroke)`;
+  - `StoryValuesSection.module.css`: `listItem` con colore esplicito (`--text-muted`) e stato `active/hover/focus` valorizzato (`--text-primary`);
+  - rimossa regola no-op precedente su `listItemActive`.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
