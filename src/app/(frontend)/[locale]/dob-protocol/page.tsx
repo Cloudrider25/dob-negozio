@@ -20,6 +20,7 @@ export default async function DobProtocolPage({
   const pageConfig = await payload.find({
     collection: 'pages',
     locale,
+    fallbackLocale: 'it',
     overrideAccess: false,
     limit: 1,
     depth: 1,
@@ -67,12 +68,12 @@ export default async function DobProtocolPage({
           media?: unknown
         }
         const media = await resolveMediaValue(record.media, record.title || record.label || '')
-        if (!record.title || !record.subtitle) return null
+        if (!record.title) return null
         return {
           id: String(index + 1).padStart(2, '0'),
           label: record.label || `0${index + 1}`,
           title: record.title,
-          subtitle: record.subtitle,
+          subtitle: record.subtitle || '',
           image: media?.url || '/api/media/file/hero_homepage_light-1.png',
           imageAlt: media?.alt || record.title,
         } satisfies ProtocolSplitStep
@@ -83,6 +84,7 @@ export default async function DobProtocolPage({
   return (
     <div className="flex flex-col gap-10">
       <ProtocolSplit
+        locale={locale}
         eyebrow={pageDoc?.protocolSplit?.eyebrow || t.story.title}
         steps={protocolSteps.length > 0 ? protocolSteps : undefined}
       />

@@ -44,6 +44,7 @@ export function ListinoTradizionale() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const showFilters = searchParams.get('filters') === 'open'
+  const queryTerm = (searchParams.get('q') ?? '').trim().toLowerCase()
   const [openFilter, setOpenFilter] = useState<string | null>(null)
   const [orderBy, setOrderBy] = useState<'recent' | 'price-asc' | 'price-desc' | 'title'>('recent')
   const [filters, setFilters] = useState(() => ({
@@ -219,6 +220,18 @@ export function ListinoTradizionale() {
 
     return serviceViews
       .filter((service) => {
+        if (queryTerm) {
+          const haystack = [
+            service.title,
+            service.description || '',
+            service.slug || '',
+            ...service.treatmentOptions.map((item) => item.label),
+            ...service.areaOptions.map((item) => item.label),
+          ]
+            .join(' ')
+            .toLowerCase()
+          if (!haystack.includes(queryTerm)) return false
+        }
         if (!matchesSet(service.treatmentOptions, filters.treatments)) return false
         if (!matchesSet(service.areaOptions, filters.areas)) return false
         return true
@@ -229,7 +242,7 @@ export function ListinoTradizionale() {
         if (orderBy === 'title') return a.title.localeCompare(b.title)
         return 0
       })
-  }, [filters.areas, filters.treatments, orderBy, serviceViews])
+  }, [filters.areas, filters.treatments, orderBy, queryTerm, serviceViews])
 
   const priceFormatter = useMemo(
     () =>

@@ -42,6 +42,7 @@ export const ProgramsSplitSection = ({
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState<'next' | 'prev'>('next')
   const activeStep = steps[activeIndex]
+  const isIntroStep = activeIndex === 0
   const maxIndex = Math.max(total - 1, 0)
   const counter = useMemo(() => `${activeIndex}/${maxIndex}`, [activeIndex, maxIndex])
 
@@ -50,12 +51,14 @@ export const ProgramsSplitSection = ({
   const leftMedia =
     activeIndex === 0 ? program.heroMedia : activeStep?.heroMedia || program.heroMedia
   const programHref = program.slug ? `/${locale}/programs/${program.slug}` : undefined
+  const badgeText = isIntroStep ? 'descrizione' : activeStep?.badge
+  const stepTitle = isIntroStep ? 'Trattamento' : activeStep?.title
 
   return (
     <SplitSection
       aria-label="Programmi DOB"
       leftClassName={styles.left}
-      rightClassName={`${styles.right} ${activeIndex === 0 ? styles.stepZero : ''}`}
+      rightClassName={styles.right}
       left={
         <>
           {leftMedia?.url && (
@@ -84,100 +87,131 @@ export const ProgramsSplitSection = ({
       }
       right={
         <>
-        <div className={styles.controls}>
-          <button
-            className={styles.arrow}
-            type="button"
-            onClick={() => {
-              setDirection('prev')
-              setActiveIndex((i) => (i - 1 + total) % total)
-            }}
-            aria-label="Previous"
-          >
-            <CircleArrowLeft className={styles.arrowIcon} />
-          </button>
-          <button
-            className={styles.arrow}
-            type="button"
-            onClick={() => {
-              setDirection('next')
-              setActiveIndex((i) => (i + 1) % total)
-            }}
-            aria-label="Next"
-          >
-            <CircleArrowRight className={styles.arrowIcon} />
-          </button>
-        </div>
-        {activeIndex === 0 ? (
-          <>
+          <div className={styles.controls}>
+            <button
+              className={styles.arrow}
+              type="button"
+              onClick={() => {
+                setDirection('prev')
+                setActiveIndex((i) => (i - 1 + total) % total)
+              }}
+              aria-label="Previous"
+            >
+              <CircleArrowLeft className={styles.arrowIcon} />
+            </button>
+            <button
+              className={styles.arrow}
+              type="button"
+              onClick={() => {
+                setDirection('next')
+                setActiveIndex((i) => (i + 1) % total)
+              }}
+              aria-label="Next"
+            >
+              <CircleArrowRight className={styles.arrowIcon} />
+            </button>
+          </div>
+          <div className={styles.titleRow}>
             <SectionTitle as="h3" size="h2" uppercase className={styles.title}>
               {program.title}
             </SectionTitle>
-            <SectionSubtitle className={styles.subtitle}>
-              {program.description}
-            </SectionSubtitle>
-            <div className={styles.metaRow}>
-              {programHref ? (
-                <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
-                  Scopri {program.title}
-                  {program.price ? ` - ${program.price}` : ''}
-                </ButtonLink>
-              ) : (
-                <Button className={serviceCardStyles.cta} type="button" kind="card" size="sm" interactive>
-                  Scopri {program.title}
-                  {program.price ? ` - ${program.price}` : ''}
-                </Button>
-              )}
-              <span className={`${styles.counter} ${styles.counterLarge} typo-h1`}>{counter}</span>
+            <span className={`${styles.counter} typo-h2`}>{counter}</span>
+          </div>
+          <div className={styles.stepMediaRow}>
+            {badgeText ? (
+              <SectionTitle as="span" size="h3" uppercase className={styles.stepBadge}>
+                {badgeText}
+              </SectionTitle>
+            ) : null}
+            <div className={styles.stepMedia}>
+              {isIntroStep ? (
+                <SectionSubtitle className={styles.stepMediaTextDesktop}>{program.description}</SectionSubtitle>
+              ) : activeStep?.detailMedia?.url ? (
+                <Image
+                  src={activeStep.detailMedia.url}
+                  alt={activeStep.detailMedia.alt || ''}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  className={`object-cover ${
+                    direction === 'next' ? styles.slideNext : styles.slidePrev
+                  }`}
+                  loading="lazy"
+                  fetchPriority="auto"
+                />
+              ) : null}
             </div>
-          </>
-        ) : (
-          <>
-            <SectionTitle as="h3" size="h2" uppercase className={styles.title}>
-              {program.title}
-            </SectionTitle>
-            <div className={styles.stepMediaRow}>
-              {activeStep?.badge && (
-                <SectionTitle as="span" size="h2" uppercase className={styles.stepBadge}>
-                  {activeStep.badge}
-                </SectionTitle>
-              )}
-              <div className={styles.stepMedia}>
-                {activeStep?.detailMedia?.url && (
+            <div className={styles.mobileStepMediaNav}>
+              <button
+                className={styles.arrow}
+                type="button"
+                onClick={() => {
+                  setDirection('prev')
+                  setActiveIndex((i) => (i - 1 + total) % total)
+                }}
+                aria-label="Previous"
+              >
+                <CircleArrowLeft className={styles.arrowIcon} />
+              </button>
+              <div className={styles.stepMediaMobile}>
+                {!isIntroStep && activeStep?.detailMedia?.url ? (
                   <Image
                     src={activeStep.detailMedia.url}
                     alt={activeStep.detailMedia.alt || ''}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 40vw"
-                    className={direction === 'next' ? styles.slideNext : styles.slidePrev}
+                    sizes="(max-width: 1024px) 45vw, 0px"
+                    className={`object-cover ${
+                      direction === 'next' ? styles.slideNext : styles.slidePrev
+                    }`}
                     loading="lazy"
                     fetchPriority="auto"
                   />
-                )}
-              </div>
-            </div>
-            <div className={styles.stepFooter}>
-              <div className={styles.stepInfo}>
-                <SectionSubtitle size="small" uppercase className={styles.stepTitle}>
-                  {activeStep?.title}
-                </SectionSubtitle>
-                <SectionSubtitle className={styles.stepSubtitle}>{activeStep?.subtitle}</SectionSubtitle>
-                {programHref ? (
-                  <ButtonLink className={serviceCardStyles.cta} href={programHref} kind="card" size="sm" interactive>
-                    Scopri {program.title}
-                    {program.price ? ` - ${program.price}` : ''}
-                  </ButtonLink>
                 ) : (
-                  <Button className={serviceCardStyles.cta} type="button" kind="card" size="sm" interactive>
-                    Scopri {program.title}
-                    {program.price ? ` - ${program.price}` : ''}
-                  </Button>
+                  <SectionSubtitle className={styles.stepMediaText}>{program.description}</SectionSubtitle>
                 )}
               </div>
-              <span className={`${styles.counter} typo-h2`}>{counter}</span>
+              <button
+                className={styles.arrow}
+                type="button"
+                onClick={() => {
+                  setDirection('next')
+                  setActiveIndex((i) => (i + 1) % total)
+                }}
+                aria-label="Next"
+              >
+                <CircleArrowRight className={styles.arrowIcon} />
+              </button>
             </div>
-          </>
-        )}
+          </div>
+          <div className={styles.stepFooter}>
+            <div className={styles.stepInfo}>
+              <SectionSubtitle size="small" uppercase className={styles.stepTitle}>
+                {stepTitle}
+              </SectionSubtitle>
+              {programHref ? (
+                <ButtonLink
+                  className={`${serviceCardStyles.cta} ${styles.programCta}`}
+                  href={programHref}
+                  kind="card"
+                  size="sm"
+                  interactive
+                >
+                  Scopri {program.title}
+                  {program.price ? ` - ${program.price}` : ''}
+                </ButtonLink>
+              ) : (
+                <Button
+                  className={`${serviceCardStyles.cta} ${styles.programCta}`}
+                  type="button"
+                  kind="card"
+                  size="sm"
+                  interactive
+                >
+                  Scopri {program.title}
+                  {program.price ? ` - ${program.price}` : ''}
+                </Button>
+              )}
+            </div>
+          </div>
         </>
       }
     />

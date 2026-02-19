@@ -8,6 +8,7 @@ import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { StateCircleButton } from '@/components/ui/StateCircleButton'
 import { SplitSection } from '@/components/ui/SplitSection'
+import type { Locale } from '@/lib/i18n'
 
 export type ProtocolSplitStep = {
   id: string
@@ -18,40 +19,110 @@ export type ProtocolSplitStep = {
   imageAlt: string
 }
 
-const defaultSteps: ProtocolSplitStep[] = [
-  {
-    id: '01',
-    label: 'Diagnosi',
-    title: 'Diagnosi su misura',
-    subtitle: 'Analisi approfondita della pelle e degli obiettivi per definire il protocollo.',
-    image: '/api/media/file/hero_homepage_light-1.png',
-    imageAlt: 'Diagnosi su misura',
+const defaultStepMedia = [
+  '/api/media/file/hero_homepage_light-1.png',
+  '/api/media/file/hero_homepage_dark-1.png',
+  '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg',
+] as const
+
+const protocolDefaultsByLocale: Record<
+  Locale,
+  { eyebrow: string; ariaLabel: string; steps: Omit<ProtocolSplitStep, 'id' | 'image'>[] }
+> = {
+  it: {
+    eyebrow: 'DOB protocol',
+    ariaLabel: 'DOB protocol split',
+    steps: [
+      {
+        label: 'Diagnosi',
+        title: 'Diagnosi su misura',
+        subtitle: 'Analisi approfondita della pelle e degli obiettivi per definire il protocollo.',
+        imageAlt: 'Diagnosi su misura',
+      },
+      {
+        label: 'Tecnologia',
+        title: 'Tecnologia mirata',
+        subtitle: 'Tecniche avanzate e macchinari selezionati per risultati visibili e duraturi.',
+        imageAlt: 'Tecnologia mirata',
+      },
+      {
+        label: 'Rituale',
+        title: 'Rituale personalizzato',
+        subtitle: 'Rituali di bellezza calibrati per mantenere e potenziare i risultati.',
+        imageAlt: 'Rituale personalizzato',
+      },
+    ],
   },
-  {
-    id: '02',
-    label: 'Tecnologia',
-    title: 'Tecnologia mirata',
-    subtitle: 'Tecniche avanzate e macchinari selezionati per risultati visibili e duraturi.',
-    image: '/api/media/file/hero_homepage_dark-1.png',
-    imageAlt: 'Tecnologia mirata',
+  en: {
+    eyebrow: 'DOB protocol',
+    ariaLabel: 'DOB protocol split',
+    steps: [
+      {
+        label: 'Diagnosis',
+        title: 'Tailored diagnosis',
+        subtitle: 'In-depth skin and goals analysis to define the right protocol.',
+        imageAlt: 'Tailored diagnosis',
+      },
+      {
+        label: 'Technology',
+        title: 'Targeted technology',
+        subtitle: 'Advanced techniques and selected devices for visible, lasting results.',
+        imageAlt: 'Targeted technology',
+      },
+      {
+        label: 'Ritual',
+        title: 'Personalized ritual',
+        subtitle: 'Customized beauty rituals to maintain and boost your results.',
+        imageAlt: 'Personalized ritual',
+      },
+    ],
   },
-  {
-    id: '03',
-    label: 'Rituale',
-    title: 'Rituale personalizzato',
-    subtitle: 'Rituali di bellezza calibrati per mantenere e potenziare i risultati.',
-    image: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg',
-    imageAlt: 'Rituale personalizzato',
+  ru: {
+    eyebrow: 'DOB protocol',
+    ariaLabel: 'DOB protocol split',
+    steps: [
+      {
+        label: 'Диагностика',
+        title: 'Индивидуальная диагностика',
+        subtitle: 'Глубокий анализ кожи и целей для выбора оптимального протокола.',
+        imageAlt: 'Индивидуальная диагностика',
+      },
+      {
+        label: 'Технология',
+        title: 'Точная технология',
+        subtitle: 'Передовые техники и оборудование для заметного и стойкого результата.',
+        imageAlt: 'Точная технология',
+      },
+      {
+        label: 'Ритуал',
+        title: 'Персонализированный ритуал',
+        subtitle: 'Индивидуальные бьюти-ритуалы для поддержания и усиления результата.',
+        imageAlt: 'Персонализированный ритуал',
+      },
+    ],
   },
-]
+}
 
 type ProtocolSplitProps = {
+  locale?: Locale
   eyebrow?: string
   steps?: ProtocolSplitStep[]
 }
 
-export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplitProps) => {
-  const resolvedSteps = steps && steps.length > 0 ? steps : defaultSteps
+export const ProtocolSplit = ({ locale = 'it', eyebrow, steps }: ProtocolSplitProps) => {
+  const defaults = protocolDefaultsByLocale[locale]
+  const resolvedEyebrow = eyebrow || defaults.eyebrow
+  const resolvedSteps =
+    steps && steps.length > 0
+      ? steps
+      : defaults.steps.map((step, index) => ({
+          id: String(index + 1).padStart(2, '0'),
+          label: step.label,
+          title: step.title,
+          subtitle: step.subtitle,
+          image: defaultStepMedia[index] || defaultStepMedia[0],
+          imageAlt: step.imageAlt,
+        }))
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
 
@@ -72,13 +143,13 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
 
   return (
     <SplitSection
-      aria-label="DOB protocol split"
+      aria-label={defaults.ariaLabel}
       leftClassName={styles.panel}
       rightClassName={styles.media}
       left={
         <>
           <div>
-            <p className={`${styles.eyebrow} typo-caption-upper`}>{eyebrow}</p>
+            <p className={`${styles.eyebrow} typo-caption-upper`}>{resolvedEyebrow}</p>
             <div className={styles.textSlider}>
               {resolvedSteps.map((step, index) => (
                 <div
@@ -125,6 +196,7 @@ export const ProtocolSplit = ({ eyebrow = 'DOB protocol', steps }: ProtocolSplit
                 alt={resolvedSteps[activeIndex].imageAlt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
                 loading="lazy"
                 fetchPriority="auto"
               />

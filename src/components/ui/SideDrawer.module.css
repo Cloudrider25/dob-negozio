@@ -1,0 +1,64 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100vw;
+  background: var(--bg);
+  box-shadow: var(--shadow-soft);
+  transform: translateX(110%);
+  transition: transform 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  padding: 1.4rem;
+  gap: 1.2rem;
+}
+
+.open {
+  pointer-events: auto;
+}
+
+.open .backdrop {
+  opacity: 0.45;
+}
+
+.open .panel {
+  transform: translateX(0);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.closeButton {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 701px) {
+  .panel {
+    padding: 1.6rem 1.8rem 1.8rem;
+    width: min(50vw);
+  }
+}

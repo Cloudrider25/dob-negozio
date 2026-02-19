@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
-import { ProgramsSplitSection } from '@/components/sections/ProgramsSplitSection'
+import { SplitSection } from '@/components/ui/SplitSection'
+import { ButtonLink } from '@/components/ui/button-link'
 import styles from './program-detail.module.css'
 
 type PageParams = Promise<{ locale: string; slug: string }>
@@ -16,6 +19,35 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
 
   const payload = await getPayloadClient()
   const t = getDictionary(locale)
+  const copy = {
+    it: {
+      stepLabel: 'Step',
+      stepMediaAlt: 'Media step programma',
+      singleTreatmentsCost: 'Costo dei singoli trattamenti',
+      programFullPrice: 'Prezzo programma completo',
+      book: 'Prenota',
+      includedInPrice: 'incluso nel prezzo',
+      details: 'Dettagli',
+    },
+    en: {
+      stepLabel: 'Step',
+      stepMediaAlt: 'Program step media',
+      singleTreatmentsCost: 'Single treatments total',
+      programFullPrice: 'Full program price',
+      book: 'Book',
+      includedInPrice: 'included in the price',
+      details: 'Details',
+    },
+    ru: {
+      stepLabel: 'Этап',
+      stepMediaAlt: 'Медиа этапа программы',
+      singleTreatmentsCost: 'Стоимость отдельных процедур',
+      programFullPrice: 'Полная стоимость программы',
+      book: 'Записаться',
+      includedInPrice: 'включено в стоимость',
+      details: 'Подробнее',
+    },
+  }[locale]
 
   const programResult = await payload.find({
     collection: 'programs',
@@ -59,9 +91,7 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
     if (!Array.isArray(gallery)) return null
     const entries = gallery
       .map((item) =>
-        item && typeof item === 'object'
-          ? (item as { media?: unknown; isCover?: boolean })
-          : null,
+        item && typeof item === 'object' ? (item as { media?: unknown; isCover?: boolean }) : null,
       )
       .filter(Boolean)
     const cover = entries.find((entry) => entry?.isCover) ?? entries[0]
@@ -72,9 +102,7 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
     if (!Array.isArray(gallery)) return null
     const entries = gallery
       .map((item) =>
-        item && typeof item === 'object'
-          ? (item as { media?: unknown; isCover?: boolean })
-          : null,
+        item && typeof item === 'object' ? (item as { media?: unknown; isCover?: boolean }) : null,
       )
       .filter(Boolean)
     const secondary =
@@ -110,6 +138,16 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
     return formatter.format(value)
   }
 
+  const formatPrice = (value?: number | null, currency?: string | null) => {
+    if (typeof value !== 'number' || Number.isNaN(value)) return undefined
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency || 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)
+  }
+
   const steps =
     program && Array.isArray(program.steps)
       ? await Promise.all(
@@ -118,29 +156,32 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
               step.stepType === 'service' ? resolveProgramId(step.stepService) : null
             const productId =
               step.stepType === 'product' ? resolveProgramId(step.stepProduct) : null
-            const service =
-              serviceId
-                ? await payload.findByID({
-                    collection: 'services',
-                    id: serviceId,
-                    locale,
-                    depth: 1,
-                    overrideAccess: false,
-                  })
-                : null
-            const product =
-              productId
-                ? await payload.findByID({
-                    collection: 'products',
-                    id: productId,
-                    locale,
-                    depth: 1,
-                    overrideAccess: false,
-                  })
-                : null
+            const service = serviceId
+              ? await payload.findByID({
+                  collection: 'services',
+                  id: serviceId,
+                  locale,
+                  depth: 1,
+                  overrideAccess: false,
+                })
+              : null
+            const product = productId
+              ? await payload.findByID({
+                  collection: 'products',
+                  id: productId,
+                  locale,
+                  depth: 1,
+                  overrideAccess: false,
+                })
+              : null
 
             const fallbackTitle = service?.name || product?.title || ''
             const fallbackSubtitle = service?.description || product?.description || ''
+            const detailHref = service?.slug
+              ? `/${locale}/services/service/${service.slug}`
+              : product?.slug
+                ? `/${locale}/shop/${product.slug}`
+                : null
             const heroMedia =
               (await resolveMediaValue(step.stepHeroMedia, fallbackTitle)) ||
               (service
@@ -163,12 +204,25 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
               title: step.stepTitle || fallbackTitle,
               subtitle: step.stepSubtitle || fallbackSubtitle,
               badge: step.stepBadge || null,
+              rawPrice: service?.price ?? product?.price ?? null,
+              price: formatPrice(
+                service?.price ?? product?.price ?? null,
+                program.currency || 'EUR',
+              ),
+              detailHref,
               heroMedia,
               detailMedia,
             }
           }),
         )
       : []
+
+  const stepsTotalRaw = steps.reduce((sum, step) => {
+    if (typeof step.rawPrice !== 'number' || Number.isNaN(step.rawPrice)) return sum
+    return sum + step.rawPrice
+  }, 0)
+  const stepsTotalPrice =
+    stepsTotalRaw > 0 ? formatPrice(stepsTotalRaw, program.currency || 'EUR') : undefined
 
   const programData = {
     title: program.title || undefined,
@@ -177,11 +231,122 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
     slug: program.slug || undefined,
     heroMedia: await resolveMediaValue(program.heroMedia, program.title || t.hero.title),
     steps,
+    stepsTotalPrice,
   }
+
+  const programHref = programData.slug ? `/${locale}/programs/${programData.slug}` : null
+  const bookingHref = `/${locale}/services?view=consulenza`
 
   return (
     <div className={styles.page}>
-      <ProgramsSplitSection program={programData} locale={locale} />
+      <section className={styles.hero}>
+        <h1 className={`${styles.heroTitle} typo-h2`}>{programData.title}</h1>
+        {programData.description ? (
+          <p className={`${styles.heroSubtitle} typo-body`}>{programData.description}</p>
+        ) : null}
+        {programData.price || programData.stepsTotalPrice ? (
+          <p className={`${styles.heroPrice} typo-h3`}>
+            {programData.stepsTotalPrice ? (
+              <span className={styles.heroPriceOld}>
+                <span className={styles.heroPriceOldValue}>{programData.stepsTotalPrice}</span>{' '}
+                {copy.singleTreatmentsCost}
+              </span>
+            ) : null}
+            {programData.price ? (
+              <span className={styles.heroPriceDepositRow}>
+                <span className={styles.heroPriceDeposit}>
+                  {copy.programFullPrice} {programData.price}
+                </span>
+                <ButtonLink
+                  className={`${styles.heroPriceBookingCta} typo-caption-upper`}
+                  href={bookingHref}
+                  kind="main"
+                  size="sm"
+                >
+                  {copy.book} {programData.title}
+                </ButtonLink>
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+      </section>
+
+      {programData.steps.map((step, index) => {
+        const media = step.detailMedia || step.heroMedia || programData.heroMedia
+        const isMediaLeft = index % 2 === 0
+        const stepDisplayTitle = step.title || `${programData.title} ${copy.stepLabel} ${index + 1}`
+        const stepCtaTitle = step.title || programData.title
+        const stepCtaPrice = step.price || programData.price
+        const hasStepActions = Boolean(programHref || step.detailHref)
+        const mediaPanel = (
+          <div className={styles.mediaPanel}>
+            {media?.url ? (
+              <Image
+                src={media.url}
+                alt={media.alt || step.title || programData.title || copy.stepMediaAlt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 48vw"
+                className="object-cover"
+                loading="lazy"
+                fetchPriority="auto"
+              />
+            ) : null}
+          </div>
+        )
+
+        const infoPanel = (
+          <div className={styles.infoPanel}>
+            <div className={styles.infoTop}>
+              <p className={`${styles.stepCount} typo-caption-upper`}>
+                {index + 1}/{programData.steps.length}
+              </p>
+              {step.badge ? (
+                <p className={`${styles.stepBadge} typo-small-upper`}>{step.badge}</p>
+              ) : null}
+            </div>
+            <h2 className={`${styles.stepTitle} typo-h3`}>{stepDisplayTitle}</h2>
+            {step.subtitle ? (
+              <p className={`${styles.stepSubtitle} typo-body`}>{step.subtitle}</p>
+            ) : null}
+            {hasStepActions ? (
+              <div className={styles.stepActions}>
+                {programHref ? (
+                  <Link className={`${styles.stepCta} typo-caption-upper`} href={programHref}>
+                    <span>{stepCtaTitle}</span>
+                    {stepCtaPrice ? (
+                      <span className={styles.stepCtaMeta}>
+                        <span className={styles.stepCtaPriceOld}>{stepCtaPrice}</span>
+                        <span className={styles.stepCtaDeposit}>{copy.includedInPrice}</span>
+                      </span>
+                    ) : null}
+                  </Link>
+                ) : null}
+                {step.detailHref ? (
+                  <ButtonLink
+                    className={`${styles.stepDetailCta} typo-caption-upper`}
+                    href={step.detailHref}
+                    kind="main"
+                    size="sm"
+                  >
+                    {copy.details}
+                  </ButtonLink>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        )
+
+        return (
+          <SplitSection
+            key={step.id || `${programData.slug || 'program'}-${index}`}
+            className={styles.stepSplit}
+            leftClassName={`${styles.stepColumn} ${isMediaLeft ? styles.columnMedia : styles.columnInfo}`}
+            rightClassName={`${styles.stepColumn} ${isMediaLeft ? styles.columnInfo : styles.columnMedia}`}
+            left={isMediaLeft ? mediaPanel : infoPanel}
+            right={isMediaLeft ? infoPanel : mediaPanel}
+          />
+        )
+      })}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 # Style & Design Audit (Active)
 
-Ultimo aggiornamento: 2026-02-18  
+Ultimo aggiornamento: 2026-02-19  
 Owner: Team DOB Milano
 
 ## Obiettivo
@@ -208,3 +208,165 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - `submitSuccess`/`submitError` migrati da hardcoded (`#0f766e`, `#b91c1c`) a token (`--tech-cyan`, `--neon-red`);
   - rimossa classe `.contactLink` (non usata) e relativo override responsive.
   - Verifica: `rg` su `ConsultationForm.module.css` conferma assenza di `#...`, `rgba(...)`, `color-mix(...)`; `pnpm -s tsc --noEmit` ok.
+- 2026-02-18 | Blocco CSS-017 (`Forms + Shop UX` refinement pass)
+  - Scope: `src/components/forms/ConsultationForm.*`, `src/components/sections/SectionSwitcher.*`, `src/components/heroes/Hero.*`, `src/app/(frontend)/[locale]/shop/page.tsx`.
+  - Decisione: ridurre complessità CSS locale, migliorare leggibilità mobile e semplificare CTA/hero.
+  - Implementazione:
+  - `ConsultationForm`: submit migrato a `Button` shared (`kind="main"`), rimozione blocchi CSS custom submit (`submitButton`, `submitContent`, `submitIcon`, `submitGlow`); rimosso hero badge (`heroBadge/heroIcon`) lato TSX+CSS; migliorato contrasto icone contatto in light mode; section titles da `h3` a `h4`; aggiunto margine inferiore a `heroSubtitle`.
+  - `SectionSwitcher`: mobile su singola riga con scroll orizzontale, pills width fit-content (`width: max-content`, `nowrap`), comportamento desktop invariato (wrap/center).
+  - `Hero` shop: rimossi i CTA dall’hero di `shop/page.tsx`; in `Hero` mantenuto solo tuning size CTA mobile per altri consumer.
+  - Verifica: `pnpm -s tsc --noEmit` ok; riduzione `ConsultationForm.module.css` da 299 a 254 linee.
+- 2026-02-18 | Blocco CSS-018 (`Heroes` pass 1: StoryHero token migration)
+  - Scope: review iniziale `src/components/heroes/*` con fix applicato su `src/components/heroes/StoryHero.module.css`.
+  - Decisione: migrare subito i hardcoded “sicuri” su token globali senza alterare il layout; lasciare `Hero.module.css` a un batch successivo dedicato (ha molte scelte visual creative da preservare).
+  - Implementazione:
+  - `.card` in `StoryHero.module.css`: `background`, `border`, `box-shadow`, `text color` migrati a token (`--paper`, `--stroke`, `--shadow-soft`, `--text-secondary`) rimuovendo hardcoded `rgba/#...`.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-18 | Blocco CSS-019 (`Heroes` pass 2: token-only completion)
+  - Scope: `src/components/heroes/Hero.module.css`, `src/components/heroes/StoryHeroNote.module.css`.
+  - Decisione: completare migrazione token-only rimuovendo `#...`, `rgba(...)`, `color-mix(...)` mantenendo struttura/animazioni.
+  - Implementazione:
+  - `Hero.module.css`:
+  - `hero::before` migrato a `--pearl-highlight`;
+  - `style1 .content` e override dark migrati a token (`--paper`/`--panel`, `--stroke`, `--shadow-soft`);
+  - overlay gradient semplificato a token (`--obsidian`, `--panel`) con opacità dedicata;
+  - `text-shadow` del titolo migrato a `--shadow-soft`;
+  - cleanup formattazione (`object-position`).
+  - `StoryHeroNote.module.css`:
+  - `noteCard` migrata a token (`--paper`, `--stroke`, `--shadow-soft`);
+  - `signatureName` color migrato a `--text-primary`;
+  - rimosso `color-mix` residuo e cleanup formattazione.
+  - Verifica: `rg` su `src/components/heroes/**/*.css` conferma assenza di `#...`, `rgba(...)`, `color-mix(...)`; `pnpm -s tsc --noEmit` ok.
+- 2026-02-18 | Blocco CSS-020 (`Layout/Header` token refinement pass)
+  - Scope: review `src/components/layout/Header.module.css`.
+  - Decisione: applicare migrazione token sui residui hardcoded “safe” senza alterare UX del menu/header.
+  - Implementazione:
+  - `menuOverlay` desktop shadow migrata da `color-mix(in srgb, #000 ...)` a `--shadow-lux`;
+  - dark theme `header/topBar` background migrati da `#1b1b1b` a `--graphite`;
+  - dark theme top bar text migrato da `rgba(255,255,255,0.72)` a `--text-secondary`;
+  - cleanup formattazione (`padding` header).
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-021 (`Theme` auto mode + footer relocation)
+  - Scope: `src/components/theme/ThemeToggle.*`, `src/components/theme/ThemeHydrator.tsx`, `src/app/(frontend)/layout.tsx`, `src/app/(frontend)/[locale]/layout.tsx`, `src/components/layout/Header.tsx`.
+  - Decisione: rendere il tema automatico rispetto a `prefers-color-scheme`, mantenendo override manuale opzionale nel toggle; spostare il toggle dall’header al footer.
+  - Implementazione:
+  - `ThemeToggle` aggiornato a 3 stati (`auto | light | dark`) con label dinamica e sync con cambio tema OS/browser;
+  - `ThemeHydrator` aggiornato per supportare `auto` e applicazione coerente di `data-theme` su `html/body`;
+  - `ThemeHydrator` montato anche nel frontend root layout;
+  - `ThemeToggle` rimosso da header e aggiunto nel footer;
+  - ridotto font del toggle (`ThemeToggle.module.css`).
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-022 (`Locale/Country/Currency` auto-detection + modal)
+  - Scope: `src/lib/user-preferences.ts`, `src/components/layout/PreferencesConfirmModal.*`, `src/app/(frontend)/[locale]/layout.tsx`, `src/components/layout/Header.tsx`, `src/components/layout/Header.module.css`, `src/app/(checkout)/[locale]/layout.tsx`.
+  - Decisione: rimuovere selector lingua dall’header; introdurre rilevamento automatico preferenze utente (lingua/paese/valuta) con conferma esplicita tramite popup.
+  - Implementazione:
+  - nuovo helper centralizzato preferenze con regole: `ITA=IT/€`, `RU=RU/€`, `EN=EN/€`, altre lingue -> `EN/€`;
+  - rimozione completa del language selector header (desktop + overlay menu);
+  - footer `Country/Region` reso dinamico da preferenze salvate/rilevate;
+  - nuovo modal conferma con copy localizzata (`it/en/ru`) e CTA `CONTINUE WITH EUR`;
+  - estensione del medesimo flusso anche ai layout checkout locale.
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-023 (`Footer control` reopen + edit flow)
+  - Scope: `src/components/layout/PreferencesFooterControl.tsx`, `src/components/layout/PreferencesConfirmModal.*`, `src/app/(frontend)/[locale]/layout.tsx`.
+  - Decisione: il selettore footer deve essere interattivo e riaprire il popup con possibilità di modifica reale.
+  - Implementazione:
+  - introdotto trigger client nel footer (`PreferencesFooterControl`) con apertura modal on click;
+  - `PreferencesConfirmModal` reso controllabile (`open/onOpenChange`) e arricchito con language picker (`IT/EN/RU`);
+  - salvataggio preferenze aggiornate su cookie/localStorage + redirect locale coerente dopo conferma.
+  - Verifica: `pnpm exec tsc --noEmit` ok; verifica tecnica completa: `pnpm run -s lint` (solo warning preesistenti), `pnpm run -s build` ok.
+- 2026-02-19 | Blocco CSS-024 (`Header desktop` nav actions + Search trigger)
+  - Scope: `src/components/layout/Header.tsx`, `src/components/layout/Header.module.css`.
+  - Decisione: completare la sezione desktop eliminando CTA e icone account/cart in favore di voci testuali nav; aggiungere trigger `Search` dedicato.
+  - Implementazione:
+  - rimossa CTA `Prenota ora` dall’header;
+  - in desktop sostituiti bottoni icona account/cart con voci testuali (`Search`, `Account|Sign in`, `Cart`);
+  - mantenute icone account/cart nel menu overlay mobile;
+  - aggiunte classi nav dedicate (`rightNav`, `rightNavLink`).
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-025 (`Search Drawer` shared shell + live multi-group results)
+  - Scope: `src/components/ui/SideDrawer.*`, `src/components/cart/CartDrawer.tsx`, `src/components/layout/SearchDrawer*`, `src/lib/searchDrawer.ts`, `src/app/api/search/drawer/route.ts`, `src/app/api/search/live/route.ts`, `src/components/shop/ShopSectionSwitcher.tsx`, `src/components/services/ListinoTradizionale.tsx`, `src/app/(frontend)/[locale]/services/page.tsx`, `src/app/(frontend)/[locale]/layout.tsx`.
+  - Decisione: riusare la stessa infrastruttura drawer per cart e search; implementare ricerca live (>=2 caratteri) con risultati eterogenei/tag e redirect specifici per gruppo.
+  - Implementazione:
+  - estratto shell shared `SideDrawer` e migrato `CartDrawer` al nuovo wrapper;
+  - creato `SearchDrawer` con trigger/lazy loader/event bus dedicati;
+  - endpoint `search/drawer` per suggested + recommendation block;
+  - endpoint `search/live` con gruppi: `service-detail`, `service-list`, `product-detail`, `product-list`, `brand-list`, `line-list`;
+  - aggiunti tag multipli per risultato (es. `Servizi`, `Pacchetto`, `Brand`, `Prodotti`, `N risultati`);
+  - redirect differenziati:
+  - service detail -> `/${locale}/services/service/[slug]`
+  - all services filtered -> `/${locale}/services?view=listino&q=...`
+  - product detail -> `/${locale}/shop/[slug]`
+  - product/brand/line list -> `/${locale}/shop?section=shop-all&q=...`
+  - supporto filtro `q` lato destinazione:
+  - `ShopSectionSwitcher` filtra per titolo/slug/brand/linea
+  - `ListinoTradizionale` filtra per titolo/descrizione/slug/trattamenti/aree
+  - pagina services con `q` apre direttamente vista `listino`.
+  - Verifica: `pnpm run -s build` ok; `pnpm exec tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-026 (`Header mobile menu` complete review)
+  - Scope: `src/components/layout/Header.tsx`, `src/components/layout/Header.module.css`, `src/components/theme/ThemeToggle.*`, `src/app/(frontend)/[locale]/layout.tsx`, `src/app/(frontend)/[locale]/contact/page.tsx`, `src/app/sitemap.ts`, `src/app/(frontend)/[locale]/location/page.tsx`.
+  - Decisione: consolidare il menu mobile come pattern primario (mobile-first), con struttura contenuti coerente al sito, CTA utili e pulizia totale dei riferimenti legacy `location`.
+  - Implementazione:
+  - menu overlay mobile-first stabilizzato sotto header (animazione verticale `clip-path`), layering corretto e chiusura a fine animazione;
+  - restyling completo interno menu: rimozione titolo “Menu”, sezioni con gerarchia chiara, spacing/divider coerenti e radius inferiore visibile;
+  - integrazione preferenze nel menu (`ThemeToggle` + `Country/Region`), con fix contrasto colori su light/dark nel contesto overlay;
+  - sezione social/contact rivista: icone brand (`react-icons/si` per WhatsApp/Instagram/Facebook + phone), disposizione full-width su unica riga icone;
+  - aggiunti 2 card highlight stile `CartDrawer_routine` (ultimo prodotto + ultimo servizio) con badge `New` e link dinamici;
+  - aggiunti blocco indirizzo e CTA full-width `Get directions` verso Google Maps (Via Giovanni Rasori 9, 20145 Milano, Italia);
+  - riordinato nav menu mobile (`Account`, `Services`, `Shop`, poi resto) e rinomina label “Our Story” -> “About” (path invariato `/our-story`);
+  - rimosso link `location` dal nav e distrutta route `src/app/(frontend)/[locale]/location/page.tsx`;
+  - pulizia riferimenti `location` in sitemap/footer/contact per evitare link rotti.
+  - Verifica: `pnpm -s tsc --noEmit` ok sui batch finali; comportamento menu validato nelle varianti tema/light-dark.
+- 2026-02-19 | Blocco CSS-027 (`ProgramsSplitSection` cleanup + token pass)
+  - Scope: `src/components/sections/ProgramsSplitSection.module.css`, `src/components/sections/ProgramsSplitSection.tsx`.
+  - Decisione: rimuovere regole no-op/legacy, mantenere `object-fit` inline sul consumer `Image`, migrare residui hardcoded dei dots su token globali.
+  - Implementazione:
+  - rimossa classe ridondante `.counterLarge` e relativo uso nel TSX (resta `.counter`);
+  - rimossa regola discendente `.stepMedia img { object-fit: cover; }` e applicato `object-cover` inline al secondo `Image` in `ProgramsSplitSection.tsx`;
+  - dots migrati da `rgba(...)` a token (`--pearl-2`/`--pearl-1` + ring `--obsidian`);
+  - cleanup formattazione/righe vuote nel module.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-028 (`ProgramsSplitSection` mobile layout refactor)
+  - Scope: `src/components/sections/ProgramsSplitSection.tsx`, `src/components/sections/ProgramsSplitSection.module.css`, `src/styles/globals.css`.
+  - Decisione: uniformare completamente la struttura mobile tra step 0 e step successivi (stesse classi/slot), riducendo al minimo il layout shift e mantenendo CTA sempre ancorata in basso.
+  - Implementazione:
+  - strategia split mobile global: `ui-split-section` con `gap: 0` e `ui-split-column` con `min-height: 0` sotto `1024px`;
+  - `ProgramsSplitSection` refactor a markup unico per tutti gli step (niente branch strutturali separati step0/stepN): stessa sequenza `titleRow -> stepMediaRow -> stepFooter`;
+  - step 0 ora usa gli stessi slot/classi degli altri step e cambia solo i dati (`badge: "descrizione"`, testo centrale nel media slot);
+  - `stepSubtitle` nascosto su mobile; testo descrittivo dello step 0 spostato nello slot centrale (`stepMediaText`) con allineamento sinistro;
+  - media step mobile ridimensionata e centrata tra frecce; navigazione mobile passata a `display:flex; align-items:center;`;
+  - frecce allineate verso i bordi esterni con colonna/slot centrale allargata;
+  - CTA resa coerente tra step (stessa classe `programCta`, stessa larghezza in mobile) e ancorata in basso con `margin-top: auto` sul footer;
+  - altezza pannello destro mobile stabilizzata (`min-height: 380px`).
+  - Verifica: `pnpm -s tsc --noEmit` ok dopo i batch di refactor.
+- 2026-02-19 | Blocco CSS-029 (`ProgramsSplitSection` desktop parity + final cleanup)
+  - Scope: `src/components/sections/ProgramsSplitSection.tsx`, `src/components/sections/ProgramsSplitSection.module.css`.
+  - Decisione: completare la parita` visiva/strutturale anche in desktop tra step 0 e step successivi, mantenendo stesso schema classi e variando solo i dati.
+  - Implementazione:
+  - counter desktop unificato (`typo-h2`) tra step 0 e altri;
+  - step 0 desktop: descrizione spostata nello slot media (classe dedicata `stepMediaTextDesktop`) invece che nel footer;
+  - `stepBadge` ridimensionato da `h2` a `h3` (`SectionTitle size="h3"`);
+  - subtitle legacy rimossa completamente dal render (`stepSubtitle`) e dal CSS;
+  - `stepInfo/stepTitle` riallineati sotto area media con spacing superiore coerente;
+  - pulizia finale variabili/classi non usate nel TSX (rimossa variabile `stepSubtitle`).
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-030 (`Program detail [slug]` redesign + CTA + mobile-first + i18n)
+  - Scope: `src/app/(frontend)/[locale]/programs/[slug]/page.tsx`, `src/app/(frontend)/[locale]/programs/[slug]/program-detail.module.css`.
+  - Decisione: sostituire la resa monolitica tipo home con una pagina dettaglio a split multipli per step, alternanza media/info desktop e ordine media-first su mobile, usando componenti shared per i CTA.
+  - Implementazione:
+  - pagina ridisegnata con `SplitSection` per ogni step (`media left/right` alternato desktop, sempre `media -> info` su mobile);
+  - hero prezzo aggiornato con doppio livello: totale prezzi step barrato + prezzo programma come acconto;
+  - CTA hero `Prenota {programma}` migrata a `ButtonLink` shared;
+  - CTA step: principale con prezzo barrato + “incluso nel prezzo” e CTA secondaria `Dettagli` (`ButtonLink` shared) con link dinamico a service detail o shop product;
+  - responsive CTA/azioni rifinito tra desktop e mobile (`fit-content` / full-width dove richiesto nei vari passaggi);
+  - CSS del file convertito a approccio mobile-first (`base mobile`, desktop in `@media (min-width: 1025px)`);
+  - pass finale testi hardcoded nel TSX sostituiti con copy locale-aware (`it/en/ru`) per label hero/step/cta/alt.
+  - Verifica: `pnpm -s tsc --noEmit` ok sui batch finali.
+- 2026-02-19 | Blocco CSS-031 (`ProtocolSplit` token-only cleanup + image fit inline)
+  - Scope: `src/components/sections/ProtocolSplit.tsx`, `src/components/sections/ProtocolSplit.module.css`.
+  - Decisione: allineare il blocco alla policy token-only (niente `color-mix`/hardcoded colore) e mantenere `object-fit` direttamente sul consumer `Image`.
+  - Implementazione:
+  - `ProtocolSplit.module.css`: border `panel/media` migrati da `color-mix(...)` a `var(--stroke)`;
+  - `ProtocolSplit.module.css`: background `media` migrato da hardcoded `#e9e6df` a `var(--paper)`;
+  - `ProtocolSplit.module.css`: rimossa regola discendente `.media img { object-fit: cover; }`;
+  - `ProtocolSplit.tsx`: aggiunto `className="object-cover"` all’`Image` del media slider.
+  - Verifica: `pnpm -s tsc --noEmit` ok.

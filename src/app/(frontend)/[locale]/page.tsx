@@ -26,6 +26,7 @@ export default async function HomePage({
   const pageConfig = await payload.find({
     collection: 'pages',
     locale,
+    fallbackLocale: 'it',
     overrideAccess: false,
     limit: 1,
     depth: 1,
@@ -108,12 +109,12 @@ export default async function HomePage({
           media?: unknown
         }
         const media = await resolveMediaValue(record.media, record.title || record.label || '')
-        if (!record.title || !record.subtitle) return null
+        if (!record.title) return null
         return {
           id: String(index + 1).padStart(2, '0'),
           label: record.label || `0${index + 1}`,
           title: record.title,
-          subtitle: record.subtitle,
+          subtitle: record.subtitle || '',
           image: media?.url || '/api/media/file/hero_homepage_light-1.png',
           imageAlt: media?.alt || record.title,
         } satisfies ProtocolSplitStep
@@ -381,7 +382,8 @@ export default async function HomePage({
         emptyLabel="Nessun servizio disponibile."
       />
       <ProtocolSplit
-        eyebrow={pageDoc?.protocolSplit?.eyebrow || 'DOB protocol'}
+        locale={locale}
+        eyebrow={pageDoc?.protocolSplit?.eyebrow || t.nav.protocol}
         steps={protocolSteps.length > 0 ? protocolSteps : undefined}
       />
       <StoryHero

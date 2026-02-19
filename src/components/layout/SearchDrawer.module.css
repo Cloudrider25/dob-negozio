@@ -1,0 +1,124 @@
+.searchBar {
+  width: 100%;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--text-primary);
+  height: 2.8rem;
+  padding: 0 1rem;
+}
+
+.searchBar::placeholder {
+  color: var(--text-muted);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.suggestion {
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: var(--paper);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.suggestion:hover {
+  color: var(--text-primary);
+}
+
+.liveResults {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.liveResult {
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: var(--paper);
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.liveResult:hover {
+  color: var(--text-primary);
+}
+
+.liveResultMeta {
+  color: var(--text-muted);
+}
+
+.liveTags {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.liveTag {
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-muted);
+  padding: 0.15rem 0.45rem;
+}
+
+.recommendation {
+  margin-top: auto;
+  border-radius: 18px;
+  background: var(--paper);
+  padding: 1rem 1.2rem;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.recommendationThumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.recommendationInfo {
+  min-width: 0;
+}
+
+.recommendationTitle {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.recommendationMeta {
+  color: var(--text-muted);
+}
+
+.recommendationButton {
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  padding: 0.35rem 0.9rem;
+  background: var(--text-secondary);
+  color: var(--text-inverse);
+  text-decoration: none;
+}

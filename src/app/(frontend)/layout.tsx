@@ -1,6 +1,7 @@
 import React from 'react'
 import { Instrument_Sans } from 'next/font/google'
 import '../../styles/globals.css'
+import { ThemeHydrator } from '@/components/theme/ThemeHydrator'
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -22,6 +23,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="it">
       <body className={`site ${instrumentSans.variable}`} data-theme="dark">
+        <ThemeHydrator />
         <main>{children}</main>
       </body>
     </html>

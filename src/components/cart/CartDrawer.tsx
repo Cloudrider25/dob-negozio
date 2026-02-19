@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import styles from './CartDrawer.module.css'
 import { Trash } from '@/components/ui/icons'
+import { SideDrawer } from '@/components/ui/SideDrawer'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
 import {
@@ -72,15 +73,6 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
       setOpen(true)
     }
   }, [initialOpen])
-
-  useEffect(() => {
-    if (!open) return
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [open])
 
   useEffect(() => {
     if (items.length === 0) {
@@ -195,21 +187,16 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         : `${remainingLabel} away from free shipping`
 
   return (
-    <div className={`${styles.drawerRoot} ${open ? styles.open : ''}`}>
-      <div
-        className={styles.backdrop}
-        aria-hidden={!open}
-        onClick={() => setOpen(false)}
-      />
-      <aside className={styles.panel} aria-label="Cart drawer">
-        <div className={`${styles.header} typo-caption-upper`}>
-          <span>
-            {itemCount} {copy.itemsLabel}
-          </span>
-          <button className={`${styles.closeButton} typo-h3`} type="button" onClick={() => setOpen(false)}>
-            ×
-          </button>
-        </div>
+    <SideDrawer
+      open={open}
+      onClose={() => setOpen(false)}
+      ariaLabel="Cart drawer"
+      title={
+        <>
+          {itemCount} {copy.itemsLabel}
+        </>
+      }
+    >
         <div className={styles.progress}>
           <div className={styles.progressFill} style={{ width: `${freeShippingProgress}%` }} />
         </div>
@@ -312,7 +299,6 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
             {copy.checkout}
           </Link>
         </div>
-      </aside>
-    </div>
+    </SideDrawer>
   )
 }

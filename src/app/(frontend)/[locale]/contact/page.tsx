@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { isLocale } from '@/lib/i18n'
@@ -17,7 +16,6 @@ export default async function ContactPage({
       <p className="mt-4 text-text-secondary">Per assistenza ordini e informazioni:</p>
       <div className="mt-4 space-y-2 text-text-primary">
         <a className="block underline" href="mailto:info@dobmilano.it">info@dobmilano.it</a>
-        <Link className="block underline" href={`/${locale}/location`}>Vai alla pagina location</Link>
       </div>
     </main>
   )

@@ -7,7 +7,6 @@ const localizedPaths = [
   '/services',
   '/shop',
   '/journal',
-  '/location',
   '/our-story',
   '/dob-protocol',
   '/contact',

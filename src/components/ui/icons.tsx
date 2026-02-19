@@ -18,6 +18,7 @@ import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
 
 export type IconProps = SVGProps<SVGSVGElement> & {
@@ -49,6 +50,7 @@ export const Flag = (props: IconProps) => <FlagIcon {...withSize(props)} />
 export const WhatsApp = (props: IconProps) => (
   <ChatBubbleOvalLeftEllipsisIcon {...withSize(props)} />
 )
+export const Search = (props: IconProps) => <MagnifyingGlassIcon {...withSize(props)} />
 export const CircleArrowLeft = ({ size = 48, ...props }: IconProps) => (
   <ArrowLeftCircleIcon {...withSize({ size, ...props })} />
 )

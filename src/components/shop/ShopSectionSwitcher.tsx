@@ -163,6 +163,7 @@ export function ShopSectionSwitcher({
     brands: new Set<string>(),
     brandLines: new Set<string>(),
   })
+  const queryTerm = (searchParams?.get('q') ?? '').trim().toLowerCase()
 
   useEffect(() => {
     setActiveSection(initialSection)
@@ -360,6 +361,34 @@ export function ShopSectionSwitcher({
 
     return shopAllProducts
       .filter((product) => {
+        if (queryTerm) {
+          const title = (product.title || '').toLowerCase()
+          const slug = (product.slug || '').toLowerCase()
+          const readName = (value: unknown) => {
+            if (typeof value === 'string') return value
+            if (value && typeof value === 'object') {
+              const record = value as Record<string, unknown>
+              const direct = record.name
+              if (typeof direct === 'string') return direct
+              if (direct && typeof direct === 'object') {
+                const localized = direct as Record<string, unknown>
+                const preferred = localized[resolvedLocale]
+                if (typeof preferred === 'string') return preferred
+                const first = Object.values(localized).find((entry) => typeof entry === 'string')
+                if (typeof first === 'string') return first
+              }
+            }
+            return ''
+          }
+          const brand = readName(product.brand).toLowerCase()
+          const line = readName(product.brandLine).toLowerCase()
+          const matchesQuery =
+            title.includes(queryTerm) ||
+            slug.includes(queryTerm) ||
+            brand.includes(queryTerm) ||
+            line.includes(queryTerm)
+          if (!matchesQuery) return false
+        }
         if (!matchesSet(product.needs, filters.needs)) return false
         if (!matchesSet(product.textures, filters.textures)) return false
         if (!matchesSet(product.productAreas, filters.productAreas)) return false
@@ -391,7 +420,7 @@ export function ShopSectionSwitcher({
         if (orderBy === 'title') return a.title.localeCompare(b.title)
         return (b.createdAt ?? '').localeCompare(a.createdAt ?? '')
       })
-  }, [shopAllProducts, filters, orderBy, shouldComputeShopAll])
+  }, [shopAllProducts, filters, orderBy, queryTerm, resolvedLocale, shouldComputeShopAll])
 
   const priceFormatter = useMemo(
     () =>

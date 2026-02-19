@@ -1,17 +1,40 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { cookies, headers } from 'next/headers'
 import React from 'react'
 import { getDictionary, isLocale, locales } from '@/lib/i18n'
 import { HeaderThemeObserver } from '@/components/layout/HeaderThemeObserver'
 import { Header } from '@/components/layout/Header'
+import { PreferencesFooterControl } from '@/components/layout/PreferencesFooterControl'
+import { SearchDrawerLazy } from '@/components/layout/SearchDrawerLazy'
 import { buildContactLinks } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { CartDrawerLazy } from '@/components/cart/CartDrawerLazy'
 import { getAuthenticatedUser } from '@/lib/auth/getAuthenticatedUser'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
+import { normalizeThumbnailSrc } from '@/lib/media/thumbnail'
+import {
+  parseStoredPreferences,
+  resolvePreferencesFromAcceptLanguage,
+  USER_PREFS_COOKIE_KEYS,
+} from '@/lib/user-preferences'
 import styles from './layout.module.css'
 
 export const generateStaticParams = () => locales.map((locale) => ({ locale }))
+
+const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
+const readLocalized = (value: unknown, locale: string) => {
+  if (typeof value === 'string') return value
+  if (value && typeof value === 'object') {
+    const localized = value as Record<string, unknown>
+    const preferred = localized[locale]
+    if (typeof preferred === 'string') return preferred
+    const first = Object.values(localized).find((entry) => typeof entry === 'string')
+    if (typeof first === 'string') return first
+  }
+  return ''
+}
 
 export default async function LocaleLayout({
   children,
@@ -26,6 +49,19 @@ export default async function LocaleLayout({
     notFound()
   }
 
+  const requestHeaders = await headers()
+  const cookieStore = await cookies()
+  const detectedPreferences = resolvePreferencesFromAcceptLanguage(
+    requestHeaders.get('accept-language'),
+  )
+  const storedPreferences = parseStoredPreferences({
+    locale: cookieStore.get(USER_PREFS_COOKIE_KEYS.locale)?.value,
+    country: cookieStore.get(USER_PREFS_COOKIE_KEYS.country)?.value,
+    currency: cookieStore.get(USER_PREFS_COOKIE_KEYS.currency)?.value,
+  })
+  const activePreferences = storedPreferences || detectedPreferences
+  const preferencesConfirmed = cookieStore.get(USER_PREFS_COOKIE_KEYS.confirmed)?.value === '1'
+
   const t = getDictionary(locale)
   const payload = await getPayloadClient()
   const user = await getAuthenticatedUser()
@@ -34,6 +70,74 @@ export default async function LocaleLayout({
     locale,
     overrideAccess: false,
   })
+
+  const [latestProducts, latestServices] = await Promise.all([
+    payload.find({
+      collection: 'products',
+      locale,
+      depth: 1,
+      overrideAccess: false,
+      limit: 1,
+      where: {
+        active: { equals: true },
+      },
+      sort: '-createdAt',
+      select: {
+        title: true,
+        slug: true,
+        coverImage: true,
+        images: true,
+      },
+    }),
+    payload.find({
+      collection: 'services',
+      locale,
+      depth: 1,
+      overrideAccess: false,
+      limit: 1,
+      where: {
+        active: { equals: true },
+      },
+      sort: '-createdAt',
+      select: {
+        name: true,
+        slug: true,
+        gallery: true,
+      },
+    }),
+  ])
+
+  const latestProduct = latestProducts.docs[0]
+  const latestService = latestServices.docs[0]
+  const latestProductFirstGallery = Array.isArray(latestProduct?.images) ? latestProduct.images[0] : null
+  const latestServiceGallery = Array.isArray(latestService?.gallery) ? latestService.gallery[0] : null
+  const latestServiceMedia =
+    latestServiceGallery && typeof latestServiceGallery === 'object'
+      ? (latestServiceGallery as { media?: unknown }).media
+      : null
+
+  const menuHighlights = [
+    latestProduct
+      ? {
+          type: 'product' as const,
+          title: asString(latestProduct.title),
+          href: `/${locale}/shop/${asString(latestProduct.slug)}`,
+          image:
+            normalizeThumbnailSrc(latestProduct.coverImage) ||
+            normalizeThumbnailSrc(latestProductFirstGallery),
+        }
+      : null,
+    latestService
+      ? {
+          type: 'service' as const,
+          title: readLocalized(latestService.name, locale),
+          href: `/${locale}/services/service/${asString(latestService.slug)}`,
+          image: normalizeThumbnailSrc(latestServiceMedia),
+        }
+      : null,
+  ].filter((entry): entry is { type: 'product' | 'service'; title: string; href: string; image: string | null } =>
+    Boolean(entry && entry.title && entry.href),
+  )
   const { phoneLink, whatsappLink, phoneDisplay, whatsappDisplay, addressDisplay } =
     buildContactLinks({
       phone: siteSettings?.phone,
@@ -49,13 +153,19 @@ export default async function LocaleLayout({
       <HeaderThemeObserver />
       <Header
         locale={locale}
-        locales={locales}
         accountHref={user ? `/${locale}/account` : `/${locale}/signin`}
         t={t}
         whatsappLink={whatsappLink}
         phoneLink={phoneLink}
+        instagramLink={instagram || 'https://instagram.com'}
+        facebookLink={facebook || 'https://facebook.com'}
+        detectedPreferences={detectedPreferences}
+        activePreferences={activePreferences}
+        preferencesConfirmed={preferencesConfirmed}
+        menuHighlights={menuHighlights}
       />
       <div className="pb-[2.5vw]">{children}</div>
+      <SearchDrawerLazy locale={locale} />
       <CartDrawerLazy locale={locale} />
       <footer className="mt-auto border-t border-stroke bg-[var(--bg)] text-[color:var(--text-secondary)]">
         <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-[2.25vw] lg:py-12">
@@ -115,7 +225,7 @@ export default async function LocaleLayout({
                 Shop
               </Link>
               <Link href={`/${locale}/our-story`} className="block">
-                Our Story
+                About
               </Link>
               <Link href={`/${locale}/dob-protocol`} className="block">
                 DOB Protocol
@@ -124,9 +234,6 @@ export default async function LocaleLayout({
               <span className="block text-[color:var(--text-muted)]">Impact (placeholder)</span>
               <Link href={`/${locale}/journal`} className="block">
                 Journal
-              </Link>
-              <Link href={`/${locale}/location`} className="block">
-                Dove trovarci
               </Link>
             </div>
             <div className="space-y-3 typo-small">
@@ -172,11 +279,14 @@ export default async function LocaleLayout({
           <p className="m-0">
             © {new Date().getFullYear()} {siteName}
           </p>
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span>Country/Region:</span>
-            <span className="rounded-full border border-stroke bg-[var(--paper)] px-3 py-1">
-              Italy (EUR €)
-            </span>
+          <div className="flex items-center gap-4 self-start sm:self-auto">
+            <ThemeToggle />
+            <PreferencesFooterControl
+              currentLocale={locale}
+              detected={detectedPreferences}
+              active={activePreferences}
+              initiallyConfirmed={preferencesConfirmed}
+            />
           </div>
         </div>
       </footer>

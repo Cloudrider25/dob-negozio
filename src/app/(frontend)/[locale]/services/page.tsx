@@ -22,10 +22,11 @@ export default async function ServicesPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>
-  searchParams?: Promise<{ view?: string }>
+  searchParams?: Promise<{ view?: string; q?: string }>
 }) {
   const { locale } = await params
   const viewParam = (await searchParams)?.view?.trim()
+  const queryParam = (await searchParams)?.q?.trim()
 
   if (!isLocale(locale)) {
     notFound()
@@ -309,7 +310,11 @@ export default async function ServicesPage({
     whatsapp: siteSettings?.whatsapp,
   })
   const initialViewMode =
-    viewParam === 'listino' || viewParam === 'consulenza' ? viewParam : 'navigator'
+    viewParam === 'listino' || viewParam === 'consulenza'
+      ? viewParam
+      : queryParam
+        ? 'listino'
+        : 'navigator'
 
   return (
     <div className="flex flex-col gap-0">
