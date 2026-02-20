@@ -258,6 +258,18 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - Verifica: `pnpm exec tsc --noEmit` ok.
 - 2026-02-19 | Blocco CSS-022 (`Locale/Country/Currency` auto-detection + modal)
   - Scope: `src/lib/user-preferences.ts`, `src/components/layout/PreferencesConfirmModal.*`, `src/app/(frontend)/[locale]/layout.tsx`, `src/components/layout/Header.tsx`, `src/components/layout/Header.module.css`, `src/app/(checkout)/[locale]/layout.tsx`.
+
+- 2026-02-20 | Blocco CSS-023 (`Shop Product Detail` media section finalizzata, baseline per replica Service Detail)
+  - Scope: `src/app/(frontend)/[locale]/shop/[slug]/page.tsx`, `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`, `src/components/ui/HeroGallery.tsx`, `src/lib/i18n.ts`.
+  - Decisione: chiudere la media section mobile/desktop del Product Detail con comportamento swipe mobile, indicator line a segmenti (stile dots), ordine media-first mobile nelle split interessate, contrasto UI corretto in light/dark e token-only colors nel module.
+  - Implementazione:
+  - `UIHeroGallery`: mobile swipe touch-first, `mobilePeek` opzionale (peek slide successiva), indicatori lineari a segmenti (attivo/inattivo) al posto dei dots, stabilizzazione calcolo width in mobile per evitare slide width anomale.
+  - Product detail hero media: altezza mobile fissata a `500px`, overflow media coerente con carousel (`overflow: visible` sui layer necessari), progress line posizionata prima dell’hero header in mobile.
+  - Product detail visual polish: rimozione radius in mobile su hero media/panel/container, radius mantenuto su desktop; badge e pills (`relatedItem`) riallineati per contrasto corretto in light mode.
+  - Split ordering mobile: nelle split del Product Detail con media a destra (`lineSection`, `faqSection`) il media viene forzato come primo elemento in mobile.
+  - i18n: rimozione hardcoded principali del Product Detail con nuove chiavi `productDetail` (`it/en/ru`) in `src/lib/i18n.ts`.
+  - Verifica: `pnpm -s tsc --noEmit` ok su tutti i batch.
+  - Replica richiesta (prossimo blocco): applicare lo stesso pattern media 1:1 a Service Detail (`src/app/(frontend)/[locale]/services/service/[slug]/*`), includendo swipe mobile + line indicators segmentati + media-first mobile nelle split e stessa policy radius/overflow.
   - Decisione: rimuovere selector lingua dall’header; introdurre rilevamento automatico preferenze utente (lingua/paese/valuta) con conferma esplicita tramite popup.
   - Implementazione:
   - nuovo helper centralizzato preferenze con regole: `ITA=IT/€`, `RU=RU/€`, `EN=EN/€`, altre lingue -> `EN/€`;
@@ -412,3 +424,37 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - `StoryValuesSection.module.css`: `listItem` con colore esplicito (`--text-muted`) e stato `active/hover/focus` valorizzato (`--text-primary`);
   - rimossa regola no-op precedente su `listItemActive`.
   - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-036 (`StoryValuesSection` root-cause fix slider + mobile parity con `ValuesSection`)
+  - Scope: `src/components/sections/StoryValuesSection.tsx`, `src/components/sections/StoryValuesSection.module.css`.
+  - Decisione: eliminare workaround (`!important`) e risolvere alla fonte il bug di altezza anomala delle slide in mobile; allineare il layout mobile 1:1 al modulo `Our Values` della home.
+  - Implementazione:
+  - rimosso `Swiper` da `StoryValuesSection.tsx` (il blocco non richiede gesture swipe) e sostituito con slider state-driven (`mediaSlideActive/mediaSlideInactive`) con transizione opacity;
+  - eliminata dipendenza da altezze inline calcolate da Swiper (`swiper-slide`), rimuovendo il rischio di valori anomali tipo `1.67735e+07px`;
+  - `StoryValuesSection.module.css` mobile riallineato al pattern `ValuesSection`:
+  - image-first (`mediaPanel` sopra, `contentPanel` sotto),
+  - radius/padding/spacing/title/list item coerenti,
+  - stessa gerarchia visuale lista in mobile;
+  - desktop mantenuto con layout precedente (panel 22px, min-height dinamica, split gap ampio).
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-037 (`StoryTeamSection` token-only pass + media fit inline)
+  - Scope: `src/components/sections/StoryTeamSection.tsx`, `src/components/sections/StoryTeamSection.module.css`.
+  - Decisione: mantenere layout invariato e allineare il blocco alla policy token-only + image fit sul consumer.
+  - Implementazione:
+  - `StoryTeamSection.module.css`: border `.section` migrato da `color-mix(...)` a `var(--stroke)`;
+  - `StoryTeamSection.module.css`: background `.imageWrap` e `.imagePlaceholder` migrati da hardcoded/gradient a `var(--paper)`;
+  - `StoryTeamSection.module.css`: rimossa regola discendente `:global(img)` locale;
+  - `StoryTeamSection.tsx`: aggiunto `className="object-cover object-center"` su `Image`.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-038 (`SectionFilters` token-only cleanup)
+  - Scope: `src/components/sections/SectionFilters.module.css`.
+  - Decisione: rimuovere l’ultimo uso di `color-mix(...)` dal blocco filtri condiviso senza alterare layout/comportamento.
+  - Implementazione:
+  - `.filterCount` background migrato da `color-mix(...)` a token diretto `var(--stroke)`.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-19 | Blocco CSS-039 (`Section primitives` verification-only)
+  - Scope: `src/components/sections/SectionTitle.tsx`, `src/components/sections/SectionSubtitle.tsx`, `src/components/sections/index.ts`.
+  - Decisione: nessuna modifica necessaria.
+  - Esito review:
+  - componenti puramente tipografici/barrel, senza CSS locale/hardcoded colore;
+  - mapping classi tipografiche coerente con il design system;
+  - nessun rischio mobile-first specifico (assenza di regole responsive nel blocco).

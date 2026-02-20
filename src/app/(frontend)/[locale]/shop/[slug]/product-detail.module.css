@@ -13,21 +13,35 @@
 
 .treatmentGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--split-gap);
 }
 
 .hero {
   align-items: start;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.hero :global(.ui-split-column) {
+  min-width: 0;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.hero :global(.ui-split-column:last-child) {
+  border-radius: 0;
 }
 
 .heroMedia {
   position: relative;
-  border-radius: 22px;
-  overflow: hidden;
-  min-height: 420px;
-  height: calc(100dvh - var(--header-height));
-  background: #e9e6e2;
+  border-radius: 0;
+  overflow: visible;
+  min-width: 0;
+  min-height: 500px;
+  height: 500px;
+  background: transparent;
   box-shadow: none;
   align-self: start;
 }
@@ -39,6 +53,16 @@
 .heroSlider {
   width: 100%;
   height: 100%;
+}
+
+.heroSlider :global(.swiper),
+.heroSlider :global(.swiper-wrapper) {
+  height: 100%;
+}
+
+.heroSlider :global(.swiper) {
+  touch-action: pan-y;
+  overflow: visible;
 }
 
 .heroSlider :global(.swiper-slide) {
@@ -62,13 +86,64 @@
   z-index: 2;
 }
 
+.heroProgressLine {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.heroProgressStep {
+  flex: 1 1 0;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--text-muted);
+}
+
+.heroProgressStepActive {
+  background: var(--pearl-1);
+}
+
+@media (max-width: 1024px) {
+  .heroMedia {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .mobileMediaFirst {
+    order: -1;
+  }
+
+  .heroProgressLine {
+    position: relative;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    margin-top: 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .heroPanel {
+    border-radius: 0;
+  }
+
+  .thumbs {
+    display: none;
+  }
+}
+
 .thumb {
   position: relative;
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 50%, transparent);
-  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   overflow: hidden;
   padding: 0;
   cursor: pointer;
@@ -81,36 +156,37 @@
 .thumbVideo {
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--paper);
 }
 
 .playIcon {
-  color: #4b4b4b;
+  color: var(--text-primary);
 }
 
 .thumbPlaceholder {
   display: block;
   width: 100%;
   height: 100%;
-  background: linear-gradient(140deg, #d9d4cf, #f2eee9);
+  background: var(--sand);
 }
 
 .heroPlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(145deg, #dcd7d2 0%, #f4f1ed 100%);
+  background: var(--sand);
 }
 
 .heroPanel {
   background: var(--bg);
-  border-radius: 22px;
+  border-radius: 0;
   padding: 2.5rem 2.6rem;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
   align-self: start;
-  height: calc(100dvh - var(--header-height));
+  height: auto;
   overflow: auto;
 }
 
@@ -120,7 +196,7 @@
   z-index: 2;
   background: var(--bg);
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
+  border-bottom: 1px solid var(--stroke);
 }
 
 .eyebrow {
@@ -143,8 +219,8 @@
 .badge {
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
-  background: #111;
-  color: #fff;
+  background: var(--text-primary);
+  color: var(--bg);
 }
 
 .metaRow {
@@ -194,7 +270,7 @@
 
 .divider {
   height: 1px;
-  background: color-mix(in srgb, var(--stroke) 70%, transparent);
+  background: var(--stroke);
   width: 100%;
 }
 
@@ -212,8 +288,8 @@
 
 .sizePill {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--bg);
   padding: 0.35rem 0.9rem;
   cursor: pointer;
 }
@@ -232,17 +308,17 @@
 
 .relatedItem {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--bg);
   padding: 0.4rem 0.9rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-decoration: none;
 }
 
 .relatedItemActive {
-  background: #111;
-  border-color: #111;
-  color: #fff;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg);
 }
 
 .refillNote {
@@ -252,9 +328,9 @@
 
 .buyButton {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
-  background: #fdfcfa;
-  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
+  padding: 1.4rem 1.4rem;
   cursor: pointer;
   text-align: center;
   width: -webkit-fill-available;
@@ -276,8 +352,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.8rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-top: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--stroke);
 }
 
 .crossSellItem {
@@ -291,7 +367,7 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: #e3ded8;
+  background: var(--sand);
   overflow: hidden;
 }
 
@@ -318,8 +394,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.8rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-top: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--stroke);
 }
 
 .lineupItem {
@@ -332,7 +408,7 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: #e3ded8;
+  background: var(--sand);
 }
 
 .lineupName {
@@ -344,8 +420,8 @@
 
 .lineupButton {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--bg);
   padding: 0.35rem 0.9rem;
   cursor: pointer;
 }
@@ -357,7 +433,7 @@
 }
 
 .accordionItem {
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
+  border-bottom: 1px solid var(--stroke);
   padding: 0.6rem 0;
 }
 
@@ -409,8 +485,8 @@
 
 .detailCard {
   border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  background: #f7f6f3;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 1.8rem;
 }
 
@@ -421,8 +497,8 @@
 
 .treatmentsPanel {
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  background: #f7f6f3;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 2rem;
 }
 
@@ -441,11 +517,11 @@
 
 .backLink {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   padding: 0.6rem 1.2rem;
   color: var(--text-secondary);
   text-decoration: none;
-  background: #fff;
+  background: var(--bg);
 }
 
 .pills {
@@ -457,8 +533,8 @@
 
 .pill {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  background: #fff;
+  border: 1px solid var(--stroke);
+  background: var(--bg);
   padding: 0.4rem 0.9rem;
   color: var(--text-secondary);
 }
@@ -470,8 +546,8 @@
 
 .ingredientsSection {
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  background: #f7f6f3;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
   padding: 2rem;
 }
 
@@ -490,7 +566,7 @@
   border-radius: 18px;
   overflow: hidden;
   min-height: 640px;
-  background: #e9e6e2;
+  background: var(--sand);
 }
 
 .insideImage {
@@ -500,7 +576,7 @@
 .insidePlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(140deg, #d9d4cf, #f2eee9);
+  background: var(--sand);
 }
 
 .insideButton {
@@ -508,8 +584,8 @@
   top: 18px;
   right: 18px;
   border-radius: 999px;
-  background: #111;
-  color: #fff;
+  background: var(--bg-2);
+  color: var(--pearl-1);
   border: 0;
   padding: 0.5rem 1.1rem;
   cursor: pointer;
@@ -518,7 +594,7 @@
 .insideContent {
   background: var(--bg);
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   padding: 2.2rem 3.2rem 2.2rem calc(2.4rem + 54px);
   box-sizing: border-box;
   display: flex;
@@ -562,7 +638,7 @@
 }
 
 .insideBlock {
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-top: 1px solid var(--stroke);
   padding-top: 1rem;
 }
 
@@ -577,7 +653,7 @@
 }
 
 .insideNote {
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-top: 1px solid var(--stroke);
   padding-top: 1rem;
   color: var(--text-secondary);
 }
@@ -589,7 +665,7 @@
 .faqCopy {
   background: var(--bg);
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   padding: 2.2rem 2.4rem;
   display: flex;
   flex-direction: column;
@@ -625,7 +701,7 @@
   background: none;
   padding: 0.9rem 0;
   color: var(--text-secondary);
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-bottom: 1px solid var(--stroke);
   cursor: pointer;
   text-align: left;
 }
@@ -659,7 +735,7 @@
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   display: grid;
   place-items: center;
   color: var(--text-secondary);
@@ -670,7 +746,7 @@
   border-radius: 18px;
   overflow: hidden;
   min-height: 640px;
-  background: #e9e6e2;
+  background: var(--sand);
 
 }
 
@@ -681,7 +757,7 @@
 .faqPlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(140deg, #d9d4cf, #f2eee9);
+  background: var(--sand);
 }
 
 .treatmentSection {
@@ -691,12 +767,12 @@
 .treatmentCard {
   background: var(--bg);
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   height: 640px;
 }
 
 .treatmentCard:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--text-primary) 40%, transparent);
+  outline: 2px solid var(--text-primary);
   outline-offset: 4px;
 }
 
@@ -802,7 +878,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  padding: 2rem 4.5rem 2rem 2rem;
+  padding: 2rem 2rem 3rem 2rem;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -810,7 +886,7 @@
   justify-content: flex-start;
   border-radius: 16px;
 
-  min-height: 360px;
+  min-height: 320px;
   overflow: hidden;
 }
 
@@ -844,21 +920,19 @@
 
 
 .treatmentRail {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 70px;
-  height: 100%;
-  background: #4c4a46;
-  color: #fff;
+  position: static;
+  width: 100%;
+  height: 48px;
+  background: var(--bg-2);
+  color: var(--pearl-1);
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0.8rem 0;
-  gap: 0.2rem;
+  padding: 0.8rem 1rem;
+  gap: 1rem;
   text-decoration-thickness: bold;
-  writing-mode: vertical-rl;
+  writing-mode: horizontal-tb;
   text-align: center;
 }
 
@@ -870,7 +944,7 @@
 }
 
 .treatmentRailText {
-  transform: rotate(180deg);
+  transform: none;
   padding: 4px;
   text-align: center;
   font-weight: 700;
@@ -890,56 +964,82 @@
   align-self: center;
 }
 
-@media (max-width: 1024px) {
-  .page {
-    padding: 0;
+@media (min-width: 1025px) {
+  .hero {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .hero :global(.ui-split-column) {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .hero :global(.ui-split-column:last-child) {
+    border-radius: 12px;
+  }
+
+  .heroMedia {
+    border-radius: 22px;
+    overflow: hidden;
+  }
+
+  .heroPanel {
+    border-radius: 22px;
+  }
+
+  .heroProgressLine {
+    display: none;
   }
 
   .hero,
   .detailGrid,
   .treatmentGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .heroMedia,
   .heroPanel {
-    height: auto;
+    height: calc(100dvh - var(--header-height));
   }
 
   .videoWrap {
-    height: 60vh;
+    height: calc(100dvh - var(--header-height));
   }
 
   .insideLabel {
-    position: static;
-    writing-mode: horizontal-tb;
+    position: absolute;
+    writing-mode: vertical-rl;
   }
 
   .insideContent {
-    padding-left: 2.4rem;
+    padding-left: calc(2.4rem + 54px);
   }
 
   .treatmentRail {
-    position: static;
-    width: 100%;
-    height: 48px;
-    writing-mode: horizontal-tb;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 70px;
+    height: 100%;
+    writing-mode: vertical-rl;
     flex-direction: row;
-    gap: 1rem;
+    gap: 0.2rem;
+    padding: 0.8rem 0;
   }
 
   .treatmentRailText {
-    transform: none;
+    transform: rotate(180deg);
   }
 
   .treatmentMedia {
-    min-height: 320px;
-    padding-right: 2rem;
-    padding-bottom: 3rem;
+    min-height: 360px;
+    padding-right: 4.5rem;
+    padding-bottom: 2rem;
   }
 
   .lineRow {
-    grid-template-columns: 1fr;
+    grid-template-columns: 140px minmax(0, 1fr);
   }
 }
 .videoSection {
@@ -951,9 +1051,9 @@
 
 .videoWrap {
   width: 100%;
-  height: calc(100dvh - var(--header-height));
+  height: 60vh;
   position: relative;
-  background: #e9e6e2;
+  background: var(--sand);
   overflow: hidden;
   border-radius: 12px;
 }
@@ -968,7 +1068,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background: #d9d4cf;
+  background: var(--sand);
 }
 
 .videoPoster {
@@ -980,7 +1080,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--text-secondary);
 }
 
 .lineSection {
@@ -988,9 +1088,9 @@
 }
 
 .lineCopy {
-  background: #f7f6f3;
+  background: var(--paper);
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   padding: 2.2rem 2.6rem;
   display: flex;
   flex-direction: column;
@@ -1000,14 +1100,14 @@
 
 .lineTitle {
   margin: 0;
-  color: #6a6660;
+  color: var(--text-primary);
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 0.6rem;
 }
 
 .lineTitleAccent {
-  color: #4f4b46;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -1019,19 +1119,19 @@
 
 .lineRow {
   display: grid;
-  grid-template-columns: 140px minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.8rem;
   padding-top: 0.6rem;
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 50%, transparent);
+  border-top: 1px solid var(--stroke);
 }
 
 .lineLabel {
-  color: #6a6660;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .lineValue {
-  color: #6a6660;
+  color: var(--text-secondary);
 }
 
 .lineMedia {
@@ -1039,7 +1139,7 @@
   border-radius: 18px;
   overflow: hidden;
   min-height: 640px;
-  background: #e9e6e2;
+  background: var(--sand);
 }
 
 .lineImage {
@@ -1049,5 +1149,15 @@
 .linePlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(140deg, #d9d4cf, #f2eee9);
+  background: var(--sand);
+}
+
+@media (min-width: 1025px) {
+  .videoWrap {
+    height: calc(100dvh - var(--header-height));
+  }
+
+  .lineRow {
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
 }

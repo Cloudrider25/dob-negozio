@@ -39,6 +39,15 @@ function Panel({
           {content.title}
         </SectionTitle>
       ) : null}
+      {content.imageInCopy ? (
+        <SectionTitle
+          as="h2"
+          size="h2"
+          className={`${styles.treatmentTitle} ${styles.treatmentTitleMobile}`}
+        >
+          {content.title}
+        </SectionTitle>
+      ) : null}
       {!content.imageInCopy ? (
         <>
           {typeof content.body === 'string' ? (

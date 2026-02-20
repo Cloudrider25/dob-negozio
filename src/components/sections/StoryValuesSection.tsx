@@ -1,9 +1,8 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { SplitSection } from '@/components/ui/SplitSection'
-import { Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
@@ -22,7 +21,6 @@ type StoryValuesSectionProps = {
 
 export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
-  const swiperRef = useRef<UISwiperInstance | null>(null)
 
   const normalizedItems = useMemo(
     () =>
@@ -47,18 +45,12 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
       leftClassName={styles.mediaPanel}
       rightClassName={styles.contentPanel}
       left={
-        <Swiper
-          className={styles.mediaSlider}
-          slidesPerView={1}
-          direction="vertical"
-          allowTouchMove={false}
-          speed={520}
-          onSwiper={(swiper) => {
-            swiperRef.current = swiper
-          }}
-        >
+        <div className={styles.mediaSlider}>
           {normalizedItems.map((item, index) => (
-            <SwiperSlide key={`${item.title || 'value'}-${index}`}>
+            <div
+              key={`${item.title || 'value'}-${index}`}
+              className={`${styles.mediaSlide} ${index === activeIndex ? styles.mediaSlideActive : styles.mediaSlideInactive}`}
+            >
               {item.media?.url ? (
                 <Image
                   src={item.media.url}
@@ -72,9 +64,9 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
               ) : (
                 <div className={styles.mediaPlaceholder} />
               )}
-            </SwiperSlide>
+            </div>
           ))}
-        </Swiper>
+        </div>
       }
       right={
         <>
@@ -95,21 +87,12 @@ export const StoryValuesSection = ({ items }: StoryValuesSectionProps) => {
               type="button"
               onMouseEnter={() => {
                 setActiveIndex(index)
-                if (swiperRef.current) {
-                  swiperRef.current.slideTo(index)
-                }
               }}
               onFocus={() => {
                 setActiveIndex(index)
-                if (swiperRef.current) {
-                  swiperRef.current.slideTo(index)
-                }
               }}
               onClick={() => {
                 setActiveIndex(index)
-                if (swiperRef.current) {
-                  swiperRef.current.slideTo(index)
-                }
               }}
             >
               {item.label}

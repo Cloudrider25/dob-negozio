@@ -30,6 +30,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
   const payload = await getPayloadClient()
   const t = getDictionary(locale)
+  const copy = t.productDetail
 
   const result = await payload.find({
     collection: 'products',
@@ -156,6 +157,11 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;')
 
+  const withProduct = (template: string, productName?: string | null) => {
+    const fallbackName = productName || t.placeholders.productName
+    return template.replace('{{product}}', fallbackName)
+  }
+
   const resolveProductMedia = (value: unknown, fallbackAlt: string) => {
     if (!value || typeof value !== 'object') return null
     if (!('url' in value)) return null
@@ -188,6 +194,38 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   }
 
   const brandLineId = resolveRelationId(product.brandLine)
+
+  const resolveBrandLineDoc = async () => {
+    if (product.brandLine && typeof product.brandLine === 'object' && 'slug' in product.brandLine) {
+      return product.brandLine as {
+        id?: number | string
+        name?: unknown
+        slug?: string
+        lineHeadline?: unknown
+        description?: unknown
+        usage?: unknown
+        activeIngredients?: unknown
+        results?: unknown
+      }
+    }
+
+    if (!brandLineId) return null
+
+    try {
+      const doc = await payload.findByID({
+        collection: 'brand-lines',
+        id: brandLineId,
+        locale,
+        depth: 1,
+        overrideAccess: false,
+      })
+      return doc
+    } catch {
+      return null
+    }
+  }
+
+  const brandLineDoc = await resolveBrandLineDoc()
 
   const relatedDocs = brandLineId
     ? (
@@ -364,29 +402,38 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   const lineHeadlineText = resolveText(product.lineHeadline)
   const faqTitleText = resolveText(product.faqTitle)
   const faqSubtitleText = resolveText(product.faqSubtitle)
+  const brandLineName =
+    resolveText(brandLineDoc?.name) || resolveBrandLabel(product.brand) || copy.treatment.primaryTitleFallback
+  const brandLineHeadlineText = resolveText(brandLineDoc?.lineHeadline)
+  const brandLineDescriptionText = resolveText(brandLineDoc?.description)
+  const brandLineUsageText = resolveText(brandLineDoc?.usage)
+  const brandLineIngredientsText = resolveText(brandLineDoc?.activeIngredients)
+  const brandLineResultsText = resolveText(brandLineDoc?.results)
+  const brandLineRailBody = normalizeBullets(brandLineUsageText || usageText)
+  const brandLineRailIngredients = normalizeBullets(brandLineIngredientsText || ingredientsText)
 
-  const lineHeadline = lineHeadlineText || 'Formula clinicamente testata.'
+  const lineHeadline = lineHeadlineText || copy.lineHeadlineFallback
 
   const lineDetails = [
     {
-      label: 'Good for',
-      value: resultsText || 'Pelli normali e secche',
+      label: copy.lineDetails.goodFor,
+      value: resultsText || copy.lineDetails.goodForFallback,
     },
     {
-      label: 'Feels like',
-      value: descriptionText || 'Texture morbida e avvolgente che si fonde sulla pelle.',
+      label: copy.lineDetails.feelsLike,
+      value: descriptionText || copy.lineDetails.feelsLikeFallback,
     },
     {
-      label: 'Smells like',
-      value: 'Senza profumo',
+      label: copy.lineDetails.smellsLike,
+      value: copy.lineDetails.smellsLikeFallback,
     },
     {
-      label: 'Award',
-      value: usageText || 'Dermatologicamente testato.',
+      label: copy.lineDetails.award,
+      value: usageText || copy.lineDetails.awardFallback,
     },
     {
-      label: 'FYI',
-      value: ingredientsText || 'Cruelty-free • Vegan • Gluten-free',
+      label: copy.lineDetails.fyi,
+      value: ingredientsText || copy.lineDetails.fyiFallback,
     },
   ]
 
@@ -402,13 +449,14 @@ export default async function ProductDetailPage({ params }: { params: PageParams
               mediaType: item.mediaType,
             }))}
             styles={styles}
+            mobilePeek
           />
         }
         right={
           <div className={styles.heroPanel}>
             <div className={styles.heroHeader}>
               <div className={styles.titleRow}>
-                <SectionTitle as="h1" size="h1" className={styles.title}>
+                <SectionTitle as="h1" size="h2" className={styles.title}>
                   {product.title}
                 </SectionTitle>
                 <span className={`${styles.badge} typo-caption-upper`}>
@@ -439,7 +487,9 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
             {addOnProduct ? (
               <div className={styles.crossSell}>
-                <div className={`${styles.crossSellTitle} typo-small-upper`}>Aggiungi</div>
+                <div className={`${styles.crossSellTitle} typo-small-upper`}>
+                  {copy.crossSell.title}
+                </div>
                 <div className={styles.crossSellRow}>
                   <div className={styles.crossSellItem}>
                     <div className={styles.crossSellThumb}>
@@ -448,18 +498,19 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                           resolveProductMedia(addOnProduct.coverImage, addOnProduct.title || '')
                             ?.url || fallbackImage.url
                         }
-                        alt={addOnProduct.title || 'Prodotto'}
+                        alt={addOnProduct.title || t.placeholders.productName}
                         fill
+                        sizes="42px"
                         loading="lazy"
                         fetchPriority="auto"
                       />
                     </div>
                     <div>
                       <div className={`${styles.crossSellName} typo-body-upper`}>
-                        {addOnProduct.title || 'Prodotto'}
+                        {addOnProduct.title || t.placeholders.productName}
                       </div>
                       <div className={`${styles.crossSellMeta} typo-small`}>
-                        Selezione consigliata
+                        {copy.crossSell.meta}
                       </div>
                     </div>
                   </div>
@@ -474,7 +525,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                     size="sm"
                     interactive
                   >
-                    Scopri
+                    {copy.crossSell.cta}
                   </ButtonLink>
                 </div>
               </div>
@@ -486,7 +537,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   ? [
                       {
                         id: 'benefits',
-                        title: 'Benefici',
+                        title: copy.accordion.benefits,
                         body: (() => {
                           const bullets = normalizeBullets(resultsText)
                           if (bullets.length) {
@@ -507,7 +558,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   ? [
                       {
                         id: 'usage',
-                        title: "Modo d'uso",
+                        title: copy.accordion.usage,
                         body: (() => {
                           const bullets = normalizeBullets(usageText)
                           if (bullets.length) {
@@ -528,7 +579,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   ? [
                       {
                         id: 'ingredients',
-                        title: 'Principi attivi',
+                        title: copy.accordion.ingredients,
                         body: (() => {
                           const bullets = normalizeBullets(ingredientsText)
                           if (bullets.length) {
@@ -551,7 +602,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         }
       />
 
-      <section className={styles.videoSection} aria-label="Product video">
+      <section className={styles.videoSection} aria-label={copy.aria.productVideo}>
         <div className={styles.videoWrap}>
           {videoMedia ? (
             <video className={styles.video} src={videoMedia.url} controls playsInline preload="none" />
@@ -559,7 +610,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
             <iframe
               className={styles.video}
               src={videoEmbed}
-              title="Product video"
+              title={copy.aria.productVideo}
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
             />
@@ -575,14 +626,15 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   fetchPriority="auto"
                 />
               )}
-              <div className={`${styles.videoOverlay} typo-small-upper`}>Video placeholder</div>
+              <div className={`${styles.videoOverlay} typo-small-upper`}>{copy.videoPlaceholder}</div>
             </div>
           )}
         </div>
       </section>
 
-      <section className={styles.lineSection} aria-label="Linea prodotto">
+      <section className={styles.lineSection} aria-label={copy.aria.productLine}>
         <SplitSection
+          rightClassName={styles.mobileMediaFirst}
           left={
             <div className={styles.lineCopy}>
               <SectionTitle as="h2" size="h1" className={styles.lineTitle}>
@@ -631,7 +683,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         />
       </section>
 
-      <section className={styles.insideSection} aria-label="Cosa contiene">
+      <section className={styles.insideSection} aria-label={copy.aria.whatsInside}>
         <SplitSection
           rightClassName={styles.insideColumn}
           left={
@@ -654,7 +706,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
           right={
             <div className={styles.insideContent}>
               <SectionTitle as="div" size="h1" uppercase className={styles.insideLabel}>
-                what&apos;s inside
+                {copy.whatsInside.title}
               </SectionTitle>
               {includedContent ? (
                 includedContent.type === 'html' ? (
@@ -671,7 +723,9 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                 <p className={`${styles.insideLead} typo-body`}>{descriptionText}</p>
               ) : (
                 <p className={`${styles.insideLead} typo-body`}>
-                  {product.title ? `Scopri cosa rende speciale ${product.title}.` : ''}
+                  {product.title
+                    ? withProduct(copy.whatsInside.fallbackWithProduct, product.title)
+                    : copy.whatsInside.fallback}
                 </p>
               )}
             </div>
@@ -679,18 +733,19 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         />
       </section>
 
-      <section className={styles.faqSection} aria-label="FAQ">
+      <section className={styles.faqSection} aria-label={copy.aria.faq}>
         <SplitSection
+          rightClassName={styles.mobileMediaFirst}
           left={
             <div className={styles.faqCopy}>
               <SectionTitle as="h2" size="h1" uppercase className={styles.faqTitle}>
-                {faqTitleText || 'FAQ'}
+                {faqTitleText || copy.faq.titleFallback}
               </SectionTitle>
               <SectionSubtitle className={styles.faqSubtitle}>
                 {faqSubtitleText ||
                   (product.title
-                    ? `Scopri di più su ${product.title}.`
-                    : 'Scopri di più su questo prodotto.')}
+                    ? withProduct(copy.faq.subtitleWithProduct, product.title)
+                    : copy.faq.subtitleFallback)}
               </SectionSubtitle>
               <div className={styles.faqList}>
                 {Array.isArray(product.faqItems) && product.faqItems.length ? (
@@ -711,24 +766,13 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   />
                 ) : (
                   <ProductFaqAccordion
-                    items={[
-                      {
-                        question: 'Come si applica?',
-                        answerHtml: `<p>${escapeHtml(
-                          usageText || 'Usa il prodotto come indicato nella routine consigliata.',
-                        )}</p>`,
-                      },
-                      {
-                        question: 'Per che tipo di pelle è indicato?',
-                        answerHtml:
-                          '<p>Adatto a più tipi di pelle. Se hai dubbi chiedi una consulenza.</p>',
-                      },
-                      {
-                        question: 'Ogni quanto si usa?',
-                        answerHtml:
-                          '<p>Consigliato 1-2 volte al giorno in base alle esigenze personali.</p>',
-                      },
-                    ]}
+                    items={copy.faq.fallbackItems.map((item, index) => ({
+                      question: item.question,
+                      answerHtml:
+                        index === 0 && usageText
+                          ? `<p>${escapeHtml(usageText)}</p>`
+                          : `<p>${escapeHtml(item.answer)}</p>`,
+                    }))}
                   />
                 )}
               </div>
@@ -756,18 +800,24 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
       <ServicesTreatmentReveal
         primary={{
-          title: product.title || 'Protocol overview',
-          mediaDescription: descriptionText || '',
-          body: <SectionSubtitle className={styles.treatmentText}>{resultsText || ''}</SectionSubtitle>,
-          imageUrl: coverFallback?.url || fallbackImage.url,
-          imageAlt: coverFallback?.alt || product.title || undefined,
-          rail: ['Click here', 'Prodotti alternativi'],
-          href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
+          title: brandLineName,
+          mediaDescription: brandLineDescriptionText || descriptionText || '',
+          body: (
+            <SectionSubtitle className={styles.treatmentText}>
+              {brandLineResultsText || brandLineHeadlineText || resultsText || ''}
+            </SectionSubtitle>
+          ),
+          railBody:
+            brandLineRailBody.length > 0 ? brandLineRailBody : brandLineRailIngredients,
+          imageUrl: lineMediaResolved?.url || coverFallback?.url || fallbackImage.url,
+          imageAlt: lineMediaResolved?.alt || coverFallback?.alt || brandLineName || undefined,
+          rail: [copy.treatment.railTop, copy.treatment.railBottom],
+          href: `/${locale}/shop`,
         }}
         secondary={{
-          title: 'Prodotti alternativi',
+          title: copy.treatment.secondaryTitle,
           body: null,
-          rail: ['Click here', 'Prodotti alternativi'],
+          rail: [copy.treatment.railTop, copy.treatment.railBottom],
           href: undefined,
           mediaBody: (
             <div className={styles.treatmentCarousel}>
@@ -777,12 +827,12 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   single
                   cardClassName={styles.altCarouselCard}
                   mediaClassName={styles.altCarouselMedia}
-                  ariaLabel="Alternative products carousel"
-                  emptyLabel="Nessun prodotto disponibile."
+                  ariaLabel={copy.treatment.alternativesAria}
+                  emptyLabel={copy.treatment.carouselEmpty}
                 />
               ) : (
                 <SectionSubtitle className={styles.treatmentText}>
-                  Il prodotto scelto è unico nel suo genere e non ha alternative.
+                  {copy.treatment.noAlternatives}
                 </SectionSubtitle>
               )}
             </div>
@@ -790,11 +840,11 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         }}
       />
 
-      <section aria-label="Altri prodotti">
+      <section aria-label={copy.aria.moreProducts}>
         <UICCarousel
           items={productItems}
-          ariaLabel="Shop carousel"
-          emptyLabel="Nessun prodotto disponibile."
+          ariaLabel={copy.treatment.shopCarouselAria}
+          emptyLabel={copy.treatment.carouselEmpty}
         />
       </section>
     </div>

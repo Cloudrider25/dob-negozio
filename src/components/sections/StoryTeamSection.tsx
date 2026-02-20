@@ -38,6 +38,7 @@ export const StoryTeamSection = ({ title, description, items }: StoryTeamSection
                   alt={item.image.alt || item.name || ''}
                   fill
                   sizes="100vw"
+                  className="object-cover object-center"
                   loading="lazy"
                   fetchPriority="auto"
                 />

@@ -4,25 +4,29 @@ import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/cartSt
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
 
+type ProductPurchaseProduct = {
+  id: string
+  title: string
+  slug?: string
+  price?: number
+  currency?: string
+  brand?: string
+  coverImage?: string | null
+}
+
+type ProductPurchaseProps = {
+  product: ProductPurchaseProduct
+  locale?: string
+  className?: string
+  buttonLabel?: string
+}
+
 export function ProductPurchase({
   product,
   locale,
   className,
   buttonLabel,
-}: {
-  product: {
-    id: string
-    title: string
-    slug?: string
-    price?: number
-    currency?: string
-    brand?: string
-    coverImage?: string | null
-  }
-  locale?: string
-  className?: string
-  buttonLabel?: string
-}) {
+}: ProductPurchaseProps) {
   const resolvedLocale = locale && isLocale(locale) ? locale : defaultLocale
   const copy = getJourneyDictionary(resolvedLocale).shop
 
@@ -53,19 +57,15 @@ export function ProductPurchase({
   }
 
   return (
-    <div className="space-y-4">
-      <Button
-        type="button"
-        onClick={handleAddToCart}
-        interactive
-        kind="main"
-        className={
-          className ||
-          'w-full px-6 py-3 font-medium'
-        }
-      >
-        {buttonLabel || copy.addToCart}
-      </Button>
-    </div>
+    <Button
+      type="button"
+      onClick={handleAddToCart}
+      interactive
+      kind="main"
+      size="md"
+      className={className ?? 'w-full'}
+    >
+      {buttonLabel ?? copy.addToCart}
+    </Button>
   )
 }

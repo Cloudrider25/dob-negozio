@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Autoplay, Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
 
@@ -13,11 +13,16 @@ type UIHeroGalleryProps = {
   cover: { url: string; alt: string } | null
   items: HeroGalleryItem[]
   styles: Record<string, string>
+  mobilePeek?: boolean
 }
 
-export function UIHeroGallery({ cover, items, styles }: UIHeroGalleryProps) {
+export function UIHeroGallery({ cover, items, styles, mobilePeek = false }: UIHeroGalleryProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const swiperRef = useRef<UISwiperInstance | null>(null)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
+  const [containerWidth, setContainerWidth] = useState<number | null>(null)
 
   const normalizedItems = useMemo(() => {
     const base = items.filter((item) => item.media?.url)
@@ -26,6 +31,10 @@ export function UIHeroGallery({ cover, items, styles }: UIHeroGalleryProps) {
   }, [items, cover])
 
   const slides = normalizedItems
+  const hasProgressLine = Boolean(
+    styles.heroProgressLine && styles.heroProgressStep && styles.heroProgressStepActive,
+  )
+  const shouldLoop = slides.length > 1 && !isMobileViewport
 
   const playVideoAt = (index: number) => {
     videoRefs.current.forEach((video, idx) => {
@@ -45,7 +54,9 @@ export function UIHeroGallery({ cover, items, styles }: UIHeroGalleryProps) {
     const swiper = swiperRef.current
     if (!swiper) return
     const handleChange = () => {
-      playVideoAt(swiper.realIndex ?? swiper.activeIndex ?? 0)
+      const index = swiper.realIndex ?? swiper.activeIndex ?? 0
+      setActiveIndex(index)
+      playVideoAt(index)
     }
     swiper.on('slideChange', handleChange)
     handleChange()
@@ -54,18 +65,62 @@ export function UIHeroGallery({ cover, items, styles }: UIHeroGalleryProps) {
     }
   }, [slides.length])
 
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [slides.length])
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 1024px)')
+    const sync = () => setIsMobileViewport(media.matches)
+    sync()
+    media.addEventListener('change', sync)
+    return () => media.removeEventListener('change', sync)
+  }, [])
+
+  useEffect(() => {
+    const node = containerRef.current
+    if (!node) return
+    const update = () => {
+      const parentWidth = Math.round(
+        (node.parentElement?.getBoundingClientRect().width || node.getBoundingClientRect().width),
+      )
+      const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : parentWidth
+      const next = Math.round(Math.min(parentWidth, viewportWidth))
+      if (next >= 200 && next <= 4000) setContainerWidth(next)
+    }
+    update()
+    const observer = new ResizeObserver(() => update())
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <div className={styles.heroMedia}>
+    <div ref={containerRef} className={styles.heroMedia}>
       {slides.length ? (
         <Swiper
           className={styles.heroSlider}
           modules={[Autoplay]}
-          slidesPerView={1}
-          loop={slides.length > 1}
+          width={isMobileViewport ? (containerWidth || undefined) : undefined}
+          slidesPerView={mobilePeek ? 1.08 : 1}
+          spaceBetween={mobilePeek ? 10 : 0}
+          loop={shouldLoop}
           onSwiper={(swiper) => {
             swiperRef.current = swiper
+            requestAnimationFrame(() => swiper.update())
           }}
-          allowTouchMove={false}
+          observer
+          observeParents
+          resizeObserver
+          allowTouchMove
+          simulateTouch
+          touchStartPreventDefault={false}
+          threshold={6}
+          breakpoints={{
+            1025: {
+              slidesPerView: 1,
+              spaceBetween: 0,
+            },
+          }}
           speed={420}
         >
           {slides.map((item, index) => (
@@ -139,6 +194,20 @@ export function UIHeroGallery({ cover, items, styles }: UIHeroGalleryProps) {
           )
         })}
       </div>
+      {hasProgressLine ? (
+        <div className={styles.heroProgressLine} aria-hidden="true">
+          {slides.map((item, index) => (
+            <span
+              key={`${item.media?.url || 'progress'}-${index}`}
+              className={
+                index === activeIndex
+                  ? `${styles.heroProgressStep} ${styles.heroProgressStepActive}`
+                  : styles.heroProgressStep
+              }
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }
