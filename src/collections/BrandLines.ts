@@ -50,6 +50,12 @@ export const BrandLines: CollectionConfig = {
       localized: true,
     },
     {
+      name: 'brandLineMedia',
+      label: 'Brand line media',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
       name: 'description',
       type: 'textarea',
       localized: true,

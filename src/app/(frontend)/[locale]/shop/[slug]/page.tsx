@@ -10,7 +10,8 @@ import styles from './product-detail.module.css'
 import { AlternativeSelector } from './AlternativeSelector'
 import { ProductServiceAccordion } from './ProductServiceAccordion'
 import { ProductFaqAccordion } from './ProductFaqAccordion'
-import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatmentReveal'
+import { ProductInlineVideo } from './ProductInlineVideo'
+import { ProductTreatmentReveal } from '@/components/shop/ProductTreatmentReveal'
 import { UICCarousel } from '@/components/carousel/UIC_Carousel'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { ButtonLink } from '@/components/ui/button-link'
@@ -202,6 +203,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         name?: unknown
         slug?: string
         lineHeadline?: unknown
+        brandLineMedia?: unknown
         description?: unknown
         usage?: unknown
         activeIngredients?: unknown
@@ -392,14 +394,10 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   const faqMediaDoc = await resolveMediaFromId(product.faqMedia)
   const faqResolved = faqMediaDoc ? resolveMedia(faqMediaDoc, product.title || '') : null
 
-  const lineMediaDoc = await resolveMediaFromId(product.lineMedia)
-  const lineMediaResolved = lineMediaDoc ? resolveMedia(lineMediaDoc, product.title || '') : null
-
   const descriptionText = resolveText(product.description)
   const usageText = resolveText(product.usage)
   const ingredientsText = resolveText(product.activeIngredients)
   const resultsText = resolveText(product.results)
-  const lineHeadlineText = resolveText(product.lineHeadline)
   const faqTitleText = resolveText(product.faqTitle)
   const faqSubtitleText = resolveText(product.faqSubtitle)
   const brandLineName =
@@ -409,19 +407,24 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   const brandLineUsageText = resolveText(brandLineDoc?.usage)
   const brandLineIngredientsText = resolveText(brandLineDoc?.activeIngredients)
   const brandLineResultsText = resolveText(brandLineDoc?.results)
+  const brandLineMediaDoc = await resolveMediaFromId(brandLineDoc?.brandLineMedia)
+  const brandLineMediaResolved = brandLineMediaDoc
+    ? resolveMedia(brandLineMediaDoc, brandLineName)
+    : null
+  const resolvedLineMedia = brandLineMediaResolved
   const brandLineRailBody = normalizeBullets(brandLineUsageText || usageText)
   const brandLineRailIngredients = normalizeBullets(brandLineIngredientsText || ingredientsText)
 
-  const lineHeadline = lineHeadlineText || copy.lineHeadlineFallback
+  const lineHeadline = brandLineHeadlineText || copy.lineHeadlineFallback
 
   const lineDetails = [
     {
       label: copy.lineDetails.goodFor,
-      value: resultsText || copy.lineDetails.goodForFallback,
+      value: brandLineResultsText || resultsText || copy.lineDetails.goodForFallback,
     },
     {
       label: copy.lineDetails.feelsLike,
-      value: descriptionText || copy.lineDetails.feelsLikeFallback,
+      value: brandLineDescriptionText || descriptionText || copy.lineDetails.feelsLikeFallback,
     },
     {
       label: copy.lineDetails.smellsLike,
@@ -429,11 +432,11 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     },
     {
       label: copy.lineDetails.award,
-      value: usageText || copy.lineDetails.awardFallback,
+      value: brandLineUsageText || usageText || copy.lineDetails.awardFallback,
     },
     {
       label: copy.lineDetails.fyi,
-      value: ingredientsText || copy.lineDetails.fyiFallback,
+      value: brandLineIngredientsText || ingredientsText || copy.lineDetails.fyiFallback,
     },
   ]
 
@@ -605,7 +608,11 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       <section className={styles.videoSection} aria-label={copy.aria.productVideo}>
         <div className={styles.videoWrap}>
           {videoMedia ? (
-            <video className={styles.video} src={videoMedia.url} controls playsInline preload="none" />
+            <ProductInlineVideo
+              src={videoMedia.url}
+              poster={videoPosterMedia?.url || coverFallback?.url || undefined}
+              label={copy.aria.productVideo}
+            />
           ) : videoEmbed ? (
             <iframe
               className={styles.video}
@@ -648,13 +655,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                 ))}
               </SectionTitle>
               <div className={styles.lineDetails}>
-                {(Array.isArray(product.lineDetails) && product.lineDetails.length
-                  ? product.lineDetails.map((item) => ({
-                      label: resolveText(item?.label) || '',
-                      value: resolveText(item?.value) || '',
-                    }))
-                  : lineDetails
-                ).map((item) => (
+                {lineDetails.map((item) => (
                   <div key={item.label} className={styles.lineRow}>
                     <span className={`${styles.lineLabel} typo-small-upper`}>{item.label}</span>
                     <span className={`${styles.lineValue} typo-body`}>{item.value}</span>
@@ -665,10 +666,10 @@ export default async function ProductDetailPage({ params }: { params: PageParams
           }
           right={
             <div className={styles.lineMedia}>
-              {lineMediaResolved?.url || coverFallback?.url ? (
+              {resolvedLineMedia?.url || coverFallback?.url ? (
                 <Image
-                  src={lineMediaResolved?.url || coverFallback?.url || ''}
-                  alt={lineMediaResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
+                  src={resolvedLineMedia?.url || coverFallback?.url || ''}
+                  alt={resolvedLineMedia?.alt || coverFallback?.alt || product.title || t.shop.title}
                   fill
                   className={styles.lineImage}
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -798,10 +799,27 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         />
       </section>
 
-      <ServicesTreatmentReveal
+      <ProductTreatmentReveal
         primary={{
           title: brandLineName,
-          mediaDescription: brandLineDescriptionText || descriptionText || '',
+          copyDetails: [
+            {
+              label: 'Description',
+              value: brandLineDescriptionText || descriptionText || '',
+            },
+            {
+              label: "Modo d'uso",
+              value: brandLineUsageText || usageText || '',
+            },
+            {
+              label: 'Principi attivi',
+              value: brandLineIngredientsText || ingredientsText || '',
+            },
+            {
+              label: 'Risultati',
+              value: brandLineResultsText || resultsText || '',
+            },
+          ],
           body: (
             <SectionSubtitle className={styles.treatmentText}>
               {brandLineResultsText || brandLineHeadlineText || resultsText || ''}
@@ -809,8 +827,10 @@ export default async function ProductDetailPage({ params }: { params: PageParams
           ),
           railBody:
             brandLineRailBody.length > 0 ? brandLineRailBody : brandLineRailIngredients,
-          imageUrl: lineMediaResolved?.url || coverFallback?.url || fallbackImage.url,
-          imageAlt: lineMediaResolved?.alt || coverFallback?.alt || brandLineName || undefined,
+          imageUrl:
+            resolvedLineMedia?.url || coverFallback?.url || fallbackImage.url,
+          imageAlt:
+            resolvedLineMedia?.alt || coverFallback?.alt || brandLineName || undefined,
           rail: [copy.treatment.railTop, copy.treatment.railBottom],
           href: `/${locale}/shop`,
         }}

@@ -244,8 +244,6 @@ for (const product of products.docs) {
   if (!product.activeIngredients && template?.activeIngredients)
     updates.activeIngredients = template.activeIngredients
   if (!product.results && template?.results) updates.results = template.results
-  if (!product.lineHeadline && template?.lineHeadline) updates.lineHeadline = template.lineHeadline
-
   if (!product.format && product.title) {
     const format = detectFormat(product.title)
     if (format) updates.format = format

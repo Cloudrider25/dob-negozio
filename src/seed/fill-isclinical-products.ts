@@ -245,8 +245,6 @@ for (const product of products.docs) {
   if (!product.activeIngredients && template?.activeIngredients)
     updates.activeIngredients = template.activeIngredients
   if (!product.results && template?.results) updates.results = template.results
-  if (!product.lineHeadline && template?.lineHeadline) updates.lineHeadline = template.lineHeadline
-
   const needsSlugs = needsByLineSlug[lineSlug] ?? []
   if ((!product.needs || product.needs.length === 0) && needsSlugs.length > 0) {
     const ids = needsSlugs.map((slug) => needSlugToId.get(slug)).filter(Boolean)

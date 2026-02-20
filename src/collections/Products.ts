@@ -231,10 +231,6 @@ export const Products: CollectionConfig = {
         if (isEmptyText(data.results) && typeof brandLine?.results === 'string') {
           data.results = brandLine.results
         }
-        if (isEmptyText(data.lineHeadline) && typeof brandLine?.lineHeadline === 'string') {
-          data.lineHeadline = brandLine.lineHeadline
-        }
-
         if (!Array.isArray(data.needs) || data.needs.length === 0) {
           const needsPriority = await req.payload.find({
             collection: 'brand-line-needs-priority',
@@ -455,7 +451,7 @@ export const Products: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: 'Generali',
+          label: 'Prod. Generali',
           fields: [
             {
               type: 'row',
@@ -590,7 +586,7 @@ export const Products: CollectionConfig = {
           ],
         },
         {
-          label: 'Info',
+          label: 'Prod. Info',
           fields: [
             {
               name: 'description',
@@ -630,7 +626,7 @@ export const Products: CollectionConfig = {
           ],
         },
         {
-          label: 'Gallery',
+          label: 'Prod. Gallery',
           fields: [
             {
               name: 'coverImage',
@@ -647,7 +643,7 @@ export const Products: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 1',
+          label: 'Prod. Accordion',
           fields: [
             {
               name: 'heroAccordionTitle',
@@ -680,7 +676,7 @@ export const Products: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 2',
+          label: 'Prod. Video',
           fields: [
             {
               name: 'videoSectionTitle',
@@ -706,44 +702,6 @@ export const Products: CollectionConfig = {
             },
             {
               name: 'videoPoster',
-              type: 'upload',
-              relationTo: 'media',
-            },
-          ],
-        },
-        {
-          label: 'Sezione Linea',
-          fields: [
-            {
-              name: 'lineSectionTitle',
-              type: 'ui',
-              label: 'Linea prodotto',
-              admin: {
-                components: {
-                  Field: '/components/admin/SectionTitle',
-                },
-              },
-            },
-            {
-              name: 'lineHeadline',
-              type: 'text',
-              localized: true,
-            },
-            {
-              name: 'lineDetails',
-              type: 'array',
-              fields: [
-                {
-                  type: 'row',
-                  fields: [
-                    { name: 'label', type: 'text', localized: true },
-                    { name: 'value', type: 'textarea', localized: true },
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'lineMedia',
               type: 'upload',
               relationTo: 'media',
             },

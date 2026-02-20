@@ -8,13 +8,7 @@
 }
 
 .page > section:first-of-type {
-  margin-top: 2.5vw;
-}
-
-.treatmentGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--split-gap);
+  margin-top: 1rem;
 }
 
 .hero {
@@ -39,8 +33,8 @@
   border-radius: 0;
   overflow: visible;
   min-width: 0;
-  min-height: 500px;
-  height: 500px;
+  min-height: 320px;
+  height: 56vh;
   background: transparent;
   box-shadow: none;
   align-self: start;
@@ -77,24 +71,24 @@
 }
 
 .thumbs {
-  position: absolute;
-  left: 16px;
-  bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 2;
+  display: none;
 }
 
 .heroProgressLine {
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 10px;
+  position: relative;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  margin-top: 0.6rem;
+  margin-bottom: 0.4rem;
   display: flex;
   align-items: center;
   gap: 6px;
   z-index: 2;
+}
+
+.mobileMediaFirst {
+  order: -1;
 }
 
 .heroProgressStep {
@@ -106,35 +100,6 @@
 
 .heroProgressStepActive {
   background: var(--pearl-1);
-}
-
-@media (max-width: 1024px) {
-  .heroMedia {
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .mobileMediaFirst {
-    order: -1;
-  }
-
-  .heroProgressLine {
-    position: relative;
-    left: 0;
-    right: 0;
-    bottom: auto;
-    margin-top: 0.6rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .heroPanel {
-    border-radius: 0;
-  }
-
-  .thumbs {
-    display: none;
-  }
 }
 
 .thumb {
@@ -178,8 +143,8 @@
 
 .heroPanel {
   background: var(--bg);
-  border-radius: 0;
-  padding: 2.5rem 2.6rem;
+  border-radius: 0 0 12px 12px;
+  padding: 1.25rem 1rem;
   border: 1px solid var(--stroke);
   min-width: 0;
   display: flex;
@@ -199,16 +164,13 @@
   border-bottom: 1px solid var(--stroke);
 }
 
-.eyebrow {
-  color: var(--text-secondary);
-}
-
 .titleRow {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
 }
 
 .title {
@@ -223,36 +185,6 @@
   color: var(--bg);
 }
 
-.metaRow {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  color: var(--text-secondary);
-}
-
-.subtitleRow {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--text-secondary);
-}
-
-.subtitle {
-  font-weight: 600;
-}
-
-.rating {
-  margin-left: auto;
-}
-
-.ratingCount {
-  color: var(--text-secondary);
-}
-
-.dot {
-  opacity: 0.6;
-}
-
 .description {
   margin: 0;
   color: var(--text-secondary);
@@ -261,11 +193,7 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.note {
-  margin: 0;
-  color: var(--text-secondary);
+  margin-top: 0.35rem;
 }
 
 .divider {
@@ -274,24 +202,14 @@
   width: 100%;
 }
 
-.sizeBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.sizeOptions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.sizePill {
+.buyButton {
   border-radius: 999px;
   border: 1px solid var(--stroke);
-  background: var(--bg);
-  padding: 0.35rem 0.9rem;
+  background: var(--paper);
+  padding: 1.4rem 1.4rem;
   cursor: pointer;
+  text-align: center;
+  width: -webkit-fill-available;
 }
 
 .relatedBlock {
@@ -309,10 +227,11 @@
 .relatedItem {
   border-radius: 999px;
   border: 1px solid var(--stroke);
-  background: var(--bg);
+  background: var(--paper);
   padding: 0.4rem 0.9rem;
   color: var(--text-primary);
   text-decoration: none;
+  cursor: pointer;
 }
 
 .relatedItemActive {
@@ -324,16 +243,6 @@
 .refillNote {
   margin: 0;
   color: var(--text-secondary);
-}
-
-.buyButton {
-  border-radius: 999px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  padding: 1.4rem 1.4rem;
-  cursor: pointer;
-  text-align: center;
-  width: -webkit-fill-available;
 }
 
 .crossSell {
@@ -348,11 +257,11 @@
 
 .crossSellRow {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-direction: column;
   gap: 1rem;
   padding: 0.8rem 0;
-  border-top: 1px solid var(--stroke);
   border-bottom: 1px solid var(--stroke);
 }
 
@@ -360,6 +269,7 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  min-width: 0;
 }
 
 .crossSellThumb {
@@ -371,50 +281,13 @@
   overflow: hidden;
 }
 
+
+
 .crossSellName {
+  margin: 0;
 }
 
 .crossSellMeta {
-  color: var(--text-secondary);
-}
-
-.lineup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.lineupTitle {
-  font-weight: 600;
-}
-
-.lineupRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.8rem 0;
-  border-top: 1px solid var(--stroke);
-  border-bottom: 1px solid var(--stroke);
-}
-
-.lineupItem {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.lineupThumb {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--sand);
-}
-
-.lineupName {
-}
-
-.lineupMeta {
   color: var(--text-secondary);
 }
 
@@ -424,6 +297,8 @@
   background: var(--bg);
   padding: 0.35rem 0.9rem;
   cursor: pointer;
+  width: 100%;
+  justify-content: center;
 }
 
 .accordion {
@@ -467,105 +342,21 @@
   margin-top: 0.6rem;
 }
 
-.inlineLink {
-  color: var(--text-secondary);
-}
-
-.details {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.detailGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.5rem;
-}
-
-.detailCard {
-  border-radius: 16px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  padding: 1.8rem;
-}
-
-.value {
-  margin: 0.3rem 0 0;
-  color: var(--text-primary);
-}
-
-.treatmentsPanel {
-  border-radius: 18px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  padding: 2rem;
-}
-
-.treatmentsHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.sectionTitle {
-  margin: 0.4rem 0 0;
-  color: var(--text-primary);
-}
-
-.backLink {
-  border-radius: 999px;
-  border: 1px solid var(--stroke);
-  padding: 0.6rem 1.2rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  background: var(--bg);
-}
-
-.pills {
-  margin-top: 1.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.pill {
-  border-radius: 999px;
-  border: 1px solid var(--stroke);
-  background: var(--bg);
-  padding: 0.4rem 0.9rem;
-  color: var(--text-secondary);
-}
-
-.empty {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.ingredientsSection {
-  border-radius: 18px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  padding: 2rem;
-}
-
 .insideSection {
   width: 100%;
 }
 
 .insideColumn {
   min-height: 0;
-  height: 640px;
-  overflow: hidden;
+  height: auto;
+  overflow: visible;
 }
 
 .insideMedia {
   position: relative;
-  border-radius: 18px;
+  border-radius: 12px;
   overflow: hidden;
-  min-height: 640px;
+  min-height: 360px;
   background: var(--sand);
 }
 
@@ -579,23 +370,11 @@
   background: var(--sand);
 }
 
-.insideButton {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  border-radius: 999px;
-  background: var(--bg-2);
-  color: var(--pearl-1);
-  border: 0;
-  padding: 0.5rem 1.1rem;
-  cursor: pointer;
-}
-
 .insideContent {
   background: var(--bg);
-  border-radius: 18px;
+  border-radius: 12px;
   border: 1px solid var(--stroke);
-  padding: 2.2rem 3.2rem 2.2rem calc(2.4rem + 54px);
+  padding: 1.25rem 1rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -604,17 +383,15 @@
   height: 100%;
   max-height: 100%;
   min-height: 0;
-  justify-content: flex-end;
+  justify-content: flex-start;
   text-align: left;
   overflow: auto;
   overscroll-behavior: contain;
 }
 
 .insideLabel {
-  position: absolute;
-  left: 1rem;
-  top: 2.2rem;
-  writing-mode: vertical-rl;
+  position: static;
+  writing-mode: horizontal-tb;
   color: var(--text-secondary);
 }
 
@@ -637,40 +414,19 @@
   padding-left: 1.2rem;
 }
 
-.insideBlock {
-  border-top: 1px solid var(--stroke);
-  padding-top: 1rem;
-}
-
-.insideBlock h3 {
-  margin: 0 0 0.4rem;
-  color: var(--text-primary);
-}
-
-.insideBlock p {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.insideNote {
-  border-top: 1px solid var(--stroke);
-  padding-top: 1rem;
-  color: var(--text-secondary);
-}
-
 .faqSection {
   width: 100%;
 }
 
 .faqCopy {
   background: var(--bg);
-  border-radius: 18px;
+  border-radius: 12px;
   border: 1px solid var(--stroke);
-  padding: 2.2rem 2.4rem;
+  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
-  min-height: 640px;
+  min-height: 0;
 
 }
 
@@ -743,9 +499,9 @@
 
 .faqMedia {
   position: relative;
-  border-radius: 18px;
+  border-radius: 12px;
   overflow: hidden;
-  min-height: 640px;
+  min-height: 360px;
   background: var(--sand);
 
 }
@@ -760,105 +516,9 @@
   background: var(--sand);
 }
 
-.treatmentSection {
-  width: 100%;
-}
-
-.treatmentCard {
-  background: var(--bg);
-  border-radius: 18px;
-  border: 1px solid var(--stroke);
-  height: 640px;
-}
-
-.treatmentCard:focus-visible {
-  outline: 2px solid var(--text-primary);
-  outline-offset: 4px;
-}
-
-.treatmentViewport {
-  overflow: hidden;
-  height: 100%;
-}
-
-.treatmentSlider {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: 200%;
-  transition: transform 0.9s ease;
-  will-change: transform;
-  height: 100%;
-}
-
-.treatmentSliderActive {
-  transform: translateX(-50%);
-}
-
-.treatmentPanel {
-  width: 100%;
-  height: 100%;
-}
-
-.treatmentPanelLink {
-  display: flex;
-  flex-direction: column;
-  color: inherit;
-  text-decoration: none;
-  height: 100%;
-  width: 100%;
-}
-
-.treatmentGrid {
-  align-items: stretch;
-  height: 100%;
-}
-
-.treatmentMediaLeft {
-  order: -1;
-}
-
-.treatmentCopy {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-self: start;
-  padding: 2.5vw;
-}
-
-.treatmentCopyStretch {
-  align-self: stretch;
-  height: 100%;
-}
-
-.treatmentCopyMedia {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
-
-.treatmentTitle {
-  margin: 0;
-  color: var(--text-primary);
-}
-
 .treatmentText {
   margin: 0;
   color: var(--text-secondary);
-}
-
-.treatmentRailList {
-  margin: 0.5rem 0 0;
-  padding-left: 1.2rem;
-  color: var(--text-secondary);
-}
-
-.treatmentAltBody {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
 }
 
 .treatmentCarousel {
@@ -866,105 +526,26 @@
   overflow: hidden;
   max-width: 480px;
   margin-left: auto;
-  transform: translateX(-160px);
+  transform: none;
 }
 
 .altCarouselCard {
   height: 580px !important;
 }
 
-
-.treatmentMedia {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 2rem 2rem 3rem 2rem;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  border-radius: 16px;
-
-  min-height: 320px;
-  overflow: hidden;
-}
-
-.treatmentMediaTitle {
-  width: 70%;
-  margin-right: auto;
-  text-align: left;
-  margin-top: auto;
-  margin-bottom: 0.6rem;
-}
-
-.treatmentMediaDescription {
-  width: 70%;
-  margin-left: auto;
-  margin: 72px;
-
-  text-align: left;
-  padding-bottom: 1.5rem;
-}
-
-.treatmentCarousel {
-  width: 100%;
-}
-
-.treatmentDiagramThumbImage {
-  width: min(480px, 80%);
-  height: auto;
-  object-fit: contain;
-}
-
-
-
-.treatmentRail {
-  position: static;
-  width: 100%;
-  height: 48px;
-  background: var(--bg-2);
-  color: var(--pearl-1);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.8rem 1rem;
-  gap: 1rem;
-  text-decoration-thickness: bold;
-  writing-mode: horizontal-tb;
-  text-align: center;
-}
-
-.treatmentRailButton {
-  border: 0;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.treatmentRailText {
-  transform: none;
-  padding: 4px;
-  text-align: center;
-  font-weight: 700;
-}
-
-.treatmentRailTop {
-  align-self: center;
-  margin-top: 0.2rem;
-}
-
-.treatmentRailBottom {
-  align-self: center;
-  margin-bottom: 0.2rem;
-}
-
-.treatmentRailCenter {
-  align-self: center;
+.altCarouselMedia {
+  object-fit: cover;
 }
 
 @media (min-width: 1025px) {
+  .page > section:first-of-type {
+    margin-top: 2.5vw;
+  }
+
+  .mobileMediaFirst {
+    order: 0;
+  }
+
   .hero {
     border-radius: 12px;
     overflow: hidden;
@@ -982,20 +563,50 @@
   .heroMedia {
     border-radius: 22px;
     overflow: hidden;
+    min-height: 500px;
+    height: 500px;
   }
 
   .heroPanel {
     border-radius: 22px;
+    padding: 2.5rem 2.6rem;
+  }
+
+  .crossSellRow {
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  .lineupButton {
+    width: auto;
+  }
+
+  .titleRow {
+    margin-top: 0;
+  }
+
+  .description {
+    margin-top: 0;
+  }
+
+  .thumbs {
+    position: absolute;
+    left: 16px;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 2;
   }
 
   .heroProgressLine {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 10px;
+    margin: 0;
     display: none;
-  }
-
-  .hero,
-  .detailGrid,
-  .treatmentGrid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .heroMedia,
@@ -1009,33 +620,52 @@
 
   .insideLabel {
     position: absolute;
+    left: 1rem;
+    top: 2.2rem;
     writing-mode: vertical-rl;
   }
 
   .insideContent {
+    border-radius: 18px;
+    padding: 2.2rem 3.2rem 2.2rem calc(2.4rem + 54px);
+    justify-content: flex-end;
     padding-left: calc(2.4rem + 54px);
   }
 
-  .treatmentRail {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 70px;
-    height: 100%;
-    writing-mode: vertical-rl;
-    flex-direction: row;
-    gap: 0.2rem;
-    padding: 0.8rem 0;
+  .insideColumn {
+    height: 640px;
+    overflow: hidden;
   }
 
-  .treatmentRailText {
-    transform: rotate(180deg);
+  .insideMedia {
+    border-radius: 18px;
+    min-height: 640px;
   }
 
-  .treatmentMedia {
-    min-height: 360px;
-    padding-right: 4.5rem;
-    padding-bottom: 2rem;
+  .faqCopy {
+    border-radius: 18px;
+    padding: 2.2rem 2.4rem;
+    min-height: 640px;
+  }
+
+  .faqMedia {
+    border-radius: 18px;
+    min-height: 640px;
+  }
+
+  .lineCopy {
+    border-radius: 18px;
+    padding: 2.2rem 2.6rem;
+    min-height: 640px;
+  }
+
+  .lineMedia {
+    border-radius: 18px;
+    min-height: 640px;
+  }
+
+  .treatmentCarousel {
+    transform: translateX(-160px);
   }
 
   .lineRow {
@@ -1051,7 +681,7 @@
 
 .videoWrap {
   width: 100%;
-  height: 60vh;
+  height: 62vh;
   position: relative;
   background: var(--sand);
   overflow: hidden;
@@ -1062,6 +692,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 90ms linear;
 }
 
 .videoPlaceholder {
@@ -1069,6 +700,11 @@
   width: 100%;
   height: 100%;
   background: var(--sand);
+}
+
+.videoZoomLayer {
+  width: 100%;
+  height: 100%;
 }
 
 .videoPoster {
@@ -1083,19 +719,45 @@
   color: var(--text-secondary);
 }
 
+.videoPlayOverlay {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--bg) 12%, transparent);
+  display: grid;
+  place-items: center;
+}
+
+.videoPlayIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  color: var(--text-primary);
+  border: 1px solid color-mix(in srgb, var(--stroke) 80%, transparent);
+  font-size: 1.4rem;
+  line-height: 1;
+  padding-left: 0.2rem;
+}
+
 .lineSection {
   width: 100%;
 }
 
 .lineCopy {
   background: var(--paper);
-  border-radius: 18px;
+  border-radius: 12px;
   border: 1px solid var(--stroke);
-  padding: 2.2rem 2.6rem;
+  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  min-height: 640px;
+  min-height: 0;
 }
 
 .lineTitle {
@@ -1136,9 +798,9 @@
 
 .lineMedia {
   position: relative;
-  border-radius: 18px;
+  border-radius: 12px;
   overflow: hidden;
-  min-height: 640px;
+  min-height: 360px;
   background: var(--sand);
 }
 
@@ -1150,14 +812,4 @@
   width: 100%;
   height: 100%;
   background: var(--sand);
-}
-
-@media (min-width: 1025px) {
-  .videoWrap {
-    height: calc(100dvh - var(--header-height));
-  }
-
-  .lineRow {
-    grid-template-columns: 140px minmax(0, 1fr);
-  }
 }

@@ -820,7 +820,6 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
       <ServicesTreatmentReveal
         primary={{
           title: parentTitle || service.name || 'Protocol overview',
-          mediaDescription: parentDescription || service.description || '',
           body: (
             <SectionSubtitle className={styles.treatmentText}>
               {parentTagline || parentDescription || ''}

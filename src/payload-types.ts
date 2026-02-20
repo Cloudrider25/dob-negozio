@@ -329,15 +329,6 @@ export interface Product {
   videoEmbedUrl?: string | null;
   videoUpload?: (number | null) | Media;
   videoPoster?: (number | null) | Media;
-  lineHeadline?: string | null;
-  lineDetails?:
-    | {
-        label?: string | null;
-        value?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  lineMedia?: (number | null) | Media;
   /**
    * Seleziona un media dalla gallery del prodotto.
    */
@@ -473,6 +464,7 @@ export interface BrandLine {
   active?: boolean | null;
   sortOrder?: number | null;
   lineHeadline?: string | null;
+  brandLineMedia?: (number | null) | Media;
   description?: string | null;
   usage?: string | null;
   activeIngredients?: string | null;
@@ -1828,15 +1820,6 @@ export interface ProductsSelect<T extends boolean = true> {
   videoEmbedUrl?: T;
   videoUpload?: T;
   videoPoster?: T;
-  lineHeadline?: T;
-  lineDetails?:
-    | T
-    | {
-        label?: T;
-        value?: T;
-        id?: T;
-      };
-  lineMedia?: T;
   includedMedia?: T;
   includedDescription?: T;
   faqMedia?: T;
@@ -1900,6 +1883,7 @@ export interface BrandLinesSelect<T extends boolean = true> {
   active?: T;
   sortOrder?: T;
   lineHeadline?: T;
+  brandLineMedia?: T;
   description?: T;
   usage?: T;
   activeIngredients?: T;
