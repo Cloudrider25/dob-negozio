@@ -88,6 +88,16 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
 
 ## Log blocchi chiusi
 
+- 2026-02-20 | Blocco CSS-046 (`Service Detail` spacing parity + hero/media mobile-first pass)
+  - Scope: `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css`, `src/app/(frontend)/[locale]/services/service/[slug]/page.tsx`.
+  - Decisione: allineare la struttura base di `service detail` al pattern usato in `product detail` (spacing uniforme, no extra offset da split globali, hero mobile-first con override desktop espliciti).
+  - Implementazione:
+  - pagina: introdotto `--section-space: 2.5rem`, `gap` uniforme, rimosso offset top della prima sezione, aggiunto margine finale prima footer, neutralizzato `margin-top` globale di `.ui-split-section`;
+  - hero wrapper: aggiunto `className={styles.hero}` al primo `SplitSection`;
+  - hero/media/panel: base mobile (media 56vh, panel auto-height con radius inferiore, thumbs nascosti), desktop ripristinato in `@media (min-width: 1025px)` (media/panel full-height, thumbs visibili, radius desktop);
+  - video hero-adjacent: base mobile `60vh`, desktop `calc(100dvh - var(--header-height))`.
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+
 - 2026-02-20 | Blocco CSS-045 (`Product Detail` spacing final tuning before footer)
   - Scope: `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`.
   - Decisione: eliminare gli accumuli di spacing tra ultima sezione e footer, mantenendo un respiro minimo controllato.

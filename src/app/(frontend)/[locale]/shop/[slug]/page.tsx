@@ -17,7 +17,7 @@ import { UICCarousel } from '@/components/carousel/UIC_Carousel'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { ButtonLink } from '@/components/ui/button-link'
 import { SplitSection } from '@/components/ui/SplitSection'
-import { UIHeroGallery } from '@/components/ui/HeroGallery'
+import { UILeadGallery } from '@/components/ui/LeadGallery'
 import { ScrollZoomOnScroll } from '@/components/ui/ScrollZoomOnScroll'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
@@ -455,9 +455,9 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   return (
     <div className={styles.page}>
       <SplitSection
-        className={styles.hero}
+        className={styles.leadSection}
         left={
-          <UIHeroGallery
+          <UILeadGallery
             cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
             items={galleryItems.map((item) => ({
               media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,

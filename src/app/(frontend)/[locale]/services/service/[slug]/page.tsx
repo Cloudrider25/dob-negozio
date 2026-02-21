@@ -18,7 +18,7 @@ import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { LabelText } from '@/components/ui/label'
 import { SplitSection } from '@/components/ui/SplitSection'
-import { UIHeroGallery } from '@/components/ui/HeroGallery'
+import { UILeadGallery } from '@/components/ui/LeadGallery'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -461,8 +461,9 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
   return (
     <div className={styles.page}>
       <SplitSection
+        className={styles.leadSection}
         left={
-          <UIHeroGallery
+          <UILeadGallery
             cover={coverMedia ? { url: coverMedia.url, alt: coverMedia.alt } : null}
             items={galleryItems.map((item) => ({
               media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,

@@ -4,19 +4,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Autoplay, Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
 
-export type HeroGalleryItem = {
+export type LeadGalleryItem = {
   media?: { url: string; alt: string }
   mediaType?: string | null
 }
 
-type UIHeroGalleryProps = {
+type UILeadGalleryProps = {
   cover: { url: string; alt: string } | null
-  items: HeroGalleryItem[]
+  items: LeadGalleryItem[]
   styles: Record<string, string>
   mobilePeek?: boolean
 }
 
-export function UIHeroGallery({ cover, items, styles, mobilePeek = false }: UIHeroGalleryProps) {
+export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILeadGalleryProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const swiperRef = useRef<UISwiperInstance | null>(null)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
