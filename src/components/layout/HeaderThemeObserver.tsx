@@ -13,7 +13,9 @@ export const HeaderThemeObserver = () => {
     }
 
     const updateScrollState = () => {
-      document.body.classList.toggle("header-scrolled", window.scrollY > 12)
+      const isScrolled = window.scrollY > 12
+      document.body.classList.toggle("header-scrolled", isScrolled)
+      document.body.classList.toggle("topbar-collapsed", isScrolled)
     }
 
     const raf = window.requestAnimationFrame(() => {
@@ -65,6 +67,7 @@ export const HeaderThemeObserver = () => {
       observer.disconnect()
       document.body.classList.remove("header-over-hero")
       document.body.classList.remove("header-scrolled")
+      document.body.classList.remove("topbar-collapsed")
       document.body.classList.remove("header-on-light")
     }
   }, [pathname])

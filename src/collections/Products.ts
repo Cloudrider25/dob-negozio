@@ -59,6 +59,34 @@ const normalizeWhereEqualsArray = (where?: Where): Where | undefined => {
   return walk(where) as Where
 }
 
+const productGalleryMediaFilterOptions = ({ data }: { data?: unknown }) => {
+  if (!data) return true
+
+  const toId = (value: unknown): number | string | null => {
+    if (typeof value === 'number' || typeof value === 'string') return value
+    if (value && typeof value === 'object' && 'id' in value) {
+      const id = (value as { id?: unknown }).id
+      if (typeof id === 'number' || typeof id === 'string') return id
+    }
+    return null
+  }
+
+  const ids = new Set<number | string>()
+  const coverId = toId((data as { coverImage?: unknown }).coverImage)
+  if (coverId !== null) ids.add(coverId)
+
+  const images = (data as { images?: unknown }).images
+  if (Array.isArray(images)) {
+    for (const image of images) {
+      const imageId = toId(image)
+      if (imageId !== null) ids.add(imageId)
+    }
+  }
+
+  if (ids.size === 0) return true
+  return { id: { in: Array.from(ids) } }
+}
+
 export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
@@ -708,7 +736,55 @@ export const Products: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 3',
+          label: 'Prod. Specs',
+          fields: [
+            {
+              name: 'specsSectionTitle',
+              type: 'ui',
+              label: 'Product Specs',
+              admin: {
+                components: {
+                  Field: '/components/admin/SectionTitle',
+                },
+              },
+            },
+            {
+              name: 'specsMedia',
+              type: 'relationship',
+              relationTo: 'media',
+              filterOptions: productGalleryMediaFilterOptions,
+              admin: {
+                description: 'Seleziona un media già presente in cover/gallery del prodotto.',
+              },
+            },
+            {
+              name: 'specsGoodFor',
+              label: 'Good for',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              name: 'specsFeelsLike',
+              label: 'Feels like',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              name: 'specsSmellsLike',
+              label: 'Smells like',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              name: 'specsFYI',
+              label: 'FYI',
+              type: 'textarea',
+              localized: true,
+            },
+          ],
+        },
+        {
+          label: 'Prod. Include',
           fields: [
             {
               name: 'includedSectionTitle',
@@ -724,19 +800,62 @@ export const Products: CollectionConfig = {
               name: 'includedMedia',
               type: 'relationship',
               relationTo: 'media',
+              filterOptions: productGalleryMediaFilterOptions,
               admin: {
                 description: 'Seleziona un media dalla gallery del prodotto.',
               },
+            },
+            {
+              name: 'includedLabel',
+              label: 'Label',
+              type: 'text',
+              localized: true,
             },
             {
               name: 'includedDescription',
               type: 'richText',
               localized: true,
             },
+            {
+              name: 'includedIngredientsLabel',
+              label: 'Ingredients Label',
+              type: 'text',
+              localized: true,
+            },
+            {
+              name: 'includedIngredients',
+              label: 'Ingredients',
+              type: 'array',
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'label',
+                      label: 'Label',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'description',
+                      label: 'Description',
+                      type: 'textarea',
+                      localized: true,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'includedFooter',
+              label: 'Footer',
+              type: 'text',
+              localized: true,
+            },
           ],
         },
         {
-          label: 'Sezione 4',
+          label: 'Prod. FAQ',
           fields: [
             {
               name: 'faqSectionTitle',
@@ -752,6 +871,7 @@ export const Products: CollectionConfig = {
               name: 'faqMedia',
               type: 'relationship',
               relationTo: 'media',
+              filterOptions: productGalleryMediaFilterOptions,
             },
             {
               type: 'row',

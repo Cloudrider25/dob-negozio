@@ -813,7 +813,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     <div className={styles.page}>
       <section className={styles.form}>
         <div className={styles.brand}>
-          <p className={`${styles.brandTitle} typo-display-upper`}>dob</p>
+          <p className={`${styles.brandTitle} dob-font typo-display-upper`}>dob</p>
           <div className={`${styles.steps} typo-caption-upper`}>
             <span className={styles.stepItem}>{copy.stepper.cart}</span>
             <span className={styles.stepSeparator}>›</span>

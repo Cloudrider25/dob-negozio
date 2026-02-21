@@ -19,7 +19,7 @@
   .ui-split-column {
     background: var(--bg);
     border-radius: 12px;
-    min-height: 620px;
+    min-height: 720px;
   }
 
 }
@@ -32,6 +32,16 @@
 
   .ui-split-column {
     min-height: 0;
+  }
+
+  .ui-split-mobile-first {
+    order: -1;
+  }
+}
+
+@media (min-width: 1025px) {
+  .ui-split-mobile-first {
+    order: 0;
   }
 }
 
@@ -85,7 +95,7 @@ main [data-theme="dark"]{
 }
 
 body.checkout-site main {
-  background: linear-gradient(to right, var(--paper) 0 50%, var(--bg) 50% 100%);
+  background: var(--pearl-1);
   row-gap: 0;
   min-height: 100dvh;
 }

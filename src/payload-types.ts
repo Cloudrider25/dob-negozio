@@ -330,9 +330,18 @@ export interface Product {
   videoUpload?: (number | null) | Media;
   videoPoster?: (number | null) | Media;
   /**
+   * Seleziona un media già presente in cover/gallery del prodotto.
+   */
+  specsMedia?: (number | null) | Media;
+  specsGoodFor?: string | null;
+  specsFeelsLike?: string | null;
+  specsSmellsLike?: string | null;
+  specsFYI?: string | null;
+  /**
    * Seleziona un media dalla gallery del prodotto.
    */
   includedMedia?: (number | null) | Media;
+  includedLabel?: string | null;
   includedDescription?: {
     root: {
       type: string;
@@ -348,6 +357,15 @@ export interface Product {
     };
     [k: string]: unknown;
   } | null;
+  includedIngredientsLabel?: string | null;
+  includedIngredients?:
+    | {
+        label?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  includedFooter?: string | null;
   faqMedia?: (number | null) | Media;
   faqTitle?: string | null;
   faqSubtitle?: string | null;
@@ -1820,8 +1838,23 @@ export interface ProductsSelect<T extends boolean = true> {
   videoEmbedUrl?: T;
   videoUpload?: T;
   videoPoster?: T;
+  specsMedia?: T;
+  specsGoodFor?: T;
+  specsFeelsLike?: T;
+  specsSmellsLike?: T;
+  specsFYI?: T;
   includedMedia?: T;
+  includedLabel?: T;
   includedDescription?: T;
+  includedIngredientsLabel?: T;
+  includedIngredients?:
+    | T
+    | {
+        label?: T;
+        description?: T;
+        id?: T;
+      };
+  includedFooter?: T;
   faqMedia?: T;
   faqTitle?: T;
   faqSubtitle?: T;

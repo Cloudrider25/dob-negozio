@@ -30,62 +30,35 @@ export type TreatmentRevealPanelContent = {
 
 type PanelProps = {
   content: TreatmentRevealPanelContent
-  onRailClick: (event: MouseEvent<HTMLButtonElement>) => void
 }
 
-function Panel({ content, onRailClick }: PanelProps) {
+function Panel({ content }: PanelProps) {
   const copyContent = (
     <>
-      {!content.imageInCopy ? (
-        <SectionTitle as="h2" size="h2" className={styles.treatmentTitle}>
-          {content.title}
-        </SectionTitle>
+      <SectionTitle as="h1" size="h1" className={styles.treatmentTitle}>
+        {content.title}
+      </SectionTitle>
+      {typeof content.body === 'string' ? (
+        <SectionSubtitle className={styles.treatmentText}>{content.body}</SectionSubtitle>
+      ) : (
+        content.body
+      )}
+      {content.railBody && content.railBody.length > 0 ? (
+        <ul className={`${styles.treatmentRailList} typo-body`}>
+          {content.railBody.map((item, index) => (
+            <li key={`${item}-${index}`}>{item}</li>
+          ))}
+        </ul>
       ) : null}
-      {content.imageInCopy ? (
-        <SectionTitle
-          as="h2"
-          size="h2"
-          className={`${styles.treatmentTitle} ${styles.treatmentTitleMobile}`}
-        >
-          {content.title}
-        </SectionTitle>
-      ) : null}
-      {!content.imageInCopy ? (
-        <>
-          {typeof content.body === 'string' ? (
-            <SectionSubtitle className={styles.treatmentText}>{content.body}</SectionSubtitle>
-          ) : (
-            content.body
-          )}
-          {content.railBody && content.railBody.length > 0 ? (
-            <ul className={`${styles.treatmentRailList} typo-body`}>
-              {content.railBody.map((item, index) => (
-                <li key={`${item}-${index}`}>{item}</li>
-              ))}
-            </ul>
-          ) : null}
-        </>
-      ) : null}
-      {content.imageInCopy && content.imageUrl ? (
-        <div className={styles.treatmentCopyMedia}>
-          <Image
-            src={content.imageUrl}
-            alt={content.imageAlt || content.title}
-            width={220}
-            height={300}
-            sizes="(max-width: 768px) 60vw, 220px"
-            className={styles.treatmentDiagramThumbImage}
-            loading="lazy"
-            fetchPriority="auto"
-          />
-        </div>
-      ) : null}
-      {content.imageInCopy && content.copyDetails && content.copyDetails.length > 0 ? (
+      {content.copyDetails && content.copyDetails.length > 0 ? (
         <div className={styles.treatmentCopyDetails}>
           {content.copyDetails
             .filter((detail) => Boolean(detail.value))
             .map((detail, index) => (
               <div key={`${detail.label}-${index}`} className={styles.treatmentCopyDetailRow}>
+                <span className={`${styles.treatmentCopyDetailLabel} typo-caption-upper`}>
+                  {detail.label}
+                </span>
                 <span className={`${styles.treatmentCopyDetailValue} typo-body`}>
                   {detail.value}
                 </span>
@@ -97,14 +70,12 @@ function Panel({ content, onRailClick }: PanelProps) {
   )
 
   return (
-    <div className={styles.treatmentPanel}>
+    <article className={styles.treatmentPanel}>
       <div
         className={`${styles.treatmentGrid} ${content.fullWidth ? styles.treatmentGridFull : ''}`}
       >
         <div
-          className={`${styles.treatmentCopy} ${content.fullWidth ? styles.treatmentCopyFull : ''} ${
-            content.imageInCopy ? styles.treatmentCopyStretch : ''
-          }`}
+          className={`${styles.treatmentCopy} ${content.fullWidth ? styles.treatmentCopyFull : ''}`}
         >
           {content.href ? (
             <Link
@@ -119,7 +90,8 @@ function Panel({ content, onRailClick }: PanelProps) {
           )}
           {content.mediaBody ? (
             <div className={styles.treatmentInlineMedia}>{content.mediaBody}</div>
-          ) : content.imageUrl && !content.imageInCopy ? (
+          ) : null}
+          {!content.mediaBody && content.imageUrl ? (
             <div className={styles.treatmentInlineMedia}>
               <Image
                 src={content.imageUrl}
@@ -135,35 +107,7 @@ function Panel({ content, onRailClick }: PanelProps) {
           ) : null}
         </div>
       </div>
-      <button
-        type="button"
-        className={styles.treatmentRailButton}
-        onClick={onRailClick}
-        aria-label={content.railAriaLabel || 'Show alternative treatments'}
-      >
-        <div className={styles.treatmentRail}>
-          {content.rail.map((item, index) => {
-            const isFirst = index === 0
-            const isLast = index === content.rail.length - 1
-            const railClass = isFirst
-              ? styles.treatmentRailTop
-              : isLast
-                ? styles.treatmentRailBottom
-                : styles.treatmentRailCenter
-            return (
-              <span
-                key={`${item}-${index}`}
-                className={`${styles.treatmentRailText} ${railClass} ${
-                  isLast ? 'typo-small-upper' : 'typo-body-lg-upper'
-                }`}
-              >
-                {item}
-              </span>
-            )
-          })}
-        </div>
-      </button>
-    </div>
+    </article>
   )
 }
 
@@ -174,6 +118,9 @@ export type TreatmentRevealBaseProps = {
 
 export function TreatmentRevealBase({ primary, secondary }: TreatmentRevealBaseProps) {
   const [isRevealed, setIsRevealed] = useState(false)
+  const activeRail = isRevealed ? secondary.rail : primary.rail
+  const railAriaLabel =
+    (isRevealed ? secondary.railAriaLabel : primary.railAriaLabel) || 'Show alternative treatments'
 
   const handleRailClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
@@ -183,18 +130,42 @@ export function TreatmentRevealBase({ primary, secondary }: TreatmentRevealBaseP
   return (
     <section className={styles.treatmentSection} aria-label={`${primary.title} options`}>
       <div className={styles.treatmentCard}>
-        <div className={styles.treatmentRotateFrame}>
-          <div className={styles.treatmentRotateContent}>
-            <div className={styles.treatmentViewport}>
-              <div
-                className={`${styles.treatmentSlider} ${isRevealed ? styles.treatmentSliderActive : ''}`}
-              >
-                <Panel content={{ ...primary, imageInCopy: true }} onRailClick={handleRailClick} />
-                <Panel content={secondary} onRailClick={handleRailClick} />
-              </div>
-            </div>
+        <div className={styles.treatmentViewport}>
+          <div
+            className={`${styles.treatmentSlider} ${isRevealed ? styles.treatmentSliderActive : ''}`}
+          >
+            <Panel content={primary} />
+            <Panel content={secondary} />
           </div>
         </div>
+        <button
+          type="button"
+          className={styles.treatmentRailButton}
+          onClick={handleRailClick}
+          aria-label={railAriaLabel}
+        >
+          <div className={styles.treatmentRail}>
+            {activeRail.map((item, index) => {
+              const isFirst = index === 0
+              const isLast = index === activeRail.length - 1
+              const railClass = isFirst
+                ? styles.treatmentRailTop
+                : isLast
+                  ? styles.treatmentRailBottom
+                  : styles.treatmentRailCenter
+              return (
+                <span
+                  key={`${item}-${index}`}
+                  className={`${styles.treatmentRailText} ${railClass} ${
+                    isLast ? 'typo-small-upper' : 'typo-body-lg-upper'
+                  }`}
+                >
+                  {item}
+                </span>
+              )
+            })}
+          </div>
+        </button>
       </div>
     </section>
   )

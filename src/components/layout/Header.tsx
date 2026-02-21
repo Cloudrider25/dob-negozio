@@ -108,7 +108,7 @@ export const Header = ({
                 priority
               />
             </span>
-            <h1 className={`${styles.brandTitle} typo-display-upper`}>DOB</h1>
+            <h1 className={`${styles.brandTitle} dob-font typo-display-upper`}>DOB</h1>
             <span className="sr-only">{t.brand}</span>
           </Link>
         </div>

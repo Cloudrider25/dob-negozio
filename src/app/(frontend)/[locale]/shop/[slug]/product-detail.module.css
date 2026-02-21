@@ -2,19 +2,29 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  --section-space: 2.5rem;
+  gap: var(--section-space);
   --header-height: 140px;
   --split-gap: 2.5rem;
 }
 
 .page > section:first-of-type {
-  margin-top: 1rem;
+  margin-top: 0;
+}
+
+.page > section:last-of-type {
+  margin-bottom: var(--section-space);
+}
+
+.page :global(.ui-split-section) {
+  margin-top: 0;
 }
 
 .hero {
   align-items: start;
   border-radius: 0;
   overflow: visible;
+  margin-top: 0 !important;
 }
 
 .hero :global(.ui-split-column) {
@@ -85,10 +95,6 @@
   align-items: center;
   gap: 6px;
   z-index: 2;
-}
-
-.mobileMediaFirst {
-  order: -1;
 }
 
 .heroProgressStep {
@@ -350,6 +356,7 @@
   min-height: 0;
   height: auto;
   overflow: visible;
+  margin-top: 0.9rem;
 }
 
 .insideMedia {
@@ -362,6 +369,13 @@
 
 .insideImage {
   object-fit: cover;
+}
+
+.insideZoomLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .insidePlaceholder {
@@ -382,17 +396,33 @@
   position: relative;
   height: 100%;
   max-height: 100%;
-  min-height: 0;
+  min-height: 565px;
   justify-content: flex-start;
   text-align: left;
-  overflow: auto;
-  overscroll-behavior: contain;
+  overflow: visible;
 }
 
 .insideLabel {
-  position: static;
-  writing-mode: horizontal-tb;
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  writing-mode: vertical-rl;
   color: var(--text-secondary);
+  z-index: 2;
+}
+
+.insideLabelMobile {
+  display: block;
+  color: var(--obsidian);
+  top: 0%;
+  transform: translateY(18%);
+  font-size: var(--type-h1-size);
+  line-height: var(--type-h2-line);
+  letter-spacing: var(--type-h2-track);
+}
+
+.insideLabelDesktop {
+  display: none;
 }
 
 .insideLead {
@@ -400,18 +430,94 @@
   color: var(--text-secondary);
 }
 
-.insideRich {
+.insideIngredientsLabel {
+  margin: 0.4rem 0 0;
   color: var(--text-secondary);
 }
 
-.insideRich :global(p) {
-  margin: 0 0 0.8rem;
+.insideIngredientsList {
+  display: flex;
+  flex-direction: column;
 }
 
-.insideRich :global(ul),
-.insideRich :global(ol) {
-  margin: 0 0 0.8rem;
-  padding-left: 1.2rem;
+.insideIngredientItem {
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--stroke);
+}
+
+.insideIngredientItem:first-child {
+  border-top: 0;
+  padding-top: 0.4rem;
+}
+
+.insideIngredientTitle {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.insideIngredientDescription {
+  margin: 0.45rem 0 0;
+  color: var(--text-secondary);
+}
+
+.insideFooter {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+}
+
+.insideFooter strong {
+  color: var(--text-primary);
+}
+
+.insideCta {
+  margin-top: 0.4rem;
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: transparent;
+  color: var(--text-primary);
+  padding: 0.75rem 1.1rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.insideMediaCta {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 3;
+}
+
+.insideCtaDesktop {
+  display: none;
+}
+
+.insideCtaMobile {
+  display: inline-flex;
+}
+
+.insideCloseButton {
+  position: absolute;
+  top: 1.8rem;
+  right: 1.8rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: transparent;
+  padding: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.insideIncludeLabel {
+  margin: 0.2rem 0 0;
+  color: var(--text-primary);
 }
 
 .faqSection {
@@ -420,15 +526,18 @@
 
 .faqCopy {
   background: var(--bg);
-  border-radius: 12px;
+  border-radius: 0 0 12px 12px;
   border: 1px solid var(--stroke);
   padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 1.2rem;
   min-height: 0;
 
 }
+
+
 
 .faqTitle {
   margin: 0;
@@ -440,66 +549,9 @@
   color: var(--text-secondary);
 }
 
-.faqList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  margin-top: 0.6rem;
-}
-
-.faqItem {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.35rem;
-  justify-content: space-between;
-  border: 0;
-  background: none;
-  padding: 0.9rem 0;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--stroke);
-  cursor: pointer;
-  text-align: left;
-}
-
-.faqTrigger {
-  border: 0;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-}
-
-.faqQuestionRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  font-weight: 600;
-}
-
-.faqAnswer {
-  color: var(--text-secondary);
-}
-
-.faqAnswer :global(p) {
-  margin: 0 0 0.5rem;
-}
-
-.faqIcon {
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  border: 1px solid var(--stroke);
-  display: grid;
-  place-items: center;
-  color: var(--text-secondary);
-}
-
 .faqMedia {
   position: relative;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   overflow: hidden;
   min-height: 360px;
   background: var(--sand);
@@ -510,6 +562,13 @@
   object-fit: cover;
 }
 
+.faqZoomLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .faqPlaceholder {
   width: 100%;
   height: 100%;
@@ -518,7 +577,6 @@
 
 .treatmentText {
   margin: 0;
-  color: var(--text-secondary);
 }
 
 .treatmentCarousel {
@@ -527,151 +585,17 @@
   max-width: 480px;
   margin-left: auto;
   transform: none;
+
 }
 
-.altCarouselCard {
-  height: 580px !important;
+.treatmentCarousel .altCarouselCard {
+  height: 580px;
 }
 
 .altCarouselMedia {
   object-fit: cover;
 }
 
-@media (min-width: 1025px) {
-  .page > section:first-of-type {
-    margin-top: 2.5vw;
-  }
-
-  .mobileMediaFirst {
-    order: 0;
-  }
-
-  .hero {
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .hero :global(.ui-split-column) {
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .hero :global(.ui-split-column:last-child) {
-    border-radius: 12px;
-  }
-
-  .heroMedia {
-    border-radius: 22px;
-    overflow: hidden;
-    min-height: 500px;
-    height: 500px;
-  }
-
-  .heroPanel {
-    border-radius: 22px;
-    padding: 2.5rem 2.6rem;
-  }
-
-  .crossSellRow {
-    align-items: center;
-    justify-content: space-between;
-    flex-direction: row;
-  }
-
-  .lineupButton {
-    width: auto;
-  }
-
-  .titleRow {
-    margin-top: 0;
-  }
-
-  .description {
-    margin-top: 0;
-  }
-
-  .thumbs {
-    position: absolute;
-    left: 16px;
-    bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 2;
-  }
-
-  .heroProgressLine {
-    position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 10px;
-    margin: 0;
-    display: none;
-  }
-
-  .heroMedia,
-  .heroPanel {
-    height: calc(100dvh - var(--header-height));
-  }
-
-  .videoWrap {
-    height: calc(100dvh - var(--header-height));
-  }
-
-  .insideLabel {
-    position: absolute;
-    left: 1rem;
-    top: 2.2rem;
-    writing-mode: vertical-rl;
-  }
-
-  .insideContent {
-    border-radius: 18px;
-    padding: 2.2rem 3.2rem 2.2rem calc(2.4rem + 54px);
-    justify-content: flex-end;
-    padding-left: calc(2.4rem + 54px);
-  }
-
-  .insideColumn {
-    height: 640px;
-    overflow: hidden;
-  }
-
-  .insideMedia {
-    border-radius: 18px;
-    min-height: 640px;
-  }
-
-  .faqCopy {
-    border-radius: 18px;
-    padding: 2.2rem 2.4rem;
-    min-height: 640px;
-  }
-
-  .faqMedia {
-    border-radius: 18px;
-    min-height: 640px;
-  }
-
-  .lineCopy {
-    border-radius: 18px;
-    padding: 2.2rem 2.6rem;
-    min-height: 640px;
-  }
-
-  .lineMedia {
-    border-radius: 18px;
-    min-height: 640px;
-  }
-
-  .treatmentCarousel {
-    transform: translateX(-160px);
-  }
-
-  .lineRow {
-    grid-template-columns: 140px minmax(0, 1fr);
-  }
-}
 .videoSection {
   width: 100%;
   margin-left: 0;
@@ -751,7 +675,7 @@
 
 .lineCopy {
   background: var(--paper);
-  border-radius: 12px;
+  border-radius: 0 0 12px 12px;
   border: 1px solid var(--stroke);
   padding: 1.25rem 1rem;
   display: flex;
@@ -761,7 +685,7 @@
 }
 
 .lineTitle {
-  margin: 0;
+  margin: 1rem 0 0 ;
   color: var(--text-primary);
   display: flex;
   flex-wrap: wrap;
@@ -782,9 +706,14 @@
 .lineRow {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.8rem;
+  gap: 1.2rem;
   padding-top: 0.6rem;
   border-top: 1px solid var(--stroke);
+}
+
+.lineRow:first-child {
+  border-top: 0;
+  padding-top: 0;
 }
 
 .lineLabel {
@@ -798,7 +727,7 @@
 
 .lineMedia {
   position: relative;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   overflow: hidden;
   min-height: 360px;
   background: var(--sand);
@@ -812,4 +741,178 @@
   width: 100%;
   height: 100%;
   background: var(--sand);
+}
+
+.moreProductsSection {
+  width: 100%;
+  margin-top: 0;
+}
+
+@media (min-width: 1025px) {
+  .hero {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .hero :global(.ui-split-column) {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .hero :global(.ui-split-column:last-child) {
+    border-radius: 12px;
+  }
+
+  .heroMedia {
+    border-radius: 22px;
+    overflow: hidden;
+    min-height: 500px;
+    height: 500px;
+  }
+
+  .heroPanel {
+    border-radius: 22px;
+    padding: 2.5rem 2.6rem;
+  }
+
+  .crossSellRow {
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  .lineupButton {
+    width: auto;
+  }
+
+  .titleRow {
+    margin-top: 0;
+  }
+
+  .description {
+    margin-top: 0;
+  }
+
+  .thumbs {
+    position: absolute;
+    left: 16px;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 2;
+  }
+
+  .heroProgressLine {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 10px;
+    margin: 0;
+    display: none;
+  }
+
+  .heroMedia,
+  .heroPanel {
+    height: calc(100dvh - var(--header-height));
+  }
+
+  .videoWrap {
+    height: calc(100dvh - var(--header-height));
+  }
+
+  .insideLabel {
+    position: absolute;
+    left: 1rem;
+    top: 2.2rem;
+    writing-mode: vertical-rl;
+  }
+
+  .insideLabelMobile {
+    display: none;
+  }
+
+  .insideLabelDesktop {
+    display: block;
+  }
+
+  .insideCtaDesktop {
+    display: inline-flex;
+    width: auto;
+  }
+
+  .insideCtaMobile {
+    display: none;
+  }
+
+  .insideContent {
+    border-radius: 18px;
+    padding: 2.2rem 3.2rem 2.2rem calc(2.4rem + 54px);
+    justify-content: flex-end;
+    padding-left: calc(8.4rem + 54px);
+  }
+
+  .insideContentExpanded {
+    padding-left: calc((8.4rem + 54px) - 5vw);
+  }
+
+  .insideColumn {
+    height: 720px;
+    overflow: hidden;
+    margin-top:0;
+  }
+
+  .insideMedia {
+    border-radius: 18px;
+    min-height: 720px;
+  }
+
+  .faqCopy {
+    border-radius: 18px;
+    padding: 2.2rem 2.4rem;
+    min-height: 720px;
+    margin-top: 0;
+  }
+
+  .faqMedia {
+    border-radius: 18px;
+    min-height: 720px;
+  }
+
+  .lineSection :global(.ui-split-column) {
+    display: flex;
+    min-height: 720px;
+  }
+
+  .lineSection .lineCopy {
+    border-radius: 18px;
+    padding: 2.8rem 3rem;
+    min-height: inherit;
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  .lineSection .lineMedia {
+    border-radius: 18px;
+    min-height: inherit;
+    height: 100%;
+    width: 100%;
+  }
+
+  .treatmentCarousel {
+    transform: translateX(-160px);
+  }
+
+  .lineRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .lineTitle {
+    font-size: var(--type-h3-size);
+    line-height: var(--type-h3-line);
+    letter-spacing: var(--type-h3-track);
+  }
+
 }

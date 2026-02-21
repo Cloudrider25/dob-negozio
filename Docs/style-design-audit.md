@@ -1,6 +1,6 @@
 # Style & Design Audit (Active)
 
-Ultimo aggiornamento: 2026-02-19  
+Ultimo aggiornamento: 2026-02-20  
 Owner: Team DOB Milano
 
 ## Obiettivo
@@ -87,6 +87,84 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
 - Ogni blocco chiuso viene registrato in `Log blocchi chiusi` qui sotto (data, scope, decisione, file toccati, verifica).
 
 ## Log blocchi chiusi
+
+- 2026-02-20 | Blocco CSS-045 (`Product Detail` spacing final tuning before footer)
+  - Scope: `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`.
+  - Decisione: eliminare gli accumuli di spacing tra ultima sezione e footer, mantenendo un respiro minimo controllato.
+  - Implementazione:
+  - rimosso `padding-bottom` dalla `.page` locale;
+  - aggiunto tuning finale: `.page > section:last-of-type { margin-bottom: 1rem; }`;
+  - mantenuta neutralizzazione del `margin-top` globale sulle split (`.page :global(.ui-split-section) { margin-top: 0; }`).
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+
+- 2026-02-20 | Blocco CSS-044 (`Header` top bar collapse on scroll)
+  - Scope: `src/components/layout/HeaderThemeObserver.tsx`, `src/components/layout/Header.module.css`.
+  - Decisione: nascondere solo la top bar in scroll down (non l’intero header), con riapertura al ritorno in cima.
+  - Implementazione:
+  - introdotta classe body `topbar-collapsed` basata su `scrollY > 12`;
+  - rimosso il precedente comportamento che traslava l’intero `.shell`;
+  - applicato collapse animato solo su `.topBar` (`max-height`, `padding`, `opacity`).
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+
+- 2026-02-20 | Blocco CSS-043 (`Product Detail` final carousel section spacing hook)
+  - Scope: `src/app/(frontend)/[locale]/shop/[slug]/page.tsx`, `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`.
+  - Decisione: introdurre un hook CSS locale dedicato alla sezione finale `moreProducts` per gestire spacing responsive senza impattare il componente shared `UICCarousel`.
+  - Implementazione:
+  - aggiunta `className={styles.moreProductsSection}` sul `<section>` finale che renderizza `UICCarousel`;
+  - aggiunta classe `.moreProductsSection` mobile-first (`margin-top: 0.5rem`) con override desktop (`1rem`).
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+
+- 2026-02-20 | Blocco CSS-042 (`ProductTreatmentReveal` slide 1 brandLine data-only + mobile media size)
+  - Scope: `src/app/(frontend)/[locale]/shop/[slug]/page.tsx`, `src/components/shared/TreatmentRevealBase.tsx`, `src/components/shared/TreatmentRevealBase.module.css`.
+  - Decisione: separare semanticamente `ProductTreatmentReveal` da `Prod. Specs` e renderizzare in slide 1 solo i campi `brandLine` richiesti.
+  - Implementazione:
+  - slide 1 `copyDetails` mappata a soli campi brandline: `Description`, `Modo d'uso`, `Principi attivi`, `Risultati`;
+  - rimossi contenuti duplicati in slide 1 (`body` e `railBody`) per evitare ripetizioni nel frontend;
+  - in `TreatmentRevealBase` aggiunto rendering esplicito della label per ogni detail row;
+  - ridotta dimensione del media slide 1 solo mobile (`@media (max-width: 1024px)`), mantenendo desktop invariato.
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+
+- 2026-02-20 | Blocco CSS-041 (`FAQ accordion` shared component + deduplica shop/service)
+  - Scope: `src/components/ui/FaqAccordion.tsx`, `src/components/ui/FaqAccordion.module.css`, `src/app/(frontend)/[locale]/shop/[slug]/page.tsx`, `src/app/(frontend)/[locale]/services/service/[slug]/page.tsx`, `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`, `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css`.
+  - Decisione: usare un unico componente shared per FAQ con CSS module mobile-first, eliminando doppioni locali.
+  - Implementazione:
+  - creato `FaqAccordion` shared in `components/ui` con stato open robusto basato su id indice (`faq-0`, `faq-1`, ...);
+  - migrati i consumer shop+service al nuovo componente;
+  - rimossi i componenti locali duplicati (`ProductFaqAccordion.tsx`, `services/.../FaqAccordion.tsx`);
+  - rimosse classi FAQ duplicate dai CSS locali di product/service detail.
+  - Verifica: `pnpm -s generate:importmap` ok; `pnpm -s tsc --noEmit` ok.
+
+- 2026-02-20 | Blocco CMS-012 (`Products` media filter allineato tra Specs/Include/FAQ)
+  - Scope: `src/collections/Products.ts`, `src/payload-types.ts`.
+  - Decisione: allineare `Faq Media` e `Included Media` alla stessa query di `Specs Media` (solo media del prodotto corrente).
+  - Implementazione:
+  - estratta funzione shared `productGalleryMediaFilterOptions` (cover + gallery);
+  - applicata a `specsMedia`, `includedMedia`, `faqMedia`.
+  - Verifica: `pnpm -s generate:types` ok; `pnpm -s tsc --noEmit` ok.
+
+- 2026-02-20 | Blocco CSS-040 (`Product Detail` inside section CTA/open-view refinement)
+  - Scope: `src/app/(frontend)/[locale]/shop/[slug]/ProductInsideSection.tsx`, `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`.
+  - Decisione: consolidare il comportamento del pannello "open after CTA" mantenendo componenti shared per i bottoni e rifinendo solo spacing/controls.
+  - Implementazione:
+  - CTA mobile convertita a `Button` shared con `kind="card"` (allineata alla CTA desktop già shared);
+  - vista aperta desktop: ridotto `padding-left` di `5vw` (`.insideContentExpanded`) per migliorare bilanciamento del contenuto;
+  - close control (`.insideCloseButton`) reso circolare reale con dimensioni fisse e centratura icona.
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+
+- 2026-02-20 | Blocco CSS-024 (`Product Detail` specs data-flow + SplitSection mobile-order sitewide + desktop cascade cleanup)
+  - Scope: `src/collections/Products.ts`, `src/app/(frontend)/[locale]/shop/[slug]/page.tsx`, `src/components/ui/SplitSection.tsx`, `src/styles/globals.css`, `src/app/(frontend)/[locale]/shop/[slug]/product-detail.module.css`.
+  - Decisione:
+  - introdurre tab CMS dedicato `Prod. Specs` come nuova sorgente primaria dati del blocco specs in Product Detail;
+  - centralizzare l’ordinamento mobile delle split section nel componente shared `SplitSection` (sitewide), eliminando classi locali ad-hoc;
+  - consolidare la cascade desktop del modulo Product Detail (un solo `@media (min-width: 1025px)`), riducendo override impliciti.
+  - Implementazione:
+  - `Products` collection: nuovo tab `Prod. Specs` con campi `specsMedia`, `specsGoodFor`, `specsFeelsLike`, `specsSmellsLike`, `specsFYI`; `specsMedia` filtrato a media già presenti in `coverImage`/`images` del prodotto;
+  - Product Detail page: mapping line section e treatment copy details ai nuovi campi specs; media prioritaria da `specsMedia` con fallback ai flussi esistenti;
+  - `SplitSection`: nuova prop `mobileOrder` (`default | left-first | right-first`) con class helper globale `.ui-split-mobile-first` in `globals.css`;
+  - Product Detail: rimozione `mobileMediaFirst` locale e migrazione a `mobileOrder=\"right-first\"` dove richiesto;
+  - CSS cleanup: unificazione desktop media query, fix cascade per radius desktop line panel/media, mantenimento unione visuale media+panel in mobile.
+  - Verifica: `pnpm -s generate:types` ok; `pnpm -s tsc --noEmit` ok.
+  - Nota finale (stesso blocco): risolto regression di cascade desktop in `product-detail.module.css` spostando l’unico `@media (min-width: 1025px)` in fondo al file (mobile-first reale). Ripristinate correttamente le regole desktop perse/sovrascritte (radius, layout row, sizing panel/media).
 
 - 2026-02-18 | Metodo operativo deduplica CSS attivato
   - Scope: workflow decisionale `module/global/component/tailwind` con inclusione inline styles

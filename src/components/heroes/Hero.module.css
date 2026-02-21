@@ -13,7 +13,7 @@
 
 @media screen and (min-width: 760px) {
   .hero {
-    height: calc(90vh - 5rem);
+    height: calc(80vh - 5rem);
     max-height: calc(90vh - 4.5vw);
   }
 }

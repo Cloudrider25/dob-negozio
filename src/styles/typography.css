@@ -8,7 +8,7 @@
 }
 
 :root {
-  --font-display: 'DOB Display', 'Times New Roman', serif;
+  --font-display: var(--font-work, 'Work Sans'), 'Helvetica Neue', Arial, sans-serif;
   --font-body: var(--font-instrument), 'Helvetica Neue', Arial, sans-serif;
   --dob-letter-spacing: 0.2em;
 
@@ -27,13 +27,13 @@
   --type-h2-line: 1.14;
   --type-h3-line: 1.2;
   --type-body-lg-line: 1.5;
-  --type-body-line: 1.58;
+  --type-body-line: 1.3;
   --type-small-line: 1.5;
   --type-caption-line: 1.42;
 
   --type-display-track: 0.22em;
   --type-h1-track: 0.18em;
-  --type-h2-track: 0.14em;
+  --type-h2-track: 0.05em;
   --type-h3-track: 0.18em;
   --type-body-track: 0;
   --type-small-track: 0.04em;
@@ -41,7 +41,7 @@
 }
 
 .dob-font {
-  font-family: var(--font-display);
+  font-family: 'DOB Display', 'Times New Roman', serif;
   letter-spacing: var(--dob-letter-spacing);
 }
 

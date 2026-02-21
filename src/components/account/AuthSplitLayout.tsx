@@ -60,7 +60,7 @@ export async function AuthSplitLayout({ children, locale }: { children: ReactNod
                 priority
               />
             </span>
-            <p className={`${styles.brandTitle} typo-display-upper`}>DOB</p>
+            <p className={`${styles.brandTitle} dob-font typo-display-upper`}>DOB</p>
           </Link>
           <div className={styles.formWrap}>{children}</div>
         </section>

@@ -330,7 +330,7 @@
 }
 
 .paymentMethodRowActive {
-  background: var(--sand);
+  background: var(--pearl-1);
 }
 
 .radioDot {
@@ -420,7 +420,7 @@
   height: 56px;
   border-radius: 12px;
   overflow: visible;
-  background: var(--sand);
+  background: var(--pearl-1);
 }
 
 .summaryQtyBadge {
@@ -467,7 +467,7 @@
   border-radius: 10px;
   border: 1px solid var(--stroke);
   padding: 0.7rem 1rem;
-  background: var(--sand);
+  background: var(--pearl-1);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -503,7 +503,7 @@
   border: 1px solid var(--stroke);
   border-radius: 14px;
   padding: 0.9rem;
-  background: var(--sand);
+  background: var(--pearl-1);
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) auto;
   gap: 0.9rem;

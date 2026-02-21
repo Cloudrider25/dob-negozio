@@ -26,6 +26,13 @@
   text-align: center;
   padding: 0.5rem 5vw;
   border-radius: 12px 12px 0 0;
+  max-height: 44px;
+  overflow: hidden;
+  transition:
+    max-height 0.28s ease,
+    padding-top 0.28s ease,
+    padding-bottom 0.28s ease,
+    opacity 0.2s ease;
 }
 
 .menuTrigger {
@@ -123,6 +130,7 @@
 
 .brandTitle {
   margin: 0;
+  font-family: 'DOB Display', 'Times New Roman', serif;
 }
 
 .right {
@@ -519,6 +527,13 @@
   background: var(--bg);
   backdrop-filter: none;
   box-shadow: none;
+}
+
+:global(body.topbar-collapsed) .topBar {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
 }
 
 :global(body[data-theme="light"]) .header,

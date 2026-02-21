@@ -199,6 +199,12 @@
   font-weight: 600;
 }
 
+@media (min-width: 1025px) {
+  .right {
+    gap: 3rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .left,
   .right {

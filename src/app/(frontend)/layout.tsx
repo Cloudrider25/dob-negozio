@@ -1,5 +1,6 @@
 import React from 'react'
 import { Instrument_Sans } from 'next/font/google'
+import { Work_Sans } from 'next/font/google'
 import '../../styles/globals.css'
 import { ThemeHydrator } from '@/components/theme/ThemeHydrator'
 
@@ -8,6 +9,14 @@ const instrumentSans = Instrument_Sans({
   display: 'optional',
   preload: false,
   variable: '--font-instrument',
+  weight: ['400', '500', '600', '700'],
+})
+
+const workSans = Work_Sans({
+  subsets: ['latin'],
+  display: 'optional',
+  preload: false,
+  variable: '--font-work',
   weight: ['400', '500', '600', '700'],
 })
 
@@ -22,7 +31,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang="it">
-      <body className={`site ${instrumentSans.variable}`} data-theme="dark">
+      <body className={`site ${instrumentSans.variable} ${workSans.variable}`} data-theme="dark">
         <ThemeHydrator />
         <main>{children}</main>
       </body>

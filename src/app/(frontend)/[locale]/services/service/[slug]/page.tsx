@@ -9,7 +9,7 @@ import { UICCarousel } from '@/components/carousel/UIC_Carousel'
 import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatmentReveal'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import type { SerializedEditorState } from 'lexical'
-import { FaqAccordion } from './FaqAccordion'
+import { FaqAccordion } from '@/components/ui/FaqAccordion'
 import type { Treatment } from '@/payload-types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { Button } from '@/components/ui/button'
@@ -772,29 +772,27 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
               <SectionSubtitle className={styles.faqSubtitle}>
                 {service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
               </SectionSubtitle>
-              <div className={styles.faqList}>
-                {Array.isArray(service.faqItems) && service.faqItems.length ? (
-                  <FaqAccordion
-                    items={
-                      service.faqItems
-                        .map((item) => {
-                          const question = typeof item?.q === 'string' ? item.q : ''
-                          if (!question) return null
-                          const answerContent = renderRichText(item?.a)
-                          if (!answerContent) {
-                            return { question, answerHtml: '' }
-                          }
-                          const html =
-                            answerContent.type === 'html'
-                              ? answerContent.value
-                              : `<p>${escapeHtml(answerContent.value)}</p>`
-                          return { question, answerHtml: html }
-                        })
-                        .filter(Boolean) as Array<{ question: string; answerHtml: string }>
-                    }
-                  />
-                ) : null}
-              </div>
+              {Array.isArray(service.faqItems) && service.faqItems.length ? (
+                <FaqAccordion
+                  items={
+                    service.faqItems
+                      .map((item) => {
+                        const question = typeof item?.q === 'string' ? item.q : ''
+                        if (!question) return null
+                        const answerContent = renderRichText(item?.a)
+                        if (!answerContent) {
+                          return { question, answerHtml: '' }
+                        }
+                        const html =
+                          answerContent.type === 'html'
+                            ? answerContent.value
+                            : `<p>${escapeHtml(answerContent.value)}</p>`
+                        return { question, answerHtml: html }
+                      })
+                      .filter(Boolean) as Array<{ question: string; answerHtml: string }>
+                  }
+                />
+              ) : null}
             </div>
           }
           right={

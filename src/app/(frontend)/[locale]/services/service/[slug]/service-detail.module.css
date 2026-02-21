@@ -563,63 +563,6 @@
   color: var(--text-secondary);
 }
 
-.faqList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  margin-top: 0.6rem;
-}
-
-.faqItem {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.35rem;
-  justify-content: space-between;
-  border: 0;
-  background: none;
-  padding: 0.9rem 0;
-  color: var(--text-secondary);
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  cursor: pointer;
-  text-align: left;
-}
-
-.faqTrigger {
-  border: 0;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-}
-
-.faqQuestionRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  font-weight: 600;
-}
-
-.faqAnswer {
-  color: var(--text-secondary);
-}
-
-.faqAnswer :global(p) {
-  margin: 0 0 0.5rem;
-}
-
-.faqIcon {
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  display: grid;
-  place-items: center;
-  color: var(--text-secondary);
-}
-
 .faqMedia {
   position: relative;
   border-radius: 18px;

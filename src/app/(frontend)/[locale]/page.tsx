@@ -9,6 +9,7 @@ import { ProgramsSplitSection } from '@/components/sections/ProgramsSplitSection
 import { ProtocolSplit, type ProtocolSplitStep } from '@/components/sections/ProtocolSplit'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
+import styles from './home.module.css'
 
 export default async function HomePage({
   params,
@@ -361,7 +362,7 @@ export default async function HomePage({
     : null
 
   return (
-    <div className="home-page flex flex-col gap-10">
+    <div className={styles.page}>
       {hasHero && (
         <Hero
           eyebrow={t.hero.eyebrow}

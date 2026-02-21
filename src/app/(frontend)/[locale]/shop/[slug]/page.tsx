@@ -9,14 +9,16 @@ import { getDictionary, isLocale } from '@/lib/i18n'
 import styles from './product-detail.module.css'
 import { AlternativeSelector } from './AlternativeSelector'
 import { ProductServiceAccordion } from './ProductServiceAccordion'
-import { ProductFaqAccordion } from './ProductFaqAccordion'
 import { ProductInlineVideo } from './ProductInlineVideo'
+import { ProductInsideSection } from './ProductInsideSection'
 import { ProductTreatmentReveal } from '@/components/shop/ProductTreatmentReveal'
+import { FaqAccordion } from '@/components/ui/FaqAccordion'
 import { UICCarousel } from '@/components/carousel/UIC_Carousel'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { ButtonLink } from '@/components/ui/button-link'
 import { SplitSection } from '@/components/ui/SplitSection'
 import { UIHeroGallery } from '@/components/ui/HeroGallery'
+import { ScrollZoomOnScroll } from '@/components/ui/ScrollZoomOnScroll'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
@@ -108,25 +110,13 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     return formatter.format(value)
   }
 
-  const renderRichText = (value: unknown) => {
-    if (!value) return null
-    if (typeof value === 'string') {
-      return { type: 'text', value }
+  const resolveRichTextHtml = (value: unknown): string | null => {
+    if (!value || typeof value !== 'object' || !('root' in value)) return null
+    try {
+      return convertLexicalToHTML({ data: value as SerializedEditorState }) || null
+    } catch {
+      return null
     }
-    if (typeof value === 'object') {
-      try {
-        const data =
-          value && typeof value === 'object' && 'root' in value
-            ? (value as SerializedEditorState)
-            : null
-        if (!data) return null
-        const html = convertLexicalToHTML({ data })
-        return html ? { type: 'html', value: html } : null
-      } catch {
-        return null
-      }
-    }
-    return null
   }
 
   const resolveText = (value: unknown) => {
@@ -271,48 +261,51 @@ export default async function ProductDetailPage({ params }: { params: PageParams
           return {
             key: String(alt?.id || `alt-${index}`),
             productId: relatedId || String(alt?.id || `alt-${index}`),
-          slug:
-            (typeof alt?.product === 'object' && alt.product && 'slug' in alt.product
-              ? (alt.product as { slug?: string | null }).slug
-              : null) || product.slug || '',
-          title:
-            (typeof alt?.product === 'object' && alt.product && 'title' in alt.product
-              ? (alt.product as { title?: string | null }).title
-              : null) || product.title || t.shop.title,
-          format:
-            alt?.format ||
-            (typeof alt?.product === 'object' && alt.product && 'format' in alt.product
-              ? (alt.product as { format?: string | null }).format
-              : '') ||
-            '',
-          isRefill:
-            alt?.isRefill === true ||
-            (typeof alt?.product === 'object' && alt.product && 'isRefill' in alt.product
-              ? (alt.product as { isRefill?: boolean | null }).isRefill === true
-              : false),
-          price:
-            typeof alt?.price === 'number'
-              ? alt.price
-              : typeof alt?.product === 'object' && alt.product && 'price' in alt.product
-                ? (alt.product as { price?: number | null }).price ?? null
+            slug:
+              (typeof alt?.product === 'object' && alt.product && 'slug' in alt.product
+                ? (alt.product as { slug?: string | null }).slug
+                : null) ||
+              product.slug ||
+              '',
+            title:
+              (typeof alt?.product === 'object' && alt.product && 'title' in alt.product
+                ? (alt.product as { title?: string | null }).title
+                : null) ||
+              product.title ||
+              t.shop.title,
+            format:
+              alt?.format ||
+              (typeof alt?.product === 'object' && alt.product && 'format' in alt.product
+                ? (alt.product as { format?: string | null }).format
+                : '') ||
+              '',
+            isRefill:
+              alt?.isRefill === true ||
+              (typeof alt?.product === 'object' && alt.product && 'isRefill' in alt.product
+                ? (alt.product as { isRefill?: boolean | null }).isRefill === true
+                : false),
+            price:
+              typeof alt?.price === 'number'
+                ? alt.price
+                : typeof alt?.product === 'object' && alt.product && 'price' in alt.product
+                  ? ((alt.product as { price?: number | null }).price ?? null)
+                  : null,
+            currency: 'EUR',
+            coverImage:
+              typeof alt?.product === 'object' && alt.product && 'coverImage' in alt.product
+                ? resolveProductMedia(
+                    (alt.product as { coverImage?: unknown }).coverImage,
+                    (alt.product as { title?: string | null }).title || product.title || '',
+                  )?.url || null
                 : null,
-          currency: 'EUR',
-          coverImage:
-            typeof alt?.product === 'object' && alt.product && 'coverImage' in alt.product
-              ? resolveProductMedia(
-                  (alt.product as { coverImage?: unknown }).coverImage,
-                  (alt.product as { title?: string | null }).title || product.title || '',
-                )?.url || null
-              : null,
-          brand:
-            resolveBrandLabel(
+            brand: resolveBrandLabel(
               typeof alt?.product === 'object' && alt.product && 'brand' in alt.product
                 ? (alt.product as { brand?: typeof product.brand }).brand
                 : null,
             ),
-          isCurrent: false,
-        }
-      })
+            isCurrent: false,
+          }
+        })
       : []),
   ]
     .filter((doc) => {
@@ -389,7 +382,18 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   const includedResolved = includedMediaDoc
     ? resolveMedia(includedMediaDoc, product.title || '')
     : null
-  const includedContent = renderRichText(product.includedDescription)
+  const includedDescriptionHtml = resolveRichTextHtml(product.includedDescription)
+  const includedCtaLabel = resolveText(product.includedLabel)
+  const includedIngredientsLabel = resolveText(product.includedIngredientsLabel)
+  const includedFooter = resolveText(product.includedFooter)
+  const includedIngredientsItems = Array.isArray(product.includedIngredients)
+    ? product.includedIngredients
+        .map((item) => ({
+          label: resolveText(item?.label) || '',
+          description: resolveText(item?.description) || '',
+        }))
+        .filter((item) => item.label || item.description)
+    : []
 
   const faqMediaDoc = await resolveMediaFromId(product.faqMedia)
   const faqResolved = faqMediaDoc ? resolveMedia(faqMediaDoc, product.title || '') : null
@@ -398,45 +402,53 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   const usageText = resolveText(product.usage)
   const ingredientsText = resolveText(product.activeIngredients)
   const resultsText = resolveText(product.results)
+  const specsGoodForText = resolveText(product.specsGoodFor)
+  const specsFeelsLikeText = resolveText(product.specsFeelsLike)
+  const specsSmellsLikeText = resolveText(product.specsSmellsLike)
+  const specsFYIText = resolveText(product.specsFYI)
   const faqTitleText = resolveText(product.faqTitle)
   const faqSubtitleText = resolveText(product.faqSubtitle)
   const brandLineName =
-    resolveText(brandLineDoc?.name) || resolveBrandLabel(product.brand) || copy.treatment.primaryTitleFallback
+    resolveText(brandLineDoc?.name) ||
+    resolveBrandLabel(product.brand) ||
+    copy.treatment.primaryTitleFallback
   const brandLineHeadlineText = resolveText(brandLineDoc?.lineHeadline)
   const brandLineDescriptionText = resolveText(brandLineDoc?.description)
   const brandLineUsageText = resolveText(brandLineDoc?.usage)
   const brandLineIngredientsText = resolveText(brandLineDoc?.activeIngredients)
   const brandLineResultsText = resolveText(brandLineDoc?.results)
+  const treatmentPrimaryTitle = resolveText(brandLineDoc?.name) || ''
+  const specsMediaDoc = await resolveMediaFromId(product.specsMedia)
+  const specsMediaResolved = specsMediaDoc ? resolveMedia(specsMediaDoc, product.title || '') : null
   const brandLineMediaDoc = await resolveMediaFromId(brandLineDoc?.brandLineMedia)
   const brandLineMediaResolved = brandLineMediaDoc
     ? resolveMedia(brandLineMediaDoc, brandLineName)
     : null
-  const resolvedLineMedia = brandLineMediaResolved
-  const brandLineRailBody = normalizeBullets(brandLineUsageText || usageText)
-  const brandLineRailIngredients = normalizeBullets(brandLineIngredientsText || ingredientsText)
-
+  const resolvedLineMedia = specsMediaResolved || brandLineMediaResolved
   const lineHeadline = brandLineHeadlineText || copy.lineHeadlineFallback
 
   const lineDetails = [
     {
       label: copy.lineDetails.goodFor,
-      value: brandLineResultsText || resultsText || copy.lineDetails.goodForFallback,
+      value:
+        specsGoodForText || brandLineResultsText || resultsText || copy.lineDetails.goodForFallback,
     },
     {
       label: copy.lineDetails.feelsLike,
-      value: brandLineDescriptionText || descriptionText || copy.lineDetails.feelsLikeFallback,
+      value:
+        specsFeelsLikeText ||
+        brandLineDescriptionText ||
+        descriptionText ||
+        copy.lineDetails.feelsLikeFallback,
     },
     {
       label: copy.lineDetails.smellsLike,
-      value: copy.lineDetails.smellsLikeFallback,
-    },
-    {
-      label: copy.lineDetails.award,
-      value: brandLineUsageText || usageText || copy.lineDetails.awardFallback,
+      value: specsSmellsLikeText || copy.lineDetails.smellsLikeFallback,
     },
     {
       label: copy.lineDetails.fyi,
-      value: brandLineIngredientsText || ingredientsText || copy.lineDetails.fyiFallback,
+      value:
+        specsFYIText || brandLineIngredientsText || ingredientsText || copy.lineDetails.fyiFallback,
     },
   ]
 
@@ -467,7 +479,9 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                 </span>
               </div>
 
-              <SectionSubtitle className={styles.description}>{descriptionText || ''}</SectionSubtitle>
+              <SectionSubtitle className={styles.description}>
+                {descriptionText || ''}
+              </SectionSubtitle>
             </div>
 
             <AlternativeSelector
@@ -520,9 +534,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   <ButtonLink
                     className={`${styles.lineupButton} typo-caption-upper`}
                     href={
-                      addOnProduct.slug
-                        ? `/${locale}/shop/${addOnProduct.slug}`
-                        : `/${locale}/shop`
+                      addOnProduct.slug ? `/${locale}/shop/${addOnProduct.slug}` : `/${locale}/shop`
                     }
                     kind="main"
                     size="sm"
@@ -633,7 +645,9 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   fetchPriority="auto"
                 />
               )}
-              <div className={`${styles.videoOverlay} typo-small-upper`}>{copy.videoPlaceholder}</div>
+              <div className={`${styles.videoOverlay} typo-small-upper`}>
+                {copy.videoPlaceholder}
+              </div>
             </div>
           )}
         </div>
@@ -641,10 +655,10 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
       <section className={styles.lineSection} aria-label={copy.aria.productLine}>
         <SplitSection
-          rightClassName={styles.mobileMediaFirst}
+          mobileOrder="right-first"
           left={
             <div className={styles.lineCopy}>
-              <SectionTitle as="h2" size="h1" className={styles.lineTitle}>
+              <SectionTitle as="h2" size="h2" className={styles.lineTitle}>
                 {lineHeadline.split(' ').map((word, index) => (
                   <span
                     key={`${word}-${index}`}
@@ -669,7 +683,9 @@ export default async function ProductDetailPage({ params }: { params: PageParams
               {resolvedLineMedia?.url || coverFallback?.url ? (
                 <Image
                   src={resolvedLineMedia?.url || coverFallback?.url || ''}
-                  alt={resolvedLineMedia?.alt || coverFallback?.alt || product.title || t.shop.title}
+                  alt={
+                    resolvedLineMedia?.alt || coverFallback?.alt || product.title || t.shop.title
+                  }
                   fill
                   className={styles.lineImage}
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -684,59 +700,21 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         />
       </section>
 
-      <section className={styles.insideSection} aria-label={copy.aria.whatsInside}>
-        <SplitSection
-          rightClassName={styles.insideColumn}
-          left={
-            <div className={styles.insideMedia}>
-              {includedResolved?.url || coverFallback?.url ? (
-                <Image
-                  src={includedResolved?.url || coverFallback?.url || ''}
-                  alt={includedResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
-                  fill
-                  className={styles.insideImage}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  loading="lazy"
-                  fetchPriority="auto"
-                />
-              ) : (
-                <div className={styles.insidePlaceholder} />
-              )}
-            </div>
-          }
-          right={
-            <div className={styles.insideContent}>
-              <SectionTitle as="div" size="h1" uppercase className={styles.insideLabel}>
-                {copy.whatsInside.title}
-              </SectionTitle>
-              {includedContent ? (
-                includedContent.type === 'html' ? (
-                  <div
-                    className={`${styles.insideRich} typo-body`}
-                    dangerouslySetInnerHTML={{ __html: includedContent.value }}
-                  />
-                ) : (
-                  <p className={`${styles.insideLead} typo-body`}>{includedContent.value}</p>
-                )
-              ) : ingredientsText ? (
-                <p className={`${styles.insideLead} typo-body`}>{ingredientsText}</p>
-              ) : descriptionText ? (
-                <p className={`${styles.insideLead} typo-body`}>{descriptionText}</p>
-              ) : (
-                <p className={`${styles.insideLead} typo-body`}>
-                  {product.title
-                    ? withProduct(copy.whatsInside.fallbackWithProduct, product.title)
-                    : copy.whatsInside.fallback}
-                </p>
-              )}
-            </div>
-          }
-        />
-      </section>
+      <ProductInsideSection
+        ariaLabel={copy.aria.whatsInside}
+        title={copy.whatsInside.title}
+        mediaUrl={includedResolved?.url || coverFallback?.url || null}
+        mediaAlt={includedResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
+        includedDescriptionHtml={includedDescriptionHtml}
+        includedIngredientsLabel={includedIngredientsLabel}
+        includedIngredientsItems={includedIngredientsItems}
+        includedFooter={includedFooter}
+        includedCtaLabel={includedCtaLabel}
+      />
 
       <section className={styles.faqSection} aria-label={copy.aria.faq}>
         <SplitSection
-          rightClassName={styles.mobileMediaFirst}
+          mobileOrder="right-first"
           left={
             <div className={styles.faqCopy}>
               <SectionTitle as="h2" size="h1" uppercase className={styles.faqTitle}>
@@ -748,49 +726,51 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                     ? withProduct(copy.faq.subtitleWithProduct, product.title)
                     : copy.faq.subtitleFallback)}
               </SectionSubtitle>
-              <div className={styles.faqList}>
-                {Array.isArray(product.faqItems) && product.faqItems.length ? (
-                  <ProductFaqAccordion
-                    items={
-                      product.faqItems
-                        .map((item) => {
-                          const question = resolveText(item?.q) || ''
-                          if (!question) return null
-                          const answer = resolveText(item?.a) || ''
-                          return {
-                            question,
-                            answerHtml: answer ? `<p>${escapeHtml(answer)}</p>` : '',
-                          }
-                        })
-                        .filter(Boolean) as Array<{ question: string; answerHtml: string }>
-                    }
-                  />
-                ) : (
-                  <ProductFaqAccordion
-                    items={copy.faq.fallbackItems.map((item, index) => ({
-                      question: item.question,
-                      answerHtml:
-                        index === 0 && usageText
-                          ? `<p>${escapeHtml(usageText)}</p>`
-                          : `<p>${escapeHtml(item.answer)}</p>`,
-                    }))}
-                  />
-                )}
-              </div>
+              {Array.isArray(product.faqItems) && product.faqItems.length ? (
+                <FaqAccordion
+                  items={
+                    product.faqItems
+                      .map((item) => {
+                        const question = resolveText(item?.q) || ''
+                        if (!question) return null
+                        const answer = resolveText(item?.a) || ''
+                        return {
+                          question,
+                          answerHtml: answer
+                            ? `<p>${escapeHtml(answer).replace(/\n/g, '<br />')}</p>`
+                            : '',
+                        }
+                      })
+                      .filter(Boolean) as Array<{ question: string; answerHtml: string }>
+                  }
+                />
+              ) : (
+                <FaqAccordion
+                  items={copy.faq.fallbackItems.map((item, index) => ({
+                    question: item.question,
+                    answerHtml:
+                      index === 0 && usageText
+                        ? `<p>${escapeHtml(usageText).replace(/\n/g, '<br />')}</p>`
+                        : `<p>${escapeHtml(item.answer).replace(/\n/g, '<br />')}</p>`,
+                  }))}
+                />
+              )}
             </div>
           }
           right={
             <div className={styles.faqMedia}>
               {faqResolved?.url || coverFallback?.url ? (
-                <Image
-                  src={faqResolved?.url || coverFallback?.url || ''}
-                  alt={faqResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
-                  fill
-                  className={styles.faqImage}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  loading="lazy"
-                  fetchPriority="auto"
-                />
+                <ScrollZoomOnScroll className={styles.faqZoomLayer}>
+                  <Image
+                    src={faqResolved?.url || coverFallback?.url || ''}
+                    alt={faqResolved?.alt || coverFallback?.alt || product.title || t.shop.title}
+                    fill
+                    className={styles.faqImage}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    loading="lazy"
+                    fetchPriority="auto"
+                  />
+                </ScrollZoomOnScroll>
               ) : (
                 <div className={styles.faqPlaceholder} />
               )}
@@ -801,36 +781,29 @@ export default async function ProductDetailPage({ params }: { params: PageParams
 
       <ProductTreatmentReveal
         primary={{
-          title: brandLineName,
+          title: treatmentPrimaryTitle,
           copyDetails: [
             {
               label: 'Description',
-              value: brandLineDescriptionText || descriptionText || '',
+              value: brandLineDescriptionText || '',
             },
             {
               label: "Modo d'uso",
-              value: brandLineUsageText || usageText || '',
+              value: brandLineUsageText || '',
             },
             {
               label: 'Principi attivi',
-              value: brandLineIngredientsText || ingredientsText || '',
+              value: brandLineIngredientsText || '',
             },
             {
               label: 'Risultati',
-              value: brandLineResultsText || resultsText || '',
+              value: brandLineResultsText || '',
             },
           ],
-          body: (
-            <SectionSubtitle className={styles.treatmentText}>
-              {brandLineResultsText || brandLineHeadlineText || resultsText || ''}
-            </SectionSubtitle>
-          ),
-          railBody:
-            brandLineRailBody.length > 0 ? brandLineRailBody : brandLineRailIngredients,
-          imageUrl:
-            resolvedLineMedia?.url || coverFallback?.url || fallbackImage.url,
-          imageAlt:
-            resolvedLineMedia?.alt || coverFallback?.alt || brandLineName || undefined,
+          body: null,
+          railBody: [],
+          imageUrl: brandLineMediaResolved?.url || null,
+          imageAlt: brandLineMediaResolved?.alt || treatmentPrimaryTitle || undefined,
           rail: [copy.treatment.railTop, copy.treatment.railBottom],
           href: `/${locale}/shop`,
         }}
@@ -860,7 +833,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
         }}
       />
 
-      <section aria-label={copy.aria.moreProducts}>
+      <section className={styles.moreProductsSection} aria-label={copy.aria.moreProducts}>
         <UICCarousel
           items={productItems}
           ariaLabel={copy.treatment.shopCarouselAria}
