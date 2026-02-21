@@ -8,9 +8,7 @@
   --split-gap: 2.5rem;
 }
 
-.page > section:first-of-type {
-  margin-top: var(--section-space);
-}
+
 
 .page > section:last-of-type {
   margin-bottom: var(--section-space);
@@ -24,7 +22,7 @@
   align-items: start;
   border-radius: 0;
   overflow: visible;
-  margin-top: 0 !important;
+
 }
 
 .leadSection :global(.ui-split-column) {
@@ -48,103 +46,6 @@
   background: transparent;
   box-shadow: none;
   align-self: start;
-}
-
-.heroImage {
-  object-fit: cover;
-}
-
-.heroSlider {
-  width: 100%;
-  height: 100%;
-}
-
-.heroSlider :global(.swiper),
-.heroSlider :global(.swiper-wrapper) {
-  height: 100%;
-}
-
-.heroSlider :global(.swiper) {
-  touch-action: pan-y;
-  overflow: visible;
-}
-
-.heroSlider :global(.swiper-slide) {
-  width: 100%;
-  height: 100%;
-}
-
-.heroVideo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.thumbs {
-  display: none;
-}
-
-.heroProgressLine {
-  position: relative;
-  left: 0;
-  right: 0;
-  bottom: auto;
-  margin-top: 0.6rem;
-  margin-bottom: 0.4rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  z-index: 2;
-}
-
-.heroProgressStep {
-  flex: 1 1 0;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--text-muted);
-}
-
-.heroProgressStepActive {
-  background: var(--pearl-1);
-}
-
-.thumb {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  overflow: hidden;
-  padding: 0;
-  cursor: pointer;
-}
-
-.thumb :global(img) {
-  object-fit: cover;
-}
-
-.thumbVideo {
-  display: grid;
-  place-items: center;
-  background: var(--paper);
-}
-
-.playIcon {
-  color: var(--text-primary);
-}
-
-.thumbPlaceholder {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: var(--sand);
-}
-
-.heroPlaceholder {
-  width: 100%;
-  height: 100%;
-  background: var(--sand);
 }
 
 .heroPanel {
@@ -749,6 +650,12 @@
 }
 
 @media (min-width: 1025px) {
+  
+  .page > section:first-of-type {
+  margin-top: var(--section-space);
+}
+  
+  
   .leadSection {
     border-radius: 12px;
     overflow: hidden;
@@ -791,25 +698,6 @@
 
   .description {
     margin-top: 0;
-  }
-
-  .thumbs {
-    position: absolute;
-    left: 16px;
-    bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 2;
-  }
-
-  .heroProgressLine {
-    position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 10px;
-    margin: 0;
-    display: none;
   }
 
   .heroMedia,

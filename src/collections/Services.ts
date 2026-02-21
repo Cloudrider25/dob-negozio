@@ -89,7 +89,7 @@ export const Services: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: 'Generali',
+          label: 'Serv. Generali',
           fields: [
             {
               name: 'description',

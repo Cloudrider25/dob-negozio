@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { Autoplay, Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
+import { cn } from '@/lib/cn'
+import styles from './LeadGallery.module.css'
 
 export type LeadGalleryItem = {
   media?: { url: string; alt: string }
@@ -12,11 +14,32 @@ export type LeadGalleryItem = {
 type UILeadGalleryProps = {
   cover: { url: string; alt: string } | null
   items: LeadGalleryItem[]
-  styles: Record<string, string>
   mobilePeek?: boolean
+  showProgress?: boolean
+  classNames?: {
+    media?: string
+    slider?: string
+    image?: string
+    video?: string
+    placeholder?: string
+    thumbs?: string
+    thumb?: string
+    thumbVideo?: string
+    playIcon?: string
+    thumbPlaceholder?: string
+    progressLine?: string
+    progressStep?: string
+    progressStepActive?: string
+  }
 }
 
-export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILeadGalleryProps) {
+export function UILeadGallery({
+  cover,
+  items,
+  mobilePeek = false,
+  showProgress = false,
+  classNames,
+}: UILeadGalleryProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const swiperRef = useRef<UISwiperInstance | null>(null)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
@@ -31,9 +54,7 @@ export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILe
   }, [items, cover])
 
   const slides = normalizedItems
-  const hasProgressLine = Boolean(
-    styles.heroProgressLine && styles.heroProgressStep && styles.heroProgressStepActive,
-  )
+  const hasProgressLine = showProgress
   const shouldLoop = slides.length > 1 && !isMobileViewport
 
   const playVideoAt = (index: number) => {
@@ -95,10 +116,10 @@ export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILe
   }, [])
 
   return (
-    <div ref={containerRef} className={styles.heroMedia}>
+    <div ref={containerRef} className={cn(styles.media, classNames?.media)}>
       {slides.length ? (
         <Swiper
-          className={styles.heroSlider}
+          className={cn(styles.slider, classNames?.slider)}
           modules={[Autoplay]}
           width={isMobileViewport ? (containerWidth || undefined) : undefined}
           slidesPerView={mobilePeek ? 1.08 : 1}
@@ -127,7 +148,7 @@ export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILe
             <SwiperSlide key={`${item.media?.url || 'slide'}-${index}`}>
               {item.mediaType === 'video' ? (
                 <video
-                  className={styles.heroVideo}
+                  className={cn(styles.video, classNames?.video)}
                   src={item.media!.url}
                   muted
                   loop
@@ -143,7 +164,7 @@ export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILe
                   src={item.media!.url}
                   alt={item.media!.alt}
                   fill
-                  className={styles.heroImage}
+                  className={cn(styles.image, classNames?.image)}
                   sizes="(max-width: 1024px) 100vw, 60vw"
                   priority={index === 0}
                   loading={index === 0 ? 'eager' : 'lazy'}
@@ -154,16 +175,16 @@ export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILe
           ))}
         </Swiper>
       ) : (
-        <div className={styles.heroPlaceholder} />
+        <div className={cn(styles.placeholder, classNames?.placeholder)} />
       )}
-      <div className={styles.thumbs}>
+      <div className={cn(styles.thumbs, classNames?.thumbs)}>
         {normalizedItems.slice(0, 4).map((item, index) => {
           const isVideo = item.mediaType === 'video'
           const slideIndex = slides.findIndex((slide) => slide.media?.url === item.media?.url)
           return (
             <button
               key={`${item.media?.url || 'placeholder'}-${index}`}
-              className={`${styles.thumb} ${isVideo ? styles.thumbVideo : ''}`}
+              className={cn(styles.thumb, classNames?.thumb, isVideo ? styles.thumbVideo : '', isVideo ? classNames?.thumbVideo : '')}
               type="button"
               aria-label={`Preview ${index + 1}`}
               onMouseEnter={() => {
@@ -186,24 +207,25 @@ export function UILeadGallery({ cover, items, styles, mobilePeek = false }: UILe
                   sizes="(max-width: 1024px) 20vw, 8vw"
                 />
               ) : isVideo ? (
-                <span className={`${styles.playIcon} typo-small`}>▶</span>
+                <span className={cn(styles.playIcon, classNames?.playIcon, 'typo-small')}>▶</span>
               ) : (
-                <span className={styles.thumbPlaceholder} />
+                <span className={cn(styles.thumbPlaceholder, classNames?.thumbPlaceholder)} />
               )}
             </button>
           )
         })}
       </div>
       {hasProgressLine ? (
-        <div className={styles.heroProgressLine} aria-hidden="true">
+        <div className={cn(styles.progressLine, classNames?.progressLine)} aria-hidden="true">
           {slides.map((item, index) => (
             <span
               key={`${item.media?.url || 'progress'}-${index}`}
-              className={
-                index === activeIndex
-                  ? `${styles.heroProgressStep} ${styles.heroProgressStepActive}`
-                  : styles.heroProgressStep
-              }
+              className={cn(
+                styles.progressStep,
+                classNames?.progressStep,
+                index === activeIndex ? styles.progressStepActive : '',
+                index === activeIndex ? classNames?.progressStepActive : '',
+              )}
             />
           ))}
         </div>

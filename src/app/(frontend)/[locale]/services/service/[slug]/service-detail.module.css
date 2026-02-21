@@ -8,9 +8,9 @@
   --split-gap: 2.5rem;
 }
 
-.page > section:first-of-type {
-  margin-top: var(--section-space);
-}
+
+
+
 
 .page > section:last-of-type {
   margin-bottom: var(--section-space);
@@ -39,7 +39,7 @@
 
 .treatmentGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--split-gap);
 }
 
@@ -52,69 +52,6 @@
   background: transparent;
   box-shadow: none;
   align-self: start;
-}
-
-.heroImage {
-  object-fit: cover;
-}
-
-.heroSlider {
-  width: 100%;
-  height: 100%;
-}
-
-.heroSlider :global(.swiper-slide) {
-  width: 100%;
-  height: 100%;
-}
-
-.heroVideo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.thumbs {
-  display: none;
-}
-
-.thumb {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 50%, transparent);
-  background: rgba(255, 255, 255, 0.7);
-  overflow: hidden;
-  padding: 0;
-  cursor: pointer;
-}
-
-.thumb :global(img) {
-  object-fit: cover;
-}
-
-.thumbVideo {
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.65);
-}
-
-.playIcon {
-  color: var(--text-secondary);
-}
-
-.thumbPlaceholder {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(140deg, var(--sand), var(--paper));
-}
-
-.heroPlaceholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(145deg, var(--sand) 0%, var(--paper) 100%);
 }
 
 .heroPanel {
@@ -389,7 +326,7 @@
 
 .detailGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
@@ -511,10 +448,8 @@
 }
 
 .insideLabel {
-  position: absolute;
-  left: 1rem;
-  top: 2.2rem;
-  writing-mode: vertical-rl;
+  position: static;
+  writing-mode: horizontal-tb;
   color: var(--text-secondary);
 }
 
@@ -721,7 +656,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  padding: 2rem 4.5rem 2rem 2rem;
+  padding: 2rem 2rem 3rem 2rem;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -729,7 +664,7 @@
   justify-content: flex-start;
   border-radius: 16px;
 
-  min-height: 360px;
+  min-height: 320px;
   overflow: hidden;
 }
 
@@ -763,11 +698,9 @@
 
 
 .treatmentRail {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 70px;
-  height: 100%;
+  position: static;
+  width: 100%;
+  height: 48px;
   background: var(--obsidian);
   color: var(--pearl-1);
   display: flex;
@@ -775,9 +708,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.8rem 0;
-  gap: 0.2rem;
+  gap: 1rem;
   text-decoration-thickness: bold;
-  writing-mode: vertical-rl;
+  writing-mode: horizontal-tb;
   text-align: center;
 }
 
@@ -789,7 +722,7 @@
 }
 
 .treatmentRailText {
-  transform: rotate(180deg);
+  transform: none;
   padding: 4px;
   text-align: center;
   font-weight: 700;
@@ -809,49 +742,6 @@
   align-self: center;
 }
 
-@media (max-width: 1024px) {
-  .page {
-    padding: 0;
-  }
-
-  .treatmentGrid,
-  .detailGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .heroMedia,
-  .heroPanel {
-    height: auto;
-  }
-
-  .videoWrap {
-    height: 60vh;
-  }
-
-  .insideLabel {
-    position: static;
-    writing-mode: horizontal-tb;
-  }
-
-  .treatmentRail {
-    position: static;
-    width: 100%;
-    height: 48px;
-    writing-mode: horizontal-tb;
-    flex-direction: row;
-    gap: 1rem;
-  }
-
-  .treatmentRailText {
-    transform: none;
-  }
-
-  .treatmentMedia {
-    min-height: 320px;
-    padding-right: 2rem;
-    padding-bottom: 3rem;
-  }
-}
 .videoSection {
   width: 100%;
   margin-left: 0;
@@ -894,6 +784,45 @@
 }
 
 @media (min-width: 1025px) {
+  
+  .page > section:first-of-type {
+  margin-top: var(--section-space);
+}
+  
+  .treatmentGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .detailGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .insideLabel {
+    position: absolute;
+    left: 1rem;
+    top: 2.2rem;
+    writing-mode: vertical-rl;
+  }
+
+  .treatmentMedia {
+    min-height: 360px;
+    padding: 2rem 4.5rem 2rem 2rem;
+  }
+
+  .treatmentRail {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 70px;
+    height: 100%;
+    writing-mode: vertical-rl;
+    gap: 0.2rem;
+  }
+
+  .treatmentRailText {
+    transform: rotate(180deg);
+  }
+
   .leadSection {
     border-radius: 12px;
     overflow: hidden;
@@ -921,16 +850,6 @@
     padding: 2.5rem 2.6rem;
     border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
     height: calc(100dvh - var(--header-height));
-  }
-
-  .thumbs {
-    position: absolute;
-    left: 16px;
-    bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 2;
   }
 
   .description {

@@ -463,8 +463,11 @@ export default async function ProductDetailPage({ params }: { params: PageParams
               media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
               mediaType: item.mediaType,
             }))}
-            styles={styles}
             mobilePeek
+            showProgress
+            classNames={{
+              media: styles.heroMedia,
+            }}
           />
         }
         right={

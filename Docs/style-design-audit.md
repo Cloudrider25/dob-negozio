@@ -546,3 +546,12 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - componenti puramente tipografici/barrel, senza CSS locale/hardcoded colore;
   - mapping classi tipografiche coerente con il design system;
   - nessun rischio mobile-first specifico (assenza di regole responsive nel blocco).
+- 2026-02-21 | Blocco CSS-040 (`Service detail` mobile-first conversion + fix gallery media mobile)
+  - Scope: `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css`.
+  - Decisione: consolidare il file in mobile-first reale (`base mobile`, solo override desktop in `@media (min-width: 1025px)`), rimuovendo conflitti che causavano invisibilità immagini nella lead section mobile.
+  - Implementazione:
+  - aggiunto `page > section:first-of-type` nel base mobile;
+  - convertiti al base mobile: `.treatmentGrid`/`.detailGrid` (1 colonna), `.insideLabel` orizzontale/static, `.treatmentRail` orizzontale/static, `.treatmentRailText` senza rotazione, `.treatmentMedia` spacing/min-height mobile;
+  - rimossa interamente la media query `@media (max-width: 1024px)` e spostati i soli override desktop in `@media (min-width: 1025px)`;
+  - fix critico lead media mobile: eliminato override implicito a `height: auto` su `.heroMedia`, mantenendo `min-height: 320px` e `height: 56vh` per compatibilità con immagini `fill` (`UILeadGallery`).
+  - Verifica: `pnpm -s tsc --noEmit` ok.
