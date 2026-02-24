@@ -18,6 +18,8 @@ import type { ServicesCarouselItem } from '@/components/carousel/types'
 import { ButtonLink } from '@/components/ui/button-link'
 import { SplitSection } from '@/components/ui/SplitSection'
 import { UILeadGallery } from '@/components/ui/LeadGallery'
+import { LeadPanel } from '@/components/ui/LeadPanel'
+import { LeadHeader } from '@/components/ui/LeadHeader'
 import { ScrollZoomOnScroll } from '@/components/ui/ScrollZoomOnScroll'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
@@ -171,6 +173,24 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       if (typeof preferred === 'string') return preferred
       const first = Object.values(localized).find((value) => typeof value === 'string')
       if (typeof first === 'string') return first
+    }
+    return null
+  }
+
+  const resolveBadgeLabel = (value: unknown) => {
+    if (!value) return null
+    if (typeof value === 'string') return value
+    if (typeof value === 'object') {
+      const record = value as Record<string, unknown>
+      if (typeof record.name === 'string') return record.name
+      if (record.name && typeof record.name === 'object') {
+        const localized = record.name as Record<string, unknown>
+        const preferred = localized[locale]
+        if (typeof preferred === 'string') return preferred
+        const first = Object.values(localized).find((entry) => typeof entry === 'string')
+        if (typeof first === 'string') return first
+      }
+      if (typeof record.label === 'string') return record.label
     }
     return null
   }
@@ -399,6 +419,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
   const faqResolved = faqMediaDoc ? resolveMedia(faqMediaDoc, product.title || '') : null
 
   const descriptionText = resolveText(product.description)
+  const taglineText = resolveText(product.tagline)
   const usageText = resolveText(product.usage)
   const ingredientsText = resolveText(product.activeIngredients)
   const resultsText = resolveText(product.results)
@@ -452,6 +473,13 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     },
   ]
 
+  const brandBadgeLabel = resolveBrandLabel(product.brand)
+  const collectionBadgeLabel = resolveBadgeLabel(product.badge)
+  const leadBadgeLabel =
+    product.badgeSource === 'collection'
+      ? collectionBadgeLabel || brandBadgeLabel || 'DOB'
+      : brandBadgeLabel || collectionBadgeLabel || 'DOB'
+
   return (
     <div className={styles.page}>
       <SplitSection
@@ -471,21 +499,24 @@ export default async function ProductDetailPage({ params }: { params: PageParams
           />
         }
         right={
-          <div className={styles.heroPanel}>
-            <div className={styles.heroHeader}>
-              <div className={styles.titleRow}>
-                <SectionTitle as="h1" size="h2" className={styles.title}>
-                  {product.title}
-                </SectionTitle>
-                <span className={`${styles.badge} typo-caption-upper`}>
-                  {resolveBrandLabel(product.brand) || 'DOB'}
-                </span>
-              </div>
-
-              <SectionSubtitle className={styles.description}>
-                {descriptionText || ''}
-              </SectionSubtitle>
-            </div>
+          <LeadPanel
+            className={styles.heroPanel}
+            stickyHeader
+            header={
+              <LeadHeader
+                title={
+                  <SectionTitle as="h1" size="h2" className={styles.title}>
+                    {product.title}
+                  </SectionTitle>
+                }
+                badge={leadBadgeLabel}
+                description={taglineText || descriptionText || ''}
+                titleRowClassName={styles.titleRow}
+                badgeClassName={`${styles.badge} typo-caption-upper`}
+                descriptionClassName={styles.description}
+              />
+            }
+          >
 
             <AlternativeSelector
               options={formatOptions}
@@ -616,7 +647,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
                   : []),
               ]}
             />
-          </div>
+          </LeadPanel>
         }
       />
 

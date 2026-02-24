@@ -189,7 +189,7 @@ export default async function OurStoryPage({
         ? [{ gender: { in: servicesSettings.gender } }]
         : []),
       ...(Array.isArray(servicesSettings?.modality) && servicesSettings.modality.length
-        ? [{ modality: { in: servicesSettings.modality } }]
+        ? [{ modalityCode: { in: servicesSettings.modality } }]
         : []),
       ...(normalizeIds(servicesSettings?.treatments).length
         ? [{ treatments: { in: normalizeIds(servicesSettings?.treatments) } }]

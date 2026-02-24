@@ -10,11 +10,33 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '')
 
+const getPrimaryLocalizedText = (value: unknown): string => {
+  if (typeof value === 'string') return value
+  if (value && typeof value === 'object') {
+    const localized = value as Record<string, unknown>
+    if (typeof localized.it === 'string' && localized.it.trim()) return localized.it
+    const first = Object.values(localized).find(
+      (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0,
+    )
+    if (first) return first
+  }
+  return ''
+}
+
+const getRelationId = (value: unknown): string | number | null => {
+  if (typeof value === 'string' || typeof value === 'number') return value
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = (value as { id?: unknown }).id
+    if (typeof id === 'string' || typeof id === 'number') return id
+  }
+  return null
+}
+
 export const Services: CollectionConfig = {
   slug: 'services',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'serviceType', 'price', 'duration', 'active'],
+    defaultColumns: ['name', 'serviceType', 'price', 'durationMinutes', 'active'],
     group: 'Servizi',
   },
   access: {
@@ -50,6 +72,128 @@ export const Services: CollectionConfig = {
         return data
       },
     ],
+    beforeChange: [
+      async ({ data, originalDoc, req }) => {
+        if (!data) return data
+
+        const currentPrice =
+          typeof data.price === 'number'
+            ? data.price
+            : typeof originalDoc?.price === 'number'
+              ? originalDoc.price
+              : null
+
+        const incomingPackages = Array.isArray(data.pacchetti) ? data.pacchetti : null
+        const existingPackages = Array.isArray(originalDoc?.pacchetti) ? originalDoc.pacchetti : null
+        const sourcePackages = incomingPackages ?? existingPackages
+
+        if (!sourcePackages) return data
+
+        const serviceName =
+          getPrimaryLocalizedText(data.name) ||
+          getPrimaryLocalizedText(originalDoc?.name) ||
+          'Servizio'
+        const defaultVariableName =
+          (typeof data.nomeVariabile === 'string' && data.nomeVariabile.trim()) ||
+          (typeof originalDoc?.nomeVariabile === 'string' && originalDoc.nomeVariabile.trim()) ||
+          'Default'
+        const variabiliSource = Array.isArray(data.variabili)
+          ? data.variabili
+          : Array.isArray(originalDoc?.variabili)
+            ? originalDoc.variabili
+            : []
+
+        const seenLabels = new Map<string, number>()
+
+        data.pacchetti = sourcePackages.map((item: unknown) => {
+          const record = item && typeof item === 'object' ? (item as Record<string, unknown>) : {}
+          const linkedTo =
+            typeof record.collegaAVariabile === 'string' && record.collegaAVariabile.trim()
+              ? record.collegaAVariabile.trim()
+              : 'default'
+          const sessions =
+            typeof record.numeroSedute === 'number' && Number.isFinite(record.numeroSedute)
+              ? Math.max(0, record.numeroSedute)
+              : 0
+
+          let sourcePrice = currentPrice
+          let variantLabel = defaultVariableName
+
+          const variantMatch = linkedTo.match(/^variabile:(\d+)$/)
+          if (variantMatch) {
+            const variantIndex = Number(variantMatch[1])
+            const variant =
+              Number.isFinite(variantIndex) && variantIndex >= 0
+                ? (variabiliSource[variantIndex] as Record<string, unknown> | undefined)
+                : undefined
+            if (variant && typeof variant.varPrice === 'number' && Number.isFinite(variant.varPrice)) {
+              sourcePrice = variant.varPrice
+            }
+            if (variant && typeof variant.varNome === 'string' && variant.varNome.trim()) {
+              variantLabel = variant.varNome.trim()
+            } else {
+              variantLabel = `Variabile ${Number.isFinite(variantIndex) ? variantIndex + 1 : ''}`.trim()
+            }
+          }
+
+          const computedValue =
+            typeof sourcePrice === 'number' && Number.isFinite(sourcePrice)
+              ? Math.max(0, sourcePrice) * sessions
+              : typeof record.valorePacchetto === 'number'
+                ? record.valorePacchetto
+                : 0
+
+          const baseLabel = `Pacchetto ${serviceName} ${variantLabel} ${sessions} sedute`.trim()
+          const nextCount = (seenLabels.get(baseLabel) ?? 0) + 1
+          seenLabels.set(baseLabel, nextCount)
+          const uniqueLabel = nextCount > 1 ? `${baseLabel} (${nextCount})` : baseLabel
+
+          return {
+            ...record,
+            valorePacchetto: computedValue,
+            nomePacchetto: uniqueLabel,
+          }
+        })
+
+        const modalitySource = 'modality' in data ? data.modality : originalDoc?.modality
+        if (!modalitySource) {
+          data.modalityCode = null
+          return data
+        }
+
+        let modalityCode: string | null = null
+        if (typeof modalitySource === 'object' && modalitySource && 'code' in modalitySource) {
+          const code = (modalitySource as { code?: unknown }).code
+          if (typeof code === 'string' && code.trim()) {
+            modalityCode = code
+          }
+        }
+
+        if (!modalityCode) {
+          const modalityId = getRelationId(modalitySource)
+          if (modalityId) {
+            try {
+              const modalityDoc = await req.payload.findByID({
+                collection: 'service-modalities',
+                id: String(modalityId),
+                depth: 0,
+                overrideAccess: false,
+                req,
+              })
+              if (modalityDoc && typeof modalityDoc.code === 'string' && modalityDoc.code.trim()) {
+                modalityCode = modalityDoc.code
+              }
+            } catch {
+              modalityCode = null
+            }
+          }
+        }
+
+        data.modalityCode = modalityCode
+
+        return data
+      },
+    ],
   },
   fields: [
     {
@@ -76,6 +220,13 @@ export const Services: CollectionConfig = {
       },
     },
     {
+      name: 'modalityCode',
+      type: 'text',
+      admin: {
+        hidden: true,
+      },
+    },
+    {
       name: 'slug',
       type: 'text',
       unique: true,
@@ -92,25 +243,157 @@ export const Services: CollectionConfig = {
           label: 'Serv. Generali',
           fields: [
             {
-              name: 'description',
-              type: 'textarea',
-              localized: true,
+              name: 'defaultLabel',
+              type: 'ui',
+              label: 'Default',
+              admin: {
+                components: {
+                  Field: '/components/admin/SectionTitle',
+                },
+              },
             },
             {
               type: 'row',
               fields: [
                 {
-                  name: 'price',
-                  type: 'number',
-                  min: 0,
-                  required: true,
+                  name: 'nomeVariabile',
+                  type: 'text',
+                  label: 'Default nome',
                 },
                 {
                   name: 'durationMinutes',
                   type: 'number',
+                  label: 'Default duration minutes',
                   min: 0,
                 },
+                {
+                  name: 'price',
+                  type: 'number',
+                  label: 'Default price',
+                  min: 0,
+                  required: true,
+                },
               ],
+            },
+            {
+              name: 'variabili',
+              type: 'array',
+              label: 'Variabili',
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'varNome',
+                      type: 'text',
+                      label: 'Nome variabile',
+                    },
+                    {
+                      name: 'varDurationMinutes',
+                      type: 'number',
+                      label: 'Duration minutes',
+                      min: 0,
+                    },
+                    {
+                      name: 'varPrice',
+                      type: 'number',
+                      label: 'Price',
+                      min: 0,
+                      required: true,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'pacchetti',
+              type: 'array',
+              label: 'Pacchetti',
+              labels: {
+                singular: 'Pacchetto',
+                plural: 'Pacchetti',
+              },
+              admin: {
+                components: {
+                  RowLabel: '/components/admin/ServicePackageRowLabel',
+                },
+              },
+              fields: [
+                {
+                  name: 'nomePacchetto',
+                  type: 'text',
+                  label: 'Nome pacchetto',
+                  admin: {
+                    readOnly: true,
+                    hidden: true,
+                  },
+                },
+                {
+                  name: 'collegaAVariabile',
+                  label: 'Collega a',
+                  type: 'text',
+                  defaultValue: 'default',
+                  required: true,
+                  admin: {
+                    components: {
+                      Field: '/components/admin/PackageVariableSelect',
+                    },
+                  },
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'numeroSedute',
+                      type: 'number',
+                      label: 'Numero sedute',
+                      min: 1,
+                      required: true,
+                    },
+                    {
+                      name: 'valorePacchetto',
+                      type: 'number',
+                      label: 'Valore pacchetto',
+                      min: 0,
+                      admin: {
+                        readOnly: true,
+                        description: 'Calcolato automaticamente: Price * Numero sedute',
+                        components: {
+                          Field: '/components/admin/PackageValueField',
+                        },
+                      },
+                    },
+                    {
+                      name: 'prezzoPacchetto',
+                      type: 'number',
+                      label: 'Prezzo pacchetto',
+                      min: 0,
+                      required: true,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Serv. Info',
+          fields: [
+            {
+              type: 'row',
+              fields: [
+                { name: 'tagline', type: 'text', localized: true },
+                {
+                  name: 'badge',
+                  type: 'relationship',
+                  relationTo: 'badges',
+                },
+              ],
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              localized: true,
             },
             {
               type: 'row',
@@ -127,10 +410,29 @@ export const Services: CollectionConfig = {
                 },
               ],
             },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'gender',
+                  type: 'select',
+                  options: [
+                    { label: 'Unisex', value: 'unisex' },
+                    { label: 'Donna', value: 'female' },
+                    { label: 'Uomo', value: 'male' },
+                  ],
+                },
+                {
+                  name: 'modality',
+                  type: 'relationship',
+                  relationTo: 'service-modalities',
+                },
+              ],
+            },
           ],
         },
         {
-          label: 'Gallery',
+          label: 'Serv. Gallery',
           fields: [
             {
               name: 'gallery',
@@ -166,7 +468,7 @@ export const Services: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 1',
+          label: 'Serv. Accordion',
           fields: [
             {
               name: 'heroAccordionTitle',
@@ -177,17 +479,6 @@ export const Services: CollectionConfig = {
                   Field: '/components/admin/SectionTitle',
                 },
               },
-            },
-            {
-              type: 'row',
-              fields: [
-                { name: 'tagline', type: 'text', localized: true },
-                {
-                  name: 'badge',
-                  type: 'relationship',
-                  relationTo: 'badges',
-                },
-              ],
             },
             {
               name: 'results',
@@ -214,7 +505,7 @@ export const Services: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 2',
+          label: 'Serv. Video',
           fields: [
             {
               name: 'videoSectionTitle',
@@ -238,10 +529,15 @@ export const Services: CollectionConfig = {
               type: 'upload',
               relationTo: 'media',
             },
+            {
+              name: 'videoPoster',
+              type: 'upload',
+              relationTo: 'media',
+            },
           ],
         },
         {
-          label: 'Sezione 3',
+          label: 'Serv. Included',
           fields: [
             {
               name: 'includedSectionTitle',
@@ -285,7 +581,7 @@ export const Services: CollectionConfig = {
           ],
         },
         {
-          label: 'Sezione 4',
+          label: 'Serv. FAQ',
           fields: [
             {
               name: 'faqSectionTitle',
@@ -375,31 +671,6 @@ export const Services: CollectionConfig = {
         {
           label: 'Metadata',
           fields: [
-            {
-              type: 'row',
-              fields: [
-                {
-                  name: 'gender',
-                  type: 'select',
-                  options: [
-                    { label: 'Unisex', value: 'unisex' },
-                    { label: 'Donna', value: 'female' },
-                    { label: 'Uomo', value: 'male' },
-                  ],
-                },
-                {
-                  name: 'modality',
-                  type: 'select',
-                  options: [
-                    { label: 'Device', value: 'device' },
-                    { label: 'Manual', value: 'manual' },
-                    { label: 'Laser', value: 'laser' },
-                    { label: 'Consultation', value: 'consultation' },
-                    { label: 'Wax', value: 'wax' },
-                  ],
-                },
-              ],
-            },
             {
               type: 'row',
               fields: [

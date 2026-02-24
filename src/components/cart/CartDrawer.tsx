@@ -41,6 +41,9 @@ type RecommendedProduct = {
   brandName: string
 }
 
+const isServiceCartItem = (item: CartItem) =>
+  item.id.includes(':service:') || item.id.includes(':package:')
+
 export function CartDrawer({ locale, initialOpen = false }: { locale: string; initialOpen?: boolean }) {
   const resolvedLocale = isLocale(locale) ? locale : defaultLocale
   const copy = getJourneyDictionary(resolvedLocale).cartDrawer
@@ -166,25 +169,37 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
     () => items.reduce((sum, item) => sum + (item.price ?? 0) * item.quantity, 0),
     [items],
   )
+  const productSubtotal = useMemo(
+    () =>
+      items.reduce(
+        (sum, item) => (isServiceCartItem(item) ? sum : sum + (item.price ?? 0) * item.quantity),
+        0,
+      ),
+    [items],
+  )
+  const hasProducts = useMemo(() => items.some((item) => !isServiceCartItem(item)), [items])
+  const hasServices = useMemo(() => items.some((item) => isServiceCartItem(item)), [items])
 
   const itemCount = useMemo(
     () => items.reduce((sum, item) => sum + item.quantity, 0),
     [items],
   )
-  const freeShippingUnlocked = isFreeShippingUnlocked(subtotal)
-  const remainingForFreeShipping = getRemainingForFreeShipping(subtotal)
+  const freeShippingUnlocked = isFreeShippingUnlocked(productSubtotal)
+  const remainingForFreeShipping = getRemainingForFreeShipping(productSubtotal)
   const freeShippingProgress = Math.min(
     100,
-    Math.max(0, (subtotal / FREE_SHIPPING_THRESHOLD_EUR) * 100),
+    Math.max(0, (productSubtotal / FREE_SHIPPING_THRESHOLD_EUR) * 100),
   )
   const remainingLabel = formatPrice(remainingForFreeShipping)
+  const pickupSuffix = hasProducts && hasServices ? ' oppure ritira in negozio' : ''
   const freeShippingNote = freeShippingUnlocked
-    ? copy.freeShippingUnlocked
+    ? `${copy.freeShippingUnlocked}${pickupSuffix}`
     : resolvedLocale === 'it'
-      ? `Ti mancano ${remainingLabel} per la spedizione gratuita`
+      ? `Ti mancano ${remainingLabel} per la spedizione gratuita${pickupSuffix}`
       : resolvedLocale === 'ru'
-        ? `Добавьте товаров на ${remainingLabel} для бесплатной доставки`
-        : `${remainingLabel} away from free shipping`
+        ? `Добавьте товаров на ${remainingLabel} для бесплатной доставки${pickupSuffix}`
+        : `${remainingLabel} away from free shipping${pickupSuffix}`
+  const showShippingProgress = hasProducts
 
   return (
     <SideDrawer
@@ -197,10 +212,14 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         </>
       }
     >
-        <div className={styles.progress}>
-          <div className={styles.progressFill} style={{ width: `${freeShippingProgress}%` }} />
-        </div>
-        <div className={`${styles.freeNote} typo-caption-upper`}>{freeShippingNote}</div>
+        {showShippingProgress ? (
+          <>
+            <div className={styles.progress}>
+              <div className={styles.progressFill} style={{ width: `${freeShippingProgress}%` }} />
+            </div>
+            <div className={`${styles.freeNote} typo-caption-upper`}>{freeShippingNote}</div>
+          </>
+        ) : null}
 
         <div className={styles.list}>
           {items.length === 0 ? (

@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     orders: Order;
     'order-items': OrderItem;
+    'order-service-items': OrderServiceItem;
     'shop-webhook-events': ShopWebhookEvent;
     'shop-inventory-locks': ShopInventoryLock;
     services: Service;
@@ -77,6 +78,7 @@ export interface Config {
     objectives: Objective;
     intents: Intent;
     zones: Zone;
+    'service-modalities': ServiceModality;
     programs: Program;
     products: Product;
     brands: Brand;
@@ -112,6 +114,7 @@ export interface Config {
   collectionsSelect: {
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-items': OrderItemsSelect<false> | OrderItemsSelect<true>;
+    'order-service-items': OrderServiceItemsSelect<false> | OrderServiceItemsSelect<true>;
     'shop-webhook-events': ShopWebhookEventsSelect<false> | ShopWebhookEventsSelect<true>;
     'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
@@ -120,6 +123,7 @@ export interface Config {
     objectives: ObjectivesSelect<false> | ObjectivesSelect<true>;
     intents: IntentsSelect<false> | IntentsSelect<true>;
     zones: ZonesSelect<false> | ZonesSelect<true>;
+    'service-modalities': ServiceModalitiesSelect<false> | ServiceModalitiesSelect<true>;
     programs: ProgramsSelect<false> | ProgramsSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
@@ -313,6 +317,9 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  tagline?: string | null;
+  badgeSource: 'brand' | 'collection';
+  badge?: (number | null) | Badge;
   description?: string | null;
   brand?: (number | null) | Brand;
   brandLine?: (number | null) | BrandLine;
@@ -400,6 +407,16 @@ export interface Product {
     | null;
   stripeProductId?: string | null;
   stripePriceId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges".
+ */
+export interface Badge {
+  id: number;
+  name: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -621,38 +638,23 @@ export interface TimingProduct {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-webhook-events".
+ * via the `definition` "order-service-items".
  */
-export interface ShopWebhookEvent {
+export interface OrderServiceItem {
   id: number;
-  eventID: string;
-  provider: string;
-  type: string;
-  order?: (number | null) | Order;
-  processed: boolean;
-  processedAt?: string | null;
-  payload?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  error?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-inventory-locks".
- */
-export interface ShopInventoryLock {
-  id: number;
-  product: number | Product;
-  lockToken: string;
-  expiresAt: string;
+  order: number | Order;
+  service: number | Service;
+  itemKind: 'service' | 'package';
+  variantKey?: string | null;
+  variantLabel?: string | null;
+  serviceTitle: string;
+  serviceSlug?: string | null;
+  durationMinutes?: number | null;
+  sessions?: number | null;
+  currency: string;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -665,11 +667,38 @@ export interface Service {
   name: string;
   active?: boolean | null;
   legacyName?: string | null;
+  modalityCode?: string | null;
   slug: string;
-  description?: string | null;
-  price: number;
+  nomeVariabile?: string | null;
   durationMinutes?: number | null;
+  price: number;
+  variabili?:
+    | {
+        varNome?: string | null;
+        varDurationMinutes?: number | null;
+        varPrice: number;
+        id?: string | null;
+      }[]
+    | null;
+  pacchetti?:
+    | {
+        nomePacchetto?: string | null;
+        collegaAVariabile: string;
+        numeroSedute: number;
+        /**
+         * Calcolato automaticamente: Price * Numero sedute
+         */
+        valorePacchetto?: number | null;
+        prezzoPacchetto: number;
+        id?: string | null;
+      }[]
+    | null;
+  tagline?: string | null;
+  badge?: (number | null) | Badge;
+  description?: string | null;
   serviceType: 'single' | 'package';
+  gender?: ('unisex' | 'female' | 'male') | null;
+  modality?: (number | null) | ServiceModality;
   gallery?:
     | {
         media: number | Media;
@@ -678,8 +707,6 @@ export interface Service {
         id?: string | null;
       }[]
     | null;
-  tagline?: string | null;
-  badge?: (number | null) | Badge;
   results?: {
     root: {
       type: string;
@@ -745,6 +772,7 @@ export interface Service {
    */
   videoEmbedUrl?: string | null;
   videoUpload?: (number | null) | Media;
+  videoPoster?: (number | null) | Media;
   /**
    * Seleziona un media dalla gallery del servizio.
    */
@@ -779,8 +807,6 @@ export interface Service {
   area?: (number | null) | Area;
   intent?: (number | null) | Intent;
   zone?: (number | null) | Zone;
-  gender?: ('unisex' | 'female' | 'male') | null;
-  modality?: ('device' | 'manual' | 'laser' | 'consultation' | 'wax') | null;
   intentCode?: string | null;
   zoneCode?: string | null;
   updatedAt: string;
@@ -788,11 +814,13 @@ export interface Service {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "badges".
+ * via the `definition` "service-modalities".
  */
-export interface Badge {
+export interface ServiceModality {
   id: number;
-  name: string;
+  code: string;
+  label: string;
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -931,6 +959,43 @@ export interface Zone {
   id: number;
   code: string;
   label: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-webhook-events".
+ */
+export interface ShopWebhookEvent {
+  id: number;
+  eventID: string;
+  provider: string;
+  type: string;
+  order?: (number | null) | Order;
+  processed: boolean;
+  processedAt?: string | null;
+  payload?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  error?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-inventory-locks".
+ */
+export interface ShopInventoryLock {
+  id: number;
+  product: number | Product;
+  lockToken: string;
+  expiresAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1374,6 +1439,10 @@ export interface PayloadLockedDocument {
         value: number | OrderItem;
       } | null)
     | ({
+        relationTo: 'order-service-items';
+        value: number | OrderServiceItem;
+      } | null)
+    | ({
         relationTo: 'shop-webhook-events';
         value: number | ShopWebhookEvent;
       } | null)
@@ -1404,6 +1473,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'zones';
         value: number | Zone;
+      } | null)
+    | ({
+        relationTo: 'service-modalities';
+        value: number | ServiceModality;
       } | null)
     | ({
         relationTo: 'programs';
@@ -1619,6 +1692,27 @@ export interface OrderItemsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-service-items_select".
+ */
+export interface OrderServiceItemsSelect<T extends boolean = true> {
+  order?: T;
+  service?: T;
+  itemKind?: T;
+  variantKey?: T;
+  variantLabel?: T;
+  serviceTitle?: T;
+  serviceSlug?: T;
+  durationMinutes?: T;
+  sessions?: T;
+  currency?: T;
+  unitPrice?: T;
+  quantity?: T;
+  lineTotal?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shop-webhook-events_select".
  */
 export interface ShopWebhookEventsSelect<T extends boolean = true> {
@@ -1652,11 +1746,35 @@ export interface ServicesSelect<T extends boolean = true> {
   name?: T;
   active?: T;
   legacyName?: T;
+  modalityCode?: T;
   slug?: T;
-  description?: T;
-  price?: T;
+  nomeVariabile?: T;
   durationMinutes?: T;
+  price?: T;
+  variabili?:
+    | T
+    | {
+        varNome?: T;
+        varDurationMinutes?: T;
+        varPrice?: T;
+        id?: T;
+      };
+  pacchetti?:
+    | T
+    | {
+        nomePacchetto?: T;
+        collegaAVariabile?: T;
+        numeroSedute?: T;
+        valorePacchetto?: T;
+        prezzoPacchetto?: T;
+        id?: T;
+      };
+  tagline?: T;
+  badge?: T;
+  description?: T;
   serviceType?: T;
+  gender?: T;
+  modality?: T;
   gallery?:
     | T
     | {
@@ -1665,14 +1783,13 @@ export interface ServicesSelect<T extends boolean = true> {
         mediaType?: T;
         id?: T;
       };
-  tagline?: T;
-  badge?: T;
   results?: T;
   indications?: T;
   techProtocolShort?: T;
   downtime?: T;
   videoEmbedUrl?: T;
   videoUpload?: T;
+  videoPoster?: T;
   includedMedia?: T;
   includedDescription?: T;
   faqMedia?: T;
@@ -1690,8 +1807,6 @@ export interface ServicesSelect<T extends boolean = true> {
   area?: T;
   intent?: T;
   zone?: T;
-  gender?: T;
-  modality?: T;
   intentCode?: T;
   zoneCode?: T;
   updatedAt?: T;
@@ -1779,6 +1894,17 @@ export interface ZonesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-modalities_select".
+ */
+export interface ServiceModalitiesSelect<T extends boolean = true> {
+  code?: T;
+  label?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "programs_select".
  */
 export interface ProgramsSelect<T extends boolean = true> {
@@ -1825,6 +1951,9 @@ export interface ProductsSelect<T extends boolean = true> {
         isRefill?: T;
         id?: T;
       };
+  tagline?: T;
+  badgeSource?: T;
+  badge?: T;
   description?: T;
   brand?: T;
   brandLine?: T;

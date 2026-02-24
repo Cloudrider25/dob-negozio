@@ -31,6 +31,7 @@ import { Areas } from './collections/Areas'
 import { Objectives } from './collections/Objectives'
 import { Intents } from './collections/Intents'
 import { Zones } from './collections/Zones'
+import { ServiceModalities } from './collections/ServiceModalities'
 import { Badges } from './collections/Badges'
 import { Promotions } from './collections/Promotions'
 import { Programs } from './collections/Programs'
@@ -38,6 +39,7 @@ import { Posts } from './collections/Posts'
 import { Pages } from './collections/Pages'
 import { Orders } from './collections/Orders'
 import { OrderItems } from './collections/OrderItems'
+import { OrderServiceItems } from './collections/OrderServiceItems'
 import { ShopWebhookEvents } from './collections/ShopWebhookEvents'
 import { ShopInventoryLocks } from './collections/ShopInventoryLocks'
 import { ConsultationLeads } from './collections/ConsultationLeads'
@@ -64,6 +66,7 @@ export default buildConfig({
   collections: [
     Orders,
     OrderItems,
+    OrderServiceItems,
     ShopWebhookEvents,
     ShopInventoryLocks,
     Services,
@@ -72,6 +75,7 @@ export default buildConfig({
     Objectives,
     Intents,
     Zones,
+    ServiceModalities,
     Programs,
     Products,
     Brands,

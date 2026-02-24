@@ -313,6 +313,20 @@ export const Orders: CollectionConfig = {
             },
           ],
         },
+        {
+          label: 'Service Items',
+          fields: [
+            {
+              name: 'orderServiceItemsPanel',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '/components/admin/OrderServiceItemsList',
+                },
+              },
+            },
+          ],
+        },
       ],
     },
     {

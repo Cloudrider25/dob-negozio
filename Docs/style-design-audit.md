@@ -555,3 +555,17 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - rimossa interamente la media query `@media (max-width: 1024px)` e spostati i soli override desktop in `@media (min-width: 1025px)`;
   - fix critico lead media mobile: eliminato override implicito a `height: auto` su `.heroMedia`, mantenendo `min-height: 320px` e `height: 56vh` per compatibilità con immagini `fill` (`UILeadGallery`).
   - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-21 | Blocco CMS-041 (`Services` admin IA/restructure + modality relation DB)
+  - Scope: `src/collections/Services.ts`, `src/collections/ServiceModalities.ts`, `src/payload.config.ts`, `src/app/(frontend)/[locale]/our-story/page.tsx`.
+  - Decisione: riallineare la collection `services` a una struttura tab più chiara (`Serv.*`), introdurre gestione pacchetti con naming/calcoli automatici e migrare `modality` da select hardcoded a relazione DB (con pulsante `+` in admin).
+  - Implementazione:
+  - tab rinominati: `Serv. Generali`, `Serv. Info`, `Serv. Gallery`, `Serv. Accordion`, `Serv. Video`, `Serv. Included`, `Serv. FAQ`;
+  - `Serv. Info`: spostati `tagline` e `badge` prima di `description`; spostati `gender` e `modality`; `intentCode`/`zoneCode` mantenuti in `Metadata` per stabilità runtime;
+  - `Serv. Generali`: aggiunti blocco `Default`, array `variabili`, array `pacchetti` (con `numeroSedute`, `valorePacchetto`, `prezzoPacchetto`);
+  - hook `beforeChange` su `services`: calcolo automatico `valorePacchetto = price * numeroSedute` e naming univoco `nomePacchetto`;
+  - custom admin: `RowLabel` per `pacchetti` + field calcolato live per `valorePacchetto`;
+  - `Serv. Video`: aggiunto `videoPoster` come in `Prod. Video`;
+  - introdotta nuova collection `service-modalities` (`code`, `label`, `active`) e registrata in `payload.config.ts`;
+  - `services.modality` migrato a `relationship` verso `service-modalities`; aggiunto campo tecnico `modalityCode` sincronizzato da hook per compatibilità filtri;
+  - frontend `our-story`: filtro aggiornato da `modality` a `modalityCode`.
+  - Verifica: `pnpm -s generate:types`, `pnpm -s generate:importmap`, `pnpm -s tsc --noEmit` ok.

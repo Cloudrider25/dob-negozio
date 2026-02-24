@@ -617,6 +617,36 @@ export const Products: CollectionConfig = {
           label: 'Prod. Info',
           fields: [
             {
+              type: 'row',
+              fields: [
+                {
+                  name: 'tagline',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'badgeSource',
+                  label: 'Badge source',
+                  type: 'select',
+                  defaultValue: 'brand',
+                  options: [
+                    { label: 'Brand badge', value: 'brand' },
+                    { label: 'Badge collection', value: 'collection' },
+                  ],
+                  required: true,
+                },
+                {
+                  name: 'badge',
+                  label: 'Badge',
+                  type: 'relationship',
+                  relationTo: 'badges',
+                  admin: {
+                    condition: (data) => data?.badgeSource === 'collection',
+                  },
+                },
+              ],
+            },
+            {
               name: 'description',
               type: 'textarea',
               localized: true,

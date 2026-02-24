@@ -8,7 +8,7 @@ import { acquireInventoryLocks, releaseInventoryLocks } from '@/lib/shop/invento
 import { getShopIntegrationsConfig } from '@/lib/shop/shopIntegrationsConfig'
 import { getSendcloudShippingOptions } from '@/lib/sendcloud/getShippingQuote'
 import { isFreeShippingUnlocked } from '@/lib/shop/shipping'
-import type { Product } from '@/payload-types'
+import type { Product, Service } from '@/payload-types'
 import Stripe from 'stripe'
 
 const GENERIC_CHECKOUT_ERROR = 'Si è verificato un errore durante il checkout. Riprova.'
@@ -17,6 +17,17 @@ type CheckoutItemInput = {
   id: string
   quantity: number
 }
+
+type ParsedCartItemKey =
+  | { kind: 'product'; sourceID: string; quantity: number; productID: string }
+  | {
+      kind: 'service'
+      sourceID: string
+      quantity: number
+      serviceID: string
+      serviceLineKind: 'service' | 'package'
+      variantKey: string
+    }
 
 type CheckoutPayload = {
   locale?: string
@@ -67,6 +78,26 @@ const resolveCoverImage = (product: Product) => {
 }
 
 const toStripeAmount = (value: number) => Math.round(value * 100)
+
+const parseCartItemKey = (id: string, quantity: number): ParsedCartItemKey => {
+  const serviceMatch = id.match(/^(\d+):(service|package):(.+)$/)
+  if (serviceMatch) {
+    return {
+      kind: 'service',
+      sourceID: id,
+      quantity,
+      serviceID: serviceMatch[1],
+      serviceLineKind: serviceMatch[2] as 'service' | 'package',
+      variantKey: serviceMatch[3],
+    }
+  }
+  return {
+    kind: 'product',
+    sourceID: id,
+    quantity,
+    productID: id,
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -134,7 +165,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Carrello vuoto.' }, { status: 400 })
     }
 
-    const productIds = Array.from(normalized.keys())
+    const parsedCartItems = Array.from(normalized.entries()).map(([id, quantity]) => parseCartItemKey(id, quantity))
+    const productIds = parsedCartItems
+      .filter((item): item is Extract<ParsedCartItemKey, { kind: 'product' }> => item.kind === 'product')
+      .map((item) => item.productID)
+    const serviceIds = Array.from(
+      new Set(
+        parsedCartItems
+          .filter((item): item is Extract<ParsedCartItemKey, { kind: 'service' }> => item.kind === 'service')
+          .map((item) => item.serviceID),
+      ),
+    )
     let locks: Awaited<ReturnType<typeof acquireInventoryLocks>> = []
     try {
       locks = await acquireInventoryLocks({
@@ -153,81 +194,228 @@ export async function POST(request: Request) {
     }
 
     try {
-      const productsResult = await payload.find({
-      collection: 'products',
-      limit: productIds.length,
-      depth: 1,
-      overrideAccess: false,
-      locale,
-      where: {
-        and: [{ id: { in: productIds } }, { active: { equals: true } }],
-      },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        brand: true,
-        coverImage: true,
-        price: true,
-        stock: true,
-        allocatedStock: true,
-        active: true,
-      },
-    })
+      const productsResult =
+        productIds.length > 0
+          ? await payload.find({
+              collection: 'products',
+              limit: productIds.length,
+              depth: 1,
+              overrideAccess: false,
+              locale,
+              where: {
+                and: [{ id: { in: productIds } }, { active: { equals: true } }],
+              },
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                brand: true,
+                coverImage: true,
+                price: true,
+                stock: true,
+                allocatedStock: true,
+                active: true,
+              },
+            })
+          : { docs: [] as Product[] }
 
       const productsById = new Map(productsResult.docs.map((doc) => [String(doc.id), doc]))
-      const missing = productIds.filter((id) => !productsById.has(id))
-      if (missing.length > 0) {
+      const missingProducts = productIds.filter((id) => !productsById.has(id))
+      if (missingProducts.length > 0) {
         return NextResponse.json(
-          { error: 'Alcuni prodotti non sono più disponibili.', missing },
+          { error: 'Alcuni prodotti non sono più disponibili.', missing: missingProducts },
           { status: 409 },
         )
       }
 
-      type LineItem = {
+      const servicesResult =
+        serviceIds.length > 0
+          ? await payload.find({
+              collection: 'services',
+              limit: serviceIds.length,
+              depth: 0,
+              overrideAccess: false,
+              locale,
+              where: {
+                and: [{ id: { in: serviceIds } }, { active: { equals: true } }],
+              },
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                durationMinutes: true,
+                nomeVariabile: true,
+                variabili: true,
+                pacchetti: true,
+                active: true,
+              },
+            })
+          : { docs: [] as Service[] }
+
+      const servicesById = new Map(servicesResult.docs.map((doc) => [String(doc.id), doc]))
+      const missingServices = serviceIds.filter((id) => !servicesById.has(id))
+      if (missingServices.length > 0) {
+        return NextResponse.json(
+          { error: 'Alcuni servizi non sono più disponibili.', missing: missingServices },
+          { status: 409 },
+        )
+      }
+
+      type ProductLineItem = {
         product: Product
         quantity: number
         unitPrice: number
         lineTotal: number
         available: number
       }
+      type ServiceLineItem = {
+        service: Service
+        quantity: number
+        unitPrice: number
+        lineTotal: number
+        title: string
+        itemKind: 'service' | 'package'
+        variantKey: string
+        variantLabel: string | null
+        durationMinutes: number | null
+        sessions: number | null
+      }
+      type CheckoutLineItem = {
+        quantity: number
+        unitPrice: number
+        lineTotal: number
+        stripeName: string
+      }
 
-      const lineItems: LineItem[] = []
-      for (const [id, quantity] of normalized.entries()) {
-        const product = productsById.get(id)
-        if (!product) continue
-        if (typeof product.price !== 'number' || product.price < 0) {
+      const productLineItems: ProductLineItem[] = []
+      const serviceLineItems: ServiceLineItem[] = []
+
+      for (const item of parsedCartItems) {
+        if (item.kind === 'product') {
+          const product = productsById.get(item.productID)
+          if (!product) continue
+          if (typeof product.price !== 'number' || product.price < 0) {
+            return NextResponse.json(
+              { error: `Prezzo non valido per il prodotto ${product.title || item.productID}.` },
+              { status: 409 },
+            )
+          }
+          const stock = typeof product.stock === 'number' ? product.stock : 0
+          const allocated = typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
+          const available = Math.max(0, stock - allocated)
+          if (item.quantity > available) {
+            return NextResponse.json(
+              {
+                error: `Disponibilità insufficiente per ${product.title || item.productID}.`,
+                productId: item.productID,
+                requested: item.quantity,
+                available,
+              },
+              { status: 409 },
+            )
+          }
+          productLineItems.push({
+            product,
+            quantity: item.quantity,
+            unitPrice: product.price,
+            lineTotal: product.price * item.quantity,
+            available,
+          })
+          continue
+        }
+
+        const service = servicesById.get(item.serviceID)
+        if (!service) continue
+
+        if (item.serviceLineKind === 'package') {
+          const pkg = Array.isArray(service.pacchetti)
+            ? service.pacchetti.find((entry) => String(entry?.id ?? '') === item.variantKey)
+            : null
+          if (!pkg || typeof pkg.prezzoPacchetto !== 'number' || pkg.prezzoPacchetto < 0) {
+            return NextResponse.json(
+              { error: `Pacchetto non valido per il servizio ${service.name || item.serviceID}.` },
+              { status: 409 },
+            )
+          }
+          serviceLineItems.push({
+            service,
+            quantity: item.quantity,
+            unitPrice: pkg.prezzoPacchetto,
+            lineTotal: pkg.prezzoPacchetto * item.quantity,
+            title: pkg.nomePacchetto || `Pacchetto ${service.name || item.serviceID}`,
+            itemKind: 'package',
+            variantKey: item.variantKey,
+            variantLabel: pkg.nomePacchetto || null,
+            durationMinutes: null,
+            sessions:
+              typeof pkg.numeroSedute === 'number' && Number.isFinite(pkg.numeroSedute)
+                ? pkg.numeroSedute
+                : null,
+          })
+          continue
+        }
+
+        let optionName = (typeof service.nomeVariabile === 'string' && service.nomeVariabile.trim()) || 'Default'
+        let optionDuration =
+          typeof service.durationMinutes === 'number' && Number.isFinite(service.durationMinutes)
+            ? service.durationMinutes
+            : null
+        let optionPrice: number | null =
+          typeof service.price === 'number' && Number.isFinite(service.price) ? service.price : null
+
+        const variantMatch = item.variantKey.match(/^variabile:(\d+)$/)
+        if (variantMatch) {
+          const variantIndex = Number(variantMatch[1])
+          const variant =
+            Array.isArray(service.variabili) && Number.isFinite(variantIndex) && variantIndex >= 0
+              ? service.variabili[variantIndex]
+              : null
+          if (!variant || typeof variant.varPrice !== 'number' || variant.varPrice < 0) {
+            return NextResponse.json(
+              { error: `Variante non valida per il servizio ${service.name || item.serviceID}.` },
+              { status: 409 },
+            )
+          }
+          optionName =
+            (typeof variant.varNome === 'string' && variant.varNome.trim()) || `Variabile ${variantIndex + 1}`
+          optionDuration =
+            typeof variant.varDurationMinutes === 'number' && Number.isFinite(variant.varDurationMinutes)
+              ? variant.varDurationMinutes
+              : optionDuration
+          optionPrice = variant.varPrice
+        }
+
+        if (typeof optionPrice !== 'number' || optionPrice < 0) {
           return NextResponse.json(
-            { error: `Prezzo non valido per il prodotto ${product.title || id}.` },
+            { error: `Prezzo non valido per il servizio ${service.name || item.serviceID}.` },
             { status: 409 },
           )
         }
-        const stock = typeof product.stock === 'number' ? product.stock : 0
-        const allocated = typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
-        const available = Math.max(0, stock - allocated)
-        if (quantity > available) {
-          return NextResponse.json(
-            {
-              error: `Disponibilità insufficiente per ${product.title || id}.`,
-              productId: id,
-              requested: quantity,
-              available,
-            },
-            { status: 409 },
-          )
-        }
-        lineItems.push({
-          product,
-          quantity,
-          unitPrice: product.price,
-          lineTotal: product.price * quantity,
-          available,
+
+        const durationSuffix = optionDuration ? ` ${optionDuration} min` : ''
+        serviceLineItems.push({
+          service,
+          quantity: item.quantity,
+          unitPrice: optionPrice,
+          lineTotal: optionPrice * item.quantity,
+          title: `${service.name} ${optionName}${durationSuffix}`.trim(),
+          itemKind: 'service',
+          variantKey: item.variantKey,
+          variantLabel: optionName,
+          durationMinutes: optionDuration,
+          sessions: null,
         })
       }
 
-      const subtotal = lineItems.reduce((sum, item) => sum + item.lineTotal, 0)
+      const productSubtotal = productLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
+      const serviceSubtotal = serviceLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
+      const subtotal = productSubtotal + serviceSubtotal
       let shippingAmount = 0
-      if (!isFreeShippingUnlocked(subtotal) && (!isPaymentElementMode || hasShippingAddressInput)) {
+      if (
+        productSubtotal > 0 &&
+        !isFreeShippingUnlocked(productSubtotal) &&
+        (!isPaymentElementMode || hasShippingAddressInput)
+      ) {
         const shippingOptions = await getSendcloudShippingOptions({
           payload,
           toCountry: 'IT',
@@ -241,6 +429,20 @@ export async function POST(request: Request) {
       }
       const discountAmount = 0
       const total = Math.max(0, subtotal + shippingAmount - discountAmount)
+      const checkoutLineItems: CheckoutLineItem[] = [
+        ...productLineItems.map((item) => ({
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal,
+          stripeName: item.product.title || String(item.product.id),
+        })),
+        ...serviceLineItems.map((item) => ({
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal,
+          stripeName: item.title,
+        })),
+      ]
 
       const createdOrder = await payload.create({
       collection: 'orders',
@@ -278,9 +480,10 @@ export async function POST(request: Request) {
 
       const rollbackAllocated = new Map<string, number>()
       const createdItemIDs: Array<string | number> = []
+      const createdServiceItemIDs: Array<string | number> = []
 
       try {
-        for (const item of lineItems) {
+        for (const item of productLineItems) {
           const productId = String(item.product.id)
           const currentAllocated =
             typeof item.product.allocatedStock === 'number' ? item.product.allocatedStock : 0
@@ -307,11 +510,38 @@ export async function POST(request: Request) {
           createdItemIDs.push(createdItem.id)
         }
 
-        await allocateOrderInventory({
-          payload,
-          orderID: String(createdOrder.id),
-          locale,
-        })
+        for (const item of serviceLineItems) {
+          const createdServiceItem = await payload.create({
+            collection: 'order-service-items',
+            overrideAccess: true,
+            locale,
+            draft: false,
+            data: {
+              order: createdOrder.id,
+              service: item.service.id,
+              itemKind: item.itemKind,
+              variantKey: item.variantKey,
+              variantLabel: item.variantLabel || undefined,
+              serviceTitle: item.title,
+              serviceSlug: item.service.slug || undefined,
+              durationMinutes: item.durationMinutes ?? undefined,
+              sessions: item.sessions ?? undefined,
+              currency: 'EUR',
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              lineTotal: item.lineTotal,
+            },
+          })
+          createdServiceItemIDs.push(createdServiceItem.id)
+        }
+
+        if (productLineItems.length > 0) {
+          await allocateOrderInventory({
+            payload,
+            orderID: String(createdOrder.id),
+            locale,
+          })
+        }
 
         const integrations = await getShopIntegrationsConfig(payload)
         const stripeSecret = integrations.stripe.secretKey
@@ -358,13 +588,13 @@ export async function POST(request: Request) {
                 locale,
               },
             },
-            line_items: lineItems.map((item) => ({
+            line_items: checkoutLineItems.map((item) => ({
               quantity: item.quantity,
               price_data: {
                 currency: 'eur',
                 unit_amount: toStripeAmount(item.unitPrice),
                 product_data: {
-                  name: item.product.title || String(item.product.id),
+                  name: item.stripeName,
                 },
               },
             })),
@@ -544,6 +774,19 @@ export async function POST(request: Request) {
           try {
             await payload.delete({
               collection: 'order-items',
+              id: itemID,
+              overrideAccess: true,
+              locale,
+            })
+          } catch {
+            // No-op best effort rollback
+          }
+        }
+
+        for (const itemID of createdServiceItemIDs) {
+          try {
+            await payload.delete({
+              collection: 'order-service-items',
               id: itemID,
               overrideAccess: true,
               locale,

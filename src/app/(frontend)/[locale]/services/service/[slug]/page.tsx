@@ -12,13 +12,14 @@ import type { SerializedEditorState } from 'lexical'
 import { FaqAccordion } from '@/components/ui/FaqAccordion'
 import type { Treatment } from '@/payload-types'
 import type { ServicesCarouselItem } from '@/components/carousel/types'
-import { Button } from '@/components/ui/button'
-import { ButtonLink } from '@/components/ui/button-link'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { LabelText } from '@/components/ui/label'
 import { SplitSection } from '@/components/ui/SplitSection'
 import { UILeadGallery } from '@/components/ui/LeadGallery'
+import { LeadPanel } from '@/components/ui/LeadPanel'
+import { LeadHeader } from '@/components/ui/LeadHeader'
+import { ServiceChooseOptions } from './ServiceChooseOptions'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -299,11 +300,6 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
 
   const categoryLabel = resolveTreatmentLabel(parentTreatment)
   const badgeLabel = resolveTreatmentLabel(service.badge)
-  const categoryId =
-    parentTreatment && typeof parentTreatment === 'object' && 'id' in parentTreatment
-      ? String((parentTreatment as { id?: string | number }).id ?? '')
-      : undefined
-
   const resolveRelId = (value: unknown) => {
     if (!value) return null
     if (typeof value === 'string' || typeof value === 'number') return String(value)
@@ -318,46 +314,59 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
   const zoneId = resolveRelId(service.zone)
   const genderValue = typeof service.gender === 'string' ? service.gender : null
 
-  const relatedResult = await payload.find({
-    collection: 'services',
-    locale,
-    overrideAccess: false,
-    depth: 0,
-    limit: 4,
-    where: {
-      and: [
-        { slug: { not_equals: service.slug } },
-        ...(categoryId ? [{ treatments: { in: [categoryId] } }] : []),
-      ],
+  const chooseOptions = [
+    {
+      id: 'default',
+      name:
+        typeof service.nomeVariabile === 'string' && service.nomeVariabile.trim()
+          ? service.nomeVariabile.trim()
+          : 'Default',
+      durationMinutes:
+        typeof service.durationMinutes === 'number' && service.durationMinutes > 0
+          ? service.durationMinutes
+          : null,
+      price: typeof service.price === 'number' && service.price >= 0 ? service.price : null,
     },
-  })
+    ...(Array.isArray(service.variabili)
+      ? service.variabili.map((item, index) => ({
+          id: `variabile:${index}`,
+          name:
+            typeof item?.varNome === 'string' && item.varNome.trim()
+              ? item.varNome.trim()
+              : `Variabile ${index + 1}`,
+          durationMinutes:
+            typeof item?.varDurationMinutes === 'number' && item.varDurationMinutes > 0
+              ? item.varDurationMinutes
+              : null,
+          price: typeof item?.varPrice === 'number' && item.varPrice >= 0 ? item.varPrice : null,
+        }))
+      : []),
+  ]
 
-  const relatedServices = relatedResult.docs
-    .map((doc) => ({
-      id: String(doc.id),
-      name: doc.name || '',
-      slug: doc.slug || '',
-    }))
-    .filter((doc) => doc.name && doc.slug)
+  const packageOptions = Array.isArray(service.pacchetti)
+    ? service.pacchetti.map((item, index) => ({
+        id: `pkg-${index}`,
+        name:
+          typeof item?.nomePacchetto === 'string' && item.nomePacchetto.trim()
+            ? item.nomePacchetto.trim()
+            : `Pacchetto ${index + 1}`,
+        sessions:
+          typeof item?.numeroSedute === 'number' && item.numeroSedute > 0 ? item.numeroSedute : null,
+        packagePrice:
+          typeof item?.prezzoPacchetto === 'number' && item.prezzoPacchetto >= 0
+            ? item.prezzoPacchetto
+            : null,
+        packageValue:
+          typeof item?.valorePacchetto === 'number' && item.valorePacchetto >= 0
+            ? item.valorePacchetto
+            : null,
+        linkedTo:
+          typeof item?.collegaAVariabile === 'string' && item.collegaAVariabile.trim()
+            ? item.collegaAVariabile.trim()
+            : 'default',
+      }))
+    : []
 
-  const crossSellResult = await payload.find({
-    collection: 'services',
-    locale,
-    overrideAccess: false,
-    depth: 1,
-    limit: 1,
-    where: {
-      and: [
-        { slug: { not_equals: service.slug } },
-        ...(categoryId ? [{ treatments: { not_in: [categoryId] } }] : []),
-      ],
-    },
-  })
-  const crossSell = crossSellResult.docs[0]
-  const crossSellThumb = crossSell
-    ? ((await resolveGalleryCover(crossSell.gallery, crossSell.name || t.services.title))?.url ??
-      null)
-    : null
   const galleryItems = await resolveGalleryItems(service.gallery, service.name || t.services.title)
   const coverMedia = await resolveGalleryCover(service.gallery, service.name || t.services.title)
   const imageUrl = coverMedia?.url ?? null
@@ -469,111 +478,48 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
               media: item.media ? { url: item.media.url, alt: item.media.alt } : undefined,
               mediaType: item.mediaType,
             }))}
+            showProgress
             classNames={{
               media: styles.heroMedia,
             }}
           />
         }
         right={
-          <div className={styles.heroPanel}>
-            <div className={styles.titleRow}>
-              <SectionTitle as="h1" size="h1" className={styles.title}>
-                {service.name}
-              </SectionTitle>
-              <span className={`${styles.badge} typo-caption-upper`}>
-                {badgeLabel !== '—' ? badgeLabel : formatServiceType(service.serviceType)}
-              </span>
-            </div>
-
-            {service.tagline && (
-              <div className={`${styles.eyebrow} typo-caption-upper`}>{service.tagline}</div>
-            )}
-
-            <div className={`${styles.subtitleRow} typo-small-upper`}>
-              <span className={styles.subtitle}>{categoryLabel}</span>
-              <span className={`${styles.rating} typo-small`}>★★★★★</span>
-              <span className={`${styles.ratingCount} typo-small`}>(1,858)</span>
-            </div>
-
-            {service.description ? (
-              <SectionSubtitle className={styles.description}>{service.description}</SectionSubtitle>
-            ) : null}
+          <LeadPanel className={styles.heroPanel}>
+            <LeadHeader
+              title={
+                <SectionTitle as="h1" size="h1" className={styles.title}>
+                  {service.name}
+                </SectionTitle>
+              }
+              badge={badgeLabel !== '—' ? badgeLabel : formatServiceType(service.serviceType)}
+              between={
+                <>
+                  {service.tagline ? (
+                    <div className={`${styles.eyebrow} typo-caption-upper`}>{service.tagline}</div>
+                  ) : null}
+                  <div className={`${styles.subtitleRow} typo-small-upper`}>
+                    <span className={styles.subtitle}>{categoryLabel}</span>
+                  </div>
+                </>
+              }
+              titleRowClassName={styles.titleRow}
+              badgeClassName={`${styles.badge} typo-caption-upper`}
+            />
 
             <div className={styles.divider} />
 
             <div className={styles.relatedBlock}>
-              <LabelText variant="section">Servizi correlati</LabelText>
-              <div className={styles.relatedList}>
-                {(relatedServices.length > 0
-                  ? relatedServices
-                  : [
-                      { id: 'placeholder-1', name: 'Laser viso totale', slug: '#' },
-                      { id: 'placeholder-2', name: 'Laser viso donna', slug: '#' },
-                      { id: 'placeholder-3', name: 'Laser viso uomo', slug: '#' },
-                    ]
-                ).map((related) => (
-                  <ButtonLink
-                    key={related.id}
-                    className={`${styles.relatedItem} typo-caption-upper`}
-                    kind="main"
-                    size="sm"
-                    interactive
-                    href={
-                      related.slug === '#'
-                        ? `/${locale}/services`
-                        : `/${locale}/services/service/${related.slug}`
-                    }
-                  >
-                    {related.name}
-                  </ButtonLink>
-                ))}
-              </div>
-              <Button
-                className={`${styles.buyButton} typo-caption-upper`}
-                type="button"
-                kind="main"
-                interactive
-              >
-                Prenota ora
-              </Button>
-            </div>
-
-            <div className={styles.crossSell}>
-              <div className={`${styles.crossSellTitle} typo-caption-upper`}>Aggiungi</div>
-              <div className={styles.crossSellRow}>
-                <div className={styles.crossSellItem}>
-                  <div className={styles.crossSellThumb}>
-                    {crossSellThumb ? (
-                      <Image
-                        src={crossSellThumb}
-                        alt={crossSell?.name || 'Servizio'}
-                        fill
-                        loading="lazy"
-                        fetchPriority="auto"
-                      />
-                    ) : (
-                      <span />
-                    )}
-                  </div>
-                  <div>
-                    <div className={`${styles.crossSellName} typo-body-upper`}>
-                      {crossSell?.name || 'Servizio complementare'}
-                    </div>
-                    <div className={`${styles.crossSellMeta} typo-caption`}>
-                      Selezione consigliata
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  className={`${styles.lineupButton} typo-caption-upper`}
-                  type="button"
-                  kind="main"
-                  size="sm"
-                  interactive
-                >
-                  Aggiungi
-                </Button>
-              </div>
+              <LabelText variant="section">Scegli</LabelText>
+              <ServiceChooseOptions
+                serviceId={String(service.id)}
+                serviceSlug={service.slug || undefined}
+                options={chooseOptions}
+                packages={packageOptions}
+                serviceName={service.name || 'servizio'}
+                locale={locale}
+                coverImage={coverMedia?.url ?? null}
+              />
             </div>
 
             <ServiceAccordion
@@ -688,7 +634,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
                   : []),
               ]}
             />
-          </div>
+          </LeadPanel>
         }
       />
 

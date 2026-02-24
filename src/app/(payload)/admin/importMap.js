@@ -1,4 +1,8 @@
+import { default as default_5ae14ba28b2c8b303a6a51bf0acddc48 } from '../../../components/admin/OrderServiceItemsList'
 import { default as default_7eb31bc146d39d5e7d5719fba4150449 } from '../../../components/admin/SectionTitle'
+import { default as default_c41711f0c79a6095f245c88ba2d3606b } from '../../../components/admin/PackageVariableSelect'
+import { default as default_26fd4bd2add89f82886c50abcfd7d4a3 } from '../../../components/admin/PackageValueField'
+import { default as default_5a759a02e9879fdc224043bf81c6438e } from '../../../components/admin/ServicePackageRowLabel'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -29,7 +33,11 @@ import { default as default_962081a3c03430588afec20154b319ef } from '../../../co
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 
 export const importMap = {
+  "/components/admin/OrderServiceItemsList#default": default_5ae14ba28b2c8b303a6a51bf0acddc48,
   "/components/admin/SectionTitle#default": default_7eb31bc146d39d5e7d5719fba4150449,
+  "/components/admin/PackageVariableSelect#default": default_c41711f0c79a6095f245c88ba2d3606b,
+  "/components/admin/PackageValueField#default": default_26fd4bd2add89f82886c50abcfd7d4a3,
+  "/components/admin/ServicePackageRowLabel#default": default_5a759a02e9879fdc224043bf81c6438e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
