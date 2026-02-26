@@ -345,7 +345,10 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
 
   const packageOptions = Array.isArray(service.pacchetti)
     ? service.pacchetti.map((item, index) => ({
-        id: `pkg-${index}`,
+        id:
+          typeof item?.id === 'string' && item.id.trim()
+            ? item.id.trim()
+            : `pkg-${index}`,
         name:
           typeof item?.nomePacchetto === 'string' && item.nomePacchetto.trim()
             ? item.nomePacchetto.trim()

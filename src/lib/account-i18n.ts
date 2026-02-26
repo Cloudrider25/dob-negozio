@@ -274,7 +274,7 @@ const accountDictionary: Record<Locale, AccountI18n> = {
       addresses: {
         title: 'I tuoi indirizzi',
         defaultAddress: 'Indirizzo predefinito',
-        noAddress: 'Nessun indirizzo presente.',
+        noAddress: 'Nessun indirizzo salvato',
         edit: 'Modifica',
         delete: 'Elimina',
         addNewAddress: 'Aggiungi nuovo indirizzo',

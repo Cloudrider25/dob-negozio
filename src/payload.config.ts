@@ -40,9 +40,11 @@ import { Pages } from './collections/Pages'
 import { Orders } from './collections/Orders'
 import { OrderItems } from './collections/OrderItems'
 import { OrderServiceItems } from './collections/OrderServiceItems'
+import { OrderServiceSessions } from './collections/OrderServiceSessions'
 import { ShopWebhookEvents } from './collections/ShopWebhookEvents'
 import { ShopInventoryLocks } from './collections/ShopInventoryLocks'
 import { ConsultationLeads } from './collections/ConsultationLeads'
+import { Anagrafiche } from './collections/Anagrafiche'
 import { SiteSettings } from './globals/SiteSettings'
 import { InstagramSettings } from './globals/InstagramSettings'
 import { siteSettingsSMTPAdapter } from './lib/email/siteSettingsSMTPAdapter'
@@ -67,6 +69,7 @@ export default buildConfig({
     Orders,
     OrderItems,
     OrderServiceItems,
+    OrderServiceSessions,
     ShopWebhookEvents,
     ShopInventoryLocks,
     Services,
@@ -100,6 +103,7 @@ export default buildConfig({
     Posts,
     Media,
     Users,
+    Anagrafiche,
     AuthAuditEvents,
     ConsultationLeads,
   ],

@@ -569,3 +569,23 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - `services.modality` migrato a `relationship` verso `service-modalities`; aggiunto campo tecnico `modalityCode` sincronizzato da hook per compatibilità filtri;
   - frontend `our-story`: filtro aggiornato da `modality` a `modalityCode`.
   - Verifica: `pnpm -s generate:types`, `pnpm -s generate:importmap`, `pnpm -s tsc --noEmit` ok.
+- 2026-02-25 | Blocco UX-042 (`Account > Servizi` mobile-first refactor + scheduling/session UX)
+  - Scope: `src/app/(frontend)/[locale]/account/page.tsx`, `src/components/account/AccountDashboardClient.tsx`, `src/components/account/AccountDashboardClient.module.css`, `src/app/api/account/service-sessions/[id]/request-date/route.ts`, `src/collections/OrderServiceItems.ts`.
+  - Decisione: abbandonare il layout tabellare classico per la sezione `Servizi` account (soprattutto su mobile), mantenendo una struttura lista/card mobile-first; separare meglio i flussi `Dettagli` vs `Modifica data`; rendere le sedute pacchetto gestibili in modo granulare.
+  - Implementazione:
+  - sostituita la tabella servizi con layout `servicesList` mobile-first (righe card), con header colonne visibile solo desktop e senza scroll orizzontale;
+  - riorganizzato il layout riga mobile in 2 colonne (`Servizio` + `Data` in colonna sinistra, `Dettagli` icon-only in colonna destra);
+  - rimossi label ridondanti dentro le card (`servicesListLabel`) e puliti padding/spacing della vecchia tabella;
+  - pacchetti raggruppati sotto una riga parent con toggle `Espandi/Collassa`; il toggle è stato spostato sulla pill `Pacchetto` (click su tutta la pill);
+  - sedute figlie: pill `Data` cliccabile su tutta l’area per apertura modale modifica data; pen icon resa indicatore visivo (non azione separata);
+  - pill `Data` unificata (larghezza costante anche con `Da definire`), tema invertito (chiara in dark / scura in light), con separatori verticali e icone Heroicons (status + edit);
+  - filtri `Servizi` semplificati da `pagati/non pagati` a `Usufruiti` / `Non usufruiti` + sottofiltri solo per `Non usufruiti`; UI filtri resa mobile-friendly con chip scrollabili orizzontalmente;
+  - modale `Modifica data` alleggerito (solo contesto sintetico + data attuale + campi operativi, rimossi campi ridondanti);
+  - modale `Dettagli` rifinito:
+  - rimosso `Variante` (ridondante con `Servizio`);
+  - rimozione campi su child package sessions (`Data ordine`, `Pagamento`, `Status`, `Prezzo`);
+  - rimozione campi su parent pacchetto (`Seduta`, `Data appuntamento`, `Status`) e `Prezzo` aggiornato a totale pacchetto (`rowPrice * sessionsTotal`);
+  - endpoint utente `request-date` esteso e corretto per update singola seduta (niente propagazione accidentale a tutto il pacchetto), con supporto `set/clear`;
+  - sync `OrderServiceItems` protetto con `context.skipSessionSync` per evitare overwrite multipli sulle sedute.
+  - Esito: tab `Services` account completato e allineato a un setup mobile-first reale (UI moderna, pacchetti raggruppati, scheduling per seduta).
+  - Verifica: `pnpm -s tsc --noEmit` ok.

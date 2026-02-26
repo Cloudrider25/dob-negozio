@@ -70,6 +70,7 @@ export interface Config {
     orders: Order;
     'order-items': OrderItem;
     'order-service-items': OrderServiceItem;
+    'order-service-sessions': OrderServiceSession;
     'shop-webhook-events': ShopWebhookEvent;
     'shop-inventory-locks': ShopInventoryLock;
     services: Service;
@@ -103,6 +104,7 @@ export interface Config {
     posts: Post;
     media: Media;
     users: User;
+    anagrafiche: Anagrafiche;
     'auth-audit-events': AuthAuditEvent;
     'consultation-leads': ConsultationLead;
     'payload-kv': PayloadKv;
@@ -115,6 +117,7 @@ export interface Config {
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-items': OrderItemsSelect<false> | OrderItemsSelect<true>;
     'order-service-items': OrderServiceItemsSelect<false> | OrderServiceItemsSelect<true>;
+    'order-service-sessions': OrderServiceSessionsSelect<false> | OrderServiceSessionsSelect<true>;
     'shop-webhook-events': ShopWebhookEventsSelect<false> | ShopWebhookEventsSelect<true>;
     'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
@@ -148,6 +151,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    anagrafiche: AnagraficheSelect<false> | AnagraficheSelect<true>;
     'auth-audit-events': AuthAuditEventsSelect<false> | AuthAuditEventsSelect<true>;
     'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -237,6 +241,19 @@ export interface Order {
     lastSyncAt?: string | null;
     error?: string | null;
   };
+  cartMode?: ('products_only' | 'services_only' | 'mixed') | null;
+  productFulfillmentMode?: ('shipping' | 'pickup' | 'none') | null;
+  appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
+  appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
+  appointmentRequestedDate?: string | null;
+  appointmentRequestedTime?: string | null;
+  appointmentProposedDate?: string | null;
+  appointmentProposedTime?: string | null;
+  /**
+   * Messaggio/nota per proporre alternativa o conferma interna.
+   */
+  appointmentProposalNote?: string | null;
+  appointmentConfirmedAt?: string | null;
   customer?: (number | null) | User;
   notes?: string | null;
   updatedAt: string;
@@ -252,6 +269,22 @@ export interface User {
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
+  addresses?:
+    | {
+        firstName?: string | null;
+        lastName?: string | null;
+        company?: string | null;
+        streetAddress?: string | null;
+        apartment?: string | null;
+        city?: string | null;
+        country?: string | null;
+        province?: string | null;
+        postalCode?: string | null;
+        phone?: string | null;
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   preferences?: {
     marketingOptIn?: boolean | null;
     preferredLocale?: ('it' | 'en' | 'ru') | null;
@@ -647,6 +680,14 @@ export interface OrderServiceItem {
   itemKind: 'service' | 'package';
   variantKey?: string | null;
   variantLabel?: string | null;
+  appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
+  appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
+  appointmentRequestedDate?: string | null;
+  appointmentRequestedTime?: string | null;
+  appointmentProposedDate?: string | null;
+  appointmentProposedTime?: string | null;
+  appointmentProposalNote?: string | null;
+  appointmentConfirmedAt?: string | null;
   serviceTitle: string;
   serviceSlug?: string | null;
   durationMinutes?: number | null;
@@ -959,6 +1000,37 @@ export interface Zone {
   id: number;
   code: string;
   label: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-service-sessions".
+ */
+export interface OrderServiceSession {
+  id: number;
+  order: number | Order;
+  orderServiceItem: number | OrderServiceItem;
+  service: number | Service;
+  itemKind: 'service' | 'package';
+  variantKey?: string | null;
+  variantLabel?: string | null;
+  sessionIndex: number;
+  sessionLabel: string;
+  sessionsTotal?: number | null;
+  appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
+  appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
+  appointmentRequestedDate?: string | null;
+  appointmentRequestedTime?: string | null;
+  appointmentProposedDate?: string | null;
+  appointmentProposedTime?: string | null;
+  appointmentProposalNote?: string | null;
+  appointmentConfirmedAt?: string | null;
+  serviceTitle: string;
+  serviceSlug?: string | null;
+  durationMinutes?: number | null;
+  currency: string;
+  sessionPrice: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -1356,6 +1428,63 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "anagrafiche".
+ */
+export interface Anagrafiche {
+  id: number;
+  /**
+   * Label interno generato da nome e cognome.
+   */
+  recordLabel?: string | null;
+  /**
+   * Seleziona un utente con ruolo customer.
+   */
+  customer: number | User;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  addresses?:
+    | {
+        firstName?: string | null;
+        lastName?: string | null;
+        company?: string | null;
+        streetAddress?: string | null;
+        apartment?: string | null;
+        postalCode?: string | null;
+        city?: string | null;
+        province?: string | null;
+        country?: string | null;
+        phone?: string | null;
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  generalNotes?: string | null;
+  lastAssessmentDate?: string | null;
+  skinType?: ('normal' | 'dry' | 'oily' | 'combination' | 'sensitive') | null;
+  skinSensitivity?: ('low' | 'medium' | 'high') | null;
+  fitzpatrick?: ('I' | 'II' | 'III' | 'IV' | 'V' | 'VI') | null;
+  hydrationLevel?: number | null;
+  sebumLevel?: number | null;
+  elasticityLevel?: number | null;
+  acneTendency?: boolean | null;
+  rosaceaTendency?: boolean | null;
+  hyperpigmentationTendency?: boolean | null;
+  allergies?: string | null;
+  contraindications?: string | null;
+  medications?: string | null;
+  pregnancyOrBreastfeeding?: ('no' | 'pregnancy' | 'breastfeeding') | null;
+  homeCareRoutine?: string | null;
+  treatmentGoals?: string | null;
+  estheticianNotes?: string | null;
+  serviceRecommendations?: string | null;
+  productRecommendations?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth-audit-events".
  */
 export interface AuthAuditEvent {
@@ -1441,6 +1570,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'order-service-items';
         value: number | OrderServiceItem;
+      } | null)
+    | ({
+        relationTo: 'order-service-sessions';
+        value: number | OrderServiceSession;
       } | null)
     | ({
         relationTo: 'shop-webhook-events';
@@ -1575,6 +1708,10 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'anagrafiche';
+        value: number | Anagrafiche;
+      } | null)
+    | ({
         relationTo: 'auth-audit-events';
         value: number | AuthAuditEvent;
       } | null)
@@ -1667,6 +1804,16 @@ export interface OrdersSelect<T extends boolean = true> {
         lastSyncAt?: T;
         error?: T;
       };
+  cartMode?: T;
+  productFulfillmentMode?: T;
+  appointmentMode?: T;
+  appointmentStatus?: T;
+  appointmentRequestedDate?: T;
+  appointmentRequestedTime?: T;
+  appointmentProposedDate?: T;
+  appointmentProposedTime?: T;
+  appointmentProposalNote?: T;
+  appointmentConfirmedAt?: T;
   customer?: T;
   notes?: T;
   updatedAt?: T;
@@ -1700,6 +1847,14 @@ export interface OrderServiceItemsSelect<T extends boolean = true> {
   itemKind?: T;
   variantKey?: T;
   variantLabel?: T;
+  appointmentMode?: T;
+  appointmentStatus?: T;
+  appointmentRequestedDate?: T;
+  appointmentRequestedTime?: T;
+  appointmentProposedDate?: T;
+  appointmentProposedTime?: T;
+  appointmentProposalNote?: T;
+  appointmentConfirmedAt?: T;
   serviceTitle?: T;
   serviceSlug?: T;
   durationMinutes?: T;
@@ -1708,6 +1863,36 @@ export interface OrderServiceItemsSelect<T extends boolean = true> {
   unitPrice?: T;
   quantity?: T;
   lineTotal?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-service-sessions_select".
+ */
+export interface OrderServiceSessionsSelect<T extends boolean = true> {
+  order?: T;
+  orderServiceItem?: T;
+  service?: T;
+  itemKind?: T;
+  variantKey?: T;
+  variantLabel?: T;
+  sessionIndex?: T;
+  sessionLabel?: T;
+  sessionsTotal?: T;
+  appointmentMode?: T;
+  appointmentStatus?: T;
+  appointmentRequestedDate?: T;
+  appointmentRequestedTime?: T;
+  appointmentProposedDate?: T;
+  appointmentProposedTime?: T;
+  appointmentProposalNote?: T;
+  appointmentConfirmedAt?: T;
+  serviceTitle?: T;
+  serviceSlug?: T;
+  durationMinutes?: T;
+  currency?: T;
+  sessionPrice?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2501,6 +2686,22 @@ export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   phone?: T;
+  addresses?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        company?: T;
+        streetAddress?: T;
+        apartment?: T;
+        city?: T;
+        country?: T;
+        province?: T;
+        postalCode?: T;
+        phone?: T;
+        isDefault?: T;
+        id?: T;
+      };
   preferences?:
     | T
     | {
@@ -2525,6 +2726,56 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "anagrafiche_select".
+ */
+export interface AnagraficheSelect<T extends boolean = true> {
+  recordLabel?: T;
+  customer?: T;
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  addresses?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        company?: T;
+        streetAddress?: T;
+        apartment?: T;
+        postalCode?: T;
+        city?: T;
+        province?: T;
+        country?: T;
+        phone?: T;
+        isDefault?: T;
+        id?: T;
+      };
+  generalNotes?: T;
+  lastAssessmentDate?: T;
+  skinType?: T;
+  skinSensitivity?: T;
+  fitzpatrick?: T;
+  hydrationLevel?: T;
+  sebumLevel?: T;
+  elasticityLevel?: T;
+  acneTendency?: T;
+  rosaceaTendency?: T;
+  hyperpigmentationTendency?: T;
+  allergies?: T;
+  contraindications?: T;
+  medications?: T;
+  pregnancyOrBreastfeeding?: T;
+  homeCareRoutine?: T;
+  treatmentGoals?: T;
+  estheticianNotes?: T;
+  serviceRecommendations?: T;
+  productRecommendations?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -47,6 +47,9 @@ type RecommendedProduct = {
   brandName: string
 }
 
+const isServiceCartItem = (item: CartItem) =>
+  item.id.includes(':service:') || item.id.includes(':package:')
+
 type CustomerSnapshot = {
   email: string
   firstName: string
@@ -73,7 +76,7 @@ function PaymentElementForm({
   copy: ReturnType<typeof getJourneyDictionary>['checkout']
   onBack: () => void
   onError: (message: string) => void
-  onSuccess: () => void
+  onSuccess: (paymentIntentId?: string) => void
 }) {
   const stripe = useStripe()
   const elements = useElements()
@@ -121,7 +124,7 @@ function PaymentElementForm({
     }
 
     if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
-      onSuccess()
+      onSuccess(paymentIntent.id)
       return
     }
 
@@ -228,7 +231,7 @@ function ExpressCheckoutQuickForm({
   paymentSession: PaymentSession
   copy: ReturnType<typeof getJourneyDictionary>['checkout']
   onError: (message: string) => void
-  onSuccess: () => void
+  onSuccess: (paymentIntentId?: string) => void
 }) {
   const stripe = useStripe()
   const elements = useElements()
@@ -262,7 +265,7 @@ function ExpressCheckoutQuickForm({
       }
 
       if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
-        onSuccess()
+        onSuccess(paymentIntent.id)
         return
       }
 
@@ -339,6 +342,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   const [shippingLoading, setShippingLoading] = useState(false)
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
   const [selectedShippingOptionID, setSelectedShippingOptionID] = useState<string | null>(null)
+  const [productFulfillmentMode, setProductFulfillmentMode] = useState<'shipping' | 'pickup' | 'none'>(
+    'shipping',
+  )
+  const [serviceAppointmentMode, setServiceAppointmentMode] = useState<'requested_slot' | 'contact_later'>(
+    'contact_later',
+  )
+  const [serviceRequestedDate, setServiceRequestedDate] = useState('')
+  const [serviceRequestedTime, setServiceRequestedTime] = useState('')
   const [items, setItems] = useState<CartItem[]>([])
   const [recommended, setRecommended] = useState<RecommendedProduct[]>([])
   const [recommendedLoading, setRecommendedLoading] = useState(false)
@@ -419,6 +430,27 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     () => items.reduce((sum, item) => sum + (item.price ?? 0) * item.quantity, 0),
     [items],
   )
+  const hasProducts = useMemo(() => items.some((item) => !isServiceCartItem(item)), [items])
+  const hasServices = useMemo(() => items.some((item) => isServiceCartItem(item)), [items])
+  const cartMode = useMemo<'products_only' | 'services_only' | 'mixed'>(() => {
+    if (hasProducts && hasServices) return 'mixed'
+    if (hasServices) return 'services_only'
+    return 'products_only'
+  }, [hasProducts, hasServices])
+  const productSubtotal = useMemo(
+    () => items.reduce((sum, item) => (isServiceCartItem(item) ? sum : sum + (item.price ?? 0) * item.quantity), 0),
+    [items],
+  )
+  const requiresShippingAddress = hasProducts && productFulfillmentMode === 'shipping'
+  const shippingDisabled = !hasProducts || productFulfillmentMode !== 'shipping'
+
+  useEffect(() => {
+    if (!hasProducts) {
+      setProductFulfillmentMode('none')
+      return
+    }
+    setProductFulfillmentMode((prev) => (prev === 'none' ? 'shipping' : prev))
+  }, [hasProducts])
 
   const addRecommendedToCart = (product: RecommendedProduct) => {
     const next = [...items]
@@ -444,35 +476,31 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     emitCartUpdated()
   }
 
-  const isFormComplete = useMemo(() => {
-    const required = [
-      formState.email,
-      formState.firstName,
-      formState.lastName,
-      formState.address,
-      formState.postalCode,
-      formState.city,
-      formState.province,
-    ]
+  const isContactComplete = useMemo(() => {
+    const required = [formState.email, formState.firstName, formState.lastName]
     return required.every((value) => value.trim().length > 0)
-  }, [formState])
+  }, [formState.email, formState.firstName, formState.lastName])
 
   const shippingLabel = useMemo(() => {
+    if (!hasProducts) return 'Nessuna spedizione (solo servizi)'
+    if (productFulfillmentMode === 'pickup') return 'Ritiro in negozio'
     if (shippingLoading) return copy.messages.shippingCalculating
     const selected = shippingOptions.find((option) => option.id === selectedShippingOptionID) || null
     if (selected) return formatPrice(selected.amount, selected.currency)
     if (typeof shippingAmount === 'number') return formatPrice(shippingAmount, shippingCurrency)
     return copy.messages.shippingCalculatedNextStep
-  }, [copy.messages.shippingCalculatedNextStep, copy.messages.shippingCalculating, shippingAmount, shippingCurrency, shippingLoading, shippingOptions, selectedShippingOptionID])
+  }, [copy.messages.shippingCalculatedNextStep, copy.messages.shippingCalculating, hasProducts, productFulfillmentMode, shippingAmount, shippingCurrency, shippingLoading, shippingOptions, selectedShippingOptionID])
   const selectedShippingOption = useMemo(
     () => shippingOptions.find((option) => option.id === selectedShippingOptionID) || null,
     [shippingOptions, selectedShippingOptionID],
   )
-  const effectiveShippingAmount = selectedShippingOption
-    ? selectedShippingOption.amount
-    : typeof shippingAmount === 'number'
-      ? shippingAmount
-      : 0
+  const effectiveShippingAmount = shippingDisabled
+    ? 0
+    : selectedShippingOption
+      ? selectedShippingOption.amount
+      : typeof shippingAmount === 'number'
+        ? shippingAmount
+        : 0
   const effectiveShippingCurrency = selectedShippingOption
     ? selectedShippingOption.currency
     : shippingCurrency
@@ -501,9 +529,22 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     const required = [formState.address, formState.postalCode, formState.city, formState.province]
     return required.every((value) => value.trim().length > 0)
   }, [formState.address, formState.postalCode, formState.city, formState.province])
+  const isServiceAppointmentComplete = useMemo(() => {
+    if (!hasServices) return true
+    if (serviceAppointmentMode === 'contact_later') return true
+    return serviceRequestedDate.trim().length > 0 && serviceRequestedTime.trim().length > 0
+  }, [hasServices, serviceAppointmentMode, serviceRequestedDate, serviceRequestedTime])
+
+  const isFormComplete = useMemo(() => {
+    return (
+      isContactComplete &&
+      (!requiresShippingAddress || isShippingAddressComplete) &&
+      isServiceAppointmentComplete
+    )
+  }, [isContactComplete, isShippingAddressComplete, requiresShippingAddress, isServiceAppointmentComplete])
 
   useEffect(() => {
-    if (!isShippingAddressComplete || items.length === 0) {
+    if (!requiresShippingAddress || !isShippingAddressComplete || items.length === 0 || productSubtotal <= 0) {
       setShippingAmount(null)
       setShippingLoading(false)
       setShippingOptions([])
@@ -527,7 +568,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             province: formState.province,
             postalCode: formState.postalCode,
             country: 'IT',
-            subtotal,
+            subtotal: productSubtotal,
           }),
         })
 
@@ -589,7 +630,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     formState.province,
     isShippingAddressComplete,
     items.length,
-    subtotal,
+    productSubtotal,
+    requiresShippingAddress,
   ])
 
   const createPaymentSession = async ({
@@ -625,6 +667,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           customer: formState,
           items: items.map((item: CartItem) => ({ id: item.id, quantity: item.quantity })),
           shippingOptionID: selectedShippingOptionID,
+          productFulfillmentMode,
+          serviceAppointment: hasServices
+            ? {
+                mode: serviceAppointmentMode,
+                requestedDate: serviceAppointmentMode === 'requested_slot' ? serviceRequestedDate : undefined,
+                requestedTime: serviceAppointmentMode === 'requested_slot' ? serviceRequestedTime : undefined,
+              }
+            : { mode: 'none' },
         }),
       })
 
@@ -796,7 +846,22 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     [paymentSession, resolvedLocale],
   )
 
-  const onPaymentComplete = () => {
+  const onPaymentComplete = async (paymentIntentId?: string) => {
+    if (paymentSession?.orderId && paymentIntentId) {
+      try {
+        await fetch('/api/shop/checkout/confirm-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: paymentSession.orderId,
+            paymentIntentId,
+            locale: resolvedLocale,
+          }),
+        })
+      } catch {
+        // Best-effort fallback for local/test environments without Stripe webhook
+      }
+    }
     writeCart([])
     emitCartUpdated()
     const orderCode = paymentSession?.orderNumber || String(paymentSession?.orderId || '')
@@ -966,7 +1031,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 disabled={submitting}
                 onClick={onGoToShippingStep}
               >
-                {copy.actions.goToShipping}
+                  {copy.actions.goToShipping}
               </Button>
             </div>
           </>
@@ -983,7 +1048,9 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
               <div className={styles.shippingSummaryDivider} />
               <div className={styles.shippingSummaryRow}>
                 <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.shippingAddress}</span>
-                <span className={`${styles.shippingSummaryValue} typo-body`}>{shippingAddressLabel || '—'}</span>
+                <span className={`${styles.shippingSummaryValue} typo-body`}>
+                  {requiresShippingAddress ? shippingAddressLabel || '—' : hasProducts ? 'Ritiro in negozio' : 'Non richiesta'}
+                </span>
                 <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToInformationStep}>
                   {copy.actions.change}
                 </button>
@@ -993,7 +1060,35 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             <section className={styles.shippingMethodSection}>
               <h2 className={`${styles.shippingMethodTitle} typo-h3`}>{copy.sections.shippingMethod}</h2>
               <div className={styles.shippingMethodCard}>
-                {shippingLoading ? (
+                {hasProducts ? (
+                  <div className={styles.shippingMethodList}>
+                    <button
+                      type="button"
+                      className={`${styles.shippingMethodOption} ${productFulfillmentMode === 'shipping' ? styles.shippingMethodOptionActive : ''}`}
+                      onClick={() => setProductFulfillmentMode('shipping')}
+                    >
+                      <div>
+                        <p className={`${styles.shippingMethodName} typo-body-lg`}>Spedizione</p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.shippingMethodOption} ${productFulfillmentMode === 'pickup' ? styles.shippingMethodOptionActive : ''}`}
+                      onClick={() => setProductFulfillmentMode('pickup')}
+                    >
+                      <div>
+                        <p className={`${styles.shippingMethodName} typo-body-lg`}>Ritiro in negozio</p>
+                        <p className={`${styles.shippingMethodEta} typo-body`}>Gratuito</p>
+                      </div>
+                    </button>
+                  </div>
+                ) : (
+                  <p className={`${styles.shippingMethodEta} typo-body`}>Nessuna spedizione richiesta (solo servizi)</p>
+                )}
+              </div>
+              {hasProducts && productFulfillmentMode === 'shipping' ? (
+                <div className={styles.shippingMethodCard}>
+                  {shippingLoading ? (
                   <p className={`${styles.shippingMethodEta} typo-body`}>{copy.messages.shippingLoadingMethods}</p>
                 ) : shippingOptions.length === 0 ? (
                   <p className={`${styles.shippingMethodEta} typo-body`}>{copy.messages.shippingNoMethods}</p>
@@ -1022,8 +1117,58 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                     })}
                   </div>
                 )}
-              </div>
+                </div>
+              ) : null}
             </section>
+
+            {hasServices ? (
+              <section className={styles.shippingMethodSection}>
+                <h2 className={`${styles.shippingMethodTitle} typo-h3`}>Prenotazione servizi</h2>
+                <div className={styles.shippingMethodCard}>
+                  <div className={styles.shippingMethodList}>
+                    <button
+                      type="button"
+                      className={`${styles.shippingMethodOption} ${serviceAppointmentMode === 'requested_slot' ? styles.shippingMethodOptionActive : ''}`}
+                      onClick={() => setServiceAppointmentMode('requested_slot')}
+                    >
+                      <div>
+                        <p className={`${styles.shippingMethodName} typo-body-lg`}>Scelgo data e ora preferita</p>
+                        <p className={`${styles.shippingMethodEta} typo-body`}>Richiesta da confermare</p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.shippingMethodOption} ${serviceAppointmentMode === 'contact_later' ? styles.shippingMethodOptionActive : ''}`}
+                      onClick={() => setServiceAppointmentMode('contact_later')}
+                    >
+                      <div>
+                        <p className={`${styles.shippingMethodName} typo-body-lg`}>Vi contatto dopo</p>
+                        <p className={`${styles.shippingMethodEta} typo-body`}>Definiamo appuntamento successivamente</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {serviceAppointmentMode === 'requested_slot' ? (
+                  <div className={styles.shippingMethodCard}>
+                    <div className={styles.splitRow}>
+                      <input
+                        className={`${styles.input} typo-body`}
+                        type="date"
+                        value={serviceRequestedDate}
+                        onChange={(event) => setServiceRequestedDate(event.target.value)}
+                      />
+                      <input
+                        className={`${styles.input} typo-body`}
+                        type="time"
+                        value={serviceRequestedTime}
+                        onChange={(event) => setServiceRequestedTime(event.target.value)}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
 
             {shippingNoticeBlocks.length > 0 ? (
               <div className={`${styles.shippingNote} typo-body`}>
@@ -1056,7 +1201,9 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
               <div className={styles.shippingSummaryDivider} />
               <div className={styles.shippingSummaryRow}>
                 <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.shippingAddress}</span>
-                <span className={`${styles.shippingSummaryValue} typo-body`}>{shippingAddressLabel || '—'}</span>
+                <span className={`${styles.shippingSummaryValue} typo-body`}>
+                  {requiresShippingAddress ? shippingAddressLabel || '—' : hasProducts ? 'Ritiro in negozio' : 'Non richiesta'}
+                </span>
                 <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToInformationStep}>
                   {copy.actions.change}
                 </button>
@@ -1066,6 +1213,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                 <span className={`${styles.shippingSummaryLabel} typo-small`}>{copy.sections.shippingMethod}</span>
                 <span className={`${styles.shippingSummaryValue} typo-body`}>
                   {selectedShippingOption
+                    && productFulfillmentMode === 'shipping'
                     ? `${selectedShippingOption.name} · ${formatPrice(
                         selectedShippingOption.amount,
                         selectedShippingOption.currency,
@@ -1076,6 +1224,24 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                   {copy.actions.change}
                 </button>
               </div>
+              {hasServices ? (
+                <>
+                  <div className={styles.shippingSummaryDivider} />
+                  <div className={styles.shippingSummaryRow}>
+                    <span className={`${styles.shippingSummaryLabel} typo-small`}>Appuntamento servizi</span>
+                    <span className={`${styles.shippingSummaryValue} typo-body`}>
+                      {serviceAppointmentMode === 'contact_later'
+                        ? 'Vi contatto dopo'
+                        : serviceRequestedDate && serviceRequestedTime
+                          ? `${serviceRequestedDate} · ${serviceRequestedTime}`
+                          : 'Da definire'}
+                    </span>
+                    <button type="button" className={`${styles.changeLink} typo-body`} onClick={onBackToShippingStep}>
+                      {copy.actions.change}
+                    </button>
+                  </div>
+                </>
+              ) : null}
             </section>
 
             <section className={styles.paymentSection}>

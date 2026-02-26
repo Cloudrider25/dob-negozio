@@ -15,6 +15,86 @@ export const OrderServiceItems: CollectionConfig = {
     update: isAdmin,
     delete: isAdmin,
   },
+  hooks: {
+    afterChange: [
+      async ({ doc, previousDoc, req, operation, context }) => {
+        if (!req || !doc) return doc
+        if (operation !== 'update') return doc
+        if ((context as Record<string, unknown> | undefined)?.skipSessionSync) return doc
+
+        const trackedKeys = [
+          'appointmentMode',
+          'appointmentStatus',
+          'appointmentRequestedDate',
+          'appointmentRequestedTime',
+          'appointmentProposedDate',
+          'appointmentProposedTime',
+          'appointmentProposalNote',
+          'appointmentConfirmedAt',
+        ] as const
+
+        const hasRelevantChange = trackedKeys.some((key) => {
+          const nextValue = (doc as Record<string, unknown>)[key] ?? null
+          const prevValue = (previousDoc as Record<string, unknown> | undefined)?.[key] ?? null
+          return JSON.stringify(nextValue) !== JSON.stringify(prevValue)
+        })
+
+        if (!hasRelevantChange) return doc
+
+        const sessions = await req.payload.find({
+          collection: 'order-service-sessions',
+          overrideAccess: true,
+          req,
+          depth: 0,
+          limit: 500,
+          where: {
+            orderServiceItem: { equals: doc.id },
+          },
+        })
+
+        for (const session of sessions.docs) {
+          await req.payload.update({
+            collection: 'order-service-sessions',
+            id: session.id,
+            overrideAccess: true,
+            req,
+            data: {
+              appointmentMode:
+                typeof doc.appointmentMode === 'string' ? doc.appointmentMode : undefined,
+              appointmentStatus:
+                typeof doc.appointmentStatus === 'string' ? doc.appointmentStatus : undefined,
+              appointmentRequestedDate:
+                typeof doc.appointmentRequestedDate === 'string'
+                  ? doc.appointmentRequestedDate
+                  : undefined,
+              appointmentRequestedTime:
+                typeof doc.appointmentRequestedTime === 'string'
+                  ? doc.appointmentRequestedTime
+                  : undefined,
+              appointmentProposedDate:
+                typeof doc.appointmentProposedDate === 'string'
+                  ? doc.appointmentProposedDate
+                  : undefined,
+              appointmentProposedTime:
+                typeof doc.appointmentProposedTime === 'string'
+                  ? doc.appointmentProposedTime
+                  : undefined,
+              appointmentProposalNote:
+                typeof doc.appointmentProposalNote === 'string'
+                  ? doc.appointmentProposalNote
+                  : undefined,
+              appointmentConfirmedAt:
+                typeof doc.appointmentConfirmedAt === 'string'
+                  ? doc.appointmentConfirmedAt
+                  : undefined,
+            },
+          })
+        }
+
+        return doc
+      },
+    ],
+  },
   fields: [
     {
       name: 'order',
@@ -55,6 +135,82 @@ export const OrderServiceItems: CollectionConfig = {
           type: 'text',
         },
       ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'appointmentMode',
+          type: 'select',
+          defaultValue: 'none',
+          options: [
+            { label: 'Nessuno', value: 'none' },
+            { label: 'Slot richiesto', value: 'requested_slot' },
+            { label: 'Contatto successivo', value: 'contact_later' },
+          ],
+        },
+        {
+          name: 'appointmentStatus',
+          type: 'select',
+          defaultValue: 'none',
+          options: [
+            { label: 'Nessuno', value: 'none' },
+            { label: 'Pending', value: 'pending' },
+            { label: 'Confermato', value: 'confirmed' },
+            { label: 'Alternativa proposta', value: 'alternative_proposed' },
+            { label: 'Confermato da cliente', value: 'confirmed_by_customer' },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'appointmentRequestedDate',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayOnly',
+            },
+          },
+        },
+        {
+          name: 'appointmentRequestedTime',
+          type: 'text',
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'appointmentProposedDate',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayOnly',
+            },
+          },
+        },
+        {
+          name: 'appointmentProposedTime',
+          type: 'text',
+        },
+      ],
+    },
+    {
+      name: 'appointmentProposalNote',
+      type: 'textarea',
+    },
+    {
+      name: 'appointmentConfirmedAt',
+      type: 'date',
+      admin: {
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
     },
     {
       type: 'row',
@@ -117,4 +273,3 @@ export const OrderServiceItems: CollectionConfig = {
   ],
   timestamps: true,
 }
-

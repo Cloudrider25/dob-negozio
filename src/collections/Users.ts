@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { getAccountDictionary, resolveLocale } from '@/lib/account-i18n'
+import { ensureAnagraficaForCustomer } from '@/lib/anagrafiche/ensureAnagraficaForCustomer'
 
 import { isAdmin, isAdminField } from '../access/isAdmin'
 import { isAdminOrSelf } from '../access/isAdminOrSelf'
@@ -173,6 +174,12 @@ export const Users: CollectionConfig = {
         return result
       },
     ],
+    afterChange: [
+      async ({ doc, req, context }) => {
+        if (context?.skipAnagraficaSync) return
+        await ensureAnagraficaForCustomer(req.payload, doc as any, { req })
+      },
+    ],
     beforeValidate: [
       async ({ data, operation, req }) => {
         if (!data) return data
@@ -230,6 +237,27 @@ export const Users: CollectionConfig = {
     {
       name: 'phone',
       type: 'text',
+    },
+    {
+      name: 'addresses',
+      type: 'array',
+      labels: {
+        singular: 'Indirizzo',
+        plural: 'Indirizzi',
+      },
+      fields: [
+        { name: 'firstName', type: 'text' },
+        { name: 'lastName', type: 'text' },
+        { name: 'company', type: 'text' },
+        { name: 'streetAddress', type: 'text' },
+        { name: 'apartment', type: 'text' },
+        { name: 'city', type: 'text' },
+        { name: 'country', type: 'text' },
+        { name: 'province', type: 'text' },
+        { name: 'postalCode', type: 'text' },
+        { name: 'phone', type: 'text' },
+        { name: 'isDefault', type: 'checkbox', defaultValue: false },
+      ],
     },
     {
       name: 'preferences',

@@ -22,6 +22,8 @@
     "test:shop:failed-payment": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/test-shop-payment-failed.ts",
     "test:shop:admin-alignment": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/test-shop-admin-alignment.ts",
     "test:shop:tamper": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/test-shop-tamper.ts",
+    "cleanup:abandoned-checkouts": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/cleanup-abandoned-checkouts.ts",
+    "backfill:anagrafiche": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/backfill-anagrafiche-from-users.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "start:perf": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",

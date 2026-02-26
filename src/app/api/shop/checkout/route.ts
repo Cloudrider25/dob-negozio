@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
+import { ensureAnagraficaForCustomer } from '@/lib/anagrafiche/ensureAnagraficaForCustomer'
 import { isLocale, type Locale } from '@/lib/i18n'
 import { sendSMTPEmail } from '@/lib/email/sendSMTPEmail'
 import { allocateOrderInventory, commitOrderInventory } from '@/lib/shop/orderInventory'
@@ -32,6 +33,12 @@ type ParsedCartItemKey =
 type CheckoutPayload = {
   locale?: string
   checkoutMode?: 'redirect' | 'embedded' | 'payment_element'
+  productFulfillmentMode?: 'shipping' | 'pickup' | 'none'
+  serviceAppointment?: {
+    mode?: 'requested_slot' | 'contact_later' | 'none'
+    requestedDate?: string
+    requestedTime?: string
+  }
   customer?: {
     email?: string
     firstName?: string
@@ -99,6 +106,18 @@ const parseCartItemKey = (id: string, quantity: number): ParsedCartItemKey => {
   }
 }
 
+const resolveRequestedFulfillmentMode = (value: unknown): 'shipping' | 'pickup' | 'none' => {
+  if (value === 'pickup') return 'pickup'
+  if (value === 'none') return 'none'
+  return 'shipping'
+}
+
+const resolveAppointmentMode = (value: unknown): 'requested_slot' | 'contact_later' | 'none' => {
+  if (value === 'requested_slot') return 'requested_slot'
+  if (value === 'contact_later') return 'contact_later'
+  return 'none'
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as CheckoutPayload
@@ -143,12 +162,6 @@ export async function POST(request: Request) {
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Email non valida.' }, { status: 400 })
     }
-    if (!isPaymentElementMode && (!firstName || !lastName || !address || !postalCode || !city || !province)) {
-      return NextResponse.json(
-        { error: 'Compila tutti i campi obbligatori di spedizione.' },
-        { status: 400 },
-      )
-    }
 
     const rawItems = Array.isArray(body.items) ? body.items : []
     const normalized = new Map<string, number>()
@@ -176,21 +189,66 @@ export async function POST(request: Request) {
           .map((item) => item.serviceID),
       ),
     )
+    const hasProducts = productIds.length > 0
+    const hasServices = serviceIds.length > 0
+    const cartMode: 'products_only' | 'services_only' | 'mixed' = hasProducts
+      ? hasServices
+        ? 'mixed'
+        : 'products_only'
+      : 'services_only'
+    const requestedFulfillmentMode = resolveRequestedFulfillmentMode(body.productFulfillmentMode)
+    const appointmentMode = resolveAppointmentMode(body.serviceAppointment?.mode)
+    const requestedAppointmentDate = toString(body.serviceAppointment?.requestedDate)
+    const requestedAppointmentTime = toString(body.serviceAppointment?.requestedTime)
+    const appointmentDateISO =
+      requestedAppointmentDate && !Number.isNaN(new Date(requestedAppointmentDate).getTime())
+        ? new Date(requestedAppointmentDate).toISOString()
+        : ''
+    const productFulfillmentMode: 'shipping' | 'pickup' | 'none' = hasProducts
+      ? requestedFulfillmentMode === 'pickup'
+        ? 'pickup'
+        : 'shipping'
+      : 'none'
+    const requiresShippingAddress = productFulfillmentMode === 'shipping'
+    const requiresServiceAppointment = hasServices
+
+    if (requiresServiceAppointment && appointmentMode === 'requested_slot') {
+      if (!appointmentDateISO || !requestedAppointmentTime) {
+        return NextResponse.json(
+          { error: 'Seleziona data e ora preferita per i servizi.' },
+          { status: 400 },
+        )
+      }
+    }
+
+    if (!isPaymentElementMode) {
+      if (!firstName || !lastName) {
+        return NextResponse.json({ error: 'Compila i dati anagrafici obbligatori.' }, { status: 400 })
+      }
+      if (requiresShippingAddress && (!address || !postalCode || !city || !province)) {
+        return NextResponse.json(
+          { error: 'Compila tutti i campi obbligatori di spedizione.' },
+          { status: 400 },
+        )
+      }
+    }
     let locks: Awaited<ReturnType<typeof acquireInventoryLocks>> = []
-    try {
-      locks = await acquireInventoryLocks({
-        payload,
-        productIDs: productIds,
-      })
-    } catch (lockError) {
-      payload.logger.error({
-        err: lockError,
-        msg: 'Unable to acquire inventory locks for checkout.',
-      })
-      return NextResponse.json(
-        { error: 'Checkout momentaneamente occupato. Riprova tra qualche secondo.' },
-        { status: 409 },
-      )
+    if (productIds.length > 0) {
+      try {
+        locks = await acquireInventoryLocks({
+          payload,
+          productIDs: productIds,
+        })
+      } catch (lockError) {
+        payload.logger.error({
+          err: lockError,
+          msg: 'Unable to acquire inventory locks for checkout.',
+        })
+        return NextResponse.json(
+          { error: 'Checkout momentaneamente occupato. Riprova tra qualche secondo.' },
+          { status: 409 },
+        )
+      }
     }
 
     try {
@@ -412,6 +470,7 @@ export async function POST(request: Request) {
       const subtotal = productSubtotal + serviceSubtotal
       let shippingAmount = 0
       if (
+        productFulfillmentMode === 'shipping' &&
         productSubtotal > 0 &&
         !isFreeShippingUnlocked(productSubtotal) &&
         (!isPaymentElementMode || hasShippingAddressInput)
@@ -459,6 +518,20 @@ export async function POST(request: Request) {
         allocationReleased: false,
         currency: 'EUR',
         locale,
+        cartMode,
+        productFulfillmentMode,
+        appointmentMode: hasServices ? appointmentMode : 'none',
+        appointmentStatus: hasServices
+          ? appointmentMode === 'none'
+            ? 'pending'
+            : 'pending'
+          : 'none',
+        appointmentRequestedDate:
+          hasServices && appointmentMode === 'requested_slot'
+            ? appointmentDateISO
+            : undefined,
+        appointmentRequestedTime:
+          hasServices && appointmentMode === 'requested_slot' ? requestedAppointmentTime : undefined,
         subtotal,
         shippingAmount,
         discountAmount,
@@ -469,18 +542,23 @@ export async function POST(request: Request) {
         customerLastName: lastName,
         customerPhone: phone || undefined,
         shippingAddress: {
-          address,
-          postalCode,
-          city,
-          province,
+          address: requiresShippingAddress ? address : 'Ritiro in negozio / N/A',
+          postalCode: requiresShippingAddress ? postalCode : '00000',
+          city: requiresShippingAddress ? city : 'Milano',
+          province: requiresShippingAddress ? province : 'MI',
           country: 'Italy',
         },
       },
     })
 
+      if (authenticatedUser) {
+        await ensureAnagraficaForCustomer(payload, authenticatedUser as any, { locale })
+      }
+
       const rollbackAllocated = new Map<string, number>()
       const createdItemIDs: Array<string | number> = []
       const createdServiceItemIDs: Array<string | number> = []
+      const createdServiceSessionIDs: Array<string | number> = []
 
       try {
         for (const item of productLineItems) {
@@ -526,6 +604,14 @@ export async function POST(request: Request) {
               serviceSlug: item.service.slug || undefined,
               durationMinutes: item.durationMinutes ?? undefined,
               sessions: item.sessions ?? undefined,
+              appointmentMode: hasServices ? appointmentMode : 'none',
+              appointmentStatus: hasServices ? 'pending' : 'none',
+              appointmentRequestedDate:
+                hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : undefined,
+              appointmentRequestedTime:
+                hasServices && appointmentMode === 'requested_slot'
+                  ? requestedAppointmentTime
+                  : undefined,
               currency: 'EUR',
               quantity: item.quantity,
               unitPrice: item.unitPrice,
@@ -533,6 +619,42 @@ export async function POST(request: Request) {
             },
           })
           createdServiceItemIDs.push(createdServiceItem.id)
+
+          const sessionsTotal = Math.max(1, item.itemKind === 'package' ? (item.sessions ?? 1) : 1)
+          const sessionPrice = sessionsTotal > 0 ? item.lineTotal / sessionsTotal : item.lineTotal
+          for (let sessionIndex = 1; sessionIndex <= sessionsTotal; sessionIndex += 1) {
+            const createdSession = await payload.create({
+              collection: 'order-service-sessions',
+              overrideAccess: true,
+              locale,
+              draft: false,
+              data: {
+                order: createdOrder.id,
+                orderServiceItem: createdServiceItem.id,
+                service: item.service.id,
+                itemKind: item.itemKind,
+                variantKey: item.variantKey,
+                variantLabel: item.variantLabel || undefined,
+                sessionIndex,
+                sessionLabel: item.itemKind === 'package' ? `Seduta ${sessionIndex}` : 'Seduta unica',
+                sessionsTotal,
+                appointmentMode: hasServices ? appointmentMode : 'none',
+                appointmentStatus: hasServices ? 'pending' : 'none',
+                appointmentRequestedDate:
+                  hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : undefined,
+                appointmentRequestedTime:
+                  hasServices && appointmentMode === 'requested_slot'
+                    ? requestedAppointmentTime
+                    : undefined,
+                serviceTitle: item.title,
+                serviceSlug: item.service.slug || undefined,
+                durationMinutes: item.durationMinutes ?? undefined,
+                currency: 'EUR',
+                sessionPrice,
+              },
+            })
+            createdServiceSessionIDs.push(createdSession.id)
+          }
         }
 
         if (productLineItems.length > 0) {
@@ -775,6 +897,19 @@ export async function POST(request: Request) {
             await payload.delete({
               collection: 'order-items',
               id: itemID,
+              overrideAccess: true,
+              locale,
+            })
+          } catch {
+            // No-op best effort rollback
+          }
+        }
+
+        for (const sessionID of createdServiceSessionIDs) {
+          try {
+            await payload.delete({
+              collection: 'order-service-sessions',
+              id: sessionID,
               overrideAccess: true,
               locale,
             })
