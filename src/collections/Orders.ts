@@ -16,10 +16,14 @@ const createOrderNumber = () => {
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
+  labels: {
+    singular: 'Ordine',
+    plural: 'Ordini',
+  },
   admin: {
     useAsTitle: 'orderNumber',
     defaultColumns: ['orderNumber', 'status', 'paymentStatus', 'customerEmail', 'total', 'createdAt'],
-    group: 'Vendite',
+    group: 'CRM',
   },
   access: {
     read: (({ req }) => {
@@ -469,6 +473,12 @@ export const Orders: CollectionConfig = {
         },
         {
           label: 'Shipping Address',
+          admin: {
+            condition: (data) => {
+              if (!data?.cartMode) return true
+              return data.cartMode === 'products_only' || data.cartMode === 'mixed'
+            },
+          },
           fields: [
             {
               name: 'shippingAddress',
@@ -506,6 +516,12 @@ export const Orders: CollectionConfig = {
         },
         {
           label: 'Sendcloud',
+          admin: {
+            condition: (data) => {
+              if (!data?.cartMode) return true
+              return data.cartMode === 'products_only' || data.cartMode === 'mixed'
+            },
+          },
           fields: [
             {
               name: 'sendcloud',
@@ -589,6 +605,12 @@ export const Orders: CollectionConfig = {
         },
         {
           label: 'Appointment / Fulfillment',
+          admin: {
+            condition: (data) => {
+              if (!data?.cartMode) return true
+              return data.cartMode === 'services_only' || data.cartMode === 'mixed'
+            },
+          },
           fields: [
             {
               type: 'row',
@@ -652,50 +674,47 @@ export const Orders: CollectionConfig = {
               ],
             },
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'appointmentRequestedDate',
-                  type: 'date',
-                  admin: {
-                    date: {
-                      pickerAppearance: 'dayOnly',
-                    },
-                    readOnly: true,
-                  },
+              name: 'appointmentRequestedDate',
+              type: 'date',
+              admin: {
+                date: {
+                  pickerAppearance: 'dayOnly',
                 },
-                {
-                  name: 'appointmentRequestedTime',
-                  type: 'text',
-                  admin: {
-                    readOnly: true,
-                  },
-                },
-              ],
+                readOnly: true,
+                condition: () => false,
+              },
             },
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'appointmentProposedDate',
-                  type: 'date',
-                  admin: {
-                    date: {
-                      pickerAppearance: 'dayOnly',
-                    },
-                  },
+              name: 'appointmentRequestedTime',
+              type: 'text',
+              admin: {
+                readOnly: true,
+                condition: () => false,
+              },
+            },
+            {
+              name: 'appointmentProposedDate',
+              type: 'date',
+              admin: {
+                date: {
+                  pickerAppearance: 'dayOnly',
                 },
-                {
-                  name: 'appointmentProposedTime',
-                  type: 'text',
-                },
-              ],
+                condition: () => false,
+              },
+            },
+            {
+              name: 'appointmentProposedTime',
+              type: 'text',
+              admin: {
+                condition: () => false,
+              },
             },
             {
               name: 'appointmentProposalNote',
               type: 'textarea',
               admin: {
-                description: 'Messaggio/nota per proporre alternativa o conferma interna.',
+                description:
+                  'Nota riepilogativa a livello ordine (i dettagli operativi per seduta sono in Appuntamenti).',
               },
             },
             {
@@ -705,12 +724,39 @@ export const Orders: CollectionConfig = {
                 date: {
                   pickerAppearance: 'dayAndTime',
                 },
+                condition: () => false,
+              },
+            },
+          ],
+        },
+        {
+          label: 'Product Items',
+          admin: {
+            condition: (data) => {
+              if (!data?.cartMode) return true
+              return data.cartMode === 'products_only' || data.cartMode === 'mixed'
+            },
+          },
+          fields: [
+            {
+              name: 'orderProductItemsPanel',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '/components/admin/OrderProductItemsList',
+                },
               },
             },
           ],
         },
         {
           label: 'Service Items',
+          admin: {
+            condition: (data) => {
+              if (!data?.cartMode) return true
+              return data.cartMode === 'services_only' || data.cartMode === 'mixed'
+            },
+          },
           fields: [
             {
               name: 'orderServiceItemsPanel',

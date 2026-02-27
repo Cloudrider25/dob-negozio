@@ -4,6 +4,10 @@ import { isAdmin } from '../access/isAdmin'
 
 export const OrderServiceSessions: CollectionConfig = {
   slug: 'order-service-sessions',
+  labels: {
+    singular: 'Appuntamento',
+    plural: 'Appuntamenti',
+  },
   admin: {
     useAsTitle: 'sessionLabel',
     defaultColumns: [
@@ -14,7 +18,7 @@ export const OrderServiceSessions: CollectionConfig = {
       'appointmentStatus',
       'appointmentRequestedDate',
     ],
-    group: 'Vendite',
+    group: 'CRM',
   },
   access: {
     read: isAdmin,
@@ -173,4 +177,3 @@ export const OrderServiceSessions: CollectionConfig = {
   ],
   timestamps: true,
 }
-

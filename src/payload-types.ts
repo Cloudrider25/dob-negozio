@@ -67,12 +67,10 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    anagrafiche: Anagrafiche;
+    'consultation-leads': ConsultationLead;
     orders: Order;
-    'order-items': OrderItem;
-    'order-service-items': OrderServiceItem;
     'order-service-sessions': OrderServiceSession;
-    'shop-webhook-events': ShopWebhookEvent;
-    'shop-inventory-locks': ShopInventoryLock;
     services: Service;
     treatments: Treatment;
     areas: Area;
@@ -104,9 +102,11 @@ export interface Config {
     posts: Post;
     media: Media;
     users: User;
-    anagrafiche: Anagrafiche;
+    'order-items': OrderItem;
+    'order-service-items': OrderServiceItem;
+    'shop-webhook-events': ShopWebhookEvent;
+    'shop-inventory-locks': ShopInventoryLock;
     'auth-audit-events': AuthAuditEvent;
-    'consultation-leads': ConsultationLead;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -114,12 +114,10 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    anagrafiche: AnagraficheSelect<false> | AnagraficheSelect<true>;
+    'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
-    'order-items': OrderItemsSelect<false> | OrderItemsSelect<true>;
-    'order-service-items': OrderServiceItemsSelect<false> | OrderServiceItemsSelect<true>;
     'order-service-sessions': OrderServiceSessionsSelect<false> | OrderServiceSessionsSelect<true>;
-    'shop-webhook-events': ShopWebhookEventsSelect<false> | ShopWebhookEventsSelect<true>;
-    'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     treatments: TreatmentsSelect<false> | TreatmentsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
@@ -151,9 +149,11 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
-    anagrafiche: AnagraficheSelect<false> | AnagraficheSelect<true>;
+    'order-items': OrderItemsSelect<false> | OrderItemsSelect<true>;
+    'order-service-items': OrderServiceItemsSelect<false> | OrderServiceItemsSelect<true>;
+    'shop-webhook-events': ShopWebhookEventsSelect<false> | ShopWebhookEventsSelect<true>;
+    'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
     'auth-audit-events': AuthAuditEventsSelect<false> | AuthAuditEventsSelect<true>;
-    'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -200,62 +200,58 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "orders".
+ * via the `definition` "anagrafiche".
  */
-export interface Order {
+export interface Anagrafiche {
   id: number;
-  orderNumber: string;
-  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded' | 'fulfilled';
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  inventoryCommitted?: boolean | null;
-  allocationReleased?: boolean | null;
-  paymentProvider: string;
-  paymentReference?: string | null;
-  currency: string;
-  locale: string;
-  subtotal: number;
-  shippingAmount: number;
-  discountAmount: number;
-  total: number;
-  customerEmail: string;
-  customerFirstName: string;
-  customerLastName: string;
-  customerPhone?: string | null;
-  shippingAddress: {
-    address: string;
-    postalCode: string;
-    city: string;
-    province: string;
-    country: string;
-  };
   /**
-   * Dati sincronizzazione spedizione Sendcloud.
+   * Label interno generato da nome e cognome.
    */
-  sendcloud?: {
-    parcelId?: number | null;
-    carrierCode?: string | null;
-    trackingNumber?: string | null;
-    trackingUrl?: string | null;
-    labelUrl?: string | null;
-    statusMessage?: string | null;
-    lastSyncAt?: string | null;
-    error?: string | null;
-  };
-  cartMode?: ('products_only' | 'services_only' | 'mixed') | null;
-  productFulfillmentMode?: ('shipping' | 'pickup' | 'none') | null;
-  appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
-  appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
-  appointmentRequestedDate?: string | null;
-  appointmentRequestedTime?: string | null;
-  appointmentProposedDate?: string | null;
-  appointmentProposedTime?: string | null;
+  recordLabel?: string | null;
   /**
-   * Messaggio/nota per proporre alternativa o conferma interna.
+   * Seleziona un utente con ruolo customer.
    */
-  appointmentProposalNote?: string | null;
-  appointmentConfirmedAt?: string | null;
-  customer?: (number | null) | User;
-  notes?: string | null;
+  customer: number | User;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  addresses?:
+    | {
+        firstName?: string | null;
+        lastName?: string | null;
+        company?: string | null;
+        streetAddress?: string | null;
+        apartment?: string | null;
+        postalCode?: string | null;
+        city?: string | null;
+        province?: string | null;
+        country?: string | null;
+        phone?: string | null;
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  generalNotes?: string | null;
+  lastAssessmentDate?: string | null;
+  skinType?: ('normal' | 'dry' | 'oily' | 'combination' | 'sensitive') | null;
+  skinSensitivity?: ('low' | 'medium' | 'high') | null;
+  fitzpatrick?: ('I' | 'II' | 'III' | 'IV' | 'V' | 'VI') | null;
+  hydrationLevel?: number | null;
+  sebumLevel?: number | null;
+  elasticityLevel?: number | null;
+  acneTendency?: boolean | null;
+  rosaceaTendency?: boolean | null;
+  hyperpigmentationTendency?: boolean | null;
+  allergies?: string | null;
+  contraindications?: string | null;
+  medications?: string | null;
+  pregnancyOrBreastfeeding?: ('no' | 'pregnancy' | 'breastfeeding') | null;
+  homeCareRoutine?: string | null;
+  treatmentGoals?: string | null;
+  estheticianNotes?: string | null;
+  serviceRecommendations?: string | null;
+  productRecommendations?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -311,361 +307,120 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "order-items".
+ * via the `definition` "consultation-leads".
  */
-export interface OrderItem {
+export interface ConsultationLead {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  skinType?: string | null;
+  concerns?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  message?: string | null;
+  status: 'new' | 'in-progress' | 'closed';
+  source?: string | null;
+  locale?: string | null;
+  pagePath?: string | null;
+  ip?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  orderNumber: string;
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded' | 'fulfilled';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  inventoryCommitted?: boolean | null;
+  allocationReleased?: boolean | null;
+  paymentProvider: string;
+  paymentReference?: string | null;
+  currency: string;
+  locale: string;
+  subtotal: number;
+  shippingAmount: number;
+  discountAmount: number;
+  total: number;
+  customerEmail: string;
+  customerFirstName: string;
+  customerLastName: string;
+  customerPhone?: string | null;
+  shippingAddress: {
+    address: string;
+    postalCode: string;
+    city: string;
+    province: string;
+    country: string;
+  };
+  /**
+   * Dati sincronizzazione spedizione Sendcloud.
+   */
+  sendcloud?: {
+    parcelId?: number | null;
+    carrierCode?: string | null;
+    trackingNumber?: string | null;
+    trackingUrl?: string | null;
+    labelUrl?: string | null;
+    statusMessage?: string | null;
+    lastSyncAt?: string | null;
+    error?: string | null;
+  };
+  cartMode?: ('products_only' | 'services_only' | 'mixed') | null;
+  productFulfillmentMode?: ('shipping' | 'pickup' | 'none') | null;
+  appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
+  appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
+  appointmentRequestedDate?: string | null;
+  appointmentRequestedTime?: string | null;
+  appointmentProposedDate?: string | null;
+  appointmentProposedTime?: string | null;
+  /**
+   * Nota riepilogativa a livello ordine (i dettagli operativi per seduta sono in Appuntamenti).
+   */
+  appointmentProposalNote?: string | null;
+  appointmentConfirmedAt?: string | null;
+  customer?: (number | null) | User;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-service-sessions".
+ */
+export interface OrderServiceSession {
   id: number;
   order: number | Order;
-  product: number | Product;
-  productTitle: string;
-  productSlug?: string | null;
-  productBrand?: string | null;
-  productCoverImage?: string | null;
+  orderServiceItem: number | OrderServiceItem;
+  service: number | Service;
+  itemKind: 'service' | 'package';
+  variantKey?: string | null;
+  variantLabel?: string | null;
+  sessionIndex: number;
+  sessionLabel: string;
+  sessionsTotal?: number | null;
+  appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
+  appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
+  appointmentRequestedDate?: string | null;
+  appointmentRequestedTime?: string | null;
+  appointmentProposedDate?: string | null;
+  appointmentProposedTime?: string | null;
+  appointmentProposalNote?: string | null;
+  appointmentConfirmedAt?: string | null;
+  serviceTitle: string;
+  serviceSlug?: string | null;
+  durationMinutes?: number | null;
   currency: string;
-  unitPrice: number;
-  quantity: number;
-  lineTotal: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products".
- */
-export interface Product {
-  id: number;
-  title: string;
-  active?: boolean | null;
-  slug: string;
-  sku?: string | null;
-  format?: string | null;
-  price: number;
-  alternatives?:
-    | {
-        product?: (number | null) | Product;
-        sku?: string | null;
-        format?: string | null;
-        price?: number | null;
-        isRefill?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  tagline?: string | null;
-  badgeSource: 'brand' | 'collection';
-  badge?: (number | null) | Badge;
-  description?: string | null;
-  brand?: (number | null) | Brand;
-  brandLine?: (number | null) | BrandLine;
-  isRefill?: boolean | null;
-  featured?: boolean | null;
-  coverImage?: (number | null) | Media;
-  images?: (number | Media)[] | null;
-  usage?: string | null;
-  activeIngredients?: string | null;
-  results?: string | null;
-  /**
-   * URL embed (YouTube/Vimeo)
-   */
-  videoEmbedUrl?: string | null;
-  videoUpload?: (number | null) | Media;
-  videoPoster?: (number | null) | Media;
-  /**
-   * Seleziona un media già presente in cover/gallery del prodotto.
-   */
-  specsMedia?: (number | null) | Media;
-  specsGoodFor?: string | null;
-  specsFeelsLike?: string | null;
-  specsSmellsLike?: string | null;
-  specsFYI?: string | null;
-  /**
-   * Seleziona un media dalla gallery del prodotto.
-   */
-  includedMedia?: (number | null) | Media;
-  includedLabel?: string | null;
-  includedDescription?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  includedIngredientsLabel?: string | null;
-  includedIngredients?:
-    | {
-        label?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  includedFooter?: string | null;
-  faqMedia?: (number | null) | Media;
-  faqTitle?: string | null;
-  faqSubtitle?: string | null;
-  faqItems?:
-    | {
-        q?: string | null;
-        a?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  needs?: (number | Need)[] | null;
-  skinTypePrimary?: (number | null) | SkinType;
-  skinTypeSecondary?: (number | SkinType)[] | null;
-  textures?: (number | Texture)[] | null;
-  productAreas?: (number | ProductArea)[] | null;
-  timingProducts?: (number | TimingProduct)[] | null;
-  stock?: number | null;
-  allocatedStock?: number | null;
-  averageCost?: number | null;
-  total?: number | null;
-  lastDeliveryDate?: string | null;
-  deliveries?:
-    | {
-        lot?: string | null;
-        quantity?: number | null;
-        costPerUnit?: number | null;
-        totalCost?: number | null;
-        deliveryDate?: string | null;
-        expiryDate?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  stripeProductId?: string | null;
-  stripePriceId?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "badges".
- */
-export interface Badge {
-  id: number;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
- */
-export interface Brand {
-  id: number;
-  name: string;
-  slug: string;
-  logo?: (number | null) | Media;
-  active?: boolean | null;
-  sortOrder?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    heroDesktop?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    heroMobile?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    cardLarge?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    thumb?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-lines".
- */
-export interface BrandLine {
-  id: number;
-  name: string;
-  slug: string;
-  brand: number | Brand;
-  active?: boolean | null;
-  sortOrder?: number | null;
-  lineHeadline?: string | null;
-  brandLineMedia?: (number | null) | Media;
-  description?: string | null;
-  usage?: string | null;
-  activeIngredients?: string | null;
-  results?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "needs".
- */
-export interface Need {
-  id: number;
-  name: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  slug: string;
-  productArea: number | ProductArea;
-  description?: string | null;
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-areas".
- */
-export interface ProductArea {
-  id: number;
-  name: string;
-  slug: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  cardDescription?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "skin-types".
- */
-export interface SkinType {
-  id: number;
-  name: string;
-  slug: string;
-  productArea: number | ProductArea;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  cardDescription?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "textures".
- */
-export interface Texture {
-  id: number;
-  name: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  slug: string;
-  description?: string | null;
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "timing-products".
- */
-export interface TimingProduct {
-  id: number;
-  name: string;
-  slug: string;
-  boxTagline?: string | null;
-  cardTitle?: string | null;
-  cardTagline?: string | null;
-  cardMedia?: (number | null) | Media;
-  cardDescription?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  description?: string | null;
+  sessionPrice: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -855,6 +610,16 @@ export interface Service {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges".
+ */
+export interface Badge {
+  id: number;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "service-modalities".
  */
 export interface ServiceModality {
@@ -864,6 +629,59 @@ export interface ServiceModality {
   active?: boolean | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    heroDesktop?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    heroMobile?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    cardLarge?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1005,74 +823,6 @@ export interface Zone {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "order-service-sessions".
- */
-export interface OrderServiceSession {
-  id: number;
-  order: number | Order;
-  orderServiceItem: number | OrderServiceItem;
-  service: number | Service;
-  itemKind: 'service' | 'package';
-  variantKey?: string | null;
-  variantLabel?: string | null;
-  sessionIndex: number;
-  sessionLabel: string;
-  sessionsTotal?: number | null;
-  appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
-  appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
-  appointmentRequestedDate?: string | null;
-  appointmentRequestedTime?: string | null;
-  appointmentProposedDate?: string | null;
-  appointmentProposedTime?: string | null;
-  appointmentProposalNote?: string | null;
-  appointmentConfirmedAt?: string | null;
-  serviceTitle: string;
-  serviceSlug?: string | null;
-  durationMinutes?: number | null;
-  currency: string;
-  sessionPrice: number;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-webhook-events".
- */
-export interface ShopWebhookEvent {
-  id: number;
-  eventID: string;
-  provider: string;
-  type: string;
-  order?: (number | null) | Order;
-  processed: boolean;
-  processedAt?: string | null;
-  payload?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  error?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-inventory-locks".
- */
-export interface ShopInventoryLock {
-  id: number;
-  product: number | Product;
-  lockToken: string;
-  expiresAt: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "programs".
  */
 export interface Program {
@@ -1102,6 +852,284 @@ export interface Program {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  title: string;
+  active?: boolean | null;
+  slug: string;
+  sku?: string | null;
+  format?: string | null;
+  price: number;
+  alternatives?:
+    | {
+        product?: (number | null) | Product;
+        sku?: string | null;
+        format?: string | null;
+        price?: number | null;
+        isRefill?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  tagline?: string | null;
+  badgeSource: 'brand' | 'collection';
+  badge?: (number | null) | Badge;
+  description?: string | null;
+  brand?: (number | null) | Brand;
+  brandLine?: (number | null) | BrandLine;
+  isRefill?: boolean | null;
+  featured?: boolean | null;
+  coverImage?: (number | null) | Media;
+  images?: (number | Media)[] | null;
+  usage?: string | null;
+  activeIngredients?: string | null;
+  results?: string | null;
+  /**
+   * URL embed (YouTube/Vimeo)
+   */
+  videoEmbedUrl?: string | null;
+  videoUpload?: (number | null) | Media;
+  videoPoster?: (number | null) | Media;
+  /**
+   * Seleziona un media già presente in cover/gallery del prodotto.
+   */
+  specsMedia?: (number | null) | Media;
+  specsGoodFor?: string | null;
+  specsFeelsLike?: string | null;
+  specsSmellsLike?: string | null;
+  specsFYI?: string | null;
+  /**
+   * Seleziona un media dalla gallery del prodotto.
+   */
+  includedMedia?: (number | null) | Media;
+  includedLabel?: string | null;
+  includedDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  includedIngredientsLabel?: string | null;
+  includedIngredients?:
+    | {
+        label?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  includedFooter?: string | null;
+  faqMedia?: (number | null) | Media;
+  faqTitle?: string | null;
+  faqSubtitle?: string | null;
+  faqItems?:
+    | {
+        q?: string | null;
+        a?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  needs?: (number | Need)[] | null;
+  skinTypePrimary?: (number | null) | SkinType;
+  skinTypeSecondary?: (number | SkinType)[] | null;
+  textures?: (number | Texture)[] | null;
+  productAreas?: (number | ProductArea)[] | null;
+  timingProducts?: (number | TimingProduct)[] | null;
+  stock?: number | null;
+  allocatedStock?: number | null;
+  averageCost?: number | null;
+  total?: number | null;
+  lastDeliveryDate?: string | null;
+  deliveries?:
+    | {
+        lot?: string | null;
+        quantity?: number | null;
+        costPerUnit?: number | null;
+        totalCost?: number | null;
+        deliveryDate?: string | null;
+        expiryDate?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  stripeProductId?: string | null;
+  stripePriceId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands".
+ */
+export interface Brand {
+  id: number;
+  name: string;
+  slug: string;
+  logo?: (number | null) | Media;
+  active?: boolean | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-lines".
+ */
+export interface BrandLine {
+  id: number;
+  name: string;
+  slug: string;
+  brand: number | Brand;
+  active?: boolean | null;
+  sortOrder?: number | null;
+  lineHeadline?: string | null;
+  brandLineMedia?: (number | null) | Media;
+  description?: string | null;
+  usage?: string | null;
+  activeIngredients?: string | null;
+  results?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "needs".
+ */
+export interface Need {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  productArea: number | ProductArea;
+  description?: string | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-areas".
+ */
+export interface ProductArea {
+  id: number;
+  name: string;
+  slug: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  cardDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skin-types".
+ */
+export interface SkinType {
+  id: number;
+  name: string;
+  slug: string;
+  productArea: number | ProductArea;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  cardDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textures".
+ */
+export interface Texture {
+  id: number;
+  name: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  slug: string;
+  description?: string | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "timing-products".
+ */
+export interface TimingProduct {
+  id: number;
+  name: string;
+  slug: string;
+  boxTagline?: string | null;
+  cardTitle?: string | null;
+  cardTagline?: string | null;
+  cardMedia?: (number | null) | Media;
+  cardDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1428,58 +1456,57 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "anagrafiche".
+ * via the `definition` "order-items".
  */
-export interface Anagrafiche {
+export interface OrderItem {
   id: number;
-  /**
-   * Label interno generato da nome e cognome.
-   */
-  recordLabel?: string | null;
-  /**
-   * Seleziona un utente con ruolo customer.
-   */
-  customer: number | User;
-  firstName?: string | null;
-  lastName?: string | null;
-  email?: string | null;
-  phone?: string | null;
-  addresses?:
+  order: number | Order;
+  product: number | Product;
+  productTitle: string;
+  productSlug?: string | null;
+  productBrand?: string | null;
+  productCoverImage?: string | null;
+  currency: string;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-webhook-events".
+ */
+export interface ShopWebhookEvent {
+  id: number;
+  eventID: string;
+  provider: string;
+  type: string;
+  order?: (number | null) | Order;
+  processed: boolean;
+  processedAt?: string | null;
+  payload?:
     | {
-        firstName?: string | null;
-        lastName?: string | null;
-        company?: string | null;
-        streetAddress?: string | null;
-        apartment?: string | null;
-        postalCode?: string | null;
-        city?: string | null;
-        province?: string | null;
-        country?: string | null;
-        phone?: string | null;
-        isDefault?: boolean | null;
-        id?: string | null;
-      }[]
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
-  generalNotes?: string | null;
-  lastAssessmentDate?: string | null;
-  skinType?: ('normal' | 'dry' | 'oily' | 'combination' | 'sensitive') | null;
-  skinSensitivity?: ('low' | 'medium' | 'high') | null;
-  fitzpatrick?: ('I' | 'II' | 'III' | 'IV' | 'V' | 'VI') | null;
-  hydrationLevel?: number | null;
-  sebumLevel?: number | null;
-  elasticityLevel?: number | null;
-  acneTendency?: boolean | null;
-  rosaceaTendency?: boolean | null;
-  hyperpigmentationTendency?: boolean | null;
-  allergies?: string | null;
-  contraindications?: string | null;
-  medications?: string | null;
-  pregnancyOrBreastfeeding?: ('no' | 'pregnancy' | 'breastfeeding') | null;
-  homeCareRoutine?: string | null;
-  treatmentGoals?: string | null;
-  estheticianNotes?: string | null;
-  serviceRecommendations?: string | null;
-  productRecommendations?: string | null;
+  error?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-inventory-locks".
+ */
+export interface ShopInventoryLock {
+  id: number;
+  product: number | Product;
+  lockToken: string;
+  expiresAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1510,33 +1537,6 @@ export interface AuthAuditEvent {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "consultation-leads".
- */
-export interface ConsultationLead {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  skinType?: string | null;
-  concerns?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  message?: string | null;
-  status: 'new' | 'in-progress' | 'closed';
-  source?: string | null;
-  locale?: string | null;
-  pagePath?: string | null;
-  ip?: string | null;
-  userAgent?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1560,28 +1560,20 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'anagrafiche';
+        value: number | Anagrafiche;
+      } | null)
+    | ({
+        relationTo: 'consultation-leads';
+        value: number | ConsultationLead;
+      } | null)
+    | ({
         relationTo: 'orders';
         value: number | Order;
       } | null)
     | ({
-        relationTo: 'order-items';
-        value: number | OrderItem;
-      } | null)
-    | ({
-        relationTo: 'order-service-items';
-        value: number | OrderServiceItem;
-      } | null)
-    | ({
         relationTo: 'order-service-sessions';
         value: number | OrderServiceSession;
-      } | null)
-    | ({
-        relationTo: 'shop-webhook-events';
-        value: number | ShopWebhookEvent;
-      } | null)
-    | ({
-        relationTo: 'shop-inventory-locks';
-        value: number | ShopInventoryLock;
       } | null)
     | ({
         relationTo: 'services';
@@ -1708,16 +1700,24 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'anagrafiche';
-        value: number | Anagrafiche;
+        relationTo: 'order-items';
+        value: number | OrderItem;
+      } | null)
+    | ({
+        relationTo: 'order-service-items';
+        value: number | OrderServiceItem;
+      } | null)
+    | ({
+        relationTo: 'shop-webhook-events';
+        value: number | ShopWebhookEvent;
+      } | null)
+    | ({
+        relationTo: 'shop-inventory-locks';
+        value: number | ShopInventoryLock;
       } | null)
     | ({
         relationTo: 'auth-audit-events';
         value: number | AuthAuditEvent;
-      } | null)
-    | ({
-        relationTo: 'consultation-leads';
-        value: number | ConsultationLead;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1760,6 +1760,82 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "anagrafiche_select".
+ */
+export interface AnagraficheSelect<T extends boolean = true> {
+  recordLabel?: T;
+  customer?: T;
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  addresses?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        company?: T;
+        streetAddress?: T;
+        apartment?: T;
+        postalCode?: T;
+        city?: T;
+        province?: T;
+        country?: T;
+        phone?: T;
+        isDefault?: T;
+        id?: T;
+      };
+  generalNotes?: T;
+  lastAssessmentDate?: T;
+  skinType?: T;
+  skinSensitivity?: T;
+  fitzpatrick?: T;
+  hydrationLevel?: T;
+  sebumLevel?: T;
+  elasticityLevel?: T;
+  acneTendency?: T;
+  rosaceaTendency?: T;
+  hyperpigmentationTendency?: T;
+  allergies?: T;
+  contraindications?: T;
+  medications?: T;
+  pregnancyOrBreastfeeding?: T;
+  homeCareRoutine?: T;
+  treatmentGoals?: T;
+  estheticianNotes?: T;
+  serviceRecommendations?: T;
+  productRecommendations?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation-leads_select".
+ */
+export interface ConsultationLeadsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  skinType?: T;
+  concerns?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  message?: T;
+  status?: T;
+  source?: T;
+  locale?: T;
+  pagePath?: T;
+  ip?: T;
+  userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1821,53 +1897,6 @@ export interface OrdersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "order-items_select".
- */
-export interface OrderItemsSelect<T extends boolean = true> {
-  order?: T;
-  product?: T;
-  productTitle?: T;
-  productSlug?: T;
-  productBrand?: T;
-  productCoverImage?: T;
-  currency?: T;
-  unitPrice?: T;
-  quantity?: T;
-  lineTotal?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "order-service-items_select".
- */
-export interface OrderServiceItemsSelect<T extends boolean = true> {
-  order?: T;
-  service?: T;
-  itemKind?: T;
-  variantKey?: T;
-  variantLabel?: T;
-  appointmentMode?: T;
-  appointmentStatus?: T;
-  appointmentRequestedDate?: T;
-  appointmentRequestedTime?: T;
-  appointmentProposedDate?: T;
-  appointmentProposedTime?: T;
-  appointmentProposalNote?: T;
-  appointmentConfirmedAt?: T;
-  serviceTitle?: T;
-  serviceSlug?: T;
-  durationMinutes?: T;
-  sessions?: T;
-  currency?: T;
-  unitPrice?: T;
-  quantity?: T;
-  lineTotal?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "order-service-sessions_select".
  */
 export interface OrderServiceSessionsSelect<T extends boolean = true> {
@@ -1893,33 +1922,6 @@ export interface OrderServiceSessionsSelect<T extends boolean = true> {
   durationMinutes?: T;
   currency?: T;
   sessionPrice?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-webhook-events_select".
- */
-export interface ShopWebhookEventsSelect<T extends boolean = true> {
-  eventID?: T;
-  provider?: T;
-  type?: T;
-  order?: T;
-  processed?: T;
-  processedAt?: T;
-  payload?: T;
-  error?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-inventory-locks_select".
- */
-export interface ShopInventoryLocksSelect<T extends boolean = true> {
-  product?: T;
-  lockToken?: T;
-  expiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2729,51 +2731,75 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "anagrafiche_select".
+ * via the `definition` "order-items_select".
  */
-export interface AnagraficheSelect<T extends boolean = true> {
-  recordLabel?: T;
-  customer?: T;
-  firstName?: T;
-  lastName?: T;
-  email?: T;
-  phone?: T;
-  addresses?:
-    | T
-    | {
-        firstName?: T;
-        lastName?: T;
-        company?: T;
-        streetAddress?: T;
-        apartment?: T;
-        postalCode?: T;
-        city?: T;
-        province?: T;
-        country?: T;
-        phone?: T;
-        isDefault?: T;
-        id?: T;
-      };
-  generalNotes?: T;
-  lastAssessmentDate?: T;
-  skinType?: T;
-  skinSensitivity?: T;
-  fitzpatrick?: T;
-  hydrationLevel?: T;
-  sebumLevel?: T;
-  elasticityLevel?: T;
-  acneTendency?: T;
-  rosaceaTendency?: T;
-  hyperpigmentationTendency?: T;
-  allergies?: T;
-  contraindications?: T;
-  medications?: T;
-  pregnancyOrBreastfeeding?: T;
-  homeCareRoutine?: T;
-  treatmentGoals?: T;
-  estheticianNotes?: T;
-  serviceRecommendations?: T;
-  productRecommendations?: T;
+export interface OrderItemsSelect<T extends boolean = true> {
+  order?: T;
+  product?: T;
+  productTitle?: T;
+  productSlug?: T;
+  productBrand?: T;
+  productCoverImage?: T;
+  currency?: T;
+  unitPrice?: T;
+  quantity?: T;
+  lineTotal?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-service-items_select".
+ */
+export interface OrderServiceItemsSelect<T extends boolean = true> {
+  order?: T;
+  service?: T;
+  itemKind?: T;
+  variantKey?: T;
+  variantLabel?: T;
+  appointmentMode?: T;
+  appointmentStatus?: T;
+  appointmentRequestedDate?: T;
+  appointmentRequestedTime?: T;
+  appointmentProposedDate?: T;
+  appointmentProposedTime?: T;
+  appointmentProposalNote?: T;
+  appointmentConfirmedAt?: T;
+  serviceTitle?: T;
+  serviceSlug?: T;
+  durationMinutes?: T;
+  sessions?: T;
+  currency?: T;
+  unitPrice?: T;
+  quantity?: T;
+  lineTotal?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-webhook-events_select".
+ */
+export interface ShopWebhookEventsSelect<T extends boolean = true> {
+  eventID?: T;
+  provider?: T;
+  type?: T;
+  order?: T;
+  processed?: T;
+  processedAt?: T;
+  payload?: T;
+  error?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-inventory-locks_select".
+ */
+export interface ShopInventoryLocksSelect<T extends boolean = true> {
+  product?: T;
+  lockToken?: T;
+  expiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2790,32 +2816,6 @@ export interface AuthAuditEventsSelect<T extends boolean = true> {
   userAgent?: T;
   message?: T;
   meta?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "consultation-leads_select".
- */
-export interface ConsultationLeadsSelect<T extends boolean = true> {
-  firstName?: T;
-  lastName?: T;
-  email?: T;
-  phone?: T;
-  skinType?: T;
-  concerns?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
-  message?: T;
-  status?: T;
-  source?: T;
-  locale?: T;
-  pagePath?: T;
-  ip?: T;
-  userAgent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

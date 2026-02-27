@@ -7,7 +7,7 @@ export const ShopWebhookEvents: CollectionConfig = {
   admin: {
     useAsTitle: 'eventID',
     defaultColumns: ['eventID', 'provider', 'type', 'processed', 'createdAt'],
-    group: 'Vendite',
+    group: 'Sistema',
   },
   access: {
     read: isAdmin,

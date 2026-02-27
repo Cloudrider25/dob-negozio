@@ -1,3 +1,6 @@
+import { default as default_2953f1e42753c50b899ea1e3de1d4c47 } from '../../../components/admin/AnagProductsPurchasesList'
+import { default as default_60d9020947daa64bf82b7fadce47e0b9 } from '../../../components/admin/AnagServicesPurchasesList'
+import { default as default_aff5c36b0a87722e3760737f6967ceca } from '../../../components/admin/OrderProductItemsList'
 import { default as default_5ae14ba28b2c8b303a6a51bf0acddc48 } from '../../../components/admin/OrderServiceItemsList'
 import { default as default_7eb31bc146d39d5e7d5719fba4150449 } from '../../../components/admin/SectionTitle'
 import { default as default_c41711f0c79a6095f245c88ba2d3606b } from '../../../components/admin/PackageVariableSelect'
@@ -28,13 +31,14 @@ import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { default as default_55b26d7c159ac9b9522b89fffbca8bf2 } from '../../../components/admin/RoutineTemplateBuilderClient'
 import { default as default_c48e2201cfba14873e1c87dc9d0d96e7 } from '../../../components/admin/RoutineTemplateRulesClient'
-import { default as default_2953f1e42753c50b899ea1e3de1d4c47 } from '../../../components/admin/AnagProductsPurchasesList'
-import { default as default_60d9020947daa64bf82b7fadce47e0b9 } from '../../../components/admin/AnagServicesPurchasesList'
 import { default as default_7baa115f993625802037a865276c70e2 } from '../../../components/admin/AdminSidebarLogo'
 import { default as default_962081a3c03430588afec20154b319ef } from '../../../components/admin/AdminSidebarHeader'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 
 export const importMap = {
+  "/components/admin/AnagProductsPurchasesList#default": default_2953f1e42753c50b899ea1e3de1d4c47,
+  "/components/admin/AnagServicesPurchasesList#default": default_60d9020947daa64bf82b7fadce47e0b9,
+  "/components/admin/OrderProductItemsList#default": default_aff5c36b0a87722e3760737f6967ceca,
   "/components/admin/OrderServiceItemsList#default": default_5ae14ba28b2c8b303a6a51bf0acddc48,
   "/components/admin/SectionTitle#default": default_7eb31bc146d39d5e7d5719fba4150449,
   "/components/admin/PackageVariableSelect#default": default_c41711f0c79a6095f245c88ba2d3606b,
@@ -65,8 +69,6 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/components/admin/RoutineTemplateBuilderClient#default": default_55b26d7c159ac9b9522b89fffbca8bf2,
   "/components/admin/RoutineTemplateRulesClient#default": default_c48e2201cfba14873e1c87dc9d0d96e7,
-  "/components/admin/AnagProductsPurchasesList#default": default_2953f1e42753c50b899ea1e3de1d4c47,
-  "/components/admin/AnagServicesPurchasesList#default": default_60d9020947daa64bf82b7fadce47e0b9,
   "/components/admin/AdminSidebarLogo#default": default_7baa115f993625802037a865276c70e2,
   "/components/admin/AdminSidebarHeader#default": default_962081a3c03430588afec20154b319ef,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a

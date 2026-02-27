@@ -4,6 +4,10 @@ import { isAdmin } from '@/access/isAdmin'
 
 export const ConsultationLeads: CollectionConfig = {
   slug: 'consultation-leads',
+  labels: {
+    singular: 'Richiesta consulenza',
+    plural: 'Richieste consulenza',
+  },
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['firstName', 'lastName', 'email', 'phone', 'status', 'createdAt'],

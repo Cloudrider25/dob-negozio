@@ -7,7 +7,7 @@ export const OrderItems: CollectionConfig = {
   admin: {
     useAsTitle: 'productTitle',
     defaultColumns: ['order', 'productTitle', 'quantity', 'unitPrice', 'lineTotal'],
-    group: 'Vendite',
+    group: 'Sistema',
   },
   access: {
     read: isAdmin,
