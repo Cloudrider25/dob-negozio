@@ -1,108 +1,46 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { Fragment, useEffect, useMemo, useState } from 'react'
-import {
-  ArrowPathIcon,
-  ChevronDownIcon,
-  CheckIcon,
-  ClockIcon,
-  EyeIcon,
-  MinusIcon,
-} from '@heroicons/react/24/outline'
-
+import { useEffect, useMemo, useState } from 'react'
+import { ArrowPathIcon, CheckIcon, ClockIcon, MinusIcon } from '@heroicons/react/24/outline'
 import { getAccountDictionary } from '@/lib/account-i18n'
 import { SectionTitle } from '@/components/sections/SectionTitle'
-import { LabelText } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { MobileFilterDrawer } from '@/components/shared/MobileFilterDrawer'
-
-import { AccountListHeader } from './AccountListHeader'
-import { AccountModal, accountModalClassNames } from './AccountModal'
-import { AccountIconAction, AccountPillButton } from './AccountButtons'
+import { AccountDashboardModals } from './AccountDashboardModals'
 import { AccountLogoutButton } from './AccountLogoutButton'
 import { SchedulePill } from './SchedulePill'
-import { AddressForm } from './forms/AddressForm'
-import { AestheticForm } from './forms/AestheticForm'
-import type { AddressDraft, AestheticFolderDraft, FormMessage, PhotonAddressSuggestion } from './forms/types'
+import type {
+  AddressDraft,
+  AestheticFolderDraft,
+  FormMessage,
+  PhotonAddressSuggestion,
+} from './forms/types'
+import type {
+  AccountSection,
+  AddressItem,
+  AddressesView,
+  OrderItem,
+  ProductSort,
+  ServiceBookingRow,
+  ServicesFilter,
+  ServicesSubFilter,
+} from './types'
 import productsStyles from './AccountProducts.module.css'
 import servicesStyles from './AccountServices.module.css'
 import styles from './AccountDashboardClient.module.css'
 
-type AccountSection = 'overview' | 'services' | 'orders' | 'addresses' | 'aesthetic'
+const loadAddressesTab = () => import('./tabs/AccountAddressesTab')
+const loadAestheticTab = () => import('./tabs/AccountAestheticTab')
+const loadOrdersTab = () => import('./tabs/AccountOrdersTab')
+const loadServicesTab = () => import('./tabs/AccountServicesTab')
+const loadOverviewTab = () => import('./tabs/AccountOverviewTab')
 
-type AddressItem = {
-  id: string
-  fullName: string
-  address: string
-  postalCode: string
-  city: string
-  province: string
-  country: string
-  firstName?: string
-  lastName?: string
-  company?: string
-  streetAddress?: string
-  apartment?: string
-  phone?: string
-  isDefault?: boolean
-}
-
-type OrderItem = {
-  id: number
-  orderNumber: string
-  status: string
-  paymentStatus: string
-  total: number
-  currency: string
-  createdAt: string
-  purchaseTitle: string
-  purchaseThumb: string | null
-  otherItemsCount: number
-  quantity: number
-  unitPrice: number
-  productFulfillmentMode: 'shipping' | 'pickup' | 'none'
-  trackingNumber: string | null
-  trackingUrl: string | null
-  deliveryStatus: string | null
-  deliveryUpdatedAt: string | null
-}
-
-type ServiceBookingRow = {
-  id: string
-  orderServiceItemId: string
-  sessionIndex: number
-  orderId: number
-  orderNumber: string
-  orderCreatedAt: string
-  orderStatus: string
-  paymentStatus: string
-  itemKind: 'service' | 'package'
-  serviceTitle: string
-  variantLabel: string
-  sessionLabel: string
-  sessionsTotal: number
-  durationMinutes: number | null
-  rowPrice: number
-  currency: string
-  appointmentMode: string
-  appointmentStatus: string
-  requestedDate: string | null
-  requestedTime: string | null
-  proposedDate: string | null
-  proposedTime: string | null
-  confirmedAt: string | null
-}
-
-type ServicesFilter = 'used' | 'not_used'
-type ServicesSubFilter =
-  | 'all'
-  | 'requested_date'
-  | 'awaiting_confirmation'
-  | 'date_to_request'
-  | 'confirmed_date'
-type ProductSort = 'newest' | 'oldest' | 'total_desc' | 'total_asc'
-type AddressesView = 'default' | 'book'
+const AccountAddressesTab = dynamic(loadAddressesTab, { ssr: false, loading: () => null })
+const AccountAestheticTab = dynamic(loadAestheticTab, { ssr: false, loading: () => null })
+const AccountOrdersTab = dynamic(loadOrdersTab, { ssr: false, loading: () => null })
+const AccountServicesTab = dynamic(loadServicesTab, { ssr: false, loading: () => null })
+const AccountOverviewTab = dynamic(loadOverviewTab, { ssr: false, loading: () => null })
 
 type AccountDashboardClientProps = {
   locale: string
@@ -114,6 +52,109 @@ type AccountDashboardClientProps = {
   initialOrders: OrderItem[]
   initialServiceRows: ServiceBookingRow[]
   initialAddresses: AddressItem[]
+}
+
+type NominatimResult = Array<{
+  display_name?: string
+  address?: {
+    road?: string
+    pedestrian?: string
+    house_number?: string
+    city?: string
+    town?: string
+    village?: string
+    county?: string
+    state_district?: string
+    state?: string
+    postcode?: string
+    country?: string
+  }
+}>
+
+type MenuEntry =
+  | {
+      kind: 'tab'
+      section: AccountSection
+      label: string
+      fullWidth?: boolean
+    }
+  | {
+      kind: 'divider'
+      label: string
+    }
+
+const PRODUCT_SORT_OPTIONS: Array<{ value: ProductSort; label: string }> = [
+  { value: 'newest', label: 'Più recenti' },
+  { value: 'oldest', label: 'Meno recenti' },
+  { value: 'total_desc', label: 'Totale alto-basso' },
+  { value: 'total_asc', label: 'Totale basso-alto' },
+]
+
+const SERVICES_PRIMARY_OPTIONS: Array<{ value: ServicesFilter; label: string }> = [
+  { value: 'not_used', label: 'Non usufruiti' },
+  { value: 'used', label: 'Usufruiti' },
+]
+
+const SERVICES_SUB_OPTIONS: Array<{ value: ServicesSubFilter; label: string }> = [
+  { value: 'all', label: 'Tutti' },
+  { value: 'requested_date', label: 'Data richiesta' },
+  { value: 'awaiting_confirmation', label: 'In attesa di conferma' },
+  { value: 'date_to_request', label: 'Data da richiedere' },
+  { value: 'confirmed_date', label: 'Data confermata' },
+]
+
+const TAB_PREFETCHERS: Partial<Record<AccountSection, () => Promise<unknown>>> = {
+  overview: loadOverviewTab,
+  addresses: loadAddressesTab,
+  aesthetic: loadAestheticTab,
+  services: loadServicesTab,
+  orders: loadOrdersTab,
+}
+
+const normalizeProvince = (raw?: string) => {
+  const value = (raw || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .trim()
+  if (!value) return undefined
+  if (value.includes('monza') || value.includes('brianza')) {
+    return 'Monza and Brianza'
+  }
+  if (value.includes('milano')) {
+    return 'Milano'
+  }
+  return undefined
+}
+
+const parseNominatim = (data: NominatimResult): PhotonAddressSuggestion[] => {
+  const suggestionsRaw: PhotonAddressSuggestion[] = []
+  for (const item of data) {
+    const a = item.address ?? {}
+    const road = a.road || a.pedestrian || ''
+    const city = a.city || a.town || a.village || a.county || ''
+    const streetAddress = [road, a.house_number].filter(Boolean).join(' ').trim() || undefined
+    const province =
+      normalizeProvince(a.county) ||
+      normalizeProvince(a.state_district) ||
+      normalizeProvince(a.state)
+    const postalCode = a.postcode?.trim() || undefined
+    const country = a.country?.trim() || undefined
+    const label =
+      [streetAddress, city || undefined, province, postalCode, country].filter(Boolean).join(', ') ||
+      item.display_name ||
+      ''
+    if (!label) continue
+    suggestionsRaw.push({
+      label,
+      streetAddress,
+      city: city || undefined,
+      province,
+      postalCode,
+      country,
+    })
+  }
+  return suggestionsRaw
 }
 
 export function AccountDashboardClient({
@@ -255,78 +296,13 @@ export function AccountDashboardClient({
     const timer = window.setTimeout(async () => {
       try {
         setCityLoading(true)
-        const normalizeProvince = (raw?: string) => {
-          const value = (raw || '')
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/\p{Diacritic}/gu, '')
-            .trim()
-          if (!value) return undefined
-          if (value.includes('monza') || value.includes('brianza')) {
-            return 'Monza and Brianza'
-          }
-          if (value.includes('milano')) {
-            return 'Milano'
-          }
-          return undefined
-        }
-
-        const parseNominatim = (
-          data: Array<{
-            display_name?: string
-            address?: {
-              road?: string
-              pedestrian?: string
-              house_number?: string
-              city?: string
-              town?: string
-              village?: string
-              county?: string
-              state_district?: string
-              state?: string
-              postcode?: string
-              country?: string
-            }
-          }>,
-        ): PhotonAddressSuggestion[] => {
-          const suggestionsRaw: PhotonAddressSuggestion[] = []
-          for (const item of data) {
-            const a = item.address ?? {}
-            const road = a.road || a.pedestrian || ''
-            const city = a.city || a.town || a.village || a.county || ''
-            const streetAddress =
-              [road, a.house_number].filter(Boolean).join(' ').trim() || undefined
-            const province =
-              normalizeProvince(a.county) ||
-              normalizeProvince(a.state_district) ||
-              normalizeProvince(a.state)
-            const postalCode = a.postcode?.trim() || undefined
-            const country = a.country?.trim() || undefined
-            const label =
-              [streetAddress, city || undefined, province, postalCode, country]
-                .filter(Boolean)
-                .join(', ') ||
-              item.display_name ||
-              ''
-            if (!label) continue
-            suggestionsRaw.push({
-              label,
-              streetAddress,
-              city: city || undefined,
-              province,
-              postalCode,
-              country,
-            })
-          }
-          return suggestionsRaw
-        }
         const nominatimRes = await fetch(
           `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=it&q=${encodeURIComponent(query)}`,
           { signal: controller.signal },
         )
         let suggestionsRaw: PhotonAddressSuggestion[] = []
         if (nominatimRes.ok) {
-          const nominatimData = (await nominatimRes.json()) as Parameters<typeof parseNominatim>[0]
+          const nominatimData = (await nominatimRes.json()) as NominatimResult
           suggestionsRaw = parseNominatim(nominatimData)
         }
 
@@ -510,21 +486,22 @@ export function AccountDashboardClient({
     return 'Da definire'
   }
 
-  const nowTs = Date.now()
   const getOrderFutureDeliveryTs = (row: OrderItem) => {
     if (!row.deliveryUpdatedAt) return null
     const ts = new Date(row.deliveryUpdatedAt).getTime()
     return Number.isNaN(ts) ? null : ts
   }
   const nextProductDeliveryRow = useMemo(() => {
+    const currentTs = Date.now()
     const candidates = ordersByDateDesc
       .map((row) => ({ row, ts: getOrderFutureDeliveryTs(row) }))
       .filter(
-        (entry): entry is { row: OrderItem; ts: number } => entry.ts !== null && entry.ts > nowTs,
+        (entry): entry is { row: OrderItem; ts: number } =>
+          entry.ts !== null && entry.ts > currentTs,
       )
       .sort((a, b) => a.ts - b.ts)
     return candidates[0]?.row ?? null
-  }, [ordersByDateDesc, nowTs])
+  }, [ordersByDateDesc])
   const latestPurchasedProductRow = ordersByDateDesc[0] ?? null
 
   const isPaidServiceRow = (row: ServiceBookingRow) =>
@@ -538,10 +515,11 @@ export function AccountDashboardClient({
     return Number.isNaN(ts) ? null : ts
   }
   const isUsedServiceRow = (row: ServiceBookingRow) => {
+    const currentTs = Date.now()
     if (!isPaidServiceRow(row)) return false
     if (!['confirmed', 'confirmed_by_customer'].includes(row.appointmentStatus)) return false
     const confirmedTs = getConfirmedSessionTs(row)
-    return confirmedTs !== null && confirmedTs < nowTs
+    return confirmedTs !== null && confirmedTs < currentTs
   }
 
   const serviceRowsFiltered = useMemo(() => {
@@ -575,7 +553,7 @@ export function AccountDashboardClient({
       }
       return true
     })
-  }, [serviceRowsState, servicesFilter, servicesSubFilter, nowTs])
+  }, [serviceRowsState, servicesFilter, servicesSubFilter])
 
   const formatServiceStatus = (row: ServiceBookingRow) => {
     if (isUsedServiceRow(row)) return 'Pagato · usufruito'
@@ -638,48 +616,29 @@ export function AccountDashboardClient({
     return output
   }, [serviceRowsFiltered])
 
-  const productSortOptions: Array<{ value: ProductSort; label: string }> = [
-    { value: 'newest', label: 'Più recenti' },
-    { value: 'oldest', label: 'Meno recenti' },
-    { value: 'total_desc', label: 'Totale alto-basso' },
-    { value: 'total_asc', label: 'Totale basso-alto' },
-  ]
-
-  const servicesPrimaryOptions: Array<{ value: ServicesFilter; label: string }> = [
-    { value: 'not_used', label: 'Non usufruiti' },
-    { value: 'used', label: 'Usufruiti' },
-  ]
-
-  const servicesSubOptions: Array<{ value: ServicesSubFilter; label: string }> = [
-    { value: 'all', label: 'Tutti' },
-    { value: 'requested_date', label: 'Data richiesta' },
-    { value: 'awaiting_confirmation', label: 'In attesa di conferma' },
-    { value: 'date_to_request', label: 'Data da richiedere' },
-    { value: 'confirmed_date', label: 'Data confermata' },
-  ]
-
   const productsSortLabel =
-    productSortOptions.find((option) => option.value === productsSort)?.label ?? 'Più recenti'
+    PRODUCT_SORT_OPTIONS.find((option) => option.value === productsSort)?.label ?? 'Più recenti'
   const servicesPrimaryLabel =
-    servicesPrimaryOptions.find((option) => option.value === servicesFilter)?.label ??
+    SERVICES_PRIMARY_OPTIONS.find((option) => option.value === servicesFilter)?.label ??
     'Non usufruiti'
   const servicesSubLabel =
-    servicesSubOptions.find((option) => option.value === servicesSubFilter)?.label ?? 'Tutti'
+    SERVICES_SUB_OPTIONS.find((option) => option.value === servicesSubFilter)?.label ?? 'Tutti'
   const servicesCurrentFilterLabel =
     servicesFilter === 'not_used' && servicesSubFilter !== 'all'
       ? `${servicesPrimaryLabel} · ${servicesSubLabel}`
       : servicesPrimaryLabel
 
   const nextServiceAppointmentRow = useMemo(() => {
+    const currentTs = Date.now()
     const candidates = serviceRowsState
       .map((row) => ({ row, ts: getConfirmedSessionTs(row) }))
       .filter(
         (entry): entry is { row: ServiceBookingRow; ts: number } =>
-          entry.ts !== null && entry.ts > nowTs,
+          entry.ts !== null && entry.ts > currentTs,
       )
       .sort((a, b) => a.ts - b.ts)
     return candidates[0]?.row ?? null
-  }, [serviceRowsState, nowTs])
+  }, [serviceRowsState])
 
   const latestServicePurchasedRow = useMemo(() => {
     const rows = [...serviceRowsState].sort(
@@ -837,20 +796,6 @@ export function AccountDashboardClient({
     })
     setScheduleEditRow(null)
     setSessionMessage({ type: 'success', text: 'Data rimossa.' })
-  }
-
-  const onDeleteAddress = () => {
-    if (addresses.length === 0) return
-    const next = addresses.slice(1)
-    setAddresses(next)
-    setAddressMessage(null)
-    setEditingAddressId(null)
-    void persistAddresses(next).catch((error) =>
-      setAddressMessage({
-        type: 'error',
-        text: error instanceof Error ? error.message : 'Errore salvataggio indirizzi.',
-      }),
-    )
   }
 
   const onDeleteAddressById = (id: string) => {
@@ -1082,6 +1027,38 @@ export function AccountDashboardClient({
     }
   }
 
+  const prefetchSection = (target: AccountSection) => {
+    const load = TAB_PREFETCHERS[target]
+    if (load) {
+      void load()
+    }
+  }
+
+  useEffect(() => {
+    const preloadAllTabs = () => {
+      Object.values(TAB_PREFETCHERS).forEach((load) => {
+        if (load) void load()
+      })
+    }
+
+    const win = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+
+    if (typeof win.requestIdleCallback === 'function') {
+      const idleId = win.requestIdleCallback(preloadAllTabs, { timeout: 2500 })
+      return () => {
+        if (typeof win.cancelIdleCallback === 'function') {
+          win.cancelIdleCallback(idleId)
+        }
+      }
+    }
+
+    const timeoutId = window.setTimeout(preloadAllTabs, 1200)
+    return () => window.clearTimeout(timeoutId)
+  }, [])
+
   const renderAccountFooterActions = (className?: string) => (
     <div className={className}>
       <p className={`${styles.help} typo-body-lg`}>
@@ -1102,6 +1079,15 @@ export function AccountDashboardClient({
             ? `Cartella Estetica, ${firstName || copy.fallbackCustomer}`
             : `${copy.addresses.title}, ${firstName || copy.fallbackCustomer}`
 
+  const menuEntries: MenuEntry[] = [
+    { kind: 'tab', section: 'overview', label: 'Account' },
+    { kind: 'tab', section: 'addresses', label: copy.nav.addresses },
+    { kind: 'tab', section: 'aesthetic', label: 'Cartella Estetica', fullWidth: true },
+    { kind: 'divider', label: 'Ordini' },
+    { kind: 'tab', section: 'services', label: 'Servizi' },
+    { kind: 'tab', section: 'orders', label: 'Prodotti' },
+  ]
+
   return (
     <div className={styles.layout}>
       <SectionTitle as="h2" size="h2" className={`${styles.title} ${styles.mobilePageTitle}`}>
@@ -1109,725 +1095,137 @@ export function AccountDashboardClient({
       </SectionTitle>
       <aside className={styles.sidebar}>
         <nav className={styles.menu} aria-label={copy.nav.ariaLabel}>
-          <button
-            className={`${styles.menuButton} typo-body-lg`}
-            type="button"
-            onClick={() => setSection('overview')}
-          >
-            <span className="typo-body-lg">Account</span>
-            <span
-              className={`${styles.menuDot} ${section === 'overview' ? styles.menuDotActive : ''}`}
-            />
-          </button>
-          <button
-            className={`${styles.menuButton} typo-body-lg`}
-            type="button"
-            onClick={() => setSection('addresses')}
-          >
-            <span className="typo-body-lg">{copy.nav.addresses}</span>
-            <span
-              className={`${styles.menuDot} ${section === 'addresses' ? styles.menuDotActive : ''}`}
-            />
-          </button>
-          <button
-            className={`${styles.menuButton} ${styles.menuButtonFull} typo-body-lg`}
-            type="button"
-            onClick={() => setSection('aesthetic')}
-          >
-            <span className="typo-body-lg">Cartella Estetica</span>
-            <span
-              className={`${styles.menuDot} ${section === 'aesthetic' ? styles.menuDotActive : ''}`}
-            />
-          </button>
-          <div className={styles.menuDivider} aria-hidden="true">
-            <span className={`${styles.menuDividerLabel} typo-caption-upper`}>Ordini</span>
-          </div>
-          <button
-            className={`${styles.menuButton} typo-body-lg`}
-            type="button"
-            onClick={() => setSection('services')}
-          >
-            <span className="typo-body-lg">Servizi</span>
-            <span
-              className={`${styles.menuDot} ${section === 'services' ? styles.menuDotActive : ''}`}
-            />
-          </button>
-          <button
-            className={`${styles.menuButton} typo-body-lg`}
-            type="button"
-            onClick={() => setSection('orders')}
-          >
-            <span className="typo-body-lg">Prodotti</span>
-            <span
-              className={`${styles.menuDot} ${section === 'orders' ? styles.menuDotActive : ''}`}
-            />
-          </button>
+          {menuEntries.map((entry, index) => {
+            if (entry.kind === 'divider') {
+              return (
+                <div key={`divider-${index}`} className={styles.menuDivider} aria-hidden="true">
+                  <span className={`${styles.menuDividerLabel} typo-caption-upper`}>
+                    {entry.label}
+                  </span>
+                </div>
+              )
+            }
+
+            const isActive = section === entry.section
+            return (
+              <button
+                key={entry.section}
+                className={`${styles.menuButton} ${entry.fullWidth ? styles.menuButtonFull : ''} typo-body-lg`}
+                type="button"
+                onClick={() => setSection(entry.section)}
+                onMouseEnter={() => prefetchSection(entry.section)}
+                onFocus={() => prefetchSection(entry.section)}
+                onPointerDown={() => prefetchSection(entry.section)}
+              >
+                <span className="typo-body-lg">{entry.label}</span>
+                <span className={`${styles.menuDot} ${isActive ? styles.menuDotActive : ''}`} />
+              </button>
+            )
+          })}
         </nav>
         {renderAccountFooterActions(styles.sidebarFooter)}
       </aside>
 
       <section className={styles.content}>
         {section === 'overview' ? (
-          <>
-            <SectionTitle as="h2" size="h2" className={styles.title}>
-              {copy.overview.greeting}, {firstName || copy.fallbackCustomer}
-            </SectionTitle>
-            <hr className={styles.sectionDivider} />
-
-            <div className={styles.block}>
-              <SectionTitle as="h3" size="h3" uppercase className={styles.subHeading}>
-                {copy.overview.yourInfo}
-              </SectionTitle>
-              <form className={styles.profileForm} onSubmit={onSaveProfile}>
-                <div className={styles.infoGrid}>
-                  <label className={styles.profileField}>
-                    <LabelText className={styles.label} variant="field">
-                      {copy.overview.firstName}
-                    </LabelText>
-                    <Input
-                      className={`${styles.profileInput} typo-body`}
-                      value={profileDraft.firstName}
-                      onChange={(event) =>
-                        setProfileDraft((prev) => ({ ...prev, firstName: event.target.value }))
-                      }
-                      autoComplete="given-name"
-                    />
-                  </label>
-                  <label className={styles.profileField}>
-                    <LabelText className={styles.label} variant="field">
-                      {copy.overview.lastName}
-                    </LabelText>
-                    <Input
-                      className={`${styles.profileInput} typo-body`}
-                      value={profileDraft.lastName}
-                      onChange={(event) =>
-                        setProfileDraft((prev) => ({ ...prev, lastName: event.target.value }))
-                      }
-                      autoComplete="family-name"
-                    />
-                  </label>
-                  <label className={styles.profileField}>
-                    <LabelText className={styles.label} variant="field">
-                      {copy.overview.phone}
-                    </LabelText>
-                    <Input
-                      className={`${styles.profileInput} typo-body`}
-                      value={profileDraft.phone}
-                      onChange={(event) =>
-                        setProfileDraft((prev) => ({ ...prev, phone: event.target.value }))
-                      }
-                      autoComplete="tel"
-                    />
-                  </label>
-                  <div className={styles.profileField}>
-                    <LabelText className={styles.label} variant="field">
-                      {copy.overview.email}
-                    </LabelText>
-                    <p className={`${styles.value} typo-body-lg`}>{email}</p>
-                  </div>
-                </div>
-                <div className={styles.formActions}>
-                  <AccountPillButton
-                    type="submit"
-                    className={`typo-small-upper`}
-                    disabled={profileSaving}
-                  >
-                    {profileSaving ? copy.overview.savingProfile : copy.overview.saveProfile}
-                  </AccountPillButton>
-                </div>
-                {profileMessage ? (
-                  <p
-                    className={`${profileMessage.type === 'success' ? styles.successText : styles.errorText} typo-caption`}
-                  >
-                    {profileMessage.text}
-                  </p>
-                ) : null}
-              </form>
-            </div>
-          </>
+          <AccountOverviewTab
+            styles={styles}
+            copy={copy}
+            identity={{
+              firstName,
+              email,
+            }}
+            data={{
+              profileDraft,
+              profileSaving,
+              profileMessage,
+            }}
+            actions={{
+              setProfileDraft,
+              onSaveProfile,
+            }}
+          />
         ) : null}
 
         {section === 'aesthetic' ? (
-          <>
-            <SectionTitle as="h2" size="h2" className={styles.title}>
-              Cartella Estetica, {firstName || copy.fallbackCustomer}
-            </SectionTitle>
-            <hr className={styles.sectionDivider} />
-            <AestheticForm
-              draft={aestheticDraft}
-              setDraft={setAestheticDraft}
-              saving={aestheticSaving}
-              message={aestheticMessage}
-              onSubmit={onSaveAestheticFolder}
-            />
-          </>
+          <AccountAestheticTab
+            styles={styles}
+            identity={{
+              firstName,
+              fallbackCustomer: copy.fallbackCustomer,
+            }}
+            form={{
+              draft: aestheticDraft,
+              setDraft: setAestheticDraft,
+              saving: aestheticSaving,
+              message: aestheticMessage,
+              onSubmit: onSaveAestheticFolder,
+            }}
+          />
         ) : null}
 
         {section === 'orders' ? (
-          <>
-            {ordersByDateDesc.length === 0 ? (
-              <SectionTitle as="h2" size="h2" className={styles.title}>
-                {copy.orders.empty}
-              </SectionTitle>
-            ) : (
-              <>
-                <SectionTitle as="h2" size="h2" className={styles.title}>
-                  Prodotti, {firstName || copy.fallbackCustomer}
-                </SectionTitle>
-                <hr className={styles.sectionDivider} />
-                <div className={styles.accountSummarySection}>
-                  <p className={`${styles.accountSummaryLabel} typo-caption-upper`}>
-                    {nextProductDeliveryRow ? 'Prossima consegna' : 'Ultimo acquisto'}
-                  </p>
-                  <div
-                    className={styles.accountSummaryCard}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() =>
-                      setOrderDetails((nextProductDeliveryRow ?? latestPurchasedProductRow)!)
-                    }
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault()
-                        setOrderDetails((nextProductDeliveryRow ?? latestPurchasedProductRow)!)
-                      }
-                    }}
-                  >
-                    {(() => {
-                      const order = nextProductDeliveryRow ?? latestPurchasedProductRow
-                      if (!order) return null
-                      return (
-                        <>
-                          <div className={productsStyles.orderPurchaseCell}>
-                            <span className={productsStyles.orderThumb}>
-                              {order.purchaseThumb ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={order.purchaseThumb} alt="" />
-                              ) : (
-                                <span className={productsStyles.orderThumbFallback} aria-hidden="true" />
-                              )}
-                            </span>
-                            <div className={productsStyles.orderPurchaseMeta}>
-                              <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
-                                {order.purchaseTitle}
-                              </p>
-                              <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                                {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric',
-                                }).format(new Date(order.createdAt))}
-                              </p>
-                              <p className={`${productsStyles.orderInlinePrice} typo-caption`}>
-                                {formatMoney(order.total, order.currency)}
-                              </p>
-                            </div>
-                          </div>
-                        </>
-                      )
-                    })()}
-                  </div>
-                  <AccountPillButton
-                    type="button"
-                    className={`${styles.accountSummaryToggle} typo-caption-upper`}
-                    onClick={() => setShowAllProductPurchases((prev) => !prev)}
-                  >
-                    {showAllProductPurchases ? 'Nascondi acquisti' : 'Tutti gli acquisti'}
-                  </AccountPillButton>
-                </div>
-                {showAllProductPurchases ? (
-                  <>
-                    <div className={styles.filtersTriggerRow}>
-                      <p className={`${styles.filtersTriggerLabel} typo-body-lg`}>Filtri:</p>
-                      <button
-                        type="button"
-                    className={`${styles.filtersTriggerButton} typo-small-upper`}
-                        onClick={() => setProductsFilterDrawerOpen(true)}
-                        aria-label="Apri filtro prodotti"
-                      >
-                        <span>{productsSortLabel}</span>
-                        <ChevronDownIcon width={16} height={16} aria-hidden="true" />
-                      </button>
-                    </div>
-                    <div className={productsStyles.ordersListWrap}>
-                      <AccountListHeader
-                        variant="orders"
-                        columns={['Acquisto', 'Dettagli']}
-                      />
-                      <div className={productsStyles.ordersList}>
-                        {groupedProductRows.map((entry) => {
-                          if (entry.kind === 'single') {
-                            const order = entry.row
-                            return (
-                              <article
-                                key={order.id}
-                                className={productsStyles.ordersListRow}
-                                onClick={() => setOrderDetails(order)}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(event) => {
-                                  if (event.key === 'Enter' || event.key === ' ') {
-                                    event.preventDefault()
-                                    setOrderDetails(order)
-                                  }
-                                }}
-                              >
-                                <div className={productsStyles.ordersListCell}>
-                                  <span className={productsStyles.ordersListLabel}>Acquisto</span>
-                                  <div className={productsStyles.orderPurchaseCell}>
-                                    <span className={productsStyles.orderThumb}>
-                                      {order.purchaseThumb ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={order.purchaseThumb} alt="" />
-                                      ) : (
-                                        <span
-                                          className={productsStyles.orderThumbFallback}
-                                          aria-hidden="true"
-                                        />
-                                      )}
-                                    </span>
-                                    <div className={productsStyles.orderPurchaseMeta}>
-                                      <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                                        {new Intl.DateTimeFormat(
-                                          locale === 'it' ? 'it-IT' : 'en-US',
-                                          {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric',
-                                          },
-                                        ).format(new Date(order.createdAt))}
-                                      </p>
-                                      <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
-                                        {order.purchaseTitle}
-                                      </p>
-                                      <p className={`${productsStyles.orderInlinePrice} typo-caption`}>
-                                        {formatMoney(order.total, order.currency)}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div
-                                  className={`${productsStyles.ordersListCell} ${productsStyles.ordersListCellDetails}`}
-                                >
-                                  <span className={productsStyles.ordersListLabel}>Dettagli</span>
-                                  <div className={productsStyles.actionsStack}>
-                                    <AccountIconAction
-                                      type="button"
-                                      className="typo-caption-upper"
-                                      compact
-                                      aria-label="Apri dettagli ordine"
-                                      title="Apri dettagli ordine"
-                                      onClick={(event) => {
-                                        event.stopPropagation()
-                                        setOrderDetails(order)
-                                      }}
-                                    >
-                                      <EyeIcon width={18} height={18} aria-hidden="true" />
-                                    </AccountIconAction>
-                                  </div>
-                                </div>
-                              </article>
-                            )
-                          }
-
-                          const isExpanded = Boolean(expandedOrderGroups[entry.key])
-                          return (
-                            <Fragment key={`order-group-${entry.key}`}>
-                              <article
-                                className={`${productsStyles.ordersListRow} ${productsStyles.packageGroupRow}`}
-                                onClick={() =>
-                                  setExpandedOrderGroups((prev) => ({
-                                    ...prev,
-                                    [entry.key]: !prev[entry.key],
-                                  }))
-                                }
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(event) => {
-                                  if (event.key === 'Enter' || event.key === ' ') {
-                                    event.preventDefault()
-                                    setExpandedOrderGroups((prev) => ({
-                                      ...prev,
-                                      [entry.key]: !prev[entry.key],
-                                    }))
-                                  }
-                                }}
-                              >
-                                <div className={productsStyles.ordersListCell}>
-                                  <span className={productsStyles.ordersListLabel}>Acquisto</span>
-                                  <div className={productsStyles.orderPurchaseCell}>
-                                    <span className={productsStyles.orderThumb}>
-                                      {entry.lead.purchaseThumb ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={entry.lead.purchaseThumb} alt="" />
-                                      ) : (
-                                        <span
-                                          className={productsStyles.orderThumbFallback}
-                                          aria-hidden="true"
-                                        />
-                                      )}
-                                    </span>
-                                    <div className={productsStyles.orderPurchaseMeta}>
-                                      <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                                        {new Intl.DateTimeFormat(
-                                          locale === 'it' ? 'it-IT' : 'en-US',
-                                          {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric',
-                                          },
-                                        ).format(new Date(entry.lead.createdAt))}
-                                      </p>
-                                      <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
-                                        {entry.lead.orderNumber}
-                                      </p>
-                                      <p className={`${styles.orderMeta} ${productsStyles.orderMeta} typo-caption`}>
-                                        {entry.rows.length} prodotti
-                                      </p>
-                                      <p className={`${productsStyles.orderInlinePrice} typo-caption`}>
-                                        {formatMoney(entry.productsTotal, entry.lead.currency)}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div
-                                  className={`${productsStyles.ordersListCell} ${productsStyles.ordersListCellDetails}`}
-                                >
-                                  <span className={productsStyles.ordersListLabel}>Dettagli</span>
-                                  <div className={productsStyles.actionsStack}>
-                                    <AccountIconAction
-                                      type="button"
-                                      className="typo-caption-upper"
-                                      compact
-                                      aria-label={isExpanded ? 'Collassa ordine' : 'Espandi ordine'}
-                                      aria-expanded={isExpanded}
-                                      title={isExpanded ? 'Collassa ordine' : 'Espandi ordine'}
-                                      onClick={(event) => {
-                                        event.stopPropagation()
-                                        setExpandedOrderGroups((prev) => ({
-                                          ...prev,
-                                          [entry.key]: !prev[entry.key],
-                                        }))
-                                      }}
-                                    >
-                                      {isExpanded ? '−' : '+'}
-                                    </AccountIconAction>
-                                  </div>
-                                </div>
-                              </article>
-                              {isExpanded
-                                ? entry.rows.map((order) => (
-                                    <article
-                                      key={order.id}
-                                      className={`${productsStyles.ordersListRow} ${productsStyles.packageSessionRow}`}
-                                      onClick={() => setOrderDetails(order)}
-                                      role="button"
-                                      tabIndex={0}
-                                      onKeyDown={(event) => {
-                                        if (event.key === 'Enter' || event.key === ' ') {
-                                          event.preventDefault()
-                                          setOrderDetails(order)
-                                        }
-                                      }}
-                                    >
-                                      <div className={productsStyles.ordersListCell}>
-                                        <span className={productsStyles.ordersListLabel}>Acquisto</span>
-                                        <div className={productsStyles.orderPurchaseCell}>
-                                          <span className={productsStyles.orderThumb}>
-                                            {order.purchaseThumb ? (
-                                              // eslint-disable-next-line @next/next/no-img-element
-                                              <img src={order.purchaseThumb} alt="" />
-                                            ) : (
-                                              <span
-                                                className={productsStyles.orderThumbFallback}
-                                                aria-hidden="true"
-                                              />
-                                            )}
-                                          </span>
-                                          <div className={productsStyles.orderPurchaseMeta}>
-                                            <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                                              {new Intl.DateTimeFormat(
-                                                locale === 'it' ? 'it-IT' : 'en-US',
-                                                {
-                                                  day: '2-digit',
-                                                  month: '2-digit',
-                                                  year: 'numeric',
-                                                },
-                                              ).format(new Date(order.createdAt))}
-                                            </p>
-                                            <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
-                                              {order.purchaseTitle}
-                                            </p>
-                                            <p
-                                              className={`${productsStyles.orderInlinePrice} typo-caption`}
-                                            >
-                                              {formatMoney(order.total, order.currency)}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div
-                                        className={`${productsStyles.ordersListCell} ${productsStyles.ordersListCellDetails}`}
-                                      >
-                                        <span className={productsStyles.ordersListLabel}>Dettagli</span>
-                                        <div className={productsStyles.actionsStack}>
-                                          <AccountIconAction
-                                            type="button"
-                                            className="typo-caption-upper"
-                                            compact
-                                            aria-label="Apri dettagli ordine"
-                                            title="Apri dettagli ordine"
-                                            onClick={(event) => {
-                                              event.stopPropagation()
-                                              setOrderDetails(order)
-                                            }}
-                                          >
-                                            <EyeIcon width={18} height={18} aria-hidden="true" />
-                                          </AccountIconAction>
-                                        </div>
-                                      </div>
-                                    </article>
-                                  ))
-                                : null}
-                            </Fragment>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </>
-                ) : null}
-              </>
-            )}
-          </>
+          <AccountOrdersTab
+            styles={styles}
+            productsStyles={productsStyles}
+            identity={{
+              locale,
+              firstName,
+              fallbackCustomer: copy.fallbackCustomer,
+            }}
+            data={{
+              copy,
+              ordersByDateDesc,
+              nextProductDeliveryRow,
+              latestPurchasedProductRow,
+              productsSortLabel,
+              groupedProductRows,
+            }}
+            view={{
+              showAllProductPurchases,
+              expandedOrderGroups,
+            }}
+            actions={{
+              setShowAllProductPurchases,
+              setProductsFilterDrawerOpen,
+              setExpandedOrderGroups,
+              setOrderDetails,
+            }}
+            formatMoney={formatMoney}
+          />
         ) : null}
 
         {section === 'services' ? (
-          <>
-            <SectionTitle as="h2" size="h2" className={styles.title}>
-              Servizi, {firstName || copy.fallbackCustomer}
-            </SectionTitle>
-            <hr className={styles.sectionDivider} />
-            {serviceRowsState.length > 0 ? (
-              <div className={styles.accountSummarySection}>
-                <p className={`${styles.accountSummaryLabel} typo-caption-upper`}>
-                  {nextServiceAppointmentRow
-                    ? 'Prossimo appuntamento'
-                    : 'Ultimo servizio acquistato'}
-                </p>
-                <div
-                  className={styles.accountSummaryCard}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => {
-                    const row = (nextServiceAppointmentRow ?? latestServicePurchasedRow)!
-                    openScheduleEditModal(row)
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault()
-                      const row = (nextServiceAppointmentRow ?? latestServicePurchasedRow)!
-                      openScheduleEditModal(row)
-                    }
-                  }}
-                >
-                  {(() => {
-                    const row = nextServiceAppointmentRow ?? latestServicePurchasedRow
-                    if (!row) return null
-                    return (
-                      <>
-                        <div className={servicesStyles.accountSummaryServiceMeta}>
-                          <p className={`${styles.orderNumber} typo-body-lg`}>{row.serviceTitle}</p>
-                          <p className={`${styles.orderMeta} typo-caption`}>
-                            {row.itemKind === 'package' ? row.sessionLabel : 'Servizio singolo'}
-                          </p>
-                        </div>
-                        <div className={servicesStyles.accountSummaryServicePillWrap}>
-                          {renderServiceDataPill(row, false)}
-                        </div>
-                      </>
-                    )
-                  })()}
-                </div>
-                <AccountPillButton
-                  type="button"
-                  className={`${styles.accountSummaryToggle} typo-caption-upper`}
-                  onClick={() => setShowAllServicesBookings((prev) => !prev)}
-                >
-                  {showAllServicesBookings
-                    ? 'Nascondi servizi prenotati'
-                    : 'Tutti i servizi prenotati'}
-                </AccountPillButton>
-              </div>
-            ) : null}
-
-            {showAllServicesBookings ? (
-              <div className={styles.filtersTriggerRow}>
-                <p className={`${styles.filtersTriggerLabel} typo-body-lg`}>Filtri:</p>
-                <button
-                  type="button"
-                  className={`${styles.filtersTriggerButton} typo-small-upper`}
-                  onClick={() => setServicesFilterDrawerOpen(true)}
-                  aria-label="Apri filtro servizi"
-                >
-                  <span>{servicesCurrentFilterLabel}</span>
-                  <ChevronDownIcon width={16} height={16} aria-hidden="true" />
-                </button>
-              </div>
-            ) : null}
-
-            {showAllServicesBookings && serviceRowsFiltered.length === 0 ? (
-              <div className={styles.block}>
-                <p className={`${styles.value} typo-body-lg`}>
-                  Nessuna prenotazione servizio in questo filtro.
-                </p>
-              </div>
-            ) : showAllServicesBookings ? (
-              <>
-                {sessionMessage ? (
-                  <p
-                    className={`${sessionMessage.type === 'success' ? styles.successText : styles.errorText} typo-caption`}
-                  >
-                    {sessionMessage.text}
-                  </p>
-                ) : null}
-                <div className={servicesStyles.servicesList}>
-                  <AccountListHeader
-                    variant="services"
-                    columns={['Servizio', 'Data']}
-                  />
-                  {groupedServiceTableRows.map((entry) => {
-                    if (entry.kind === 'single') {
-                      const row = entry.row
-                      return (
-                        <div
-                          key={row.id}
-                          className={servicesStyles.servicesListRow}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => openScheduleEditModal(row)}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault()
-                              openScheduleEditModal(row)
-                            }
-                          }}
-                        >
-                          <div className={servicesStyles.servicesListCell}>
-                            <span className={servicesStyles.servicesListLabel}>Servizio</span>
-                            <div className={styles.serviceCellTitle}>{row.serviceTitle}</div>
-                          </div>
-                          <div className={servicesStyles.servicesListCell}>
-                            <span className={servicesStyles.servicesListLabel}>Data</span>
-                            {renderServiceDataPill(row, false)}
-                          </div>
-                        </div>
-                      )
-                    }
-
-                    const isExpanded = Boolean(expandedPackageGroups[entry.key])
-                    return (
-                      <Fragment key={`frag-${entry.key}`}>
-                        <div
-                          className={`${servicesStyles.servicesListRow} ${servicesStyles.packageGroupRow}`}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() =>
-                            setExpandedPackageGroups((prev) => ({
-                              ...prev,
-                              [entry.key]: !prev[entry.key],
-                            }))
-                          }
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault()
-                              setExpandedPackageGroups((prev) => ({
-                                ...prev,
-                                [entry.key]: !prev[entry.key],
-                              }))
-                            }
-                          }}
-                        >
-                          <div className={servicesStyles.servicesListCell}>
-                            <span className={servicesStyles.servicesListLabel}>Servizio</span>
-                            <div className={styles.serviceCellTitle}>{entry.lead.serviceTitle}</div>
-                          </div>
-                          <div className={servicesStyles.servicesListCell}>
-                            <span className={servicesStyles.servicesListLabel}>Data</span>
-                            <span
-                              className={`${servicesStyles.inlineDataPill} ${servicesStyles.packageTogglePill} typo-small-upper`}
-                              aria-label={isExpanded ? 'Collassa pacchetto' : 'Espandi pacchetto'}
-                              aria-expanded={isExpanded}
-                              title={isExpanded ? 'Collassa pacchetto' : 'Espandi pacchetto'}
-                            >
-                              <span
-                                className={`${servicesStyles.inlineStatusIcon} ${servicesStyles.statusIconEmpty}`}
-                              >
-                                <MinusIcon width={18} height={18} aria-hidden="true" />
-                              </span>
-                              <span className={servicesStyles.inlineDataDivider} aria-hidden="true" />
-                              <span className={servicesStyles.inlineDataText}>Pacchetto</span>
-                              <span className={servicesStyles.inlineDataDivider} aria-hidden="true" />
-                              <span className={servicesStyles.inlinePillIconButton} aria-hidden="true">
-                                {isExpanded ? '−' : '+'}
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                        {isExpanded
-                          ? [
-                              <div
-                                key={`${entry.key}-order-cta`}
-                                className={`${servicesStyles.servicesListRow} ${servicesStyles.packageOrderCtaRow}`}
-                              >
-                                <div className={servicesStyles.servicesListCell}>
-                                  <span className={servicesStyles.servicesListLabel}>Servizio</span>
-                                  <AccountPillButton
-                                    type="button"
-                                    className={`${servicesStyles.packageOrderCta} typo-small-upper`}
-                                    onClick={() => {
-                                      setServiceDetailsIsPackageChild(false)
-                                      setServiceDetailsRow(entry.lead)
-                                    }}
-                                  >
-                                    Dettaglio ordine pacchetto
-                                  </AccountPillButton>
-                                </div>
-                              </div>,
-                              ...entry.rows.map((row) => (
-                                <div
-                                  key={row.id}
-                                  className={`${servicesStyles.servicesListRow} ${servicesStyles.packageSessionRow}`}
-                                  role="button"
-                                  tabIndex={0}
-                                  onClick={() => openScheduleEditModal(row)}
-                                  onKeyDown={(event) => {
-                                    if (event.key === 'Enter' || event.key === ' ') {
-                                      event.preventDefault()
-                                      openScheduleEditModal(row)
-                                    }
-                                  }}
-                                >
-                                  <div className={servicesStyles.servicesListCell}>
-                                    <span className={servicesStyles.servicesListLabel}>Servizio</span>
-                                    <div className={servicesStyles.packageSessionCell}>
-                                      Seduta {row.sessionIndex}/{row.sessionsTotal}
-                                    </div>
-                                  </div>
-                                  <div className={servicesStyles.servicesListCell}>
-                                    <span className={servicesStyles.servicesListLabel}>Data</span>
-                                    {renderServiceDataPill(row, false)}
-                                  </div>
-                                </div>
-                              )),
-                            ]
-                          : null}
-                      </Fragment>
-                    )
-                  })}
-                </div>
-              </>
-            ) : null}
-          </>
+          <AccountServicesTab
+            styles={styles}
+            servicesStyles={servicesStyles}
+            identity={{
+              firstName,
+              fallbackCustomer: copy.fallbackCustomer,
+            }}
+            data={{
+              serviceRowsState,
+              nextServiceAppointmentRow,
+              latestServicePurchasedRow,
+              servicesCurrentFilterLabel,
+              serviceRowsFiltered,
+              sessionMessage,
+              groupedServiceTableRows,
+            }}
+            view={{
+              showAllServicesBookings,
+              expandedPackageGroups,
+            }}
+            actions={{
+              openScheduleEditModal,
+              setShowAllServicesBookings,
+              setServicesFilterDrawerOpen,
+              setExpandedPackageGroups,
+              setServiceDetailsIsPackageChild,
+              setServiceDetailsRow,
+            }}
+            renderServiceDataPill={renderServiceDataPill}
+          />
         ) : null}
 
         <MobileFilterDrawer
@@ -1838,7 +1236,7 @@ export function AccountDashboardClient({
             {
               id: 'products-sort',
               value: productsSort,
-              options: productSortOptions,
+              options: PRODUCT_SORT_OPTIONS,
               onChange: (value) => setProductsSort(value as ProductSort),
             },
           ]}
@@ -1852,7 +1250,7 @@ export function AccountDashboardClient({
             {
               id: 'services-main',
               value: servicesFilter,
-              options: servicesPrimaryOptions,
+              options: SERVICES_PRIMARY_OPTIONS,
               onChange: (value) => {
                 setServicesFilter(value as ServicesFilter)
                 if (value === 'used') setServicesSubFilter('all')
@@ -1864,7 +1262,7 @@ export function AccountDashboardClient({
                     id: 'services-sub',
                     label: 'Stato',
                     value: servicesSubFilter,
-                    options: servicesSubOptions,
+                    options: SERVICES_SUB_OPTIONS,
                     onChange: (value: string) => setServicesSubFilter(value as ServicesSubFilter),
                   },
                 ]
@@ -1873,477 +1271,67 @@ export function AccountDashboardClient({
         />
 
         {section === 'addresses' ? (
-          <>
-            <SectionTitle as="h2" size="h2" className={styles.title}>
-              {copy.addresses.title}, {firstName || copy.fallbackCustomer}
-            </SectionTitle>
-            <hr className={styles.sectionDivider} />
-            {addressesView === 'default' ? (
-              <div className={styles.block}>
-                <div className={`${styles.rowBetween} ${styles.addressHeaderRow}`}>
-                  <div>
-                    <SectionTitle as="h3" size="h3" uppercase className={styles.subHeading}>
-                      {copy.addresses.defaultAddress}
-                    </SectionTitle>
-                    {defaultAddress ? (
-                      <div className={`${styles.addressPreview} typo-body-lg`}>
-                        {formatAddressLines(defaultAddress).map((line) => (
-                          <p key={line}>{line}</p>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className={`${styles.value} typo-body-lg`}>{copy.addresses.noAddress}</p>
-                    )}
-                  </div>
-                </div>
-                <div className={styles.addressSectionActions}>
-                  {defaultAddress ? (
-                    <>
-                      <AccountPillButton
-                        type="button"
-                        className={`${styles.addressPrimaryButton} typo-small-upper`}
-                        onClick={() => {
-                          setAddressesView('book')
-                          setEditingAddressId(null)
-                          setShowAddressForm(false)
-                          setAddressMessage(null)
-                        }}
-                      >
-                        Vedi/Modifica rubrica indirizzi
-                      </AccountPillButton>
-                    </>
-                  ) : (
-                    <AccountPillButton
-                      type="button"
-                      className={`${styles.addressPrimaryButton} typo-small-upper`}
-                      onClick={() => {
-                        setAddressesView('default')
-                        setEditingAddressId(null)
-                        setAddressMessage(null)
-                        setAddressLookupQuery('')
-                        setShowAddressForm((value) => !value)
-                      }}
-                    >
-                      {copy.addresses.addNewAddress}
-                    </AccountPillButton>
-                  )}
-                </div>
-              </div>
-            ) : null}
-
-            {addressesView === 'book' ? (
-              <div className={`${styles.block} ${styles.addressBookBlock}`}>
-                <div className={styles.addressBookHeader}>
-                  <SectionTitle as="h3" size="h3" uppercase className={styles.subHeading}>
-                    Rubrica indirizzi
-                  </SectionTitle>
-                  <button
-                    type="button"
-                    className={`${styles.addressBackLink} typo-caption-upper`}
-                    onClick={() => setAddressesView('default')}
-                  >
-                    Chiudi rubrica
-                  </button>
-                </div>
-
-                <div className={styles.addressBookList}>
-                  {addresses.length === 0 ? (
-                    <p className={`${styles.value} typo-body-lg`}>{copy.addresses.noAddress}</p>
-                  ) : (
-                    addresses.map((address, index) => (
-                      <div key={address.id} className={styles.addressBookCard}>
-                        <div>
-                          <p className={`${styles.serviceCellTitle} typo-caption-upper`}>
-                            {index === 0 ? copy.addresses.defaultAddress : 'Indirizzo'}
-                          </p>
-                          <div className={`${styles.addressPreview} typo-body-lg`}>
-                            {formatAddressLines(address).map((line) => (
-                              <p key={`${address.id}-${line}`}>{line}</p>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className={styles.addressBookActions}>
-                          {index !== 0 ? (
-                            <AccountPillButton
-                              type="button"
-                              className={`${styles.addressPrimaryButton} typo-small-upper`}
-                              onClick={() => onSetDefaultAddress(address.id)}
-                            >
-                              Imposta predefinito
-                            </AccountPillButton>
-                          ) : null}
-                          <div className={styles.addressBookActionRow}>
-                            <AccountPillButton
-                              type="button"
-                              className={`${styles.addressPrimaryButton} typo-small-upper`}
-                              onClick={() => onEditAddress(address)}
-                            >
-                              {copy.addresses.edit}
-                            </AccountPillButton>
-                            <button
-                              type="button"
-                              className={`${styles.addressDeleteLink} typo-caption-upper`}
-                              onClick={() => onDeleteAddressById(address.id)}
-                            >
-                              {copy.addresses.delete}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <AccountPillButton
-                  type="button"
-                  className={`${styles.addressPrimaryButton} typo-small-upper`}
-                  onClick={() => {
-                    setAddressesView('book')
-                    setEditingAddressId(null)
-                    setShowAddressForm((value) => !value)
-                    setAddressMessage(null)
-                    setAddressLookupQuery('')
-                  }}
-                >
-                  {copy.addresses.addNewAddress}
-                </AccountPillButton>
-              </div>
-            ) : null}
-
-            {showAddressForm ? (
-              <AddressForm
-                editingAddressId={editingAddressId}
-                message={addressMessage}
-                copy={copy.addresses}
-                draft={addressDraft}
-                lookupQuery={addressLookupQuery}
-                cityLoading={cityLoading}
-                showCitySuggestions={showCitySuggestions}
-                citySuggestions={citySuggestions}
-                onLookupQueryChange={setAddressLookupQuery}
-                onLookupFocus={() => setShowCitySuggestions(true)}
-                onLookupBlur={() => {
-                  window.setTimeout(() => setShowCitySuggestions(false), 120)
-                }}
-                onSuggestionSelect={applyCitySuggestion}
-                setDraft={setAddressDraft}
-                onSubmit={onSaveAddress}
-                onCancel={() => {
-                  setEditingAddressId(null)
-                  setAddressMessage(null)
-                  setAddressLookupQuery('')
-                  setShowAddressForm(false)
-                }}
-              />
-            ) : null}
-          </>
+          <AccountAddressesTab
+            styles={styles}
+            copy={copy}
+            identity={{
+              firstName,
+              fallbackCustomer: copy.fallbackCustomer,
+            }}
+            data={{
+              addressesView,
+              defaultAddress,
+              addresses,
+              showAddressForm,
+              editingAddressId,
+              addressMessage,
+              addressDraft,
+              addressLookupQuery,
+              cityLoading,
+              showCitySuggestions,
+              citySuggestions,
+            }}
+            actions={{
+              setAddressLookupQuery,
+              setShowCitySuggestions,
+              applyCitySuggestion,
+              setAddressDraft,
+              onSaveAddress,
+              setEditingAddressId,
+              setShowAddressForm,
+              setAddressMessage,
+              setAddressesView,
+              onSetDefaultAddress,
+              onEditAddress,
+              onDeleteAddressById,
+            }}
+            formatAddressLines={formatAddressLines}
+          />
         ) : null}
       </section>
       {renderAccountFooterActions(styles.mobileFooterActions)}
-      {serviceDetailsRow ? (
-        <AccountModal
-          open={Boolean(serviceDetailsRow)}
-          titleId="service-details-title"
-          title="Dettagli prenotazione"
-          onClose={() => {
-            setServiceDetailsRow(null)
-            setServiceDetailsIsPackageChild(false)
-          }}
-        >
-          <div className={accountModalClassNames.grid}>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Servizio</p>
-              <p className={`${styles.value} typo-body-lg`}>{serviceDetailsRow.serviceTitle}</p>
-            </div>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Ordine</p>
-              <p className={`${styles.value} typo-body-lg`}>{serviceDetailsRow.orderNumber}</p>
-            </div>
-            {!serviceDetailsIsPackageChild ? (
-              <div>
-                <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Data ordine</p>
-                <p className={`${styles.value} typo-body-lg`}>
-                  {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }).format(new Date(serviceDetailsRow.orderCreatedAt))}
-                </p>
-              </div>
-            ) : null}
-            {!serviceDetailsIsPackageChild ? (
-              <div>
-                <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Pagamento</p>
-                <p className={`${styles.value} typo-body-lg`}>
-                  {serviceDetailsRow.orderStatus} · {serviceDetailsRow.paymentStatus}
-                </p>
-              </div>
-            ) : null}
-            {!serviceDetailsIsPackageChild ? (
-              <div>
-                <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Prezzo</p>
-                <p className={`${styles.value} typo-body-lg`}>
-                  {formatMoney(
-                    serviceDetailsRow.itemKind === 'package'
-                      ? serviceDetailsRow.rowPrice * Math.max(serviceDetailsRow.sessionsTotal || 1, 1)
-                      : serviceDetailsRow.rowPrice,
-                    serviceDetailsRow.currency,
-                  )}
-                </p>
-              </div>
-            ) : null}
-          </div>
-        </AccountModal>
-      ) : null}
-      {orderDetails ? (
-        <AccountModal
-          open={Boolean(orderDetails)}
-          titleId="order-details-title"
-          title="Dettagli ordine"
-          onClose={() => setOrderDetails(null)}
-        >
-          <div className={accountModalClassNames.grid}>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Ordine</p>
-              <p className={`${styles.value} typo-body-lg`}>{orderDetails.orderNumber}</p>
-            </div>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Prodotto</p>
-              <div className={productsStyles.orderPurchaseCell}>
-                <span className={productsStyles.orderThumb}>
-                  {orderDetails.purchaseThumb ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={orderDetails.purchaseThumb} alt="" />
-                  ) : (
-                    <span className={productsStyles.orderThumbFallback} aria-hidden="true" />
-                  )}
-                </span>
-                <div className={productsStyles.orderPurchaseMeta}>
-                  <p className={`${styles.value} typo-body-lg`}>{orderDetails.purchaseTitle}</p>
-                  {orderDetails.otherItemsCount > 0 ? (
-                    <p className={`${styles.orderMeta} typo-caption`}>
-                      + {orderDetails.otherItemsCount} altri prodotti nello stesso ordine
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Data acquisto</p>
-              <p className={`${styles.value} typo-body-lg`}>
-                {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }).format(new Date(orderDetails.createdAt))}
-              </p>
-            </div>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Pagamento</p>
-              <p className={`${styles.value} typo-body-lg`}>
-                {orderDetails.status} · {orderDetails.paymentStatus}
-              </p>
-            </div>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Fulfillment</p>
-              <p className={`${styles.value} typo-body-lg`}>
-                {orderDetails.productFulfillmentMode === 'pickup'
-                  ? 'Ritiro in negozio'
-                  : 'Spedizione'}
-              </p>
-            </div>
-            {orderDetails.productFulfillmentMode === 'shipping' ? (
-              <div>
-                <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Stato consegna</p>
-                <p className={`${styles.value} typo-body-lg`}>
-                  {orderDetails.deliveryStatus || 'In preparazione'}
-                </p>
-              </div>
-            ) : null}
-            {orderDetails.productFulfillmentMode === 'shipping' ? (
-              <div>
-                <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Tracking</p>
-                <p className={`${styles.value} typo-body-lg`}>
-                  {orderDetails.trackingNumber ? (
-                    orderDetails.trackingUrl ? (
-                      <a
-                        href={orderDetails.trackingUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.inlineLink}
-                      >
-                        {orderDetails.trackingNumber}
-                      </a>
-                    ) : (
-                      orderDetails.trackingNumber
-                    )
-                  ) : (
-                    'Non disponibile'
-                  )}
-                </p>
-              </div>
-            ) : null}
-            {orderDetails.productFulfillmentMode === 'shipping' && orderDetails.deliveryUpdatedAt ? (
-              <div>
-                <p className={`${styles.serviceCellTitle} typo-caption-upper`}>
-                  Ultimo aggiornamento spedizione
-                </p>
-                <p className={`${styles.value} typo-body-lg`}>
-                  {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }).format(new Date(orderDetails.deliveryUpdatedAt))}
-                </p>
-              </div>
-            ) : null}
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Quantità</p>
-              <p className={`${styles.value} typo-body-lg`}>{orderDetails.quantity}</p>
-            </div>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Prezzo unitario</p>
-              <p className={`${styles.value} typo-body-lg`}>
-                {formatMoney(orderDetails.unitPrice, orderDetails.currency)}
-              </p>
-            </div>
-            <div>
-              <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Totale riga</p>
-              <p className={`${styles.value} typo-body-lg`}>
-                {formatMoney(orderDetails.total, orderDetails.currency)}
-              </p>
-            </div>
-          </div>
-        </AccountModal>
-      ) : null}
-      {scheduleEditRow ? (
-        <AccountModal
-          open={Boolean(scheduleEditRow)}
-          titleId="schedule-edit-title"
-          title="Dettagli appuntamento"
-          onClose={() => setScheduleEditRow(null)}
-        >
-          {(() => {
-            const isPackageSession = scheduleEditRow.itemKind === 'package'
-            return (
-              <>
-                <p className={`${styles.value} typo-body-lg`}>
-                  {scheduleEditRow.serviceTitle}
-                  {scheduleEditRow.itemKind === 'package' ? ` · ${scheduleEditRow.sessionLabel}` : ''}
-                </p>
-                <div className={accountModalClassNames.grid}>
-                  {!isPackageSession ? (
-                    <>
-                      <div>
-                        <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Ordine</p>
-                        <p className={`${styles.value} typo-body-lg`}>
-                          {scheduleEditRow.orderNumber}
-                        </p>
-                      </div>
-                      <div>
-                        <p className={`${styles.serviceCellTitle} typo-caption-upper`}>
-                          Data ordine
-                        </p>
-                        <p className={`${styles.value} typo-body-lg`}>
-                          {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }).format(new Date(scheduleEditRow.orderCreatedAt))}
-                        </p>
-                      </div>
-                      <div>
-                        <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Status</p>
-                        <p className={`${styles.value} typo-body-lg`}>
-                          {formatServiceStatus(scheduleEditRow)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Prezzo</p>
-                        <p className={`${styles.value} typo-body-lg`}>
-                          {formatMoney(scheduleEditRow.rowPrice, scheduleEditRow.currency)}
-                        </p>
-                      </div>
-                    </>
-                  ) : null}
-                  {isPackageSession ? (
-                    <div>
-                      <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Seduta</p>
-                      <p className={`${styles.value} typo-body-lg`}>{scheduleEditRow.sessionLabel}</p>
-                    </div>
-                  ) : null}
-                  <div>
-                    <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Data attuale</p>
-                    <p className={`${styles.value} typo-body-lg`}>
-                      {formatServiceSchedule(scheduleEditRow)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Data</p>
-                    <Input
-                      size="compact"
-                      className={accountModalClassNames.input}
-                      type="date"
-                      value={scheduleEditDraft.date}
-                      onChange={(e) =>
-                        setScheduleEditDraft((prev) => ({ ...prev, date: e.target.value }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Ora</p>
-                    <Input
-                      size="compact"
-                      className={accountModalClassNames.input}
-                      type="time"
-                      value={scheduleEditDraft.time}
-                      onChange={(e) =>
-                        setScheduleEditDraft((prev) => ({ ...prev, time: e.target.value }))
-                      }
-                    />
-                  </div>
-                </div>
-                {scheduleEditRow && !canEditSchedule(scheduleEditRow) ? (
-                  <p className={`${styles.errorText} typo-caption`}>
-                    Questa data è già gestita dal team e non è modificabile dal tuo account.
-                  </p>
-                ) : null}
-                <div className={accountModalClassNames.actions}>
-                  <AccountIconAction
-                    type="button"
-                    className="typo-caption-upper"
-                    disabled={
-                      sessionSavingId === scheduleEditRow.id || !canEditSchedule(scheduleEditRow)
-                    }
-                    onClick={() => void onSaveScheduleEdit()}
-                  >
-                    {sessionSavingId === scheduleEditRow.id ? 'Salvataggio…' : 'Salva data'}
-                  </AccountIconAction>
-                  <AccountIconAction
-                    type="button"
-                    className="typo-caption-upper"
-                    disabled={
-                      sessionSavingId === scheduleEditRow.id || !canEditSchedule(scheduleEditRow)
-                    }
-                    onClick={() => void onClearScheduleEdit()}
-                  >
-                    Annulla data
-                  </AccountIconAction>
-                </div>
-              </>
-            )
-          })()}
-        </AccountModal>
-      ) : null}
+      <AccountDashboardModals
+        locale={locale}
+        styles={styles}
+        productsStyles={productsStyles}
+        serviceDetailsRow={serviceDetailsRow}
+        serviceDetailsIsPackageChild={serviceDetailsIsPackageChild}
+        setServiceDetailsRow={setServiceDetailsRow}
+        setServiceDetailsIsPackageChild={setServiceDetailsIsPackageChild}
+        orderDetails={orderDetails}
+        setOrderDetails={setOrderDetails}
+        scheduleEditRow={scheduleEditRow}
+        setScheduleEditRow={setScheduleEditRow}
+        scheduleEditDraft={scheduleEditDraft}
+        setScheduleEditDraft={setScheduleEditDraft}
+        sessionSavingId={sessionSavingId}
+        canEditSchedule={canEditSchedule}
+        formatServiceSchedule={formatServiceSchedule}
+        formatServiceStatus={formatServiceStatus}
+        formatMoney={formatMoney}
+        onSaveScheduleEdit={onSaveScheduleEdit}
+        onClearScheduleEdit={onClearScheduleEdit}
+      />
     </div>
   )
 }

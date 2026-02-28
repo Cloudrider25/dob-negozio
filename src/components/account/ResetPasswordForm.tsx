@@ -10,21 +10,9 @@ import { SectionTitle } from '@/components/sections/SectionTitle'
 import { Input } from '@/components/ui/input'
 
 import styles from './AuthForms.module.css'
+import { getAuthErrorMessage } from './auth-utils'
 
 const PASSWORD_MIN_LENGTH = 10
-
-const getErrorMessage = (payload: unknown, fallback: string) => {
-  if (payload && typeof payload === 'object') {
-    const record = payload as { message?: unknown; errors?: Array<{ message?: unknown }> }
-    if (typeof record.message === 'string' && record.message.trim().length > 0) {
-      return record.message
-    }
-    if (Array.isArray(record.errors) && typeof record.errors[0]?.message === 'string') {
-      return record.errors[0].message
-    }
-  }
-  return fallback
-}
 
 export function ResetPasswordForm({ locale }: { locale: string }) {
   const router = useRouter()
@@ -61,7 +49,7 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
 
       const data = (await response.json().catch(() => ({}))) as unknown
       if (!response.ok) {
-        setError(getErrorMessage(data, copy.errors.generic))
+        setError(getAuthErrorMessage(data, copy.errors.generic))
         return
       }
 
