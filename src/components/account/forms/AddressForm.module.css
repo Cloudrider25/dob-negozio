@@ -1,0 +1,163 @@
+.addressForm {
+  margin-top: 26px;
+  max-width: 620px;
+  border: 1px solid var(--text-secondary);
+  padding: 18px 18px 20px;
+  border-radius: 12px;
+}
+
+.title {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+}
+
+.successText {
+  margin: 10px 0 0;
+  color: var(--tech-cyan);
+}
+
+.errorText {
+  margin: 10px 0 0;
+  color: var(--neon-red);
+}
+
+.formBlock {
+  display: grid;
+  gap: 0;
+}
+
+.formBlockLabel {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
+.formBlockDivider {
+  height: 1px;
+  margin: 4px 0 12px;
+  background: color-mix(in srgb, var(--stroke) 75%, transparent);
+}
+
+.input {
+  height: 52px;
+  margin-bottom: 10px;
+}
+
+.select {
+  height: 52px;
+  margin-bottom: 10px;
+}
+
+.cityAutocomplete {
+  position: relative;
+}
+
+.cityAutocomplete .input {
+  margin-bottom: 10px;
+}
+
+.citySuggestions {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--stroke) 85%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 94%, var(--paper) 6%);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.citySuggestionItem {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  cursor: pointer;
+}
+
+.citySuggestionItem:hover,
+.citySuggestionItem:focus-visible {
+  background: color-mix(in srgb, var(--paper) 20%, transparent);
+  outline: none;
+}
+
+.citySuggestionMuted {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.limitHint {
+  margin: -2px 0 10px;
+  color: var(--text-secondary);
+}
+
+.checkboxRow {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkboxRow input {
+  width: 24px;
+  height: 24px;
+}
+
+.checkboxLabel {
+  color: var(--text-secondary);
+}
+
+.formActions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pillButton {
+  --btn-bg: transparent;
+  --btn-text: var(--text-secondary);
+  --btn-border: var(--text-secondary);
+  --btn-hover-bg: transparent;
+  --btn-hover-text: var(--text-secondary);
+  --btn-hover-border: var(--text-secondary);
+  --btn-active-bg: transparent;
+  --btn-active-text: var(--text-secondary);
+  --btn-active-border: var(--text-secondary);
+  --btn-focus-ring: color-mix(in srgb, var(--text-secondary) 45%, transparent);
+  --btn-focus-offset: var(--bg);
+  min-width: 0;
+  width: 100%;
+  height: 52px;
+  border-radius: 999px;
+  border: 1px solid var(--text-secondary);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.cancelLink {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (min-width: 1025px) {
+  .formBlockDivider {
+    margin: 6px 0 14px;
+  }
+
+  .pillButton {
+    width: auto;
+    min-width: 290px;
+  }
+}

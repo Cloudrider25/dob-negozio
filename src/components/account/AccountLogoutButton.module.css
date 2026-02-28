@@ -1,0 +1,11 @@
+.root {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error {
+  margin: 0;
+  color: #8a1010;
+}

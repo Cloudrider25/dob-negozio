@@ -1,0 +1,213 @@
+.accountSummaryServiceMeta {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.accountSummaryServicePillWrap {
+  min-width: 0;
+}
+
+.servicesList {
+  margin-top: var(--account-v-gap);
+  display: grid;
+  gap: var(--account-v-gap);
+  padding: 0;
+}
+
+.servicesListRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--account-v-gap);
+  padding: 16px;
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  align-items: start;
+  background: color-mix(in srgb, var(--paper) 55%, var(--bg) 45%);
+}
+
+.servicesListCell {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.servicesListLabel {
+  display: none;
+}
+
+.packageGroupRow {
+  background: color-mix(in srgb, var(--bg) 92%, var(--text-secondary) 8%);
+  cursor: pointer;
+}
+
+.packageSessionRow {
+  background: color-mix(in srgb, var(--bg) 96%, var(--text-secondary) 4%);
+  cursor: pointer;
+}
+
+.packageOrderCtaRow {
+  grid-template-columns: minmax(0, 1fr);
+  background: transparent;
+  border-style: dashed;
+}
+
+.packageSessionCell {
+  color: var(--text-secondary);
+  opacity: 0.85;
+  font-size: 11px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.inlineDataPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--text-secondary);
+  background: var(--text-secondary);
+  color: var(--bg);
+  padding: 5px 8px;
+}
+
+.inlineDataText {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1 1 auto;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.inlineDataDot {
+  opacity: 0.75;
+}
+
+.inlineDataDivider {
+  width: 1px;
+  align-self: stretch;
+  background: currentColor;
+  opacity: 0.35;
+  flex: 0 0 auto;
+  margin: -5px 0;
+}
+
+.inlineStatusIcon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: currentColor;
+  flex: 0 0 auto;
+}
+
+.statusIconConfirmed {
+  opacity: 1;
+}
+
+.statusIconPending {
+  opacity: 1;
+}
+
+.statusIconProposed {
+  opacity: 1;
+}
+
+.statusIconEmpty {
+  opacity: 0.9;
+}
+
+.inlinePillIconButton {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex: 0 0 auto;
+}
+
+.inlineDataPillButton {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.packageTogglePill {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  border-width: 1px;
+  text-align: left;
+  cursor: inherit;
+}
+
+.packageOrderCta {
+  min-height: 44px;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 1025px) {
+  .packageSessionCell {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .inlineDataPill {
+    width: 208px;
+    max-width: 100%;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+
+  .inlineDataText {
+    gap: 0;
+    overflow: visible;
+    white-space: normal;
+    text-overflow: initial;
+  }
+
+  .inlineDataDivider {
+    margin: -6px 0;
+  }
+
+  .inlineStatusIcon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .inlinePillIconButton {
+    width: 20px;
+    height: 20px;
+  }
+
+  .servicesListRow {
+    grid-template-columns: minmax(0, 1.6fr) minmax(240px, 300px);
+    grid-template-rows: none;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .servicesListCell {
+    gap: 0;
+  }
+}

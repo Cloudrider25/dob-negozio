@@ -1,0 +1,79 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: transparent;
+  display: grid;
+  align-items: end;
+}
+
+.panel {
+  width: 100%;
+  border-radius: 16px 16px 0 0;
+  border: 1px solid var(--stroke);
+  border-bottom: 0;
+  background: var(--paper);
+  padding: 12px 16px 24px;
+  transform: translateY(0);
+  animation: slideUp 220ms ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.close {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.groupLabel {
+  margin: 0;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+.option {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 14px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.optionActive {
+  background: color-mix(in srgb, var(--text-secondary) 10%, transparent);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

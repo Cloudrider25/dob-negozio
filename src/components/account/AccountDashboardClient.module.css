@@ -1,31 +1,49 @@
+/* =========================
+   Layout
+   ========================= */
 .layout {
+  --account-v-gap: 22px;
   --split-gap: 56px;
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
-  gap: var(--split-gap);
+  grid-template-columns: 1fr;
+  gap: 26px;
   padding: 28px 16px 40px;
   background: var(--bg);
   border-radius: 0 0 14px 14px;
 }
 
 .sidebar {
-  padding: 8px 0;
+  order: -1;
+  padding: 0;
 }
 
 .sidebarFooter {
-  display: block;
+  display: none;
 }
 
 .mobileFooterActions {
-  display: none;
+  display: block;
+  grid-column: 1;
+  margin-top: -8px;
+  padding-top: 0;
 }
 
+/* =========================
+   Menu
+   ========================= */
 .menu {
-  border-top: 1px solid var(--stroke);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  border-top: 0;
 }
 
 .menuDivider {
-  display: none;
+  display: block;
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--stroke);
 }
 
 .menuDividerLabel {
@@ -36,27 +54,28 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--stroke);
-  padding: 18px 0;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 14px 12px;
+  min-height: 58px;
   color: var(--text-secondary);
   cursor: pointer;
-  text-align: left;
+  text-align: center;
 }
 
 .menuButtonFull {
   width: 100%;
+  grid-column: 1 / -1;
+}
+
+.menuButton > span:first-child {
+  width: 100%;
 }
 
 .menuDot {
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  border: 2px solid var(--stroke);
-  background: transparent;
-  transition: background-color 120ms ease, border-color 120ms ease;
+  display: none;
 }
 
 .menuDotActive {
@@ -64,8 +83,14 @@
   border-color: var(--text-primary);
 }
 
+.menuButton:has(.menuDotActive) {
+  background: var(--paper);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
 .help {
-  margin-top: 54px;
+  margin-top: 0;
   color: var(--text-secondary);
 }
 
@@ -74,13 +99,19 @@
   text-decoration: underline;
 }
 
-.logoutWrap {
-  margin-top: 18px;
-}
-
-
+/* =========================
+   Layout - Content
+   ========================= */
 .content {
   min-height: auto;
+}
+
+.content > .title {
+  display: none;
+}
+
+.content > .sectionDivider {
+  display: none;
 }
 
 .title {
@@ -89,7 +120,9 @@
 }
 
 .mobilePageTitle {
-  display: none;
+  display: block;
+  grid-column: 1;
+  order: -2;
 }
 
 .sectionDivider {
@@ -114,8 +147,8 @@
 
 .infoGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .profileField {
@@ -154,7 +187,9 @@
 }
 
 .addressHeaderRow {
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
 }
 
 .inlineLink {
@@ -162,20 +197,13 @@
   text-decoration: underline;
 }
 
-.pillButton {
-  min-width: 290px;
-  height: 52px;
-  border-radius: 999px;
-  border: 1px solid var(--text-secondary);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
+/* =========================
+   Products
+   ========================= */
 .accountSummarySection {
-  margin-top: 18px;
+  margin-top: var(--account-v-gap);
   display: grid;
-  gap: 10px;
+  gap: var(--account-v-gap);
 }
 
 .accountSummaryLabel {
@@ -190,9 +218,9 @@
   padding: 12px;
   background: var(--paper);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--account-v-gap);
+  align-items: start;
   cursor: pointer;
 }
 
@@ -202,396 +230,40 @@
   height: 44px;
 }
 
-.accountSummaryServiceMeta {
-  min-width: 0;
-  display: grid;
-  gap: 4px;
+.filtersTriggerRow {
+  margin-top: var(--account-v-gap);
+  display: flex;
+  align-items: center;
+  gap: var(--account-v-gap);
 }
 
-.accountSummaryServicePillWrap {
-  grid-column: 1 / -1;
-}
-
-.ordersListWrap {
-  margin-top: 18px;
-  border: 1px solid var(--stroke);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.ordersListHead {
-  display: none;
-}
-
-.ordersList {
-  display: grid;
-}
-
-.ordersListRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 110px 36px;
-  gap: 8px 12px;
-  padding: 12px;
-  border-bottom: 1px solid var(--stroke);
-  align-items: start;
-  cursor: pointer;
-}
-
-.ordersListRow:last-child {
-  border-bottom: 0;
-}
-
-.ordersListCell {
-  min-width: 0;
-  display: grid;
-  gap: 6px;
-}
-
-.ordersListCellDetails {
-  justify-items: end;
-  align-content: center;
-}
-
-.ordersListLabel {
-  display: none;
-}
-
-.orderPurchaseCell {
-  display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  gap: 0;
-  align-items: stretch;
-  min-width: 0;
-  margin-left: -12px;
-}
-
-.orderThumb {
-  width: 64px;
-  height: 100%;
-  min-height: 64px;
-  border-radius: 0;
-  overflow: hidden;
-  border: 0;
-  border-right: 1px solid var(--stroke);
-  background: var(--paper);
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-}
-
-.orderThumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.orderThumbFallback {
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  border: 1px solid var(--stroke);
-  opacity: 0.5;
-}
-
-.orderPurchaseMeta {
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-  align-content: center;
-  padding-left: 10px;
-}
-
-.orderInlinePrice {
-  display: none;
+.filtersTriggerLabel {
   margin: 0;
   color: var(--text-secondary);
-  font-weight: 600;
 }
 
-.servicesFilters {
-  margin-top: 20px;
-  display: grid;
-  gap: 8px;
-}
-
-.servicesFilterRow {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.servicesFilterRow::-webkit-scrollbar {
-  display: none;
-}
-
-.filterChip {
-  border: 1px solid var(--stroke);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-secondary);
-  padding: 10px 14px;
-  cursor: pointer;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.filterChipActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg);
-}
-
-.servicesTableWrap {
-  margin-top: 18px;
-  border: 1px solid var(--stroke);
-  border-radius: 10px;
-  overflow: hidden;
-  padding: 0;
-}
-
-.servicesList {
-  display: grid;
-}
-
-.servicesListHead {
-  display: none;
-}
-
-.servicesListRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 36px;
-  grid-template-rows: auto auto;
-  column-gap: 10px;
-  row-gap: 8px;
-  padding: 12px;
-  border-bottom: 1px solid var(--stroke);
-  align-items: center;
-}
-
-.servicesListRow:last-child {
-  border-bottom: 0;
-}
-
-.servicesListCell {
-  min-width: 0;
-  display: grid;
-  gap: 6px;
-}
-
-.servicesListCellDetails {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  justify-items: center;
-  align-content: center;
-  gap: 0;
-}
-
-.servicesListLabel {
-  display: none;
-}
-
-.actionsStack {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-}
-
-.actionsStack .inlineActionButton {
+.filtersTriggerButton {
   border: 0;
-  min-height: auto;
-  width: 20px;
-  height: 20px;
-  padding: 0;
   border-radius: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.packageGroupRow {
-  background: color-mix(in srgb, var(--bg) 92%, var(--text-secondary) 8%);
-}
-
-.packageSessionRow {
-  background: color-mix(in srgb, var(--bg) 96%, var(--text-secondary) 4%);
-}
-
-.packageSessionRow .servicesListCell:first-child {
-  padding-left: 12px;
-}
-
-.servicesListRow > .servicesListCell:nth-child(1) {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.servicesListRow > .servicesListCell:nth-child(2) {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.packageSessionCell {
-  color: var(--text-secondary);
-  opacity: 0.85;
-  font-size: 12px;
-  line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.inlineActionButton {
-  min-height: 34px;
-  border-radius: 999px;
-  border: 1px solid var(--stroke);
   background: transparent;
   color: var(--text-secondary);
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-.inlineDataPill {
+  min-height: 0;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  justify-content: space-between;
-  width: 208px;
-  max-width: 100%;
-  min-height: 34px;
-  border-radius: 999px;
-  border: 1px solid var(--text-secondary);
-  background: var(--text-secondary);
-  color: var(--bg);
-  padding: 6px 10px;
-}
-
-.inlineDataText {
-  display: inline-flex;
-  align-items: center;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.inlineDataDot {
-  opacity: 0.75;
-}
-
-.inlineDataDivider {
-  width: 1px;
-  align-self: stretch;
-  background: currentColor;
-  opacity: 0.35;
-  flex: 0 0 auto;
-  margin: -6px 0;
-}
-
-.inlineStatusIcon {
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  color: currentColor;
-  flex: 0 0 auto;
-}
-
-.statusIconConfirmed {
-  opacity: 1;
-}
-
-.statusIconPending {
-  opacity: 1;
-}
-
-.statusIconProposed {
-  opacity: 1;
-}
-
-.statusIconEmpty {
-  opacity: 0.9;
-}
-
-.inlinePillIconButton {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  padding: 0;
-  flex: 0 0 auto;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.inlineDataPillButton {
-  appearance: none;
-  -webkit-appearance: none;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
+/* =========================
+   Services
+   ========================= */
 
-.packageTogglePill {
-  appearance: none;
-  -webkit-appearance: none;
-  font: inherit;
-  border-width: 1px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: color-mix(in srgb, var(--bg) 78%, black 22%);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  z-index: 80;
-}
-
-.modalCard {
-  width: min(860px, 100%);
-  max-height: min(85vh, 900px);
-  overflow: auto;
-  background: var(--bg);
-  border: 1px solid var(--stroke);
-  border-radius: 14px;
-  padding: 18px;
-}
-
-.modalGrid {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 18px;
-}
-
-.modalInput {
-  width: 100%;
-  min-height: 40px;
-  border-radius: 8px;
-  border: 1px solid var(--stroke);
-  background: transparent;
-  color: var(--text-secondary);
-  padding: 6px 10px;
-}
-
-.modalActions {
-  margin-top: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
+/* =========================
+   Shared Copy/Meta
+   ========================= */
 .serviceCellTitle {
   color: var(--text-secondary);
   font-weight: 600;
@@ -604,12 +276,11 @@
   font-weight: 700;
   line-height: 1.15;
   word-break: break-word;
-}
-
-.orderAmount {
-  margin: 0;
-  color: var(--text-secondary);
-  text-align: right;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .orderMeta {
@@ -617,32 +288,19 @@
   color: var(--text-secondary);
 }
 
-.orderStatusPill {
-  display: inline-flex;
-  align-items: center;
-  max-width: 100%;
-  border: 1px solid var(--stroke);
-  border-radius: 999px;
-  padding: 6px 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .orderDate {
   margin: 0;
   color: var(--text-secondary);
 }
 
-.addressActions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+/* =========================
+   Addresses
+   ========================= */
 .addressSectionActions {
   display: grid;
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .addressPreview {
@@ -666,7 +324,7 @@
   color: var(--text-secondary);
   text-decoration: underline;
   cursor: pointer;
-  justify-self: start;
+  justify-self: center;
   padding: 6px 0 2px;
   opacity: 0.9;
 }
@@ -677,9 +335,10 @@
 
 .addressBookHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+  flex-direction: column;
 }
 
 .addressBackLink {
@@ -717,127 +376,19 @@
   flex-wrap: nowrap;
 }
 
-.addressBookActionRow .pillButton {
+.addressBookActionRow .addressPrimaryButton {
   min-width: min(100%, 320px);
 }
 
-.addressBookActions .pillButton {
+.addressBookActions .addressPrimaryButton {
   height: 44px;
   min-width: 0;
 }
 
-.addressBookBlock > .pillButton {
+.addressBookBlock > .addressPrimaryButton {
   margin-top: 18px;
   height: 46px;
   min-width: 0;
-}
-
-.addressForm {
-  margin-top: 26px;
-  max-width: 620px;
-  border: 1px solid var(--text-secondary);
-  padding: 18px 18px 20px;
-  border-radius: 12px;
-
-
-}
-
-.addressFormTitle {
-  margin: 0 0 14px;
-  color: var(--text-secondary);
-}
-
-.formBlock {
-  display: grid;
-  gap: 0;
-}
-
-.formBlockLabel {
-  margin: 0 0 10px;
-  color: var(--text-secondary);
-  opacity: 0.9;
-}
-
-.formBlockDivider {
-  height: 1px;
-  margin: 6px 0 14px;
-  background: color-mix(in srgb, var(--stroke) 75%, transparent);
-}
-
-.input {
-  height: 52px;
-  margin-bottom: 10px;
-}
-
-.cityAutocomplete {
-  position: relative;
-}
-
-.cityAutocomplete .input {
-  margin-bottom: 10px;
-}
-
-.citySuggestions {
-  position: absolute;
-  top: calc(100% - 4px);
-  left: 0;
-  right: 0;
-  z-index: 20;
-  display: grid;
-  gap: 4px;
-  padding: 6px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 85%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--bg) 94%, var(--paper) 6%);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-}
-
-.citySuggestionItem {
-  width: 100%;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-secondary);
-  text-align: left;
-  padding: 0.55rem 0.65rem;
-  cursor: pointer;
-}
-
-.citySuggestionItem:hover,
-.citySuggestionItem:focus-visible {
-  background: color-mix(in srgb, var(--paper) 20%, transparent);
-  outline: none;
-}
-
-.citySuggestionMuted {
-  opacity: 0.8;
-  cursor: default;
-}
-
-.limitHint {
-  margin: -2px 0 10px;
-  color: var(--text-secondary);
-}
-
-.select {
-  height: 52px;
-  margin-bottom: 10px;
-}
-
-.checkboxRow {
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.checkboxRow input {
-  width: 24px;
-  height: 24px;
-}
-
-.checkboxLabel {
-  color: var(--text-secondary);
 }
 
 .formActions {
@@ -847,409 +398,67 @@
   gap: 16px;
 }
 
-.cancelLink {
-  border: 0;
-  background: transparent;
-  color: var(--text-secondary);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.aestheticForm {
-  display: grid;
-  gap: 14px;
-}
-
-.aestheticIntroBlock {
-  display: grid;
-  gap: 10px;
-}
-
-.aestheticBlock {
-  display: grid;
-  gap: 14px;
-}
-
-.aestheticStack {
-  display: grid;
-  gap: 12px;
-}
-
-.aestheticGrid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.aestheticMetricsGrid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.aestheticToggleRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-}
-
-.aestheticInlineField {
-  min-width: 220px;
-  display: grid;
-  gap: 6px;
-}
-
-.aestheticInlineLabel {
-  color: var(--text-secondary);
-}
-
-.textarea {
-  width: 100%;
-  min-height: 88px;
-  border-radius: 12px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  color: var(--text-primary);
-  padding: 12px 14px;
-  resize: vertical;
-}
-
-.textarea::placeholder {
-  color: var(--text-secondary);
-}
-
-@media (max-width: 1024px) {
+/* =========================
+   Desktop Overrides
+   ========================= */
+@media (min-width: 1025px) {
   .layout {
-    grid-template-columns: 1fr;
-    gap: 26px;
-  }
-
-  .mobilePageTitle {
-    display: block;
-    grid-column: 1;
-    order: -2;
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+    gap: var(--split-gap);
   }
 
   .sidebar {
-    order: -1;
-    padding: 0;
+    order: 0;
+    padding: 8px 0;
   }
 
   .menu {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    border-top: 0;
+    display: block;
+    border-top: 1px solid var(--stroke);
   }
 
   .menuDivider {
-    display: block;
-    grid-column: 1 / -1;
-    margin: 4px 0 0;
-    padding: 0 0 8px;
-    border-bottom: 1px solid var(--stroke);
-  }
-
-  .aestheticGrid,
-  .aestheticMetricsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .aestheticInlineField {
-    min-width: 0;
-    width: 100%;
-  }
-
-  .aestheticBlock .rowBetween {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 12px;
+    display: none;
   }
 
   .menuButton {
-    border: 1px solid var(--stroke);
-    border-radius: 14px;
-    padding: 14px 12px;
-    min-height: 58px;
-    justify-content: center;
-    text-align: center;
-    background: transparent;
+    justify-content: space-between;
+    border: 0;
+    border-bottom: 1px solid var(--stroke);
+    border-radius: 0;
+    padding: 18px 0;
+    min-height: 0;
+    text-align: left;
   }
 
   .menuButtonFull {
-    grid-column: 1 / -1;
-  }
-
-  .menuButton:last-child {
-    border-bottom: 1px solid var(--stroke);
-  }
-
-  .menuButton > span:first-child {
-    width: 100%;
+    grid-column: auto;
   }
 
   .menuDot {
-    display: none;
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 2px solid var(--stroke);
+    background: transparent;
+    transition: background-color 120ms ease, border-color 120ms ease;
   }
 
   .menuButton:has(.menuDotActive) {
-    background: var(--paper);
-    border-color: var(--text-secondary);
-    color: var(--text-primary);
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-secondary);
   }
 
   .sidebarFooter {
-    display: none;
-  }
-
-  .mobileFooterActions {
     display: block;
-    grid-column: 1;
-    margin-top: -8px;
-    padding-top: 0;
   }
 
   .help {
-    margin-top: 0;
+    margin-top: 54px;
   }
 
-  .infoGrid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .content > .title {
-    display: none;
-  }
-
-  .content > .sectionDivider {
-    display: none;
-  }
-
-  .pillButton {
-    min-width: 0;
-    width: 100%;
-  }
-
-  .accountSummaryCard {
-    grid-template-columns: minmax(0, 1fr) 20px;
-    gap: 10px;
-    padding: 10px;
-  }
-
-  .accountSummaryServicePillWrap {
-    grid-column: 1 / -1;
-  }
-
-  .addressHeaderRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .addressActions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .addressActions .pillButton {
-    width: 100%;
-  }
-
-  .addressSectionActions {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .addressBookHeader {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .formBlockDivider {
-    margin: 4px 0 12px;
-  }
-
-  .addressDeleteLink {
-    justify-self: center;
-  }
-
-  .value {
-    word-break: break-word;
-  }
-
-  .servicesTableWrap {
-    margin-top: 14px;
-    overflow: hidden;
-  }
-
-  .serviceCellTitle {
-    font-size: 0.9rem;
-    line-height: 1.15;
-    word-break: break-word;
-  }
-
-  .packageSessionCell {
-    font-size: 11px;
-    letter-spacing: 0.06em;
-  }
-
-  .inlineDataPill {
-    width: 100%;
-    min-width: 0;
-    gap: 4px;
-    padding: 5px 8px;
-    min-height: 32px;
-  }
-
-  .inlineDataText {
-    gap: 4px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .inlineDataDivider {
-    margin: -5px 0;
-  }
-
-  .inlineStatusIcon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .inlinePillIconButton {
-    width: 16px;
-    height: 16px;
-  }
-
-  .actionsStack .inlineActionButton {
-    width: 18px;
-    height: 18px;
-  }
-
-  .packageSessionRow .servicesListCell:first-child {
-    padding-left: 8px;
-  }
-
-  .modalGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .servicesFilters {
-    gap: 6px;
-  }
-
-  .filterChip {
-    padding: 9px 12px;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-  }
-
-  .ordersListRow {
-    gap: 6px 10px;
-    padding: 12px;
-    grid-template-columns: minmax(0, 1fr);
-    background: var(--paper);
-    border: 1px solid var(--stroke);
-    border-radius: 16px;
-    margin: 8px;
-    border-bottom: 1px solid var(--stroke);
-  }
-
-  .ordersListCellDetails {
-    display: none;
-  }
-
-  .ordersListCell:nth-child(2) {
-    display: none;
-  }
-
-  .orderPurchaseCell {
-    grid-template-columns: 96px minmax(0, 1fr);
-    gap: 10px;
-    margin-left: 0;
-    align-items: center;
-  }
-
-  .orderThumb {
-    width: 96px;
-    min-height: 78px;
-    height: 78px;
-    border-radius: 12px;
-    border: 1px solid var(--stroke);
-    border-right: 1px solid var(--stroke);
-    background: color-mix(in srgb, var(--paper) 78%, var(--bg) 22%);
-  }
-
-  .orderPurchaseMeta {
-    padding-left: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    align-content: center;
-    gap: 4px 8px;
-  }
-
-  .orderPurchaseMeta .orderNumber {
-    order: 1;
-    width: 100%;
-  }
-
-  .orderPurchaseMeta .orderDate {
-    order: 2;
-  }
-
-  .orderPurchaseMeta .orderMeta {
-    order: 3;
-  }
-
-  .orderPurchaseMeta .orderInlinePrice {
-    order: 4;
-    display: inline-flex;
-  }
-
-  .ordersListWrap {
-    margin-top: 14px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    overflow: visible;
-  }
-
-  .ordersList {
-    gap: 0;
-  }
-
-  .ordersListRow:last-child {
-    border-bottom: 1px solid var(--stroke);
-  }
-
-  .orderNumber {
-    display: -webkit-box;
-    line-clamp: 2;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .orderMeta {
-    line-height: 1.15;
-  }
-
-  .orderStatusPill {
-    padding: 5px 8px;
-    font-size: 10px;
-    letter-spacing: 0.05em;
-  }
-
-}
-
-@media (min-width: 1025px) {
   .mobilePageTitle {
     display: none;
   }
@@ -1258,28 +467,45 @@
     display: none;
   }
 
-  .ordersListHead {
-    display: grid;
-    grid-template-columns: minmax(0, 1.8fr) 140px 56px;
-    gap: 14px;
-    align-items: center;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--stroke);
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  .content > .title {
+    display: block;
+  }
+
+  .content > .sectionDivider {
+    display: block;
+  }
+
+  .infoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
   }
 
   .addressSectionActions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
+    gap: 10px;
+    margin-top: 0;
   }
 
   .addressBookActions {
     grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  .addressHeaderRow {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .addressBookHeader {
+    align-items: center;
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .addressDeleteLink {
+    justify-self: start;
   }
 
   .addressBookActionRow {
@@ -1288,7 +514,7 @@
     gap: 10px;
   }
 
-  .addressBookActionRow .pillButton {
+  .addressBookActionRow .addressPrimaryButton {
     width: 100%;
     min-width: 0;
   }
@@ -1298,97 +524,7 @@
   }
 
   .accountSummaryCard {
-    grid-template-columns: minmax(0, 1fr) 56px;
     padding: 12px 14px;
   }
 
-  .accountSummaryServicePillWrap {
-    grid-column: auto;
-    min-width: 240px;
-  }
-
-  .ordersListRow {
-    grid-template-columns: minmax(0, 1.8fr) 140px 56px;
-    gap: 14px;
-    align-items: center;
-    padding: 12px 14px;
-    cursor: default;
-  }
-
-  .orderPurchaseCell {
-    margin-left: -14px;
-  }
-
-  .ordersListLabel {
-    display: none;
-  }
-
-  .ordersListCell {
-    gap: 0;
-  }
-
-  .orderInlinePrice {
-    display: none;
-  }
-
-  .ordersListCellDetails {
-    display: grid;
-    justify-items: center;
-  }
-
-  .orderAmount {
-    text-align: left;
-  }
-
-  .servicesListHead {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(240px, 300px) 56px;
-    gap: 14px;
-    align-items: center;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--stroke);
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .servicesListRow {
-    grid-template-columns: minmax(0, 1.6fr) minmax(240px, 300px) 56px;
-    grid-template-rows: none;
-    gap: 14px;
-    align-items: center;
-    padding: 12px 14px;
-  }
-
-  .servicesListCell {
-    gap: 0;
-  }
-
-  .servicesListLabel {
-    display: none;
-  }
-
-  .servicesListCellDetails {
-    grid-column: auto;
-    grid-row: auto;
-    justify-items: center;
-    align-content: initial;
-  }
-
-  .actionsStack {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .packageSessionRow .servicesListCell:first-child {
-    padding-left: 20px;
-  }
-
-  .servicesListRow > .servicesListCell:nth-child(1),
-  .servicesListRow > .servicesListCell:nth-child(2) {
-    grid-column: auto;
-    grid-row: auto;
-  }
 }

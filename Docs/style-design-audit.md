@@ -589,3 +589,69 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - sync `OrderServiceItems` protetto con `context.skipSessionSync` per evitare overwrite multipli sulle sedute.
   - Esito: tab `Services` account completato e allineato a un setup mobile-first reale (UI moderna, pacchetti raggruppati, scheduling per seduta).
   - Verifica: `pnpm -s tsc --noEmit` ok.
+- 2026-02-27 | Blocco UX/CMS-043 (`Account` completion + `Anagrafiche` backend + admin nav governance)
+  - Scope frontend account:
+  - `src/app/(frontend)/[locale]/account/page.tsx`
+  - `src/components/account/AccountDashboardClient.tsx`
+  - `src/components/account/AccountDashboardClient.module.css`
+  - `src/lib/account-i18n.ts`
+  - Decisione: completare l’esperienza account mobile-first end-to-end (`Prodotti`, `Servizi`, `Indirizzi`, `Cartella Estetica`) con split chiaro servizi/prodotti, modali non ridondanti, UX indirizzi robusta e navigazione mobile a box.
+  - Implementazione frontend:
+  - `Ordini` rinominato in `Prodotti`; split effettivo ordini misti: servizi nel tab `Servizi`, prodotti nel tab `Prodotti`;
+  - tab `Prodotti` rifatto mobile-first: card/list con thumbnail grande, data/numero item/prezzo in blocchi compatti, modal dettagli prodotto con fulfillment/tracking (`pickup`, `shipping`, tracking link/numero, status sync);
+  - ordini multi-prodotto resi espandibili/collassabili con modello parent/child simile ai pacchetti;
+  - in mobile, riga prodotto clickabile per apertura modal (icona dettagli nascosta su mobile);
+  - sezione `Indirizzi` resa mobile-ready: rimozione duplicazioni, azioni coerenti, spacing e stack pulsanti corretti;
+  - aggiunta view separata `Rubrica indirizzi` con lista indirizzi e azioni per item (`modifica`, `elimina`, `imposta predefinito`), più CTA `aggiungi nuovo indirizzo`;
+  - form indirizzo rifattorizzato in blocchi con divider/label, titolo dinamico (`Aggiungi` vs `Modifica`), riduzione microcopy ridondante;
+  - lookup indirizzo: rimosso Photon (instabile), adottato Nominatim-only con campo ricerca separato e compilazione campi reali (via/città/cap/provincia best-effort);
+  - fallback indirizzo default ripulito: placeholder wallet filtrati, messaggio `Nessun indirizzo salvato` quando assente;
+  - nav account mobile rifatta a grid-box: ordine `Account/Indirizzi` + divider `Ordini` + `Servizi/Prodotti`; aggiunto box full-width `Cartella Estetica`;
+  - blocco aiuto/logout spostato a fine pagina su mobile (desktop invariato in sidebar);
+  - nuova view frontend `Cartella Estetica` con campi operativi (misurazioni, allergie, note, obiettivi, raccomandazioni) in attesa collegamento backend finale.
+  - Scope backend e-commerce/appointments:
+  - `src/app/api/shop/checkout/route.ts`
+  - `src/app/api/account/service-sessions/[id]/request-date/route.ts`
+  - `src/collections/Orders.ts`
+  - `src/collections/OrderServiceItems.ts`
+  - `src/collections/OrderServiceSessions.ts`
+  - `src/components/admin/OrderServiceItemsList.tsx`
+  - `src/components/admin/OrderProductItemsList.tsx`
+  - `src/components/admin/AnagProductsPurchasesList.tsx`
+  - `src/components/admin/AnagServicesPurchasesList.tsx`
+  - `src/collections/Anagrafiche.ts`
+  - `src/collections/Users.ts`
+  - `src/lib/anagrafiche/ensureAnagraficaForCustomer.ts`
+  - `src/scripts/backfill-anagrafiche-from-users.ts`
+  - `src/migrations/20260226_140500.ts`
+  - Decisione: consolidare modello duale servizi (`Order Service Items` commerciale + `Order Service Sessions` operativo), chiudere persistenza anagrafiche e mantenere source-of-truth contatti/indirizzi su `users` con write-through da `anagrafiche`.
+  - Implementazione backend:
+  - `Order Service Sessions` consolidato come livello appuntamenti per seduta; `Order Service Items` mantenuto come livello d’ordine commerciale;
+  - endpoint account scheduling corretto per update singola seduta (nessuna propagazione involontaria al pacchetto intero);
+  - `Orders` arricchito e ripulito lato admin: tab `Product Items` aggiunto, tab `Appointment / Fulfillment` semplificato a summary+fulfillment (campi granulari nascosti ma mantenuti nel modello per compatibilità runtime);
+  - condizioni UI tab in `Orders`: visibilità dinamica in base a `cartMode` (`Service Items`, `Product Items`, `Sendcloud`, `Shipping Address`, `Appointment/Fulfillment`);
+  - nuova collection `Anagrafiche` con tab `Anag. generale / Prodotti / Servizi / Cartella`; migration manuale `up/down` applicata;
+  - backfill iniziale da customer users eseguito;
+  - auto-creazione anagrafica implementata su creazione customer e primo acquisto;
+  - write-through da `Anagrafiche -> Users` sui campi contatto/indirizzi (single source of truth), con guard context anti-loop.
+  - Scope admin IA/nav:
+  - `src/payload.config.ts`
+  - `src/collections/Orders.ts`
+  - `src/collections/OrderItems.ts`
+  - `src/collections/OrderServiceItems.ts`
+  - `src/collections/OrderServiceSessions.ts`
+  - `src/collections/ConsultationLeads.ts`
+  - `src/collections/Anagrafiche.ts`
+  - `src/collections/ShopWebhookEvents.ts`
+  - `src/app/(payload)/custom.scss`
+  - `src/components/admin/AdminSidebarHeader.tsx`
+  - Implementazione admin/nav:
+  - riordino gruppi/collection: `CRM` primo gruppo, `Sistema` ultimo;
+  - spostamenti: `Order Items`, `Order Service Items`, `Shop Webhook Events` in `Sistema`; `Orders` in `CRM`; `Order Service Sessions` in `CRM`;
+  - labels admin aggiornati: `Orders -> Ordini`, `Consultation Leads -> Richieste consulenza`, `Order Service Sessions -> Appuntamenti` (slug invariati);
+  - sidenav gruppi: sostituiti glifi testuali con icone SVG (style library-based) via CSS mask;
+  - sidenav accordion rifattorizzato: un solo gruppo aperto per volta, apertura a singolo click e mantenimento automatico del gruppo corrente su navigazione (persistenza gruppo aperto + sync pathname).
+  - Verifica:
+  - `pnpm -s generate:importmap` / `pnpm -s generate:types` eseguiti nei passaggi schema/component;
+  - `pnpm -s payload migrate` / `pnpm -s payload migrate:status` ok per migration `anagrafiche`;
+  - `pnpm -s tsc --noEmit` ok a valle dei blocchi.

@@ -5,14 +5,18 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { getAccountDictionary } from '@/lib/account-i18n'
+import { cn } from '@/lib/cn'
+import styles from './AccountLogoutButton.module.css'
 
 export function AccountLogoutButton({
   locale,
   className,
+  rootClassName,
   label,
 }: {
   locale: string
   className?: string
+  rootClassName?: string
   label?: string
 }) {
   const router = useRouter()
@@ -47,7 +51,7 @@ export function AccountLogoutButton({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={cn(styles.root, rootClassName)}>
       <Button
         type="button"
         onClick={onLogout}
@@ -59,7 +63,7 @@ export function AccountLogoutButton({
       >
         {submitting ? copy.submitting : label || copy.fallbackLabel}
       </Button>
-      {error ? <p className="m-0 typo-caption text-[color:#8a1010]">{error}</p> : null}
+      {error ? <p className={cn(styles.error, 'typo-caption')}>{error}</p> : null}
     </div>
   )
 }

@@ -1,0 +1,26 @@
+.root {
+  display: none;
+}
+
+@media (min-width: 1025px) {
+  .root {
+    display: grid;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--stroke);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .orders {
+    grid-template-columns: minmax(0, 1fr) 56px;
+  }
+
+  .services {
+    grid-template-columns: minmax(0, 1.6fr) minmax(240px, 300px);
+  }
+}
