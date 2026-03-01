@@ -116,8 +116,6 @@ const adjustProductInventory = async ({
     : []
   const nextDeliveries =
     stockDelta < 0 ? consumeDeliveriesFIFO(deliveries, Math.abs(stockDelta)) : deliveries
-  const nextStock =
-    stockDelta < 0 ? clampNonNegative(stock + stockDelta) : clampNonNegative(stock + stockDelta)
   const nextAllocated = clampNonNegative(allocatedStock + allocatedDelta)
 
   await payload.update({

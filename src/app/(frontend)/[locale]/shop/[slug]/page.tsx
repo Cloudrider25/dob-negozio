@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { SerializedEditorState } from 'lexical'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'

@@ -12,7 +12,15 @@ const toNumberOrNull = (value: unknown): number | null => {
   return null
 }
 
-const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+type PackageValueFieldProps = {
+  path?: string
+  field?: {
+    label?: string
+    admin?: {
+      description?: string
+    }
+  }
+}
 
 const getFieldValue = (
   fields: Record<string, { value?: unknown }> | undefined,
@@ -30,7 +38,7 @@ const getFieldValue = (
   return undefined
 }
 
-export default function PackageValueField(props: any) {
+export default function PackageValueField(props: PackageValueFieldProps) {
   const path = typeof props?.path === 'string' ? props.path : ''
   const label = typeof props?.field?.label === 'string' ? props.field.label : 'Valore pacchetto'
   const description =

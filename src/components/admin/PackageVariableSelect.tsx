@@ -7,6 +7,13 @@ type VariableRow = {
   varNome?: string | null
 }
 
+type PackageVariableSelectProps = {
+  path?: string
+  field?: {
+    label?: string
+  }
+}
+
 const readVariables = (value: unknown): VariableRow[] => {
   if (!Array.isArray(value)) return []
   return value.filter((item): item is VariableRow => Boolean(item) && typeof item === 'object')
@@ -75,7 +82,7 @@ const findDefaultNameInFormFields = (fields: Record<string, { value?: unknown }>
   return ''
 }
 
-export default function PackageVariableSelect(props: any) {
+export default function PackageVariableSelect(props: PackageVariableSelectProps) {
   const path = typeof props?.path === 'string' ? props.path : ''
   const label = typeof props?.field?.label === 'string' ? props.field.label : 'Collega a'
 

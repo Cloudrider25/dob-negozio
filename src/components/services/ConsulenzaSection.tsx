@@ -1,7 +1,7 @@
 'use client'
 
-import { ConsultationForm } from '@/components/forms/ConsultationForm'
-import type { ConsultationFormData } from '@/components/forms/ConsultationForm'
+import { ConsultationForm } from '@/components/forms'
+import type { ConsultationFormData } from '@/components/forms'
 import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
 
 type ContactLinks = {

@@ -49,7 +49,6 @@ const main = async () => {
   const stockBefore = asNumber(product.stock)
   const allocatedBefore = asNumber(product.allocatedStock)
   const deliveriesBefore = Array.isArray(product.deliveries) ? product.deliveries : []
-  const unitPrice = typeof product.price === 'number' ? product.price : 10
   let expectedStockAfterSetup = stockBefore
   let orderID: string | number | undefined
 

@@ -9,7 +9,6 @@ const AdminSidebarHeader = () => {
   const pathname = usePathname()
 
   useEffect(() => {
-    const getToggles = () => Array.from(document.querySelectorAll<HTMLButtonElement>('.nav-group__toggle'))
     const getGroup = (toggle: HTMLButtonElement) => toggle.closest('.nav-group') as HTMLElement | null
     const getGroupKey = (group: HTMLElement | null) => {
       if (!group) return null

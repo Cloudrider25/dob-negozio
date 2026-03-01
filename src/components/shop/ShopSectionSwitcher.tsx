@@ -64,7 +64,7 @@ const TRANSPARENT_IMAGE_PLACEHOLDER =
 
 export function ShopSectionSwitcher({
   initialSection = 'shop-all',
-  classicParams,
+  classicParams: _classicParams,
   routineTemplates,
   productAreas,
   routineTimings,
@@ -73,7 +73,7 @@ export function ShopSectionSwitcher({
   routineSteps,
   routineStepRules,
   shopAllProducts,
-  productBasePath,
+  productBasePath: _productBasePath,
   contactLinks,
   locale,
   routineStep1Title,
