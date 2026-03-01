@@ -5,7 +5,7 @@ import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
-import styles from './product-detail.module.css'
+import styles from '@/components/pages/frontend/product-detail/ProductDetailPage.module.css'
 import { AlternativeSelector } from './AlternativeSelector'
 import { ProductServiceAccordion } from './ProductServiceAccordion'
 import { ProductInlineVideo } from './ProductInlineVideo'
@@ -480,7 +480,7 @@ export default async function ProductDetailPage({ params }: { params: PageParams
       : brandBadgeLabel || collectionBadgeLabel || 'DOB'
 
   return (
-    <div className={styles.page}>
+    <div className={`frontend-page ${styles.page}`}>
       <SplitSection
         className={styles.leadSection}
         left={

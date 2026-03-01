@@ -25,6 +25,16 @@ type AestheticFolderPayload = {
   productRecommendations: string
 }
 
+type AuthenticatedUser = {
+  id: number | string
+  email?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  roles?: unknown
+  addresses?: unknown
+} & Record<string, unknown>
+
 const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 const asNullableNumber = (value: unknown) => {
   const parsed = Number(asString(value))
@@ -104,7 +114,7 @@ async function getAuthenticatedUser(request: Request) {
 
 async function syncAestheticToAnagrafica(
   payload: Awaited<ReturnType<typeof getPayloadClient>>,
-  user: Record<string, unknown>,
+  user: AuthenticatedUser,
   userId: number,
   data: {
     lastAssessmentDate: string | null
@@ -128,7 +138,7 @@ async function syncAestheticToAnagrafica(
     productRecommendations: string
   },
 ) {
-  await ensureAnagraficaForCustomer(payload, user as any)
+  await ensureAnagraficaForCustomer(payload, user)
 
   const existingAnagrafica = await payload.find({
     collection: 'anagrafiche',
@@ -283,7 +293,17 @@ export async function PATCH(request: Request) {
     })
   }
 
-  await syncAestheticToAnagrafica(payload, user as unknown as Record<string, unknown>, userId, data)
+  const userForSync: AuthenticatedUser = {
+    id: userId,
+    email: typeof user.email === 'string' ? user.email : null,
+    firstName: typeof user.firstName === 'string' ? user.firstName : null,
+    lastName: typeof user.lastName === 'string' ? user.lastName : null,
+    phone: typeof user.phone === 'string' ? user.phone : null,
+    roles: user.roles,
+    addresses: user.addresses,
+  }
+
+  await syncAestheticToAnagrafica(payload, userForSync, userId, data)
 
   return NextResponse.json({ ok: true })
 }

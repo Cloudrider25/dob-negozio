@@ -1,0 +1,56 @@
+name: Performance Vitals
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 5 * * 1'
+
+jobs:
+  vitals:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore perf history cache
+        uses: actions/cache@v4
+        with:
+          path: .ci-data/perf-vitals-history.json
+          key: perf-vitals-history-v1-${{ github.run_id }}
+          restore-keys: |
+            perf-vitals-history-v1-
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run perf vitals
+        run: pnpm test:e2e:perf
+
+      - name: Update perf trend history
+        run: pnpm perf:vitals:trend
+
+      - name: Upload perf artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-vitals
+          path: |
+            test-results/perf-vitals.json
+            test-results/perf-vitals-summary.md
+            .ci-data/perf-vitals-history.json
+            playwright-report

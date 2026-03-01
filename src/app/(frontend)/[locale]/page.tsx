@@ -3,13 +3,12 @@ import { notFound } from 'next/navigation'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { Hero } from '@/components/heroes/Hero'
 import { createCarouselItem, UICCarousel } from '@/components/carousel'
-import { StoryHero } from '@/components/heroes/StoryHero'
 import { ValuesSection, type ValuesSectionItem } from '@/components/sections/ValuesSection'
 import { ProgramsSplitSection } from '@/components/sections/ProgramsSplitSection'
 import { ProtocolSplit, type ProtocolSplitStep } from '@/components/sections/ProtocolSplit'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import type { CarouselItem } from '@/components/carousel'
-import styles from './home.module.css'
+import styles from '@/components/pages/frontend/home/HomePage.module.css'
 
 export default async function HomePage({
   params,
@@ -72,6 +71,17 @@ export default async function HomePage({
     pageDoc?.storyHeroHomeMedia,
     pageDoc?.storyHeroHomeTitle || '',
   )
+  const storyHeroTitle = pageDoc?.storyHeroHomeTitle || 'il necessario, fatto davvero bene'
+  const storyHeroBody =
+    pageDoc?.storyHeroHomeBody ||
+    'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'
+  const storyHeroCtaLabel = pageDoc?.storyHeroHomeCtaLabel || 'Scopri DOB'
+  const storyHeroCtaHref = pageDoc?.storyHeroHomeCtaHref || `/${locale}/shop`
+  const storyHeroImage = {
+    url: storyHeroMedia?.url || '/api/media/file/hero_homepage_light-1.png',
+    alt: storyHeroMedia?.alt?.trim() || storyHeroTitle,
+    mimeType: storyHeroMedia?.mimeType || null,
+  }
   const valuesMedia = await resolveMediaValue(pageDoc?.valuesSection?.media, t.story.title)
   const valuesItemsRaw = Array.isArray(pageDoc?.valuesSection?.items)
     ? pageDoc?.valuesSection?.items
@@ -366,7 +376,7 @@ export default async function HomePage({
     : null
 
   return (
-    <div className={styles.page}>
+    <div className={`frontend-page ${styles.page}`}>
       {hasHero && (
         <Hero
           eyebrow={t.hero.eyebrow}
@@ -391,13 +401,22 @@ export default async function HomePage({
         eyebrow={pageDoc?.protocolSplit?.eyebrow || t.nav.protocol}
         steps={protocolSteps.length > 0 ? protocolSteps : undefined}
       />
-      <StoryHero
-        locale={locale}
-        title={pageDoc?.storyHeroHomeTitle || undefined}
-        body={pageDoc?.storyHeroHomeBody || undefined}
-        ctaLabel={pageDoc?.storyHeroHomeCtaLabel || undefined}
-        ctaHref={pageDoc?.storyHeroHomeCtaHref || undefined}
-        media={storyHeroMedia || undefined}
+      <Hero
+        ariaLabel="Story highlight"
+        title={storyHeroTitle}
+        titleAs="h2"
+        description={storyHeroBody}
+        variant="style3"
+        mediaLight={storyHeroImage}
+        eagerMedia="light"
+        showOverlay={false}
+        ctas={[
+          {
+            href: storyHeroCtaHref,
+            label: storyHeroCtaLabel,
+            kind: 'main',
+          },
+        ]}
       />
       <ProgramsSplitSection program={programData} locale={locale} />
       <UICCarousel

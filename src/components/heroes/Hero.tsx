@@ -2,30 +2,65 @@ import Image from 'next/image'
 
 import { ButtonLink } from '@/components/ui/button-link'
 import { resolveButtonKind } from '@/components/ui/button-theme'
+import { cn } from '@/lib/cn'
+import type { HeroCta, HeroMedia, HeroVariant } from './shared/contracts'
+import { isHeroVideoMime, normalizeHeroMedia, resolveHeroMediaLayers, type HeroMediaLayer } from './shared/media'
 import styles from './Hero.module.css'
-
-export type HeroMedia = {
-  url: string
-  alt: string
-  mimeType?: string | null
-}
-
-type HeroCta = {
-  href: string
-  label: string
-  kind?: 'main' | 'card' | 'hero'
-  external?: boolean
-}
 
 type HeroProps = {
   eyebrow?: string
   title: string
   description?: string | null
-  variant?: 'style1' | 'style2'
+  variant?: HeroVariant
   mediaDark?: HeroMedia | null
   mediaLight?: HeroMedia | null
   eagerMedia?: 'dark' | 'light' | 'both'
+  titleAs?: 'h1' | 'h2'
+  ariaLabel?: string
+  showOverlay?: boolean
   ctas?: HeroCta[]
+}
+
+const resolveLayerClassName = (mode: HeroMediaLayer['mode']) => {
+  if (mode === 'single') return styles.mediaSingle
+  if (mode === 'dark') return styles.mediaDark
+  return styles.mediaLight
+}
+
+const HeroMediaAsset = ({
+  layer,
+  fallbackAlt,
+}: {
+  layer: HeroMediaLayer
+  fallbackAlt: string
+}) => {
+  if (isHeroVideoMime(layer.media.mimeType)) {
+    return (
+      <video
+        className={cn(styles.media, resolveLayerClassName(layer.mode))}
+        src={layer.media.url}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload={layer.priority ? 'auto' : 'metadata'}
+      />
+    )
+  }
+
+  return (
+    <Image
+      className={cn(styles.media, resolveLayerClassName(layer.mode))}
+      src={layer.media.url}
+      alt={layer.media.alt || fallbackAlt}
+      fill
+      priority={layer.priority}
+      loading={layer.priority ? 'eager' : 'lazy'}
+      fetchPriority={layer.priority ? 'high' : 'low'}
+      quality={68}
+      sizes="100vw"
+    />
+  )
 }
 
 export const Hero = ({
@@ -35,69 +70,39 @@ export const Hero = ({
   mediaDark,
   mediaLight,
   eagerMedia = 'both',
+  titleAs = 'h1',
+  ariaLabel,
+  showOverlay = true,
   ctas = [],
 }: HeroProps) => {
-  const darkPriority = eagerMedia === 'dark' || eagerMedia === 'both'
-  const lightPriority = eagerMedia === 'light' || eagerMedia === 'both'
+  const isStyle2 = variant === 'style2'
+  const isStyle3 = variant === 'style3'
+  const isStyle1 = !isStyle2 && !isStyle3
+  const darkMedia = normalizeHeroMedia({ media: mediaDark, fallbackAlt: title })
+  const lightMedia = normalizeHeroMedia({ media: mediaLight, fallbackAlt: title })
+  const mediaLayers = resolveHeroMediaLayers({ darkMedia, lightMedia, eagerMedia })
+  const TitleTag = titleAs
 
   return (
     <section
       data-hero="true"
-      className={`${styles.hero} ${variant === 'style2' ? styles.style2 : styles.style1}`}
+      aria-label={ariaLabel}
+      className={cn(styles.hero, isStyle1 && styles.style1, isStyle2 && styles.style2, isStyle3 && styles.style3)}
     >
       <div className={styles.mediaWrap}>
-        {mediaDark &&
-          (mediaDark.mimeType?.startsWith('video/') ? (
-            <video
-              className={`${styles.media} ${styles.mediaDark}`}
-              src={mediaDark.url}
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-          ) : (
-            <Image
-              className={`${styles.media} ${styles.mediaDark}`}
-              src={mediaDark.url}
-              alt={mediaDark.alt}
-              fill
-              priority={darkPriority}
-              loading={darkPriority ? 'eager' : 'lazy'}
-              fetchPriority={darkPriority ? 'high' : 'low'}
-              quality={68}
-              sizes="100vw"
-            />
-          ))}
-        {mediaLight &&
-          (mediaLight.mimeType?.startsWith('video/') ? (
-            <video
-              className={`${styles.media} ${styles.mediaLight}`}
-              src={mediaLight.url}
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-          ) : (
-            <Image
-              className={`${styles.media} ${styles.mediaLight}`}
-              src={mediaLight.url}
-              alt={mediaLight.alt}
-              fill
-              priority={lightPriority}
-              loading={lightPriority ? 'eager' : 'lazy'}
-              fetchPriority={lightPriority ? 'high' : 'low'}
-              quality={68}
-              sizes="100vw"
-            />
-          ))}
+        {mediaLayers.map((layer) => (
+          <HeroMediaAsset
+            key={`${layer.mode}-${layer.media.url}`}
+            layer={layer}
+            fallbackAlt={title}
+          />
+        ))}
       </div>
-      <div className={styles.overlay} />
-      <div className={`${styles.content} ${variant === 'style2' ? styles.contentCenter : ''}`}>
-        <h1>{title}</h1>
+      {showOverlay && <div className={styles.overlay} />}
+      <div className={cn(styles.content, (isStyle2 || isStyle3) && styles.contentCenter)}>
+        <TitleTag>{title}</TitleTag>
         {description && <p className={styles.description}>{description}</p>}
-        {variant === 'style1' && ctas.length > 0 && (
+        {!isStyle2 && ctas.length > 0 && (
           <div className={styles.ctaRow}>
             {ctas.map((cta) => (
               <ButtonLink

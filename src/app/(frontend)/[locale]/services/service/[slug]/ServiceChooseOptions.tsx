@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { StateCircleButton } from '@/components/ui/StateCircleButton'
 import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/cartStorage'
-import styles from './service-detail.module.css'
+import styles from '@/components/pages/frontend/service-detail/ServiceDetailPage.module.css'
 
 type ChooseOption = {
   id: string

@@ -1,0 +1,104 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--bg-2);
+}
+
+.panel {
+  width: min(680px, 100%);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+  background: var(--paper);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lux);
+  padding: 1rem;
+}
+
+.title {
+  margin: 0;
+}
+
+.text {
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+}
+
+.summary {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: var(--panel);
+  padding: 0.35rem 0.65rem;
+  color: var(--text-primary);
+}
+
+.languagePicker {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.languageOption {
+  min-height: 2rem;
+  min-width: 3rem;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0 0.75rem;
+}
+
+.languageOptionActive {
+  background: var(--panel);
+  color: var(--text-primary);
+}
+
+.languageOption:focus-visible,
+.change:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--sand));
+  outline-offset: 2px;
+}
+
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirm {
+  min-width: 220px;
+  justify-content: center;
+}
+
+.change {
+  min-height: 2.5rem;
+  padding: 0 0.4rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .overlay {
+    align-items: center;
+    padding: 1.5rem;
+  }
+
+  .panel {
+    padding: 1.25rem 1.5rem;
+  }
+}

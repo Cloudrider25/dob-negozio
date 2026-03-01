@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
@@ -126,7 +126,7 @@ export function ListinoTradizionale() {
     })
   }, [searchParams])
 
-  const syncFiltersToQuery = (nextFilters: { treatments: Set<string>; areas: Set<string> }) => {
+  const syncFiltersToQuery = useCallback((nextFilters: { treatments: Set<string>; areas: Set<string> }) => {
     const params = new URLSearchParams(searchParams.toString())
     const toParam = (set: Set<string>) => Array.from(set).join(',')
     const treatments = toParam(nextFilters.treatments)
@@ -142,7 +142,7 @@ export function ListinoTradizionale() {
     const currentQuery = searchParams.toString()
     if (query === currentQuery) return
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
-  }
+  }, [pathname, router, searchParams])
 
   const filterOptions = useMemo(() => {
     const unique = (items: Array<{ id: string; label: string }>) => {
@@ -184,7 +184,7 @@ export function ListinoTradizionale() {
     setFilters(next)
     syncFiltersToQuery(next)
     setOpenFilter(null)
-  }, [filterOptions, filters.areas, filters.treatments])
+  }, [filterOptions, filters.areas, filters.treatments, syncFiltersToQuery])
 
   const filterRowRef = useRef<HTMLDivElement | null>(null)
 

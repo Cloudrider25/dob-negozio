@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 
-import styles from './product-detail.module.css'
+import styles from '@/components/pages/frontend/product-detail/ProductDetailPage.module.css'
 import { ProductPurchase } from '@/components/shop/ProductPurchase'
 import { LabelText } from '@/components/ui/label'
 

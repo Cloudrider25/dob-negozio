@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
-import styles from './service-detail.module.css'
+import styles from '@/components/pages/frontend/service-detail/ServiceDetailPage.module.css'
 import { ServiceAccordion } from './ServiceAccordion'
 import { UICCarousel } from '@/components/carousel'
 import { createCarouselItem } from '@/components/carousel'
@@ -476,7 +476,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     .filter((item): item is CarouselItem => Boolean(item))
 
   return (
-    <div className={styles.page}>
+    <div className={`frontend-page ${styles.page}`}>
       <SplitSection
         className={styles.leadSection}
         left={

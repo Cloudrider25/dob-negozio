@@ -7,7 +7,7 @@ import { SplitSection } from '@/components/ui/SplitSection'
 import { ScrollZoomOnScroll } from '@/components/ui/ScrollZoomOnScroll'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { Button } from '@/components/ui/button'
-import styles from './product-detail.module.css'
+import styles from '@/components/pages/frontend/product-detail/ProductDetailPage.module.css'
 
 type IncludedIngredientItem = {
   label: string

@@ -4,6 +4,7 @@ import path from 'node:path'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
+import type { PayloadRequest } from 'payload'
 import type { Media } from '@/payload-types'
 
 const execFileAsync = promisify(execFile)
@@ -54,7 +55,7 @@ const needsVideoConversion = (media: Media) => {
 
 const buildMediaPath = (filename: string) => path.resolve(process.cwd(), 'media', filename)
 
-const regenerateImageSizes = async (media: Media, req: { payload: any }) => {
+const regenerateImageSizes = async (media: Media, req: PayloadRequest) => {
   if (!hasValidFile(media.filename)) return
   if (!media.mimeType?.startsWith('image/')) return
   if (hasAllImageSizes(media)) return
@@ -82,7 +83,7 @@ const regenerateImageSizes = async (media: Media, req: { payload: any }) => {
   })
 }
 
-const convertVideo = async (media: Media, req: { payload: any }) => {
+const convertVideo = async (media: Media, req: PayloadRequest) => {
   if (!hasValidFile(media.filename)) return
   if (!media.mimeType?.startsWith('video/')) return
   if (!needsVideoConversion(media)) return
@@ -146,7 +147,7 @@ const convertVideo = async (media: Media, req: { payload: any }) => {
   }
 }
 
-const processMedia = async (media: Media, req: { payload: any }) => {
+const processMedia = async (media: Media, req: PayloadRequest) => {
   await regenerateImageSizes(media, req)
   await convertVideo(media, req)
 }
@@ -156,7 +157,7 @@ export const scheduleMediaBackgroundProcessing = async ({
   req,
 }: {
   media: Media
-  req: { payload: any }
+  req: PayloadRequest
 }) => {
   const id = String(media.id)
   if (processingIDs.has(id)) return

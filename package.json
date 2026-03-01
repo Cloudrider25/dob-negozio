@@ -29,6 +29,8 @@
     "start:perf": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e:smoke": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test --grep \"@smoke\" --workers=1 --reporter=line",
+    "test:e2e:perf": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test --grep \"@perf\" --workers=1 --reporter=line",
+    "perf:vitals:trend": "node src/scripts/update-perf-vitals-history.mjs --enforce",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "quality:gate": "pnpm lint && pnpm typecheck && pnpm test:int && pnpm test:e2e:smoke"

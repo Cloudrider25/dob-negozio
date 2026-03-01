@@ -9,6 +9,25 @@
 /* stylelint-enable at-rule-no-unknown */
 
 @layer components {
+  .frontend-page {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: var(--frontend-page-gap, 2.5rem);
+  }
+
+  .frontend-page > section:first-of-type {
+    margin-top: 0;
+  }
+
+  .frontend-page > section:last-of-type {
+    margin-bottom: var(--frontend-page-bottom-space, 0);
+  }
+
+  .frontend-page .ui-split-section {
+    margin-top: 0;
+  }
+
   .ui-split-section {
     margin-top: 2.5vw;
     display: grid;

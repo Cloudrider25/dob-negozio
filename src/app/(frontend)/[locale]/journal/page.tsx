@@ -3,7 +3,7 @@ import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import Image from 'next/image'
 import { Hero } from '@/components/heroes/Hero'
-import styles from './journal.module.css'
+import styles from '@/components/pages/frontend/journal/JournalPage.module.css'
 
 type InstagramMediaItem = {
   id: string

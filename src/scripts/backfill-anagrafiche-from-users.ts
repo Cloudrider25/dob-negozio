@@ -34,7 +34,7 @@ for (const user of result.docs) {
     continue
   }
 
-  await ensureAnagraficaForCustomer(payload, user as any)
+  await ensureAnagraficaForCustomer(payload, user)
   createdOrUpdated += 1
 }
 
@@ -45,4 +45,3 @@ payload.logger.info({
   dryRun: DRY_RUN,
   totalDocs: result.totalDocs,
 })
-

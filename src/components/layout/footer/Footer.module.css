@@ -1,0 +1,37 @@
+.footerBrandMark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footerLogoDark,
+.footerLogoLight {
+  transition: opacity 0.2s ease;
+}
+
+.footerLogoDark {
+  opacity: 1;
+}
+
+.footerLogoLight {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.footerTitle {
+  color: var(--text-primary);
+}
+
+:global(body[data-theme='dark']) .footerLogoDark,
+:global(html[data-theme='dark']) .footerLogoDark,
+:global(body.dark) .footerLogoDark {
+  opacity: 0;
+}
+
+:global(body[data-theme='dark']) .footerLogoLight,
+:global(html[data-theme='dark']) .footerLogoLight,
+:global(body.dark) .footerLogoLight {
+  opacity: 1;
+}

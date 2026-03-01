@@ -1,0 +1,35 @@
+.page {
+  --frontend-page-gap: 2.5rem;
+}
+
+.card {
+  transform: translateY(12px);
+  opacity: 0;
+  animation: homeFadeUp 0.8s var(--ease-lux, ease) forwards;
+  padding: 1.5rem;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.6rem;
+}
+
+.cardDelay1 {
+  animation-delay: 0.1s;
+}
+
+.cardDelay2 {
+  animation-delay: 0.15s;
+}
+
+@keyframes homeFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -6,7 +6,7 @@ import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { SplitSection } from '@/components/ui/SplitSection'
 import { ButtonLink } from '@/components/ui/button-link'
-import styles from './program-detail.module.css'
+import styles from '@/components/pages/frontend/program-detail/ProgramDetailPage.module.css'
 
 type PageParams = Promise<{ locale: string; slug: string }>
 
@@ -238,7 +238,7 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
   const bookingHref = `/${locale}/services?view=consulenza`
 
   return (
-    <div className={styles.page}>
+    <div className={`frontend-page ${styles.page}`}>
       <section className={styles.hero}>
         <h1 className={`${styles.heroTitle} typo-h2`}>{programData.title}</h1>
         {programData.description ? (

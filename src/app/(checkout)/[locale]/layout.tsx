@@ -1,8 +1,8 @@
 import { cookies, headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { HeaderThemeObserver } from '@/components/layout/HeaderThemeObserver'
-import { PreferencesConfirmModal } from '@/components/layout/PreferencesConfirmModal'
+import { HeaderThemeObserver } from '@/components/layout/header/HeaderThemeObserver'
+import { PreferencesConfirmModal } from '@/components/layout/preferences/PreferencesConfirmModal'
 import { isLocale } from '@/lib/i18n'
 import {
   resolvePreferencesFromAcceptLanguage,

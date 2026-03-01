@@ -1,3 +1,3 @@
 export * from './Hero'
-export * from './StoryHero'
-export * from './StoryHeroNote'
+export * from './shared/contracts'
+export * from './shared/media'

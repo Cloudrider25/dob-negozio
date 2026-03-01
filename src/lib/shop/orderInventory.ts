@@ -108,7 +108,6 @@ const adjustProductInventory = async ({
     },
   })
 
-  const stock = typeof product.stock === 'number' ? product.stock : 0
   const allocatedStock = typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
 
   const deliveries = Array.isArray(product.deliveries)

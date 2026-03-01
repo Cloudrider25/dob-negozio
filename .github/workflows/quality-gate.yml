@@ -41,7 +41,6 @@ jobs:
   e2e-smoke:
     name: E2E Smoke
     needs: static-checks
-    if: ${{ secrets.DATABASE_URL != '' && secrets.PAYLOAD_SECRET != '' }}
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -63,8 +62,25 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check required secrets
+        id: secrets-check
+        shell: bash
+        run: |
+          if [[ -n "${DATABASE_URL}" && -n "${PAYLOAD_SECRET}" ]]; then
+            echo "has_secrets=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "has_secrets=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Skip smoke when secrets are missing
+        if: steps.secrets-check.outputs.has_secrets != 'true'
+        run: |
+          echo "Skipping smoke E2E: DATABASE_URL or PAYLOAD_SECRET not configured."
+
       - name: Install Playwright browser
+        if: steps.secrets-check.outputs.has_secrets == 'true'
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run smoke E2E
+        if: steps.secrets-check.outputs.has_secrets == 'true'
         run: pnpm test:e2e:smoke

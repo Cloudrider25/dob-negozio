@@ -1,0 +1,9 @@
+.page {
+  --frontend-page-gap: 3rem;
+  --header-height: 140px;
+}
+
+.page :global([data-hero="true"] h1) {
+  white-space: normal;
+  word-break: break-word;
+}

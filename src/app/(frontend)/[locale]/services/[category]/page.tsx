@@ -9,7 +9,7 @@ import { ServicesProtocol } from '@/components/services/ServicesProtocol'
 import { UICCarousel } from '@/components/carousel'
 import { ServicesToggle } from '@/components/services/ServicesToggle'
 import { ButtonLink } from '@/components/ui/button-link'
-import styles from './services-category.module.css'
+import styles from '@/components/pages/frontend/services-category/ServicesCategoryPage.module.css'
 
 const fallbackImage = '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg'
 const highlightFallbackLeft =

@@ -1,21 +1,40 @@
 .page {
+  --checkout-card-radius: 14px;
+  --checkout-card-padding: 1rem 1.2rem;
+  --checkout-focus-outline: 2px solid var(--text-secondary);
+  --checkout-focus-offset: 2px;
+
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0;
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 0 12vw;
-  background: transparent;
+  padding: 0 0.75rem;
+  background: var(--paper);
   min-height: 100dvh;
+}
+
+.notice,
+.expressEmbeddedBox,
+.shippingSummaryCard,
+.shippingMethodCard,
+.shippingNote,
+.paymentEmbeddedBox,
+.paymentLoading,
+.paymentLoadingError,
+.billingChoiceCard,
+.billingElementBox {
+  border: 1px solid var(--stroke);
+  background: var(--paper);
 }
 
 .form {
   background: var(--paper);
-  padding: clamp(1.4rem, 2vw, 2.2rem) clamp(2rem, 4vw, 4.2rem);
-  max-width: 700px;
+  padding: 1rem;
+  max-width: none;
   width: 100%;
-  justify-self: end;
+  justify-self: stretch;
   display: grid;
   gap: 1.2rem;
 }
@@ -57,10 +76,8 @@
 }
 
 .notice {
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  padding: 1rem 1.2rem;
+  border-radius: var(--checkout-card-radius);
+  padding: var(--checkout-card-padding);
   color: var(--text-secondary);
 }
 
@@ -75,9 +92,7 @@
 }
 
 .expressEmbeddedBox {
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
+  border-radius: var(--checkout-card-radius);
   padding: 0.65rem;
   overflow: hidden;
   min-height: 56px;
@@ -112,13 +127,13 @@
 
 .splitRow {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.8rem;
 }
 
 .splitRowThree {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.8rem;
 }
 
@@ -138,6 +153,12 @@
   text-decoration: none;
 }
 
+.returnLink:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+  border-radius: 8px;
+}
+
 .returnLinkButton {
   display: inline-flex;
   align-items: center;
@@ -148,6 +169,12 @@
   background: transparent;
   padding: 0;
   cursor: pointer;
+}
+
+.returnLinkButton:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+  border-radius: 8px;
 }
 
 .returnIcon {
@@ -169,17 +196,20 @@
   cursor: wait;
 }
 
+.continueButton:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+}
+
 .shippingSummaryCard {
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
+  border-radius: var(--checkout-card-radius);
   padding: 0.9rem 1rem;
 }
 
 .shippingSummaryRow {
   display: grid;
-  grid-template-columns: 130px minmax(0, 1fr) auto;
-  gap: 0.8rem;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
   align-items: center;
   padding: 0.4rem 0;
 }
@@ -206,6 +236,12 @@
   cursor: pointer;
 }
 
+.changeLink:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+  border-radius: 6px;
+}
+
 .shippingMethodSection {
   display: grid;
   gap: 0.7rem;
@@ -218,9 +254,7 @@
 
 .shippingMethodCard {
   border-radius: 12px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  padding: 1rem 1.2rem;
+  padding: var(--checkout-card-padding);
 }
 
 .shippingMethodList {
@@ -247,6 +281,11 @@
   box-shadow: inset 0 0 0 1px var(--text-primary);
 }
 
+.shippingMethodOption:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+}
+
 .shippingMethodName {
   margin: 0;
   color: var(--text-primary);
@@ -263,10 +302,8 @@
 }
 
 .shippingNote {
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
-  padding: 1rem 1.2rem;
+  border-radius: var(--checkout-card-radius);
+  padding: var(--checkout-card-padding);
   color: var(--text-primary);
 }
 
@@ -294,9 +331,7 @@
 }
 
 .paymentEmbeddedBox {
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
+  border-radius: var(--checkout-card-radius);
   padding: 0.5rem;
   overflow: hidden;
 }
@@ -304,8 +339,6 @@
 .paymentLoading,
 .paymentLoadingError {
   border-radius: 12px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
   padding: 0.9rem 1rem;
   color: var(--text-secondary);
 }
@@ -331,6 +364,11 @@
 
 .paymentMethodRowActive {
   background: var(--pearl-1);
+}
+
+.paymentMethodRow:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
 }
 
 .radioDot {
@@ -365,16 +403,12 @@
 }
 
 .billingChoiceCard {
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
+  border-radius: var(--checkout-card-radius);
   overflow: hidden;
 }
 
 .billingElementBox {
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
-  background: var(--paper);
+  border-radius: var(--checkout-card-radius);
   padding: 0.65rem;
 }
 
@@ -392,6 +426,12 @@
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.footerLink:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+  border-radius: 4px;
 }
 
 .summary {
@@ -476,6 +516,11 @@
   color: var(--text-secondary);
 }
 
+.applyButton:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+}
+
 .totalRow {
   display: flex;
   justify-content: space-between;
@@ -556,39 +601,46 @@
   cursor: pointer;
 }
 
+.summaryRecoAction:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+  border-radius: 6px;
+}
+
 .summaryTaxNote {
   margin: -0.35rem 0 0.2rem;
   color: var(--text-secondary);
 }
 
 @media (min-width: 1025px) {
+  .page {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 12vw;
+    background: transparent;
+  }
+
+  .form {
+    max-width: 700px;
+    justify-self: end;
+    padding: clamp(1.4rem, 2vw, 2.2rem) clamp(2rem, 4vw, 4.2rem);
+  }
+
+  .shippingSummaryRow {
+    grid-template-columns: 130px minmax(0, 1fr) auto;
+    gap: 0.8rem;
+  }
+
   .summary {
     display: flex;
   }
 }
 
-@media (max-width: 1024px) {
-  .page {
-    grid-template-columns: 1fr;
-    max-width: none;
-    background: var(--paper);
-    padding: 0 0.75rem;
+@media (min-width: 768px) {
+  .splitRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .form {
-    max-width: none;
-    justify-self: stretch;
-    padding: 1rem;
+  .splitRowThree {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
-  .actionsRow {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .shippingSummaryRow {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-  }
-
 }

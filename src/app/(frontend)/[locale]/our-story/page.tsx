@@ -2,12 +2,11 @@ import { notFound } from 'next/navigation'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { Hero } from '@/components/heroes/Hero'
-import { StoryHeroNote } from '@/components/heroes/StoryHeroNote'
 import { StoryValuesSection, type StoryValuesItem } from '@/components/sections/StoryValuesSection'
 import { StoryTeamSection, type StoryTeamItem } from '@/components/sections/StoryTeamSection'
 import { createCarouselItem, UICCarousel, type CarouselItem } from '@/components/carousel'
 import type { Where } from 'payload'
-import styles from './our-story.module.css'
+import styles from '@/components/pages/frontend/our-story/OurStoryPage.module.css'
 
 export default async function OurStoryPage({
   params,
@@ -69,6 +68,17 @@ export default async function OurStoryPage({
     pageDoc?.storyNoteMedia,
     pageDoc?.storyNoteLabel || t.story.title,
   )
+  const storyNoteTitle = pageDoc?.storyNoteLabel || 'A note from our founder'
+  const storyNoteBody =
+    pageDoc?.storyNoteBody ||
+    'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'
+  const storyNoteCtaLabel = pageDoc?.storyNoteCtaLabel || 'Scopri DOB'
+  const storyNoteCtaHref = pageDoc?.storyNoteCtaHref || `/${locale}/shop`
+  const storyNoteImage = {
+    url: storyNoteMedia?.url || '/api/media/file/about-hero.webp',
+    alt: storyNoteMedia?.alt?.trim() || storyNoteTitle,
+    mimeType: storyNoteMedia?.mimeType || null,
+  }
   const storyValuesItemsRaw = Array.isArray(pageDoc?.storyValues?.items)
     ? pageDoc?.storyValues?.items
     : []
@@ -249,7 +259,7 @@ export default async function OurStoryPage({
     .filter((item): item is CarouselItem => Boolean(item))
 
   return (
-    <div className={styles.page}>
+    <div className={`frontend-page ${styles.page}`}>
       {hasHero && (
         <Hero
           eyebrow={t.story.title}
@@ -260,13 +270,22 @@ export default async function OurStoryPage({
           mediaLight={heroLight || undefined}
         />
       )}
-      <StoryHeroNote
-        locale={locale}
-        title={pageDoc?.storyNoteLabel || undefined}
-        body={pageDoc?.storyNoteBody || undefined}
-        ctaLabel={pageDoc?.storyNoteCtaLabel || undefined}
-        ctaHref={pageDoc?.storyNoteCtaHref || undefined}
-        media={storyNoteMedia ? { url: storyNoteMedia.url, alt: storyNoteMedia.alt } : null}
+      <Hero
+        ariaLabel="Story highlight"
+        title={storyNoteTitle}
+        titleAs="h2"
+        description={storyNoteBody}
+        variant="style3"
+        mediaLight={storyNoteImage}
+        eagerMedia="light"
+        showOverlay={false}
+        ctas={[
+          {
+            href: storyNoteCtaHref,
+            label: storyNoteCtaLabel,
+            kind: 'main',
+          },
+        ]}
       />
       {storyValuesItems.length > 0 && <StoryValuesSection items={storyValuesItems} />}
       {(storyTeamItems.length > 0 || pageDoc?.storyTeam?.title || pageDoc?.storyTeam?.description) && (

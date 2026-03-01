@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import styles from './service-detail.module.css'
+import styles from '@/components/pages/frontend/service-detail/ServiceDetailPage.module.css'
 
 type AccordionItem = {
   id: string

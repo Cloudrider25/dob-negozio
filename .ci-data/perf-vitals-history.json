@@ -1,0 +1,64 @@
+{
+  "updatedAt": "2026-03-01T20:07:32.348Z",
+  "runs": [
+    {
+      "generatedAt": "2026-03-01T17:39:39.248Z",
+      "snapshots": [
+        {
+          "target": "/it/services?view=consulenza",
+          "resolvedPath": "/it/services?view=consulenza",
+          "lcp": 420,
+          "cls": 0.0001,
+          "fcp": 420,
+          "ttfb": 347.7
+        },
+        {
+          "target": "/it/checkout",
+          "resolvedPath": "/it/checkout",
+          "lcp": 336,
+          "cls": 0,
+          "fcp": 72,
+          "ttfb": 35.9
+        }
+      ]
+    },
+    {
+      "generatedAt": "2026-03-01T20:07:25.115Z",
+      "snapshots": [
+        {
+          "target": "/it",
+          "resolvedPath": "/it",
+          "lcp": 416,
+          "cls": 0.0001,
+          "fcp": 416,
+          "ttfb": 354.3,
+          "hasHeroVideo": false,
+          "heroVideoReadyState": null,
+          "heroVideoCurrentTime": null
+        },
+        {
+          "target": "/it/services?view=consulenza",
+          "resolvedPath": "/it/services?view=consulenza",
+          "lcp": 148,
+          "cls": 0.0001,
+          "fcp": 148,
+          "ttfb": 102.4,
+          "hasHeroVideo": true,
+          "heroVideoReadyState": 0,
+          "heroVideoCurrentTime": 0
+        },
+        {
+          "target": "/it/checkout",
+          "resolvedPath": "/it/checkout",
+          "lcp": 336,
+          "cls": 0,
+          "fcp": 68,
+          "ttfb": 32,
+          "hasHeroVideo": false,
+          "heroVideoReadyState": null,
+          "heroVideoCurrentTime": null
+        }
+      ]
+    }
+  ]
+}

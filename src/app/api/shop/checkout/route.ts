@@ -552,7 +552,7 @@ export async function POST(request: Request) {
     })
 
       if (authenticatedUser) {
-        await ensureAnagraficaForCustomer(payload, authenticatedUser as any, { locale })
+        await ensureAnagraficaForCustomer(payload, authenticatedUser, { locale })
       }
 
       const rollbackAllocated = new Map<string, number>()

@@ -177,7 +177,7 @@ export const Users: CollectionConfig = {
     afterChange: [
       async ({ doc, req, context }) => {
         if (context?.skipAnagraficaSync) return
-        await ensureAnagraficaForCustomer(req.payload, doc as any, { req })
+        await ensureAnagraficaForCustomer(req.payload, doc, { req })
       },
     ],
     beforeValidate: [
