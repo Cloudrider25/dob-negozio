@@ -2,7 +2,6 @@
 
 import { ConsultationForm } from '@/components/forms/ConsultationForm'
 import type { ConsultationFormData } from '@/components/forms/ConsultationForm'
-import styles from '@/components/forms/ConsultationForm.module.css'
 import { submitConsultationLead } from '@/lib/consultation/submitConsultationLead'
 
 type ContactLinks = {
@@ -34,7 +33,6 @@ export function ConsulenzaSection({ contactLinks, source = 'service-navigator' }
       whatsappLink={contactLinks.whatsappLink}
       phoneDisplay={contactLinks.phoneDisplay}
       whatsappDisplay={contactLinks.whatsappDisplay}
-      styles={styles}
       onSubmit={handleSubmit}
     />
   )

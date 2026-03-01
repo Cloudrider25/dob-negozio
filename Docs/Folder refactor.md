@@ -104,34 +104,39 @@ Regole operative per applicare lo stesso miglioramento su un nuovo folder (`X`):
 - Performance FE: `10/10`
 
 ### 1) Quick wins (1-2 giorni)
-- [ ] Estrarre config statica (`skinTypes`, `skinConcerns`) in file dedicato `shared/config.ts`.
-- [ ] Introdurre helper tipizzato per classNames (o sostituire con `cn`) eliminando util duplicata locale.
-- [ ] Aggiungere stati `:focus-visible` su bottoni interattivi (`contactButton`, `choiceButton`, `pill`).
-- [ ] Eseguire `pnpm lint` + `pnpm typecheck` e correggere regressioni.
+- [x] Estrarre config statica (`skinTypes`, `skinConcerns`) in file dedicato `shared/config.ts`.
+- [x] Introdurre helper tipizzato per classNames (o sostituire con `cn`) eliminando util duplicata locale.
+- [x] Aggiungere stati `:focus-visible` su bottoni interattivi (`contactButton`, `choiceButton`, `pill`).
+- [x] Eseguire `pnpm lint` + `pnpm typecheck` e correggere regressioni.
+- Stato: quick wins completati il `2026-03-01` (`lint`: 0 errori, 18 warning legacy globali; `typecheck`: ok).
 
 ### 2) Refactor medio (2-4 giorni)
-- [ ] Spezzare `ConsultationForm.tsx` in sottocomponenti (`ContactActions`, `PersonalInfoFields`, `SkinTypeSelector`, `ConcernsSelector`, `SubmitState`).
-- [ ] Introdurre cartelle semantiche `src/components/forms/{ui,shared,hooks}`.
-- [ ] Tipizzare meglio il contratto style props o passare a import module locale standard.
-- [ ] Rientrare nel budget file (`<= 300` righe per TSX principali) con split mirato.
+- [x] Spezzare `ConsultationForm.tsx` in sottocomponenti (`ContactActions`, `PersonalInfoFields`, `SkinTypeSelector`, `ConcernsSelector`, `SubmitState`).
+- [x] Introdurre cartelle semantiche `src/components/forms/{ui,shared,hooks}`.
+- [x] Tipizzare meglio il contratto style props o passare a import module locale standard.
+- [x] Rientrare nel budget file (`<= 300` righe per TSX principali) con split mirato.
+- Stato: fase 2 completata il `2026-03-01` (`ConsultationForm` principale ora in `ui/` a 169 righe).
 
 ### 3) Stato dati robusto (1-2 giorni)
-- [ ] Estrarre reducer/form-state helper per update campi/concerns.
-- [ ] Definire strategia submit robusta (reset stato, retry, error mapping coerente).
-- [ ] Validare/sanificare payload prima di `onSubmit` (trim + opzionali/nullability chiara).
+- [x] Estrarre reducer/form-state helper per update campi/concerns.
+- [x] Definire strategia submit robusta (reset stato, retry, error mapping coerente).
+- [x] Validare/sanificare payload prima di `onSubmit` (trim + opzionali/nullability chiara).
 - [ ] KPI: nessun submit inconsistente in retry rapidi o errori backend simulati.
+- Stato: fase 3 quasi chiusa il `2026-03-01`; resta da validare KPI con test dedicati (retry/error simulati).
 
 ### 4) CSS e rendering (1-2 giorni)
-- [ ] Consolidare module CSS con focus su accessibilità keyboard e coerenza spacing mobile-first.
-- [ ] Ridurre `transition: all` dove non necessario e limitare proprietà animate.
-- [ ] Uniformare typography utility e gerarchia titoli/form labels.
+- [x] Consolidare module CSS con focus su accessibilità keyboard e coerenza spacing mobile-first.
+- [x] Ridurre `transition: all` dove non necessario e limitare proprietà animate.
+- [x] Uniformare typography utility e gerarchia titoli/form labels.
 - [ ] KPI: resa uniforme mobile/desktop con navigazione da tastiera completa.
+- Stato: fase 4 implementata il `2026-03-01`; KPI visivo finale da confermare con QA manuale cross-device.
 
 ### 5) Test, quality gate e regressioni (continuo)
-- [ ] Aggiungere test int su helpers/reducer form.
+- [x] Aggiungere test int su helpers/reducer form.
 - [ ] Aggiungere smoke E2E light sul submit form (happy path + errore).
 - [ ] Integrare smoke forms nel gate `test:e2e:smoke` se stabile e non flaky.
 - [ ] KPI: regressioni form intercettate in CI prima del merge.
+- Stato: aggiunto `tests/int/forms-domain.int.spec.ts` (payload sanitize + concern toggle) il `2026-03-01`.
 
 ### 6) Monitor finale punteggi (da aggiornare a fine fase)
 - [ ] Manutenibilità: `10/10` raggiunto.

@@ -35,6 +35,10 @@
   .contactRow {
     flex-direction: row;
   }
+
+  .contactButton {
+    width: auto;
+  }
 }
 
 .contactButton {
@@ -45,9 +49,13 @@
   border-radius: 0.75rem;
   border: 1px solid var(--stroke);
   background: transparent;
-  transition: all 300ms ease;
+  transition:
+    border-color 300ms ease,
+    background-color 300ms ease;
   width: 100%;
+  max-width: 24rem;
   justify-content: center;
+  min-height: 3rem;
 }
 
 .contactIconWrap {
@@ -59,7 +67,9 @@
   border-radius: 999px;
   border: 1px solid var(--text-secondary);
   background: var(--paper);
-  transition: all 300ms ease;
+  transition:
+    border-color 300ms ease,
+    background-color 300ms ease;
 }
 
 .contactIcon {
@@ -82,6 +92,12 @@
 .contactButton:hover .contactIcon,
 .contactButton:hover .contactIconWhatsapp {
   color: var(--tech-cyan);
+}
+
+.contactButton:focus-visible {
+  outline: 2px solid var(--tech-cyan);
+  outline-offset: 2px;
+  border-color: var(--tech-cyan);
 }
 
 .contactText {
@@ -133,10 +149,16 @@
   border: 1px solid var(--stroke);
   background: transparent;
   backdrop-filter: blur(8px);
-  padding: 2rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+@media (min-width: 640px) {
+  .form {
+    padding: 2rem;
+  }
 }
 
 .sectionTitle {
@@ -170,6 +192,14 @@
 .label {
   display: block;
   margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.sectionHint {
+  margin: 0 0 0.75rem;
+  max-width: 36rem;
+  color: var(--text-secondary);
 }
 
 .input {
@@ -187,15 +217,25 @@
   border-radius: 0.75rem;
   border: 1px solid var(--stroke);
   font-weight: 500;
-  transition: all 300ms ease;
+  transition:
+    border-color 300ms ease,
+    color 300ms ease,
+    box-shadow 300ms ease,
+    background-color 300ms ease;
   background: var(--paper);
   color: var(--text-secondary);
+  min-height: 2.75rem;
 }
 
 .choiceActive {
   border-color: var(--tech-cyan);
   color: var(--tech-cyan);
   box-shadow: var(--shadow-soft);
+}
+
+.choiceButton:focus-visible {
+  outline: 2px solid var(--tech-cyan);
+  outline-offset: 2px;
 }
 
 .pillRow {
@@ -209,14 +249,24 @@
   border-radius: 999px;
   border: 1px solid var(--stroke);
   font-weight: 500;
-  transition: all 300ms ease;
+  transition:
+    border-color 300ms ease,
+    color 300ms ease,
+    box-shadow 300ms ease,
+    background-color 300ms ease;
   background: var(--paper);
   color: var(--text-muted);
+  min-height: 2.5rem;
 }
 
 .pillActive {
   border-color: var(--tech-cyan);
   color: var(--tech-cyan);
+}
+
+.pill:focus-visible {
+  outline: 2px solid var(--tech-cyan);
+  outline-offset: 2px;
 }
 
 .textarea {
