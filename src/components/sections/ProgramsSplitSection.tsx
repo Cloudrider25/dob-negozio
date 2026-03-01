@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useMemo, useState } from 'react'
 
 import styles from './ProgramsSplitSection.module.css'
-import serviceCardStyles from '@/components/carousel/UIC_CarouselCard.module.css'
+import serviceCardStyles from '@/components/carousel/ui/UIC_CarouselCard.module.css'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { Button } from '@/components/ui/button'

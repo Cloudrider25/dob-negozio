@@ -10,13 +10,13 @@ export function CartDrawerTrigger({
 }: {
   children: ReactNode
   className?: string
-  ariaLabel?: string
+  ariaLabel: string
 }) {
   return (
     <button
       type="button"
       className={className}
-      aria-label={ariaLabel || 'Carrello'}
+      aria-label={ariaLabel}
       onClick={() => {
         emitCartOpen()
       }}

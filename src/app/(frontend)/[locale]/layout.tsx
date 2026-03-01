@@ -10,7 +10,7 @@ import { PreferencesFooterControl } from '@/components/layout/PreferencesFooterC
 import { SearchDrawerLazy } from '@/components/layout/SearchDrawerLazy'
 import { buildContactLinks } from '@/lib/contact'
 import { getPayloadClient } from '@/lib/getPayloadClient'
-import { CartDrawerLazy } from '@/components/cart/CartDrawerLazy'
+import { CartDrawerLazy } from '@/components/cart'
 import { getAuthenticatedUser } from '@/lib/auth/getAuthenticatedUser'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { normalizeThumbnailSrc } from '@/lib/media/thumbnail'

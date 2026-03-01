@@ -2,13 +2,13 @@ import { notFound } from 'next/navigation'
 
 import { getDictionary, isLocale } from '@/lib/i18n'
 import { Hero } from '@/components/heroes/Hero'
-import { UICCarousel } from '@/components/carousel/UIC_Carousel'
+import { createCarouselItem, UICCarousel } from '@/components/carousel'
 import { StoryHero } from '@/components/heroes/StoryHero'
 import { ValuesSection, type ValuesSectionItem } from '@/components/sections/ValuesSection'
 import { ProgramsSplitSection } from '@/components/sections/ProgramsSplitSection'
 import { ProtocolSplit, type ProtocolSplitStep } from '@/components/sections/ProtocolSplit'
 import { getPayloadClient } from '@/lib/getPayloadClient'
-import type { ServicesCarouselItem } from '@/components/carousel/types'
+import type { CarouselItem } from '@/components/carousel'
 import styles from './home.module.css'
 
 export default async function HomePage({
@@ -252,14 +252,16 @@ export default async function HomePage({
     return resolveMedia(record.coverImage || gallery[0], fallbackAlt)
   }
 
-  const serviceItems: ServicesCarouselItem[] = servicesResult.docs
+  const serviceItems: CarouselItem[] = servicesResult.docs
     .map((service) => {
       const media = resolveGalleryCover(service.gallery, service.name || '') || fallbackImage
-      return {
-        title: service.name || '',
+      return createCarouselItem({
+        id: service.id,
+        slug: service.slug || undefined,
+        title: service.name,
         subtitle: service.description || undefined,
-        price: formatPrice(service.price, 'EUR'),
-        duration: formatDuration(service.durationMinutes),
+        price: formatPrice(service.price, 'EUR') || null,
+        duration: formatDuration(service.durationMinutes) || null,
         image: { url: media.url, alt: media.alt },
         tag: formatServiceTag(service.serviceType),
         badgeLeft:
@@ -271,27 +273,29 @@ export default async function HomePage({
             ? String((service.badge as { name?: string }).name || '')
             : null,
         href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
-      }
+      })
     })
-    .filter((item) => Boolean(item && item.title))
+    .filter((item): item is CarouselItem => Boolean(item))
 
-  const carouselItems: ServicesCarouselItem[] = productsResult.docs
+  const carouselItems: CarouselItem[] = productsResult.docs
     .map((product) => {
       const gallery = Array.isArray(product.images) ? product.images : []
       const media = resolveMedia(product.coverImage || gallery[0], product.title || '') || fallbackImage
-      return {
-        title: product.title || '',
+      return createCarouselItem({
+        id: product.id,
+        slug: product.slug || undefined,
+        title: product.title,
         subtitle: product.description || undefined,
-        price: formatPrice(product.price),
+        price: formatPrice(product.price) || null,
         duration: null,
         image: { url: media.url, alt: media.alt },
         tag: null,
         badgeLeft: null,
         badgeRight: null,
         href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
-      }
+      })
     })
-    .filter((item) => Boolean(item && item.title))
+    .filter((item): item is CarouselItem => Boolean(item))
 
   const programSteps =
     programDoc && Array.isArray(programDoc.steps)

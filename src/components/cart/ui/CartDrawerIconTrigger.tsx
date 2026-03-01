@@ -8,7 +8,7 @@ import { CART_UPDATED_EVENT, emitCartOpen, readCart } from '@/lib/cartStorage'
 type CartDrawerIconTriggerProps = {
   children: ReactNode
   className?: string
-  ariaLabel?: string
+  ariaLabel: string
   badgeClassName?: string
 }
 
@@ -41,7 +41,7 @@ export function CartDrawerIconTrigger({
     <button
       type="button"
       className={className}
-      aria-label={ariaLabel || 'Carrello'}
+      aria-label={ariaLabel}
       onClick={() => {
         emitCartOpen()
       }}

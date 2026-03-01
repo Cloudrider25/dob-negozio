@@ -56,6 +56,11 @@
   color: var(--text-secondary);
 }
 
+.closeButton:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
 .progress {
   height: 6px;
   border-radius: 999px;
@@ -126,6 +131,16 @@
   padding: 0.2rem 0.5rem;
   cursor: pointer;
   color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.qtyButton:hover {
+  color: var(--accent-cyan);
+}
+
+.qtyButton:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: -2px;
 }
 
 .qtyValue {
@@ -148,6 +163,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.removeButton:hover {
+  color: var(--neon-red);
+}
+
+.removeButton:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
 }
 
 .removeIcon {
@@ -193,6 +218,12 @@
   padding: 0.35rem 0.9rem;
   background: var(--text-secondary);
   color: var(--text-inverse);
+  cursor: pointer;
+}
+
+.routineButton:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
 }
 
 .summary {
@@ -223,13 +254,18 @@
   cursor: pointer;
 }
 
+.checkoutButton:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
 .empty {
   text-align: center;
   color: var(--text-muted);
   padding: 2rem 0;
 }
 
-@media (min-width: 701px) {
+@media (min-width: 1024px) {
   .panel {
     padding: 1.6rem 1.8rem 1.8rem;
     width: min(50vw);

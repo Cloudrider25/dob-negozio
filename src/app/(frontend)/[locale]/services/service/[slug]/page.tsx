@@ -5,13 +5,14 @@ import { getPayloadClient } from '@/lib/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n'
 import styles from './service-detail.module.css'
 import { ServiceAccordion } from './ServiceAccordion'
-import { UICCarousel } from '@/components/carousel/UIC_Carousel'
+import { UICCarousel } from '@/components/carousel'
+import { createCarouselItem } from '@/components/carousel'
 import { ServicesTreatmentReveal } from '@/components/services/ServicesTreatmentReveal'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import type { SerializedEditorState } from 'lexical'
 import { FaqAccordion } from '@/components/ui/FaqAccordion'
 import type { Treatment } from '@/payload-types'
-import type { ServicesCarouselItem } from '@/components/carousel/types'
+import type { CarouselItem } from '@/components/carousel'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { LabelText } from '@/components/ui/label'
@@ -402,7 +403,7 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
     ? { url: imageUrl, alt: imageAlt }
     : { url: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg', alt: t.services.title }
 
-  let alternativeServiceItems: ServicesCarouselItem[] = []
+  let alternativeServiceItems: CarouselItem[] = []
   if (intentId && zoneId && genderValue) {
     const altResult = await payload.find({
       collection: 'services',
@@ -426,11 +427,13 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
         altResult.docs.map(async (doc) => {
           const media = await resolveGalleryCover(doc.gallery, doc.name || t.services.title)
           if (!doc.name || !doc.slug) return null
-          return {
+          return createCarouselItem({
+            id: doc.id,
+            slug: doc.slug || undefined,
             title: doc.name,
             subtitle: doc.description || undefined,
-            price: formatPrice(doc.price),
-            duration: formatDuration(doc.durationMinutes),
+            price: formatPrice(doc.price) || null,
+            duration: formatDuration(doc.durationMinutes) || null,
             image: {
               url: media?.url || fallbackImage.url,
               alt: media?.alt || doc.name,
@@ -439,13 +442,13 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
             badgeLeft: resolveRelationLabel(doc.intent),
             badgeRight: resolveRelationLabel(doc.badge),
             href: `/${locale}/services/service/${doc.slug}`,
-          }
+          })
         }),
       )
-    ).filter(Boolean) as ServicesCarouselItem[]
+    ).filter((item): item is CarouselItem => Boolean(item))
   }
 
-  const serviceItems: ServicesCarouselItem[] = servicesResult.docs
+  const serviceItems: CarouselItem[] = servicesResult.docs
     .map((doc) => {
       const galleryMedia =
         Array.isArray(doc.gallery) && doc.gallery.length
@@ -456,19 +459,21 @@ export default async function ServiceDetailPage({ params }: { params: PageParams
             )
           : null
       const media = galleryMedia || fallbackImage
-      return {
-        title: doc.name || '',
+      return createCarouselItem({
+        id: doc.id,
+        slug: doc.slug || undefined,
+        title: doc.name,
         subtitle: doc.description || undefined,
-        price: formatPrice(doc.price),
-        duration: formatDuration(doc.durationMinutes),
+        price: formatPrice(doc.price) || null,
+        duration: formatDuration(doc.durationMinutes) || null,
         image: { url: media.url, alt: media.alt },
         tag: formatServiceType(doc.serviceType),
         badgeLeft: resolveRelationLabel(doc.intent),
         badgeRight: resolveRelationLabel(doc.badge),
         href: doc.slug ? `/${locale}/services/service/${doc.slug}` : undefined,
-      }
+      })
     })
-    .filter((item) => Boolean(item && item.title))
+    .filter((item): item is CarouselItem => Boolean(item))
 
   return (
     <div className={styles.page}>

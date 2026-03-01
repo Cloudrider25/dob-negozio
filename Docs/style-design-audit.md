@@ -107,6 +107,17 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - aggiornata DoD PR account con check performance/accessibilità/zero warning nuovi.
   - Verifica: `pnpm quality:gate` ok (`typecheck`/`test:int`/`test:e2e:smoke` passati; lint con warning legacy senza errori).
 
+- 2026-03-01 | Blocco CSS/QA-053 (`Carousel` hardening + folder policy + smoke coverage)
+  - Scope: `src/components/carousel/**`, `src/components/sections/ProgramsSplitSection.tsx`, `tests/int/carousel-mappers.int.spec.ts`, `tests/e2e/carousel-smoke.e2e.spec.ts`, `Docs/Folder refactor.md`.
+  - Decisione: chiudere il ciclo refactor del dominio carousel con policy mobile-first, contratti/tipi separati, organizzazione cartelle semantica (`ui`/`shared`) e copertura regressioni dedicata.
+  - Implementazione:
+  - `carousel` riorganizzato in `src/components/carousel/ui/*` (componenti + CSS co-locati) e `src/components/carousel/shared/*` (contracts/types/mappers), mantenendo barrel pubblico `src/components/carousel/index.ts`;
+  - `UIC_Carousel.module.css` convertito a mobile-first reale (base con nav hidden, override `min-width`), breakpoints allineati e step `1280` introdotto nei contratti shared;
+  - `UIC_CarouselCard.module.css` rifattorizzato con CSS variables locali per typography/spacing/CTA e riduzione media query non necessarie;
+  - estesa la copertura int su mapper + fallback CTA (`resolveCarouselCtaLabel`);
+  - aggiunto smoke Playwright `@smoke` dedicato carousel (desktop nav, mobile slide interaction, CTA click) e incluso nel gate `test:e2e:smoke`.
+  - Verifica: `pnpm exec tsc --noEmit` ok; `pnpm test:int` ok (incluso `carousel-mappers.int.spec.ts`); `pnpm exec playwright test tests/e2e/carousel-smoke.e2e.spec.ts --reporter=line` ok; `pnpm test:e2e:smoke` ok.
+
 - 2026-03-01 | Blocco CSS-047 (`Account` domain reorganization: shared/tabs/hooks/forms/auth/dashboard)
   - Scope: `src/components/account/**`, `src/app/(checkout)/**`, `src/app/(frontend)/[locale]/account/page.tsx`.
   - Decisione: completare la riorganizzazione del dominio account in cartelle semantiche, separando chiaramente componenti shared, tab di dominio, hook per feature, auth layout/forms e dashboard orchestration.

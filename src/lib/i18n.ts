@@ -519,6 +519,7 @@ type JourneyCopy = {
     recommendedSelection: string
     add: string
     subtotal: string
+    pricePendingNotice: string
     summaryNote: string
     checkout: string
   }
@@ -556,6 +557,7 @@ type JourneyCopy = {
     }
     summary: {
       title: string
+      pricePendingNotice: string
       taxesIncluded: string
       shipping: string
       country: string
@@ -689,6 +691,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       recommendedSelection: 'Selezione consigliata',
       add: 'Aggiungi',
       subtotal: 'Subtotale',
+      pricePendingNotice: 'Alcuni articoli non hanno ancora un prezzo definitivo.',
       summaryNote: '*spedizione, tasse e sconti calcolati al checkout.',
       checkout: 'Checkout',
     },
@@ -727,6 +730,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       },
       summary: {
         title: 'Riepilogo ordine',
+        pricePendingNotice: 'Alcuni articoli non hanno ancora un prezzo definitivo.',
         taxesIncluded: 'Tasse incluse',
         shipping: 'Spedizione',
         country: 'Italia',
@@ -858,6 +862,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       recommendedSelection: 'Recommended selection',
       add: 'Add',
       subtotal: 'Subtotal',
+      pricePendingNotice: 'Some items do not have a final price yet.',
       summaryNote: '*shipping, taxes, and discounts calculated at checkout.',
       checkout: 'Checkout',
     },
@@ -896,6 +901,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       },
       summary: {
         title: 'Order summary',
+        pricePendingNotice: 'Some items do not have a final price yet.',
         taxesIncluded: 'Taxes included',
         shipping: 'Shipping',
         country: 'Italy',
@@ -1027,6 +1033,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       recommendedSelection: 'Рекомендуемая подборка',
       add: 'Добавить',
       subtotal: 'Промежуточный итог',
+      pricePendingNotice: 'Для части товаров окончательная цена ещё не определена.',
       summaryNote: '*доставка, налоги и скидки рассчитываются при checkout.',
       checkout: 'Checkout',
     },
@@ -1065,6 +1072,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       },
       summary: {
         title: 'Сводка заказа',
+        pricePendingNotice: 'Для части товаров окончательная цена ещё не определена.',
         taxesIncluded: 'Налоги включены',
         shipping: 'Доставка',
         country: 'Италия',

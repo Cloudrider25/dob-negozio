@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { ShopAllSection } from '@/components/shop/ShopAllSection'
 import { useNavigatorData } from '@/components/services/navigator-data-context'
-import type { ServicesCarouselItem } from '@/components/carousel/types'
+import type { CarouselItem } from '@/components/carousel'
 import { Button } from '@/components/ui/button'
 import filterStyles from '@/components/sections/SectionFilters.module.css'
 import styles from '@/components/services/ListinoTradizionale.module.css'
@@ -255,7 +255,7 @@ export function ListinoTradizionale() {
     [locale],
   )
 
-  const servicesAsCards = useMemo<ServicesCarouselItem[]>(
+  const servicesAsCards = useMemo<CarouselItem[]>(
     () =>
       filteredServices.map((service) => ({
         title: service.title,

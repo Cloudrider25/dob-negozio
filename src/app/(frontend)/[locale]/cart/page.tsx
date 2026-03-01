@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 
 import { isLocale } from '@/lib/i18n'
-import { CartPageClient } from '@/components/cart/CartPageClient'
+import { CartPageClient } from '@/components/cart'
 
 export default async function CartPage({
   params,

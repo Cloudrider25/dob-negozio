@@ -2,24 +2,32 @@
 
 import Image from 'next/image'
 
-import type { ServicesCarouselItem } from './types'
+import type { CarouselItem } from '../shared/types'
 import styles from './UIC_CarouselCard.module.css'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { Button } from '@/components/ui/button'
 import { ButtonLink } from '@/components/ui/button-link'
+import { resolveCarouselCtaLabel, type CarouselCtaLabel } from '../shared/contracts'
 
 export const UICCarouselCard = ({
   item,
   cardClassName,
   mediaClassName,
   prioritizeImage = false,
+  ctaLabel,
 }: {
-  item: ServicesCarouselItem
+  item: CarouselItem
   cardClassName?: string
   mediaClassName?: string
   prioritizeImage?: boolean
+  ctaLabel?: CarouselCtaLabel
 }) => {
+  const resolvedCtaLabel = resolveCarouselCtaLabel(item, ctaLabel)
+
+  const imageUrl = typeof item.image?.url === 'string' ? item.image.url.trim() : ''
+  const hasImage = imageUrl.length > 0
+
   return (
     <article className={`${styles.card} typo-body ${cardClassName ?? ''}`}>
       <div className={`${styles.media} ${mediaClassName ?? ''}`}>
@@ -27,15 +35,19 @@ export const UICCarouselCard = ({
         {(item.badgeRight || item.tag) && (
           <span className={`${styles.badgeRight} typo-caption-upper`}>{item.badgeRight || item.tag}</span>
         )}
-        <Image
-          src={item.image.url}
-          alt={item.image.alt || item.title}
-          fill
-          sizes="(max-width: 1024px) 70vw, 33vw"
-          priority={prioritizeImage}
-          loading={prioritizeImage ? 'eager' : 'lazy'}
-          fetchPriority={prioritizeImage ? 'high' : 'auto'}
-        />
+        {hasImage ? (
+          <Image
+            src={imageUrl}
+            alt={item.image.alt || item.title}
+            fill
+            sizes="(max-width: 699px) 86vw, (max-width: 1023px) 52vw, (max-width: 1279px) 34vw, 30vw"
+            priority={prioritizeImage}
+            loading={prioritizeImage ? 'eager' : 'lazy'}
+            fetchPriority={prioritizeImage ? 'high' : 'auto'}
+          />
+        ) : (
+          <span className={styles.mediaFallback} aria-hidden="true" />
+        )}
       </div>
       <div className={styles.titleBlock}>
         <div className={styles.titleRow}>
@@ -54,11 +66,11 @@ export const UICCarouselCard = ({
         </div>
         {item.href ? (
           <ButtonLink className={styles.cta} href={item.href} kind="card" size="sm" interactive>
-            Scopri {item.title}
+            {resolvedCtaLabel}
           </ButtonLink>
         ) : (
-          <Button className={styles.cta} type="button" kind="card" size="sm" interactive>
-            Scopri {item.title}
+          <Button className={styles.cta} type="button" kind="card" size="sm" interactive disabled>
+            {resolvedCtaLabel}
           </Button>
         )}
       </div>

@@ -16,19 +16,12 @@ import {
 } from '@/lib/shop/shipping'
 import {
   CART_OPEN_EVENT,
-  CART_UPDATED_EVENT,
-  readCart,
-  writeCart,
-  type CartItem,
-  emitCartUpdated,
 } from '@/lib/cartStorage'
-
-const formatPrice = (value: number, currency?: string) =>
-  new Intl.NumberFormat('it-IT', {
-    style: 'currency',
-    currency: currency ?? 'EUR',
-    minimumFractionDigits: 2,
-  }).format(value)
+import { useCartState } from '../hooks/useCartState'
+import { formatCartPrice } from '../shared/format'
+import { isServiceLikeCartItem } from '../shared/itemKind'
+import { countItemsWithoutPrice } from '../shared/normalize'
+import { getRecommendationSeedProductId } from '../shared/recommendations'
 
 type RecommendedProduct = {
   id: string
@@ -41,35 +34,35 @@ type RecommendedProduct = {
   brandName: string
 }
 
-const isServiceCartItem = (item: CartItem) =>
-  item.id.includes(':service:') || item.id.includes(':package:')
-
 export function CartDrawer({ locale, initialOpen = false }: { locale: string; initialOpen?: boolean }) {
   const resolvedLocale = isLocale(locale) ? locale : defaultLocale
-  const copy = getJourneyDictionary(resolvedLocale).cartDrawer
-  const [items, setItems] = useState<CartItem[]>([])
+  const journeyCopy = getJourneyDictionary(resolvedLocale)
+  const copy = journeyCopy.cartDrawer
   const [recommended, setRecommended] = useState<RecommendedProduct | null>(null)
   const [open, setOpen] = useState(initialOpen)
+  const {
+    items,
+    itemCount,
+    subtotal,
+    reloadCart,
+    setCartItems,
+    incrementItem,
+    decrementItem,
+    removeItem,
+  } = useCartState()
+  const itemsWithoutPrice = useMemo(() => countItemsWithoutPrice(items), [items])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const load = () => {
-      setItems(readCart())
-    }
     const openDrawer = () => {
-      load()
+      reloadCart()
       setOpen(true)
     }
-    load()
-    window.addEventListener(CART_UPDATED_EVENT, load)
-    window.addEventListener('storage', load)
     window.addEventListener(CART_OPEN_EVENT, openDrawer)
     return () => {
-      window.removeEventListener(CART_UPDATED_EVENT, load)
-      window.removeEventListener('storage', load)
       window.removeEventListener(CART_OPEN_EVENT, openDrawer)
     }
-  }, [])
+  }, [reloadCart])
 
   useEffect(() => {
     if (initialOpen) {
@@ -83,8 +76,8 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
       return
     }
 
-    const seedId = Number(items[0]?.id)
-    if (!Number.isFinite(seedId)) {
+    const seedId = getRecommendationSeedProductId(items)
+    if (!seedId) {
       setRecommended(null)
       return
     }
@@ -117,30 +110,6 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
     return () => controller.abort()
   }, [items, resolvedLocale])
 
-  const updateItems = (next: CartItem[]) => {
-    setItems(next)
-    if (typeof window !== 'undefined') {
-      writeCart(next)
-      emitCartUpdated()
-    }
-  }
-
-  const increment = (id: string) => {
-    updateItems(items.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item)))
-  }
-
-  const decrement = (id: string) => {
-    updateItems(
-      items
-        .map((item) => (item.id === id ? { ...item, quantity: item.quantity - 1 } : item))
-        .filter((item) => item.quantity > 0),
-    )
-  }
-
-  const removeItem = (id: string) => {
-    updateItems(items.filter((item) => item.id !== id))
-  }
-
   const addRecommendedToCart = () => {
     if (!recommended) return
     const next = [...items]
@@ -162,35 +131,26 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         quantity: 1,
       })
     }
-    updateItems(next)
+    setCartItems(next)
   }
 
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + (item.price ?? 0) * item.quantity, 0),
-    [items],
-  )
   const productSubtotal = useMemo(
     () =>
       items.reduce(
-        (sum, item) => (isServiceCartItem(item) ? sum : sum + (item.price ?? 0) * item.quantity),
+        (sum, item) => (isServiceLikeCartItem(item) ? sum : sum + (item.price ?? 0) * item.quantity),
         0,
       ),
     [items],
   )
-  const hasProducts = useMemo(() => items.some((item) => !isServiceCartItem(item)), [items])
-  const hasServices = useMemo(() => items.some((item) => isServiceCartItem(item)), [items])
-
-  const itemCount = useMemo(
-    () => items.reduce((sum, item) => sum + item.quantity, 0),
-    [items],
-  )
+  const hasProducts = useMemo(() => items.some((item) => !isServiceLikeCartItem(item)), [items])
+  const hasServices = useMemo(() => items.some((item) => isServiceLikeCartItem(item)), [items])
   const freeShippingUnlocked = isFreeShippingUnlocked(productSubtotal)
   const remainingForFreeShipping = getRemainingForFreeShipping(productSubtotal)
   const freeShippingProgress = Math.min(
     100,
     Math.max(0, (productSubtotal / FREE_SHIPPING_THRESHOLD_EUR) * 100),
   )
-  const remainingLabel = formatPrice(remainingForFreeShipping)
+  const remainingLabel = formatCartPrice(remainingForFreeShipping, resolvedLocale)
   const pickupSuffix = hasProducts && hasServices ? ' oppure ritira in negozio' : ''
   const freeShippingNote = freeShippingUnlocked
     ? `${copy.freeShippingUnlocked}${pickupSuffix}`
@@ -205,7 +165,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
     <SideDrawer
       open={open}
       onClose={() => setOpen(false)}
-      ariaLabel="Cart drawer"
+      ariaLabel={journeyCopy.cartPage.cart}
       title={
         <>
           {itemCount} {copy.itemsLabel}
@@ -242,7 +202,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
                     <button
                       type="button"
                       className={`${styles.qtyButton} typo-body`}
-                      onClick={() => decrement(item.id)}
+                      onClick={() => decrementItem(item.id)}
                       aria-label={copy.decreaseQuantityAria}
                     >
                       −
@@ -251,7 +211,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
                     <button
                       type="button"
                       className={`${styles.qtyButton} typo-body`}
-                      onClick={() => increment(item.id)}
+                      onClick={() => incrementItem(item.id)}
                       aria-label={copy.increaseQuantityAria}
                     >
                       +
@@ -266,9 +226,9 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
                     <Trash className={styles.removeIcon} size={24} />
                   </button>
                 </div>
-                <div className={`${styles.price} typo-small`}>
+                  <div className={`${styles.price} typo-small`}>
                   {typeof item.price === 'number'
-                    ? formatPrice(item.price * item.quantity, item.currency)
+                    ? formatCartPrice(item.price * item.quantity, resolvedLocale, item.currency)
                     : '—'}
                 </div>
               </div>
@@ -299,8 +259,11 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         <div className={styles.summary}>
           <div className={`${styles.summaryRow} typo-small`}>
             <span>{copy.subtotal}</span>
-            <span>{formatPrice(subtotal)}</span>
+            <span>{formatCartPrice(subtotal, resolvedLocale)}</span>
           </div>
+          {itemsWithoutPrice > 0 ? (
+            <div className={`${styles.itemMeta} typo-caption`}>{copy.pricePendingNotice}</div>
+          ) : null}
           <div className={`${styles.itemMeta} typo-caption`}>{copy.summaryNote}</div>
           <Link
             className={`${styles.checkoutButton} typo-caption-upper`}

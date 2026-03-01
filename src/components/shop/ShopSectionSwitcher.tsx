@@ -10,7 +10,7 @@ import { SectionSwitcher } from '@/components/sections/SectionSwitcher'
 import filterStyles from '@/components/sections/SectionFilters.module.css'
 import { Button } from '@/components/ui/button'
 import type { ProductCard } from '@/components/shop/shop-navigator.types'
-import type { ServicesCarouselItem } from '@/components/carousel/types'
+import type { CarouselItem } from '@/components/carousel'
 import styles from './ShopSectionSwitcher.module.css'
 
 const RoutineBuilderSplitSection = dynamic(
@@ -433,7 +433,7 @@ export function ShopSectionSwitcher({
     [resolvedLocale],
   )
 
-  const shopAllItems = useMemo<ServicesCarouselItem[]>(() => {
+  const shopAllItems = useMemo<CarouselItem[]>(() => {
     return filteredProducts.map((product) => {
       const media = product.coverImage ?? product.images?.[0]
       const brandLabel =

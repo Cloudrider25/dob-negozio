@@ -1,4 +1,12 @@
 .card {
+  --card-radius: 18px;
+  --card-content-inline: 16px;
+  --card-title-gap: 0.5rem;
+  --card-title-min-height: 2.4rem;
+  --card-price-size: clamp(1.125rem, 2.4vw, 1.35rem);
+  --card-subtitle-min-height: 2rem;
+  --card-cta-height: 2.5rem;
+  --card-cta-margin: 0.8rem 0.9rem 0.9rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -9,7 +17,7 @@
   z-index: 2;
   color: var(--text-secondary);
   background: var(--bg);
-  border-radius: 18px;
+  border-radius: var(--card-radius);
   border: 1px solid var(--stroke);
   box-shadow: none;
 }
@@ -35,6 +43,12 @@
   object-fit: cover;
   object-position: center;
   transform: scale(1.08);
+}
+
+.mediaFallback {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--paper) 84%, var(--bg) 16%);
 }
 
 .badgeRight,
@@ -69,16 +83,17 @@
 .titleRow {
   display: grid;
   grid-template-columns: 72% 28%;
-  gap: 0.5rem;
+  gap: var(--card-title-gap);
   align-items: end;
-  padding: 16px 16px 0;
-  min-height: 2.4rem;
+  padding: var(--card-content-inline) var(--card-content-inline) 0;
+  min-height: var(--card-title-min-height);
 }
 
 .titleRow .price {
   justify-self: end;
   align-self: start;
-  font-size: 1.2rem;
+  font-size: var(--card-price-size);
+  line-height: 1.1;
 }
 
 .titleBlock {
@@ -96,8 +111,8 @@
 }
 
 .subtitle {
-  padding: 0 16px;
-  min-height: 2rem;
+  padding: 0 var(--card-content-inline);
+  min-height: var(--card-subtitle-min-height);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -106,7 +121,7 @@
 }
 
 .metaRow {
-  padding: 0 16px;
+  padding: 0 var(--card-content-inline);
   margin-top: 0.6rem;
 }
 
@@ -122,27 +137,21 @@
 }
 
 .cta {
-  margin: 0.8rem 0.9rem 0.9rem;
+  margin: var(--card-cta-margin);
+  height: var(--card-cta-height);
 }
 
-@media (min-width: 641px) {
+@media (min-width: 1024px) {
   .card {
-    border-radius: 20px;
-  }
-
-  .titleRow .price {
-    font-size: 1.35rem;
-  }
-
-  .cta {
-    height: 2.5rem;
-  }
-}
-
-@media (min-width: 901px) {
-  .card {
+    --card-radius: 24px;
+    --card-content-inline: 24px;
+    --card-title-gap: 0.6rem;
+    --card-title-min-height: 3rem;
+    --card-price-size: clamp(1.6rem, 2vw, 2rem);
+    --card-subtitle-min-height: 2.4rem;
+    --card-cta-height: 2.75rem;
+    --card-cta-margin: 0.8rem 1.2rem 1.2rem;
     min-height: 426px;
-    border-radius: 24px;
   }
 
   .media::before {
@@ -151,26 +160,11 @@
 
   .titleRow {
     grid-template-columns: 70% 30%;
-    gap: 0.6rem;
-    padding: 24px 24px 0;
-    min-height: 3rem;
   }
+}
 
-  .titleRow .price {
-    font-size: 2rem;
-  }
-
-  .subtitle {
-    padding-inline: 24px;
-    min-height: 2.4rem;
-  }
-
-  .metaRow {
-    padding-inline: 24px;
-  }
-
-  .cta {
-    margin: 0.8rem 1.2rem 1.2rem;
-    height: 2.75rem;
+@media (min-width: 1280px) {
+  .card {
+    min-height: 438px;
   }
 }

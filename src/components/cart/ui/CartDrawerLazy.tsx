@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { CART_OPEN_EVENT, consumeCartOpenRequest } from '@/lib/cartStorage'
 
 const CartDrawer = dynamic(
-  () => import('@/components/cart/CartDrawer').then((module) => module.CartDrawer),
+  () => import('@/components/cart').then((module) => module.CartDrawer),
   {
     ssr: false,
   },

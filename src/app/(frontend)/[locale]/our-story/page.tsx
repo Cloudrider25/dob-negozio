@@ -5,8 +5,7 @@ import { Hero } from '@/components/heroes/Hero'
 import { StoryHeroNote } from '@/components/heroes/StoryHeroNote'
 import { StoryValuesSection, type StoryValuesItem } from '@/components/sections/StoryValuesSection'
 import { StoryTeamSection, type StoryTeamItem } from '@/components/sections/StoryTeamSection'
-import { UICCarousel } from '@/components/carousel/UIC_Carousel'
-import type { ServicesCarouselItem } from '@/components/carousel/types'
+import { createCarouselItem, UICCarousel, type CarouselItem } from '@/components/carousel'
 import type { Where } from 'payload'
 import styles from './our-story.module.css'
 
@@ -224,14 +223,16 @@ export default async function OurStoryPage({
     alt: t.services.title,
   }
 
-  const serviceItems: ServicesCarouselItem[] = servicesResult.docs
+  const serviceItems: CarouselItem[] = servicesResult.docs
     .map((service) => {
       const media = resolveGalleryCover(service.gallery, service.name || '') || fallbackImage
-      return {
-        title: service.name || '',
+      return createCarouselItem({
+        id: service.id,
+        slug: service.slug || undefined,
+        title: service.name,
         subtitle: service.description || undefined,
-        price: formatPrice(service.price, 'EUR'),
-        duration: formatDuration(service.durationMinutes),
+        price: formatPrice(service.price, 'EUR') || null,
+        duration: formatDuration(service.durationMinutes) || null,
         image: { url: media.url, alt: media.alt },
         tag: formatServiceTag(service.serviceType),
         badgeLeft:
@@ -243,9 +244,9 @@ export default async function OurStoryPage({
             ? String((service.badge as { label?: string }).label || '')
             : null,
         href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
-      }
+      })
     })
-    .filter((item) => Boolean(item && item.title))
+    .filter((item): item is CarouselItem => Boolean(item))
 
   return (
     <div className={styles.page}>

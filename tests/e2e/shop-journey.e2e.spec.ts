@@ -13,6 +13,39 @@ type CheckoutProduct = {
   slug: string
 }
 
+const oneYearSeconds = 60 * 60 * 24 * 365
+
+const buildPreferenceCookies = () => [
+  {
+    name: 'dob_prefs_confirmed',
+    value: '1',
+    url: 'http://localhost:3000',
+    sameSite: 'Lax' as const,
+    expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
+  },
+  {
+    name: 'dob_prefs_locale',
+    value: 'it',
+    url: 'http://localhost:3000',
+    sameSite: 'Lax' as const,
+    expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
+  },
+  {
+    name: 'dob_prefs_country',
+    value: 'ITA',
+    url: 'http://localhost:3000',
+    sameSite: 'Lax' as const,
+    expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
+  },
+  {
+    name: 'dob_prefs_currency',
+    value: 'EUR',
+    url: 'http://localhost:3000',
+    sameSite: 'Lax' as const,
+    expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
+  },
+]
+
 const getCheckoutProduct = async (): Promise<CheckoutProduct | null> => {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
@@ -55,13 +88,15 @@ const getCheckoutProduct = async (): Promise<CheckoutProduct | null> => {
 }
 
 test.describe('Shop journey', () => {
-  test('shop -> cart -> checkout -> confirmation', async ({ page, request }) => {
+  test('@smoke shop -> cart -> checkout -> confirmation', async ({ page, request }) => {
     test.setTimeout(120_000)
 
     console.log('[journey] resolve product')
     const product = await getCheckoutProduct()
     test.skip(!product, 'No active in-stock product found for checkout journey.')
     if (!product) return
+
+    await page.context().addCookies(buildPreferenceCookies())
 
     console.log('[journey] open shop')
     await page.goto('http://localhost:3000/it/shop', { waitUntil: 'networkidle' })

@@ -13,8 +13,7 @@ import { ProductInlineVideo } from './ProductInlineVideo'
 import { ProductInsideSection } from './ProductInsideSection'
 import { ProductTreatmentReveal } from '@/components/shop/ProductTreatmentReveal'
 import { FaqAccordion } from '@/components/ui/FaqAccordion'
-import { UICCarousel } from '@/components/carousel/UIC_Carousel'
-import type { ServicesCarouselItem } from '@/components/carousel/types'
+import { createCarouselItem, UICCarousel, type CarouselItem } from '@/components/carousel'
 import { ButtonLink } from '@/components/ui/button-link'
 import { SplitSection } from '@/components/ui/SplitSection'
 import { UILeadGallery } from '@/components/ui/LeadGallery'
@@ -357,33 +356,34 @@ export default async function ProductDetailPage({ params }: { params: PageParams
     ? { url: coverMedia.url, alt: coverMedia.alt }
     : { url: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg', alt: t.shop.title }
 
-  const toCarouselItem = (doc: typeof product): ServicesCarouselItem | null => {
+  const toCarouselItem = (doc: typeof product): CarouselItem | null => {
     const title = doc.title || ''
-    if (!title) return null
     const media =
       resolveProductMedia(doc.coverImage, title) ||
       (Array.isArray(doc.images) ? resolveProductMedia(doc.images[0], title) : null) ||
       fallbackImage
-    return {
+    return createCarouselItem({
+      id: doc.id,
+      slug: doc.slug || undefined,
       title,
       subtitle: doc.description || undefined,
-      price: formatPrice(doc.price),
+      price: formatPrice(doc.price) || null,
       duration: null,
       image: { url: media.url, alt: media.alt },
       tag: resolveBrandLabel(doc.brand),
       badgeLeft: null,
       badgeRight: null,
       href: doc.slug ? `/${locale}/shop/${doc.slug}` : undefined,
-    }
+    })
   }
 
-  const alternativeProductItems: ServicesCarouselItem[] = relatedDocs
+  const alternativeProductItems: CarouselItem[] = relatedDocs
     .map((doc) => toCarouselItem(doc))
-    .filter(Boolean) as ServicesCarouselItem[]
+    .filter((item): item is CarouselItem => Boolean(item))
 
-  const productItems: ServicesCarouselItem[] = productsResult.docs
+  const productItems: CarouselItem[] = productsResult.docs
     .map((doc) => toCarouselItem(doc))
-    .filter(Boolean) as ServicesCarouselItem[]
+    .filter((item): item is CarouselItem => Boolean(item))
 
   const coverFallback =
     coverMedia ||
