@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { sql } from '@payloadcms/db-postgres'
 
 import { getPayloadClient } from '@/lib/getPayloadClient'
+import { ensureAnagraficaForCustomer } from '@/lib/anagrafiche/ensureAnagraficaForCustomer'
 
 type AestheticFolderPayload = {
   lastAssessmentDate: string
@@ -31,6 +31,20 @@ const asNullableNumber = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : null
 }
 const asBoolean = (value: unknown) => value === true
+const asSkinType = (value: string): 'normal' | 'dry' | 'oily' | 'combination' | 'sensitive' | undefined =>
+  ['normal', 'dry', 'oily', 'combination', 'sensitive'].includes(value)
+    ? (value as 'normal' | 'dry' | 'oily' | 'combination' | 'sensitive')
+    : undefined
+const asSkinSensitivity = (value: string): 'low' | 'medium' | 'high' | undefined =>
+  ['low', 'medium', 'high'].includes(value) ? (value as 'low' | 'medium' | 'high') : undefined
+const asFitzpatrick = (value: string): 'I' | 'II' | 'III' | 'IV' | 'V' | 'VI' | undefined =>
+  ['I', 'II', 'III', 'IV', 'V', 'VI'].includes(value)
+    ? (value as 'I' | 'II' | 'III' | 'IV' | 'V' | 'VI')
+    : undefined
+const asPregnancyState = (value: string): 'no' | 'pregnancy' | 'breastfeeding' | undefined =>
+  ['no', 'pregnancy', 'breastfeeding'].includes(value)
+    ? (value as 'no' | 'pregnancy' | 'breastfeeding')
+    : undefined
 
 const emptyDraft: AestheticFolderPayload = {
   lastAssessmentDate: '',
@@ -56,27 +70,27 @@ const emptyDraft: AestheticFolderPayload = {
 
 const mapRowToDraft = (row: Record<string, unknown>): AestheticFolderPayload => ({
   lastAssessmentDate:
-    typeof row.last_assessment_date === 'string' && row.last_assessment_date.length > 0
-      ? row.last_assessment_date.slice(0, 10)
+    typeof row.lastAssessmentDate === 'string' && row.lastAssessmentDate.length > 0
+      ? row.lastAssessmentDate.slice(0, 10)
       : '',
-  skinType: asString(row.skin_type),
-  skinSensitivity: asString(row.skin_sensitivity),
+  skinType: asString(row.skinType),
+  skinSensitivity: asString(row.skinSensitivity),
   fitzpatrick: asString(row.fitzpatrick),
-  hydrationLevel: row.hydration_level == null ? '' : String(row.hydration_level),
-  sebumLevel: row.sebum_level == null ? '' : String(row.sebum_level),
-  elasticityLevel: row.elasticity_level == null ? '' : String(row.elasticity_level),
-  acneTendency: row.acne_tendency === true,
-  rosaceaTendency: row.rosacea_tendency === true,
-  hyperpigmentationTendency: row.hyperpigmentation_tendency === true,
+  hydrationLevel: row.hydrationLevel == null ? '' : String(row.hydrationLevel),
+  sebumLevel: row.sebumLevel == null ? '' : String(row.sebumLevel),
+  elasticityLevel: row.elasticityLevel == null ? '' : String(row.elasticityLevel),
+  acneTendency: row.acneTendency === true,
+  rosaceaTendency: row.rosaceaTendency === true,
+  hyperpigmentationTendency: row.hyperpigmentationTendency === true,
   allergies: asString(row.allergies),
   contraindications: asString(row.contraindications),
   medications: asString(row.medications),
-  pregnancyOrBreastfeeding: asString(row.pregnancy_or_breastfeeding),
-  homeCareRoutine: asString(row.home_care_routine),
-  treatmentGoals: asString(row.treatment_goals),
-  estheticianNotes: asString(row.esthetician_notes),
-  serviceRecommendations: asString(row.service_recommendations),
-  productRecommendations: asString(row.product_recommendations),
+  pregnancyOrBreastfeeding: asString(row.pregnancyOrBreastfeeding),
+  homeCareRoutine: asString(row.homeCareRoutine),
+  treatmentGoals: asString(row.treatmentGoals),
+  estheticianNotes: asString(row.estheticianNotes),
+  serviceRecommendations: asString(row.serviceRecommendations),
+  productRecommendations: asString(row.productRecommendations),
 })
 
 async function getAuthenticatedUser(request: Request) {
@@ -85,52 +99,125 @@ async function getAuthenticatedUser(request: Request) {
   const user = authResult?.user && typeof authResult.user === 'object' ? authResult.user : null
   const rawId = user && 'id' in user ? (user as { id?: unknown }).id : null
   const userId = typeof rawId === 'number' ? rawId : typeof rawId === 'string' ? Number(rawId) : NaN
-  return { payload, userId: Number.isFinite(userId) ? userId : null }
+  return { payload, user, userId: Number.isFinite(userId) ? userId : null }
+}
+
+async function syncAestheticToAnagrafica(
+  payload: Awaited<ReturnType<typeof getPayloadClient>>,
+  user: Record<string, unknown>,
+  userId: number,
+  data: {
+    lastAssessmentDate: string | null
+    skinType: string
+    skinSensitivity: string
+    fitzpatrick: string
+    hydrationLevel: number | null
+    sebumLevel: number | null
+    elasticityLevel: number | null
+    acneTendency: boolean
+    rosaceaTendency: boolean
+    hyperpigmentationTendency: boolean
+    allergies: string
+    contraindications: string
+    medications: string
+    pregnancyOrBreastfeeding: string
+    homeCareRoutine: string
+    treatmentGoals: string
+    estheticianNotes: string
+    serviceRecommendations: string
+    productRecommendations: string
+  },
+) {
+  await ensureAnagraficaForCustomer(payload, user as any)
+
+  const existingAnagrafica = await payload.find({
+    collection: 'anagrafiche',
+    depth: 0,
+    limit: 1,
+    where: {
+      customer: {
+        equals: userId,
+      },
+    },
+    overrideAccess: true,
+  })
+
+  const anagraficaData = {
+    lastAssessmentDate: data.lastAssessmentDate,
+    skinType: asSkinType(data.skinType),
+    skinSensitivity: asSkinSensitivity(data.skinSensitivity),
+    fitzpatrick: asFitzpatrick(data.fitzpatrick),
+    hydrationLevel: data.hydrationLevel,
+    sebumLevel: data.sebumLevel,
+    elasticityLevel: data.elasticityLevel,
+    acneTendency: data.acneTendency,
+    rosaceaTendency: data.rosaceaTendency,
+    hyperpigmentationTendency: data.hyperpigmentationTendency,
+    allergies: data.allergies || undefined,
+    contraindications: data.contraindications || undefined,
+    medications: data.medications || undefined,
+    pregnancyOrBreastfeeding: asPregnancyState(data.pregnancyOrBreastfeeding),
+    homeCareRoutine: data.homeCareRoutine || undefined,
+    treatmentGoals: data.treatmentGoals || undefined,
+    estheticianNotes: data.estheticianNotes || undefined,
+    serviceRecommendations: data.serviceRecommendations || undefined,
+    productRecommendations: data.productRecommendations || undefined,
+  }
+
+  if (existingAnagrafica.docs.length > 0) {
+    await payload.update({
+      collection: 'anagrafiche',
+      id: existingAnagrafica.docs[0].id,
+      data: anagraficaData,
+      overrideAccess: true,
+      context: { skipUserWriteThrough: true },
+    })
+    return
+  }
+
+  await payload.create({
+    collection: 'anagrafiche',
+    data: {
+      customer: userId,
+      ...anagraficaData,
+    },
+    overrideAccess: true,
+    context: { skipUserWriteThrough: true },
+  })
 }
 
 export async function GET(request: Request) {
-  const { payload, userId } = await getAuthenticatedUser(request)
+  const { payload, user, userId } = await getAuthenticatedUser(request)
 
-  if (!userId) {
+  if (!userId || !user) {
     return NextResponse.json({ error: 'Non autorizzato.' }, { status: 401 })
   }
 
-  const result = await payload.db.drizzle.execute(sql`
-    SELECT
-      last_assessment_date,
-      skin_type,
-      skin_sensitivity,
-      fitzpatrick,
-      hydration_level,
-      sebum_level,
-      elasticity_level,
-      acne_tendency,
-      rosacea_tendency,
-      hyperpigmentation_tendency,
-      allergies,
-      contraindications,
-      medications,
-      pregnancy_or_breastfeeding,
-      home_care_routine,
-      treatment_goals,
-      esthetician_notes,
-      service_recommendations,
-      product_recommendations
-    FROM account_aesthetic_profiles
-    WHERE user_id = ${userId}
-    LIMIT 1
-  `)
+  const result = await payload.find({
+    collection: 'account-aesthetic-profiles',
+    depth: 0,
+    limit: 1,
+    where: {
+      user: {
+        equals: userId,
+      },
+    },
+    user,
+    overrideAccess: false,
+  })
 
-  const rows = (result as { rows?: Array<Record<string, unknown>> }).rows ?? []
-  const draft = rows.length > 0 ? mapRowToDraft(rows[0]) : emptyDraft
+  const draft =
+    result.docs.length > 0
+      ? mapRowToDraft(result.docs[0] as unknown as Record<string, unknown>)
+      : emptyDraft
 
   return NextResponse.json({ draft })
 }
 
 export async function PATCH(request: Request) {
-  const { payload, userId } = await getAuthenticatedUser(request)
+  const { payload, user, userId } = await getAuthenticatedUser(request)
 
-  if (!userId) {
+  if (!userId || !user) {
     return NextResponse.json({ error: 'Non autorizzato.' }, { status: 401 })
   }
 
@@ -143,74 +230,60 @@ export async function PATCH(request: Request) {
   }
   const lastAssessmentIso = lastAssessmentDate ? new Date(lastAssessmentDate).toISOString() : null
 
-  await payload.db.drizzle.execute(sql`
-    INSERT INTO account_aesthetic_profiles (
-      user_id,
-      last_assessment_date,
-      skin_type,
-      skin_sensitivity,
-      fitzpatrick,
-      hydration_level,
-      sebum_level,
-      elasticity_level,
-      acne_tendency,
-      rosacea_tendency,
-      hyperpigmentation_tendency,
-      allergies,
-      contraindications,
-      medications,
-      pregnancy_or_breastfeeding,
-      home_care_routine,
-      treatment_goals,
-      esthetician_notes,
-      service_recommendations,
-      product_recommendations,
-      updated_at
-    ) VALUES (
-      ${userId},
-      ${lastAssessmentIso},
-      ${asString(body.skinType)},
-      ${asString(body.skinSensitivity)},
-      ${asString(body.fitzpatrick)},
-      ${asNullableNumber(body.hydrationLevel)},
-      ${asNullableNumber(body.sebumLevel)},
-      ${asNullableNumber(body.elasticityLevel)},
-      ${asBoolean(body.acneTendency)},
-      ${asBoolean(body.rosaceaTendency)},
-      ${asBoolean(body.hyperpigmentationTendency)},
-      ${asString(body.allergies)},
-      ${asString(body.contraindications)},
-      ${asString(body.medications)},
-      ${asString(body.pregnancyOrBreastfeeding)},
-      ${asString(body.homeCareRoutine)},
-      ${asString(body.treatmentGoals)},
-      ${asString(body.estheticianNotes)},
-      ${asString(body.serviceRecommendations)},
-      ${asString(body.productRecommendations)},
-      now()
-    )
-    ON CONFLICT (user_id) DO UPDATE SET
-      last_assessment_date = EXCLUDED.last_assessment_date,
-      skin_type = EXCLUDED.skin_type,
-      skin_sensitivity = EXCLUDED.skin_sensitivity,
-      fitzpatrick = EXCLUDED.fitzpatrick,
-      hydration_level = EXCLUDED.hydration_level,
-      sebum_level = EXCLUDED.sebum_level,
-      elasticity_level = EXCLUDED.elasticity_level,
-      acne_tendency = EXCLUDED.acne_tendency,
-      rosacea_tendency = EXCLUDED.rosacea_tendency,
-      hyperpigmentation_tendency = EXCLUDED.hyperpigmentation_tendency,
-      allergies = EXCLUDED.allergies,
-      contraindications = EXCLUDED.contraindications,
-      medications = EXCLUDED.medications,
-      pregnancy_or_breastfeeding = EXCLUDED.pregnancy_or_breastfeeding,
-      home_care_routine = EXCLUDED.home_care_routine,
-      treatment_goals = EXCLUDED.treatment_goals,
-      esthetician_notes = EXCLUDED.esthetician_notes,
-      service_recommendations = EXCLUDED.service_recommendations,
-      product_recommendations = EXCLUDED.product_recommendations,
-      updated_at = now()
-  `)
+  const existing = await payload.find({
+    collection: 'account-aesthetic-profiles',
+    depth: 0,
+    limit: 1,
+    where: {
+      user: {
+        equals: userId,
+      },
+    },
+    user,
+    overrideAccess: false,
+  })
+
+  const data = {
+    user: userId,
+    lastAssessmentDate: lastAssessmentIso,
+    skinType: asString(body.skinType),
+    skinSensitivity: asString(body.skinSensitivity),
+    fitzpatrick: asString(body.fitzpatrick),
+    hydrationLevel: asNullableNumber(body.hydrationLevel),
+    sebumLevel: asNullableNumber(body.sebumLevel),
+    elasticityLevel: asNullableNumber(body.elasticityLevel),
+    acneTendency: asBoolean(body.acneTendency),
+    rosaceaTendency: asBoolean(body.rosaceaTendency),
+    hyperpigmentationTendency: asBoolean(body.hyperpigmentationTendency),
+    allergies: asString(body.allergies),
+    contraindications: asString(body.contraindications),
+    medications: asString(body.medications),
+    pregnancyOrBreastfeeding: asString(body.pregnancyOrBreastfeeding),
+    homeCareRoutine: asString(body.homeCareRoutine),
+    treatmentGoals: asString(body.treatmentGoals),
+    estheticianNotes: asString(body.estheticianNotes),
+    serviceRecommendations: asString(body.serviceRecommendations),
+    productRecommendations: asString(body.productRecommendations),
+  }
+
+  if (existing.docs.length > 0) {
+    await payload.update({
+      collection: 'account-aesthetic-profiles',
+      id: existing.docs[0].id,
+      data,
+      user,
+      overrideAccess: false,
+    })
+  } else {
+    await payload.create({
+      collection: 'account-aesthetic-profiles',
+      data,
+      user,
+      overrideAccess: false,
+    })
+  }
+
+  await syncAestheticToAnagrafica(payload, user as unknown as Record<string, unknown>, userId, data)
 
   return NextResponse.json({ ok: true })
 }

@@ -5,10 +5,10 @@ import { ChevronDownIcon, MinusIcon } from '@heroicons/react/24/outline'
 
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
-import { AccountPillButton } from '../AccountButtons'
-import { AccountListHeader } from '../AccountListHeader'
-import type { FormMessage } from '../forms/types'
-import type { ServiceBookingRow } from '../types'
+import { AccountPillButton } from '../../shared/AccountButtons'
+import { AccountListHeader } from '../../shared/AccountListHeader'
+import type { FormMessage } from '../../forms/types'
+import type { ServiceBookingRow } from '../../types'
 
 type AccountServicesTabProps = {
   styles: Record<string, string>

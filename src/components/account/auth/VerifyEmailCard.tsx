@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation'
 import { getAccountDictionary } from '@/lib/account-i18n'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
-import styles from './AuthForms.module.css'
+import styles from '../forms/auth/AuthForms.module.css'
 
 type VerifyEmailCardProps = {
   locale: string

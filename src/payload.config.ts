@@ -45,6 +45,7 @@ import { ShopWebhookEvents } from './collections/ShopWebhookEvents'
 import { ShopInventoryLocks } from './collections/ShopInventoryLocks'
 import { ConsultationLeads } from './collections/ConsultationLeads'
 import { Anagrafiche } from './collections/Anagrafiche'
+import { AccountAestheticProfiles } from './collections/AccountAestheticProfiles'
 import { SiteSettings } from './globals/SiteSettings'
 import { InstagramSettings } from './globals/InstagramSettings'
 import { siteSettingsSMTPAdapter } from './lib/email/siteSettingsSMTPAdapter'
@@ -66,6 +67,7 @@ export default buildConfig({
     },
   },
   collections: [
+    AccountAestheticProfiles,
     Anagrafiche,
     ConsultationLeads,
     Orders,

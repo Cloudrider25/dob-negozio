@@ -4,9 +4,9 @@ import type { Dispatch, FormEvent, SetStateAction } from 'react'
 
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { Input, Select } from '@/components/ui/input'
-import { AccountPillButton } from '@/components/account/AccountButtons'
+import { AccountPillButton } from '@/components/account/shared/AccountButtons'
 
-import type { AddressDraft, FormMessage, PhotonAddressSuggestion } from './types'
+import type { AddressDraft, FormMessage, PhotonAddressSuggestion } from '../types'
 import styles from './AddressForm.module.css'
 
 type AddressCopy = {

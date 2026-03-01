@@ -2,8 +2,8 @@
 
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
-import { AestheticForm } from '../forms/AestheticForm'
-import type { AestheticFolderDraft, FormMessage } from '../forms/types'
+import { AestheticForm } from '../../forms/profile/AestheticForm'
+import type { AestheticFolderDraft, FormMessage } from '../../forms/types'
 
 type AccountAestheticTabProps = {
   styles: Record<string, string>

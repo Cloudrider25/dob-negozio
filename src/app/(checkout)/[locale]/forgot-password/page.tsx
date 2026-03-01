@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 
-import { AuthSplitLayout } from '@/components/account/AuthSplitLayout'
-import { ForgotPasswordForm } from '@/components/account/ForgotPasswordForm'
+import { AuthSplitLayout } from '@/components/account/auth/AuthSplitLayout'
+import { ForgotPasswordForm } from '@/components/account/forms/auth/ForgotPasswordForm'
 import { isLocale } from '@/lib/i18n'
 
 export default async function ForgotPasswordPage({

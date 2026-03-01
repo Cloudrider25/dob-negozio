@@ -2,10 +2,10 @@
 
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
-import { AccountPillButton } from '../AccountButtons'
-import { AddressForm } from '../forms/AddressForm'
-import type { AddressDraft, FormMessage, PhotonAddressSuggestion } from '../forms/types'
-import type { AddressItem, AddressesView } from '../types'
+import { AccountPillButton } from '../../shared/AccountButtons'
+import { AddressForm } from '../../forms/profile/AddressForm'
+import type { AddressDraft, FormMessage, PhotonAddressSuggestion } from '../../forms/types'
+import type { AddressItem, AddressesView } from '../../types'
 
 type AccountAddressesTabProps = {
   styles: Record<string, string>

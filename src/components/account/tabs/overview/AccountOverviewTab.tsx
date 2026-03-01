@@ -4,8 +4,8 @@ import { SectionTitle } from '@/components/sections/SectionTitle'
 import { LabelText } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 
-import { AccountPillButton } from '../AccountButtons'
-import type { FormMessage } from '../forms/types'
+import { AccountPillButton } from '../../shared/AccountButtons'
+import type { FormMessage } from '../../forms/types'
 
 type AccountOverviewTabProps = {
   styles: Record<string, string>

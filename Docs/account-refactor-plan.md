@@ -153,3 +153,9 @@ Refactor mirato del blocco `ordersList` con lo stesso criterio già applicato a 
 2. Pulizia CSS finale single-file
 - rimuovere regole duplicate non più attive
 - consolidare override mobile/desktop
+
+## TODO da non dimenticare (DB review)
+
+- Stato attuale: salvataggio cartella estetica scritto sia su `account-aesthetic-profiles` sia su `anagrafiche` (sync temporaneo).
+- Azione futura: durante full review DB scegliere una sola source of truth e rimuovere la duplicazione.
+- Decisione suggerita da validare: mantenere solo `anagrafiche` oppure solo `account-aesthetic-profiles` (con relativo piano migrazione dati e cleanup codice/migrazioni).

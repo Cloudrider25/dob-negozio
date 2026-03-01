@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 
-import { AuthSplitLayout } from '@/components/account/AuthSplitLayout'
-import { VerifyEmailCard } from '@/components/account/VerifyEmailCard'
+import { AuthSplitLayout } from '@/components/account/auth/AuthSplitLayout'
+import { VerifyEmailCard } from '@/components/account/auth/VerifyEmailCard'
 import { isLocale } from '@/lib/i18n'
 
 export default async function VerifyEmailPage({ params }: { params: Promise<{ locale: string }> }) {

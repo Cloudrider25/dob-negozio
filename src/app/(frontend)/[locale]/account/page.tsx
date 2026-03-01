@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 
-import { AccountDashboardClient } from '@/components/account/AccountDashboardClient'
+import { AccountDashboardClient } from '@/components/account/dashboard/AccountDashboardClient'
 import { getAuthenticatedUser } from '@/lib/auth/getAuthenticatedUser'
 import { getPayloadClient } from '@/lib/getPayloadClient'
 import { isLocale } from '@/lib/i18n'

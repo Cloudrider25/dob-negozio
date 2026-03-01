@@ -5,9 +5,9 @@ import { ChevronDownIcon, EyeIcon } from '@heroicons/react/24/outline'
 
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
-import { AccountIconAction, AccountPillButton } from '../AccountButtons'
-import { AccountListHeader } from '../AccountListHeader'
-import type { OrderItem } from '../types'
+import { AccountIconAction, AccountPillButton } from '../../shared/AccountButtons'
+import { AccountListHeader } from '../../shared/AccountListHeader'
+import type { OrderItem } from '../../types'
 
 type AccountOrdersTabProps = {
   styles: Record<string, string>

@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'account-aesthetic-profiles': AccountAestheticProfile;
     anagrafiche: Anagrafiche;
     'consultation-leads': ConsultationLead;
     orders: Order;
@@ -114,6 +115,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'account-aesthetic-profiles': AccountAestheticProfilesSelect<false> | AccountAestheticProfilesSelect<true>;
     anagrafiche: AnagraficheSelect<false> | AnagraficheSelect<true>;
     'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
@@ -200,43 +202,15 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "anagrafiche".
+ * via the `definition` "account-aesthetic-profiles".
  */
-export interface Anagrafiche {
+export interface AccountAestheticProfile {
   id: number;
-  /**
-   * Label interno generato da nome e cognome.
-   */
-  recordLabel?: string | null;
-  /**
-   * Seleziona un utente con ruolo customer.
-   */
-  customer: number | User;
-  firstName?: string | null;
-  lastName?: string | null;
-  email?: string | null;
-  phone?: string | null;
-  addresses?:
-    | {
-        firstName?: string | null;
-        lastName?: string | null;
-        company?: string | null;
-        streetAddress?: string | null;
-        apartment?: string | null;
-        postalCode?: string | null;
-        city?: string | null;
-        province?: string | null;
-        country?: string | null;
-        phone?: string | null;
-        isDefault?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  generalNotes?: string | null;
+  user: number | User;
   lastAssessmentDate?: string | null;
-  skinType?: ('normal' | 'dry' | 'oily' | 'combination' | 'sensitive') | null;
-  skinSensitivity?: ('low' | 'medium' | 'high') | null;
-  fitzpatrick?: ('I' | 'II' | 'III' | 'IV' | 'V' | 'VI') | null;
+  skinType?: string | null;
+  skinSensitivity?: string | null;
+  fitzpatrick?: string | null;
   hydrationLevel?: number | null;
   sebumLevel?: number | null;
   elasticityLevel?: number | null;
@@ -246,7 +220,7 @@ export interface Anagrafiche {
   allergies?: string | null;
   contraindications?: string | null;
   medications?: string | null;
-  pregnancyOrBreastfeeding?: ('no' | 'pregnancy' | 'breastfeeding') | null;
+  pregnancyOrBreastfeeding?: string | null;
   homeCareRoutine?: string | null;
   treatmentGoals?: string | null;
   estheticianNotes?: string | null;
@@ -304,6 +278,63 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "anagrafiche".
+ */
+export interface Anagrafiche {
+  id: number;
+  /**
+   * Label interno generato da nome e cognome.
+   */
+  recordLabel?: string | null;
+  /**
+   * Seleziona un utente con ruolo customer.
+   */
+  customer: number | User;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  addresses?:
+    | {
+        firstName?: string | null;
+        lastName?: string | null;
+        company?: string | null;
+        streetAddress?: string | null;
+        apartment?: string | null;
+        postalCode?: string | null;
+        city?: string | null;
+        province?: string | null;
+        country?: string | null;
+        phone?: string | null;
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  generalNotes?: string | null;
+  lastAssessmentDate?: string | null;
+  skinType?: ('normal' | 'dry' | 'oily' | 'combination' | 'sensitive') | null;
+  skinSensitivity?: ('low' | 'medium' | 'high') | null;
+  fitzpatrick?: ('I' | 'II' | 'III' | 'IV' | 'V' | 'VI') | null;
+  hydrationLevel?: number | null;
+  sebumLevel?: number | null;
+  elasticityLevel?: number | null;
+  acneTendency?: boolean | null;
+  rosaceaTendency?: boolean | null;
+  hyperpigmentationTendency?: boolean | null;
+  allergies?: string | null;
+  contraindications?: string | null;
+  medications?: string | null;
+  pregnancyOrBreastfeeding?: ('no' | 'pregnancy' | 'breastfeeding') | null;
+  homeCareRoutine?: string | null;
+  treatmentGoals?: string | null;
+  estheticianNotes?: string | null;
+  serviceRecommendations?: string | null;
+  productRecommendations?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1560,6 +1591,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'account-aesthetic-profiles';
+        value: number | AccountAestheticProfile;
+      } | null)
+    | ({
         relationTo: 'anagrafiche';
         value: number | Anagrafiche;
       } | null)
@@ -1760,6 +1795,34 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "account-aesthetic-profiles_select".
+ */
+export interface AccountAestheticProfilesSelect<T extends boolean = true> {
+  user?: T;
+  lastAssessmentDate?: T;
+  skinType?: T;
+  skinSensitivity?: T;
+  fitzpatrick?: T;
+  hydrationLevel?: T;
+  sebumLevel?: T;
+  elasticityLevel?: T;
+  acneTendency?: T;
+  rosaceaTendency?: T;
+  hyperpigmentationTendency?: T;
+  allergies?: T;
+  contraindications?: T;
+  medications?: T;
+  pregnancyOrBreastfeeding?: T;
+  homeCareRoutine?: T;
+  treatmentGoals?: T;
+  estheticianNotes?: T;
+  serviceRecommendations?: T;
+  productRecommendations?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

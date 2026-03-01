@@ -2,9 +2,9 @@
 
 import { Input } from '@/components/ui/input'
 
-import { AccountIconAction } from './AccountButtons'
-import { AccountModal, accountModalClassNames } from './AccountModal'
-import type { OrderItem, ServiceBookingRow } from './types'
+import { AccountIconAction } from '../../shared/AccountButtons'
+import { AccountModal, accountModalClassNames } from '../../shared/AccountModal'
+import type { OrderItem, ServiceBookingRow } from '../../types'
 
 type ScheduleEditDraft = {
   date: string

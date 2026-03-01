@@ -5,9 +5,9 @@ import type { Dispatch, FormEvent, SetStateAction } from 'react'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 import { LabelText } from '@/components/ui/label'
 import { Input, Select, Textarea } from '@/components/ui/input'
-import { AccountPillButton } from '@/components/account/AccountButtons'
+import { AccountPillButton } from '@/components/account/shared/AccountButtons'
 
-import type { AestheticFolderDraft, FormMessage } from './types'
+import type { AestheticFolderDraft, FormMessage } from '../types'
 import styles from './AestheticForm.module.css'
 
 type AestheticFormProps = {
