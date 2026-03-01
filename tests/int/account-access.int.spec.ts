@@ -84,24 +84,28 @@ describe('Account access control', () => {
   afterAll(async () => {
     if (!payload) return
 
-    await payload.delete({
-      collection: 'orders',
-      overrideAccess: true,
-      where: {
-        or: [
-          { id: { equals: orderAId } },
-          { orderNumber: { contains: `TEST-ACCOUNT-${runId}` } },
-        ],
-      },
-    })
+    await payload
+      .delete({
+        collection: 'orders',
+        overrideAccess: true,
+        where: {
+          or: [
+            { id: { equals: orderAId } },
+            { orderNumber: { contains: `TEST-ACCOUNT-${runId}` } },
+          ],
+        },
+      })
+      .catch(() => undefined)
 
-    await payload.delete({
-      collection: 'users',
-      overrideAccess: true,
-      where: {
-        email: { in: [emailA, emailB] },
-      },
-    })
+    await payload
+      .delete({
+        collection: 'users',
+        overrideAccess: true,
+        where: {
+          email: { in: [emailA, emailB] },
+        },
+      })
+      .catch(() => undefined)
   })
 
   it('user can read only self profile', async () => {
@@ -150,6 +154,31 @@ describe('Account access control', () => {
         user: { id: userB.id, email: userB.email, roles: ['customer'] },
         data: {
           firstName: 'Hacked',
+        },
+      }),
+    ).rejects.toThrow()
+  })
+
+  it('user cannot patch addresses of another user', async () => {
+    await expect(
+      payload.update({
+        collection: 'users',
+        id: userA.id,
+        overrideAccess: false,
+        user: { id: userB.id, email: userB.email, roles: ['customer'] },
+        data: {
+          addresses: [
+            {
+              firstName: 'Bad',
+              lastName: 'Actor',
+              streetAddress: 'Via Fake 1',
+              city: 'Milano',
+              province: 'MI',
+              postalCode: '20100',
+              country: 'Italy',
+              isDefault: true,
+            },
+          ],
         },
       }),
     ).rejects.toThrow()

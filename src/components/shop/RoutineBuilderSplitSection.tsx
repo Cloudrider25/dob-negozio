@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import styles from './RoutineBuilderSplitSection.module.css'
+import { MediaThumb } from '@/components/shared/MediaThumb'
 import { SplitSection } from '@/components/ui/SplitSection'
 import { StateCircleButton } from '@/components/ui/StateCircleButton'
 import { Swiper, SwiperSlide, type UISwiperInstance } from '@/components/ui/swiper'
+import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
 
 type ProductAreaItem = {
   id: string
@@ -781,18 +783,16 @@ export function RoutineBuilderSplitSection({
                               {step.products.slice(0, 1).map((product) => {
                                 const media = product.coverImage ?? product.images?.[0]
                                 return (
-                                  <div key={product.id} className={styles.routineProductRow}>
-                                    <div className={styles.routineThumb}>
-                                      {media?.url ? (
-                                        <img
-                                          src={media.url}
-                                          alt={media.alt || product.title}
-                                          loading="lazy"
-                                        />
-                                      ) : (
-                                        <div className={styles.routineThumbFallback} />
-                                      )}
-                                    </div>
+                                    <div key={product.id} className={styles.routineProductRow}>
+                                    <MediaThumb
+                                      src={normalizeThumbnailSrc(media?.url)}
+                                      alt={media?.alt || product.title}
+                                      sizes="48px"
+                                      className={styles.routineThumb}
+                                      imageClassName={styles.routineThumbImage}
+                                      fallback={<div className={styles.routineThumbFallback} />}
+                                      unoptimized={isRemoteThumbnailSrc(media?.url)}
+                                    />
                                     <p className={`${styles.routineProductTitle} typo-small`}>{product.title}</p>
                                   </div>
                                 )
@@ -820,17 +820,15 @@ export function RoutineBuilderSplitSection({
                                   const media = product.coverImage ?? product.images?.[0]
                                   return (
                                     <div key={product.id} className={styles.routineProductRow}>
-                                      <div className={styles.routineThumb}>
-                                        {media?.url ? (
-                                          <img
-                                            src={media.url}
-                                            alt={media.alt || product.title || ''}
-                                            loading="lazy"
-                                          />
-                                        ) : (
-                                          <div className={styles.routineThumbFallback} />
-                                        )}
-                                      </div>
+                                      <MediaThumb
+                                        src={normalizeThumbnailSrc(media?.url)}
+                                        alt={media?.alt || product.title || ''}
+                                        sizes="48px"
+                                        className={styles.routineThumb}
+                                        imageClassName={styles.routineThumbImage}
+                                        fallback={<div className={styles.routineThumbFallback} />}
+                                        unoptimized={isRemoteThumbnailSrc(media?.url)}
+                                      />
                                       <p className={`${styles.routineProductTitle} typo-small`}>{product.title ?? ''}</p>
                                     </div>
                                   )

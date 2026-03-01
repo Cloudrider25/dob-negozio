@@ -101,6 +101,10 @@
   overflow: hidden;
 }
 
+.recommendationThumbImage {
+  object-fit: contain;
+}
+
 .recommendationInfo {
   min-width: 0;
 }

@@ -1,10 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import { MediaThumb } from '@/components/shared/MediaThumb'
 import styles from './SearchDrawer.module.css'
 import { SideDrawer } from '@/components/ui/SideDrawer'
 import { defaultLocale, isLocale } from '@/lib/i18n'
@@ -256,18 +256,14 @@ export function SearchDrawer({ locale, initialOpen = false }: { locale: string; 
 
       {recommendation ? (
         <div className={styles.recommendation}>
-          <div className={styles.recommendationThumb}>
-            {normalizeThumbnailSrc(recommendation.image) ? (
-              <Image
-                src={normalizeThumbnailSrc(recommendation.image) || ''}
-                alt={recommendation.title}
-                fill
-                className="object-contain"
-                unoptimized={isRemoteThumbnailSrc(recommendation.image)}
-                sizes="52px"
-              />
-            ) : null}
-          </div>
+          <MediaThumb
+            src={normalizeThumbnailSrc(recommendation.image)}
+            alt={recommendation.title}
+            sizes="52px"
+            className={styles.recommendationThumb}
+            imageClassName={styles.recommendationThumbImage}
+            unoptimized={isRemoteThumbnailSrc(recommendation.image)}
+          />
           <div className={styles.recommendationInfo}>
             <p className={`${styles.recommendationTitle} typo-caption-upper`}>{recommendation.title}</p>
             <div className={`${styles.recommendationMeta} typo-caption`}>{recommendation.subtitle}</div>

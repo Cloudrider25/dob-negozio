@@ -61,7 +61,7 @@
   flex: 0 0 auto;
 }
 
-.orderThumb img {
+.orderThumbImage {
   width: 100%;
   height: 100%;
   object-fit: cover;

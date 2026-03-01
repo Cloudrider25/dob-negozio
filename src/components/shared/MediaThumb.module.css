@@ -1,0 +1,9 @@
+.root {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+}

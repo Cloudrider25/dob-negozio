@@ -1,6 +1,8 @@
 'use client'
 
 import { Input } from '@/components/ui/input'
+import { MediaThumb } from '@/components/shared/MediaThumb'
+import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
 
 import { AccountIconAction } from '../../shared/AccountButtons'
 import { AccountModal, accountModalClassNames } from '../../shared/AccountModal'
@@ -125,14 +127,15 @@ export function AccountDashboardModals({
             <div>
               <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Prodotto</p>
               <div className={productsStyles.orderPurchaseCell}>
-                <span className={productsStyles.orderThumb}>
-                  {orderDetails.purchaseThumb ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={orderDetails.purchaseThumb} alt="" />
-                  ) : (
-                    <span className={productsStyles.orderThumbFallback} aria-hidden="true" />
-                  )}
-                </span>
+                <MediaThumb
+                  src={normalizeThumbnailSrc(orderDetails.purchaseThumb)}
+                  alt=""
+                  sizes="(min-width: 1025px) 64px, 96px"
+                  className={productsStyles.orderThumb}
+                  imageClassName={productsStyles.orderThumbImage}
+                  fallback={<span className={productsStyles.orderThumbFallback} aria-hidden="true" />}
+                  unoptimized={isRemoteThumbnailSrc(orderDetails.purchaseThumb)}
+                />
                 <div className={productsStyles.orderPurchaseMeta}>
                   <p className={`${styles.value} typo-body-lg`}>{orderDetails.purchaseTitle}</p>
                   {orderDetails.otherItemsCount > 0 ? (

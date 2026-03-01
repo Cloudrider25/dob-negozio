@@ -1,8 +1,7 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AddressElement, Elements, ExpressCheckoutElement, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
@@ -11,6 +10,7 @@ import type { StripeExpressCheckoutElementConfirmEvent } from '@stripe/stripe-js
 import type { StripeElementsOptions } from '@stripe/stripe-js'
 
 import styles from '@/components/checkout/CheckoutClient.module.css'
+import { MediaThumb } from '@/components/shared/MediaThumb'
 import { Button } from '@/components/ui/button'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
@@ -432,11 +432,6 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   )
   const hasProducts = useMemo(() => items.some((item) => !isServiceCartItem(item)), [items])
   const hasServices = useMemo(() => items.some((item) => isServiceCartItem(item)), [items])
-  const cartMode = useMemo<'products_only' | 'services_only' | 'mixed'>(() => {
-    if (hasProducts && hasServices) return 'mixed'
-    if (hasServices) return 'services_only'
-    return 'products_only'
-  }, [hasProducts, hasServices])
   const productSubtotal = useMemo(
     () => items.reduce((sum, item) => (isServiceCartItem(item) ? sum : sum + (item.price ?? 0) * item.quantity), 0),
     [items],
@@ -634,105 +629,127 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     requiresShippingAddress,
   ])
 
-  const createPaymentSession = async ({
-    silent = false,
-    allowIncompleteForExpress = false,
-  }: {
-    silent?: boolean
-    allowIncompleteForExpress?: boolean
-  } = {}) => {
-    if (submitting) return
-    if (!allowIncompleteForExpress && !isFormComplete) {
-      if (!silent) setError(copy.messages.completeRequiredFields)
-      return
-    }
-    if (items.length === 0) {
-      if (!silent) setError(copy.messages.cartEmptyError)
-      return
-    }
-
-    setSubmitting(true)
-    if (!silent) setError(null)
-    if (silent) setExpressPrefetchError(null)
-
-    try {
-      const response = await fetch('/api/shop/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          checkoutMode: 'payment_element',
-          locale: resolvedLocale,
-          customer: formState,
-          items: items.map((item: CartItem) => ({ id: item.id, quantity: item.quantity })),
-          shippingOptionID: selectedShippingOptionID,
-          productFulfillmentMode,
-          serviceAppointment: hasServices
-            ? {
-                mode: serviceAppointmentMode,
-                requestedDate: serviceAppointmentMode === 'requested_slot' ? serviceRequestedDate : undefined,
-                requestedTime: serviceAppointmentMode === 'requested_slot' ? serviceRequestedTime : undefined,
-              }
-            : { mode: 'none' },
-        }),
-      })
-
-      const data = (await response.json()) as {
-        error?: string
-        orderNumber?: string
-        orderId?: string | number
-        checkoutUrl?: string | null
-        paymentIntentClientSecret?: string | null
-        stripePublishableKey?: string | null
-        checkoutMode?: 'redirect' | 'payment_element'
-        missing?: string[]
-        productId?: string
-        requested?: number
-        available?: number
+  const createPaymentSession = useCallback(
+    async ({
+      silent = false,
+      allowIncompleteForExpress = false,
+    }: {
+      silent?: boolean
+      allowIncompleteForExpress?: boolean
+    } = {}) => {
+      if (submitting) return
+      if (!allowIncompleteForExpress && !isFormComplete) {
+        if (!silent) setError(copy.messages.completeRequiredFields)
+        return
       }
-      if (!response.ok) {
-        if (response.status === 409) {
-          if (Array.isArray(data.missing) && data.missing.length > 0) {
-            throw new Error(copy.messages.unavailableProducts)
-          }
-          if (typeof data.available === 'number' && typeof data.requested === 'number') {
-            throw new Error(data.error || copy.messages.insufficientAvailability)
-          }
-        }
-        throw new Error(data.error || copy.messages.checkoutFailed)
-      }
-
-      if (
-        data.checkoutMode === 'payment_element' &&
-        typeof data.paymentIntentClientSecret === 'string' &&
-        data.paymentIntentClientSecret.length > 0 &&
-        typeof data.stripePublishableKey === 'string' &&
-        data.stripePublishableKey.length > 0
-      ) {
-        setPaymentSession({
-          clientSecret: data.paymentIntentClientSecret,
-          publishableKey: data.stripePublishableKey,
-          orderNumber: data.orderNumber,
-          orderId: data.orderId,
-        })
-        setExpressPrefetchError(null)
+      if (items.length === 0) {
+        if (!silent) setError(copy.messages.cartEmptyError)
         return
       }
 
-      if (data.checkoutMode === 'payment_element') {
-        throw new Error(copy.messages.paymentConfigIncomplete)
-      }
+      setSubmitting(true)
+      if (!silent) setError(null)
+      if (silent) setExpressPrefetchError(null)
 
-      throw new Error(copy.messages.checkoutResponseInvalid)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : copy.messages.checkoutFailed
-      if (silent) setExpressPrefetchError(message)
-      if (!silent) setError(message)
-    } finally {
-      setSubmitting(false)
-    }
-  }
+      try {
+        const response = await fetch('/api/shop/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            checkoutMode: 'payment_element',
+            locale: resolvedLocale,
+            customer: formState,
+            items: items.map((item: CartItem) => ({ id: item.id, quantity: item.quantity })),
+            shippingOptionID: selectedShippingOptionID,
+            productFulfillmentMode,
+            serviceAppointment: hasServices
+              ? {
+                  mode: serviceAppointmentMode,
+                  requestedDate: serviceAppointmentMode === 'requested_slot' ? serviceRequestedDate : undefined,
+                  requestedTime: serviceAppointmentMode === 'requested_slot' ? serviceRequestedTime : undefined,
+                }
+              : { mode: 'none' },
+          }),
+        })
+
+        const data = (await response.json()) as {
+          error?: string
+          orderNumber?: string
+          orderId?: string | number
+          checkoutUrl?: string | null
+          paymentIntentClientSecret?: string | null
+          stripePublishableKey?: string | null
+          checkoutMode?: 'redirect' | 'payment_element'
+          missing?: string[]
+          productId?: string
+          requested?: number
+          available?: number
+        }
+        if (!response.ok) {
+          if (response.status === 409) {
+            if (Array.isArray(data.missing) && data.missing.length > 0) {
+              throw new Error(copy.messages.unavailableProducts)
+            }
+            if (typeof data.available === 'number' && typeof data.requested === 'number') {
+              throw new Error(data.error || copy.messages.insufficientAvailability)
+            }
+          }
+          throw new Error(data.error || copy.messages.checkoutFailed)
+        }
+
+        if (
+          data.checkoutMode === 'payment_element' &&
+          typeof data.paymentIntentClientSecret === 'string' &&
+          data.paymentIntentClientSecret.length > 0 &&
+          typeof data.stripePublishableKey === 'string' &&
+          data.stripePublishableKey.length > 0
+        ) {
+          setPaymentSession({
+            clientSecret: data.paymentIntentClientSecret,
+            publishableKey: data.stripePublishableKey,
+            orderNumber: data.orderNumber,
+            orderId: data.orderId,
+          })
+          setExpressPrefetchError(null)
+          return
+        }
+
+        if (data.checkoutMode === 'payment_element') {
+          throw new Error(copy.messages.paymentConfigIncomplete)
+        }
+
+        throw new Error(copy.messages.checkoutResponseInvalid)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : copy.messages.checkoutFailed
+        if (silent) setExpressPrefetchError(message)
+        if (!silent) setError(message)
+      } finally {
+        setSubmitting(false)
+      }
+    },
+    [
+      copy.messages.cartEmptyError,
+      copy.messages.checkoutFailed,
+      copy.messages.checkoutResponseInvalid,
+      copy.messages.completeRequiredFields,
+      copy.messages.insufficientAvailability,
+      copy.messages.paymentConfigIncomplete,
+      copy.messages.unavailableProducts,
+      formState,
+      hasServices,
+      isFormComplete,
+      items,
+      productFulfillmentMode,
+      resolvedLocale,
+      selectedShippingOptionID,
+      serviceAppointmentMode,
+      serviceRequestedDate,
+      serviceRequestedTime,
+      submitting,
+    ],
+  )
 
   const onGoToShippingStep = () => {
     if (!isFormComplete) {
@@ -775,7 +792,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     if (paymentSession || submitting || expressPrefetchTried) return
     setExpressPrefetchTried(true)
     void createPaymentSession({ silent: true, allowIncompleteForExpress: true })
-  }, [activeStep, items.length, paymentSession, submitting, expressPrefetchTried])
+  }, [activeStep, createPaymentSession, items.length, paymentSession, submitting, expressPrefetchTried])
 
   useEffect(() => {
     setExpressPrefetchTried(false)
@@ -1298,19 +1315,16 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         ) : (
           items.map((item) => (
             <div key={item.id} className={styles.summaryItem}>
-              <div className={styles.summaryThumb}>
+              <MediaThumb
+                src={normalizeThumbnailSrc(item.coverImage)}
+                alt={item.title}
+                sizes="56px"
+                className={styles.summaryThumb}
+                imageClassName={styles.summaryThumbImage}
+                unoptimized={isRemoteThumbnailSrc(item.coverImage)}
+              >
                 <span className={`${styles.summaryQtyBadge} typo-caption`}>{item.quantity}</span>
-                {normalizeThumbnailSrc(item.coverImage) ? (
-                  <Image
-                    src={normalizeThumbnailSrc(item.coverImage) || ''}
-                    alt={item.title}
-                    fill
-                    className="object-contain"
-                    unoptimized={isRemoteThumbnailSrc(item.coverImage)}
-                    sizes="56px"
-                  />
-                ) : null}
-              </div>
+              </MediaThumb>
               <div>
                 <p className={`${styles.summaryTitle} typo-body-lg`}>{item.title}</p>
                 <div className={`${styles.summaryMeta} typo-small`}>{item.brand || copy.messages.defaultProductLabel}</div>
@@ -1354,18 +1368,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
           ) : (
             recommended.map((product) => (
               <div key={product.id} className={styles.summaryRecoItem}>
-                <div className={styles.summaryRecoThumb}>
-                  {normalizeThumbnailSrc(product.coverImage) ? (
-                    <Image
-                      src={normalizeThumbnailSrc(product.coverImage) || ''}
-                      alt={product.title}
-                      fill
-                      className="object-contain"
-                      unoptimized={isRemoteThumbnailSrc(product.coverImage)}
-                      sizes="64px"
-                    />
-                  ) : null}
-                </div>
+                <MediaThumb
+                  src={normalizeThumbnailSrc(product.coverImage)}
+                  alt={product.title}
+                  sizes="64px"
+                  className={styles.summaryRecoThumb}
+                  imageClassName={styles.summaryRecoThumbImage}
+                  unoptimized={isRemoteThumbnailSrc(product.coverImage)}
+                />
                 <div className={styles.summaryRecoContent}>
                   <p className={`${styles.summaryRecoName} typo-body-lg`}>{product.title}</p>
                   {product.format ? <p className={`${styles.summaryRecoFormat} typo-body`}>{product.format}</p> : null}

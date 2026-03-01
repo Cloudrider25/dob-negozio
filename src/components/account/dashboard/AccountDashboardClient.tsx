@@ -1,53 +1,30 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
-import { SectionTitle } from '@/components/sections/SectionTitle'
-import { MobileFilterDrawer } from '@/components/shared/MobileFilterDrawer'
 
+import { AccountDashboardContent } from './AccountDashboardContent'
+import { AccountDashboardProvider } from './AccountDashboardContext'
+import { AccountDashboardSidebar } from './AccountDashboardSidebar'
+import { preloadAddressesTab } from './containers/AddressesContainer'
+import { preloadAestheticTab } from './containers/AestheticContainer'
+import { preloadOrdersTab } from './containers/OrdersContainer'
+import { preloadOverviewTab } from './containers/OverviewContainer'
+import { preloadServicesTab } from './containers/ServicesContainer'
 import { AccountDashboardModals } from './modals/AccountDashboardModals'
-import { AccountLogoutButton } from '../shared/AccountLogoutButton'
-import { useAccountFormatters } from '../shared/useAccountFormatters'
-import { fetchAestheticDraft, saveAestheticDraft } from '../client-api/aesthetic'
-import { updateUserProfile } from '../client-api/profile'
 import {
-  getAccountMenuEntries,
-  PRODUCT_SORT_OPTIONS,
-  SERVICES_PRIMARY_OPTIONS,
-  SERVICES_SUB_OPTIONS,
-  type AccountMenuEntry,
-} from '../constants'
+  useAccountAestheticForm,
+  useAccountProfileForm,
+} from './useAccountDashboardForms'
 import { useAccountAddresses } from '../hooks/addresses/useAccountAddresses'
 import { useAccountOrders } from '../hooks/orders/useAccountOrders'
 import { useAccountServices } from '../hooks/services/useAccountServices'
-import type { AestheticFolderDraft, FormMessage } from '../forms/types'
-import type {
-  AccountSection,
-  AddressItem,
-  OrderItem,
-  ProductSort,
-  ServiceBookingRow,
-  ServicesFilter,
-  ServicesSubFilter,
-} from '../types'
+import { useAccountFormatters } from '../shared/useAccountFormatters'
+import type { AccountSection, AddressItem, OrderItem, ServiceBookingRow } from '../types'
 import productsStyles from '../tabs/orders/AccountOrders.module.css'
 import servicesStyles from '../tabs/services/AccountServices.module.css'
 import styles from './AccountDashboardClient.module.css'
-
-const loadAddressesTab = () => import('../tabs/addresses/AccountAddressesTab')
-const loadAestheticTab = () => import('../tabs/aesthetic/AccountAestheticTab')
-const loadOrdersTab = () => import('../tabs/orders/AccountOrdersTab')
-const loadServicesTab = () => import('../tabs/services/AccountServicesTab')
-const loadOverviewTab = () => import('../tabs/overview/AccountOverviewTab')
-
-const AccountAddressesTab = dynamic(loadAddressesTab, { ssr: false, loading: () => null })
-const AccountAestheticTab = dynamic(loadAestheticTab, { ssr: false, loading: () => null })
-const AccountOrdersTab = dynamic(loadOrdersTab, { ssr: false, loading: () => null })
-const AccountServicesTab = dynamic(loadServicesTab, { ssr: false, loading: () => null })
-const AccountOverviewTab = dynamic(loadOverviewTab, { ssr: false, loading: () => null })
 
 type AccountDashboardClientProps = {
   locale: string
@@ -62,11 +39,11 @@ type AccountDashboardClientProps = {
 }
 
 const TAB_PREFETCHERS: Partial<Record<AccountSection, () => Promise<unknown>>> = {
-  overview: loadOverviewTab,
-  addresses: loadAddressesTab,
-  aesthetic: loadAestheticTab,
-  services: loadServicesTab,
-  orders: loadOrdersTab,
+  overview: preloadOverviewTab,
+  addresses: preloadAddressesTab,
+  aesthetic: preloadAestheticTab,
+  services: preloadServicesTab,
+  orders: preloadOrdersTab,
 }
 
 export function AccountDashboardClient({
@@ -82,469 +59,112 @@ export function AccountDashboardClient({
 }: AccountDashboardClientProps) {
   const copy = getAccountDictionary(locale).account
   const { formatDate, formatDateTime, formatMoney } = useAccountFormatters(locale)
-  const [section, setSection] = useState<AccountSection>('overview')
 
+  const [section, setSection] = useState<AccountSection>('overview')
   const [serviceDetailsRow, setServiceDetailsRow] = useState<ServiceBookingRow | null>(null)
   const [serviceDetailsIsPackageChild, setServiceDetailsIsPackageChild] = useState(false)
   const [orderDetails, setOrderDetails] = useState<OrderItem | null>(null)
 
-  const [profileDraft, setProfileDraft] = useState({
-    firstName,
-    lastName,
-    phone,
+  const orders = useAccountOrders({ initialOrders })
+  const addresses = useAccountAddresses({ initialAddresses, userId })
+  const services = useAccountServices({ initialServiceRows, locale })
+  const profile = useAccountProfileForm({
+    userId,
+    initial: { firstName, lastName, phone },
+    messages: {
+      saveError: copy.overview.profileSaveError,
+      saved: copy.overview.profileSaved,
+      networkError: copy.overview.profileNetworkError,
+    },
   })
-  const [profileSaving, setProfileSaving] = useState(false)
-  const [profileMessage, setProfileMessage] = useState<FormMessage | null>(null)
+  const aesthetic = useAccountAestheticForm()
 
-  const [aestheticSaving, setAestheticSaving] = useState(false)
-  const [aestheticMessage, setAestheticMessage] = useState<FormMessage | null>(null)
-  const [aestheticDraft, setAestheticDraft] = useState<AestheticFolderDraft>({
-    lastAssessmentDate: '',
-    skinType: '',
-    skinSensitivity: '',
-    fitzpatrick: '',
-    hydrationLevel: '',
-    sebumLevel: '',
-    elasticityLevel: '',
-    acneTendency: false,
-    rosaceaTendency: false,
-    hyperpigmentationTendency: false,
-    allergies: '',
-    contraindications: '',
-    medications: '',
-    pregnancyOrBreastfeeding: '',
-    homeCareRoutine: '',
-    treatmentGoals: '',
-    estheticianNotes: '',
-    serviceRecommendations: '',
-    productRecommendations: '',
-  })
-
-  const {
-    expandedOrderGroups,
-    setExpandedOrderGroups,
-    showAllProductPurchases,
-    setShowAllProductPurchases,
-    productsFilterDrawerOpen,
-    setProductsFilterDrawerOpen,
-    productsSort,
-    setProductsSort,
-    ordersByDateDesc,
-    groupedProductRows,
-    nextProductDeliveryRow,
-    latestPurchasedProductRow,
-    productsSortLabel,
-  } = useAccountOrders({ initialOrders })
-
-  const {
-    addresses,
-    defaultAddress,
-    showAddressForm,
-    setShowAddressForm,
-    editingAddressId,
-    setEditingAddressId,
-    addressesView,
-    setAddressesView,
-    addressMessage,
-    setAddressMessage,
-    addressDraft,
-    setAddressDraft,
-    addressLookupQuery,
-    setAddressLookupQuery,
-    citySuggestions,
-    showCitySuggestions,
-    setShowCitySuggestions,
-    cityLoading,
-    applyCitySuggestion,
-    formatAddressLines,
-    onDeleteAddressById,
-    onSetDefaultAddress,
-    onEditAddress,
-    onSaveAddress,
-  } = useAccountAddresses({ initialAddresses, userId })
-
-  const {
-    servicesFilter,
-    setServicesFilter,
-    servicesSubFilter,
-    setServicesSubFilter,
-    sessionSavingId,
-    sessionMessage,
-    serviceRowsState,
-    expandedPackageGroups,
-    setExpandedPackageGroups,
-    showAllServicesBookings,
-    setShowAllServicesBookings,
-    servicesFilterDrawerOpen,
-    setServicesFilterDrawerOpen,
-    scheduleEditRow,
-    setScheduleEditRow,
-    scheduleEditDraft,
-    setScheduleEditDraft,
-    serviceRowsFiltered,
-    groupedServiceTableRows,
-    servicesCurrentFilterLabel,
-    nextServiceAppointmentRow,
-    latestServicePurchasedRow,
-    formatServiceSchedule,
-    formatServiceStatus,
-    canEditSchedule,
-    openScheduleEditModal,
-    renderServiceDataPill,
-    onSaveScheduleEdit,
-    onClearScheduleEdit,
-  } = useAccountServices({ initialServiceRows, servicesStyles, locale })
-
-  useEffect(() => {
-    let active = true
-
-    const loadAestheticDraft = async () => {
-      try {
-        const { response, data } = await fetchAestheticDraft()
-        if (!response.ok) return
-        if (!active || !data.draft) return
-        setAestheticDraft(data.draft)
-      } catch {
-        // Best-effort load: do not block account UI if endpoint is unavailable.
-      }
-    }
-
-    void loadAestheticDraft()
-
-    return () => {
-      active = false
-    }
+  const prefetchSection = useCallback((target: AccountSection) => {
+    const load = TAB_PREFETCHERS[target]
+    if (load) void load()
   }, [])
 
-  const onSaveProfile = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (profileSaving) return
-
-    setProfileSaving(true)
-    setProfileMessage(null)
-
-    try {
-      const { response, data } = await updateUserProfile(userId, profileDraft)
-      if (!response.ok) {
-        const message =
-          data.message ||
-          data.errors?.find((entry) => typeof entry?.message === 'string')?.message ||
-          copy.overview.profileSaveError
-        setProfileMessage({ type: 'error', text: message })
-        return
-      }
-
-      setProfileMessage({ type: 'success', text: copy.overview.profileSaved })
-    } catch {
-      setProfileMessage({ type: 'error', text: copy.overview.profileNetworkError })
-    } finally {
-      setProfileSaving(false)
-    }
-  }
-
-  const onSaveAestheticFolder = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (aestheticSaving) return
-
-    setAestheticSaving(true)
-    setAestheticMessage(null)
-
-    try {
-      const { response, data } = await saveAestheticDraft(aestheticDraft)
-      if (!response.ok) {
-        setAestheticMessage({
-          type: 'error',
-          text: data.error || 'Errore durante il salvataggio della cartella estetica.',
-        })
-        return
-      }
-      setAestheticMessage({
-        type: 'success',
-        text: 'Cartella estetica salvata.',
-      })
-    } catch {
-      setAestheticMessage({
-        type: 'error',
-        text: 'Errore di rete durante il salvataggio della cartella estetica.',
-      })
-    } finally {
-      setAestheticSaving(false)
-    }
-  }
-
-  const prefetchSection = (target: AccountSection) => {
-    const load = TAB_PREFETCHERS[target]
-    if (load) {
-      void load()
-    }
-  }
-
-  const renderAccountFooterActions = (className?: string) => (
-    <div className={className}>
-      <p className={`${styles.help} typo-body-lg`}>
-        {copy.help} <Link href={`/${locale}/contact`}>{copy.contactUs}</Link>
-      </p>
-      <AccountLogoutButton locale={locale} className="typo-small-upper" label="LOG OUT" />
-    </div>
+  const dashboardContextValue = useMemo(
+    () => ({
+      styles,
+      identity: { firstName, email, fallbackCustomer: copy.fallbackCustomer },
+      copy: {
+        fallbackCustomer: copy.fallbackCustomer,
+        overview: copy.overview,
+        orders: copy.orders,
+        addresses: copy.addresses,
+      },
+      ui: { section, setSection, prefetchSection },
+    }),
+    [copy.addresses, copy.fallbackCustomer, copy.orders, copy.overview, email, firstName, prefetchSection, section],
   )
 
-  const mobileSectionTitle =
-    section === 'overview'
-      ? `${copy.overview.greeting}, ${firstName || copy.fallbackCustomer}`
-      : section === 'services'
-        ? `Servizi, ${firstName || copy.fallbackCustomer}`
-        : section === 'orders'
-          ? `Prodotti, ${firstName || copy.fallbackCustomer}`
-          : section === 'aesthetic'
-            ? `Cartella Estetica, ${firstName || copy.fallbackCustomer}`
-            : `${copy.addresses.title}, ${firstName || copy.fallbackCustomer}`
-
-  const menuEntries: AccountMenuEntry[] = getAccountMenuEntries(copy.nav.addresses)
-
   return (
-    <div className={styles.layout}>
-      <SectionTitle as="h2" size="h2" className={`${styles.title} ${styles.mobilePageTitle}`}>
-        {mobileSectionTitle}
-      </SectionTitle>
-      <aside className={styles.sidebar}>
-        <nav className={styles.menu} aria-label={copy.nav.ariaLabel}>
-          {menuEntries.map((entry, index) => {
-            if (entry.kind === 'divider') {
-              return (
-                <div key={`divider-${index}`} className={styles.menuDivider} aria-hidden="true">
-                  <span className={`${styles.menuDividerLabel} typo-caption-upper`}>
-                    {entry.label}
-                  </span>
-                </div>
-              )
-            }
+    <AccountDashboardProvider value={dashboardContextValue}>
+      <div className={styles.layout}>
+        <AccountDashboardSidebar
+          styles={styles}
+          copy={copy}
+          locale={locale}
+          firstName={firstName}
+          section={section}
+          setSection={setSection}
+          prefetchSection={prefetchSection}
+        />
 
-            const isActive = section === entry.section
-            return (
-              <button
-                key={entry.section}
-                className={`${styles.menuButton} ${entry.fullWidth ? styles.menuButtonFull : ''} typo-body-lg`}
-                type="button"
-                onClick={() => setSection(entry.section)}
-                onMouseEnter={() => prefetchSection(entry.section)}
-                onFocus={() => prefetchSection(entry.section)}
-                onPointerDown={() => prefetchSection(entry.section)}
-              >
-                <span className="typo-body-lg">{entry.label}</span>
-                <span className={`${styles.menuDot} ${isActive ? styles.menuDotActive : ''}`} />
-              </button>
-            )
-          })}
-        </nav>
-        {renderAccountFooterActions(styles.sidebarFooter)}
-      </aside>
-
-      <section className={styles.content}>
-        {section === 'overview' ? (
-          <AccountOverviewTab
-            styles={styles}
-            copy={copy}
-            identity={{
-              firstName,
-              email,
-            }}
-            data={{
-              profileDraft,
-              profileSaving,
-              profileMessage,
-            }}
-            actions={{
-              setProfileDraft,
-              onSaveProfile,
-            }}
-          />
-        ) : null}
-
-        {section === 'aesthetic' ? (
-          <AccountAestheticTab
-            styles={styles}
-            identity={{
-              firstName,
-              fallbackCustomer: copy.fallbackCustomer,
-            }}
-            form={{
-              draft: aestheticDraft,
-              setDraft: setAestheticDraft,
-              saving: aestheticSaving,
-              message: aestheticMessage,
-              onSubmit: onSaveAestheticFolder,
-            }}
-          />
-        ) : null}
-
-        {section === 'orders' ? (
-          <AccountOrdersTab
-            styles={styles}
+        <section className={styles.content}>
+          <AccountDashboardContent
+            section={section}
             productsStyles={productsStyles}
-            identity={{
-              firstName,
-              fallbackCustomer: copy.fallbackCustomer,
+            servicesStyles={servicesStyles}
+            orders={orders}
+            addresses={addresses}
+            services={services}
+            profile={{
+              draft: profile.draft,
+              saving: profile.saving,
+              message: profile.message,
+              setDraft: profile.setDraft,
+              onSave: profile.onSave,
             }}
-            data={{
-              copy,
-              ordersByDateDesc,
-              nextProductDeliveryRow,
-              latestPurchasedProductRow,
-              productsSortLabel,
-              groupedProductRows,
+            aesthetic={{
+              draft: aesthetic.draft,
+              setDraft: aesthetic.setDraft,
+              saving: aesthetic.saving,
+              message: aesthetic.message,
+              onSave: aesthetic.onSave,
             }}
-            view={{
-              showAllProductPurchases,
-              expandedOrderGroups,
-            }}
-            actions={{
-              setShowAllProductPurchases,
-              setProductsFilterDrawerOpen,
-              setExpandedOrderGroups,
-              setOrderDetails,
-            }}
+            onSetOrderDetails={setOrderDetails}
+            onSetServiceDetailsRow={setServiceDetailsRow}
+            onSetServiceDetailsIsPackageChild={setServiceDetailsIsPackageChild}
             formatMoney={formatMoney}
             formatDate={formatDate}
           />
-        ) : null}
+        </section>
 
-        {section === 'services' ? (
-          <AccountServicesTab
-            styles={styles}
-            servicesStyles={servicesStyles}
-            identity={{
-              firstName,
-              fallbackCustomer: copy.fallbackCustomer,
-            }}
-            data={{
-              serviceRowsState,
-              nextServiceAppointmentRow,
-              latestServicePurchasedRow,
-              servicesCurrentFilterLabel,
-              serviceRowsFiltered,
-              sessionMessage,
-              groupedServiceTableRows,
-            }}
-            view={{
-              showAllServicesBookings,
-              expandedPackageGroups,
-            }}
-            actions={{
-              openScheduleEditModal,
-              setShowAllServicesBookings,
-              setServicesFilterDrawerOpen,
-              setExpandedPackageGroups,
-              setServiceDetailsIsPackageChild,
-              setServiceDetailsRow,
-            }}
-            renderServiceDataPill={renderServiceDataPill}
-          />
-        ) : null}
-
-        <MobileFilterDrawer
-          open={productsFilterDrawerOpen}
-          onClose={() => setProductsFilterDrawerOpen(false)}
-          title="Sort"
-          groups={[
-            {
-              id: 'products-sort',
-              value: productsSort,
-              options: PRODUCT_SORT_OPTIONS,
-              onChange: (value) => setProductsSort(value as ProductSort),
-            },
-          ]}
+        <AccountDashboardModals
+          styles={styles}
+          productsStyles={productsStyles}
+          serviceDetailsRow={serviceDetailsRow}
+          serviceDetailsIsPackageChild={serviceDetailsIsPackageChild}
+          setServiceDetailsRow={setServiceDetailsRow}
+          setServiceDetailsIsPackageChild={setServiceDetailsIsPackageChild}
+          orderDetails={orderDetails}
+          setOrderDetails={setOrderDetails}
+          scheduleEditRow={services.scheduleEditRow}
+          setScheduleEditRow={services.setScheduleEditRow}
+          scheduleEditDraft={services.scheduleEditDraft}
+          setScheduleEditDraft={services.setScheduleEditDraft}
+          sessionSavingId={services.sessionSavingId}
+          canEditSchedule={services.canEditSchedule}
+          formatServiceSchedule={services.formatServiceSchedule}
+          formatServiceStatus={services.formatServiceStatus}
+          formatMoney={formatMoney}
+          onSaveScheduleEdit={services.onSaveScheduleEdit}
+          onClearScheduleEdit={services.onClearScheduleEdit}
+          formatDateTime={formatDateTime}
         />
-
-        <MobileFilterDrawer
-          open={servicesFilterDrawerOpen}
-          onClose={() => setServicesFilterDrawerOpen(false)}
-          title="Sort"
-          groups={[
-            {
-              id: 'services-main',
-              value: servicesFilter,
-              options: SERVICES_PRIMARY_OPTIONS,
-              onChange: (value) => {
-                setServicesFilter(value as ServicesFilter)
-                if (value === 'used') setServicesSubFilter('all')
-              },
-            },
-            ...(servicesFilter === 'not_used'
-              ? [
-                  {
-                    id: 'services-sub',
-                    label: 'Stato',
-                    value: servicesSubFilter,
-                    options: SERVICES_SUB_OPTIONS,
-                    onChange: (value: string) => setServicesSubFilter(value as ServicesSubFilter),
-                  },
-                ]
-              : []),
-          ]}
-        />
-
-        {section === 'addresses' ? (
-          <AccountAddressesTab
-            styles={styles}
-            copy={copy}
-            identity={{
-              firstName,
-              fallbackCustomer: copy.fallbackCustomer,
-            }}
-            data={{
-              addressesView,
-              defaultAddress,
-              addresses,
-              showAddressForm,
-              editingAddressId,
-              addressMessage,
-              addressDraft,
-              addressLookupQuery,
-              cityLoading,
-              showCitySuggestions,
-              citySuggestions,
-            }}
-            actions={{
-              setAddressLookupQuery,
-              setShowCitySuggestions,
-              applyCitySuggestion,
-              setAddressDraft,
-              onSaveAddress,
-              setEditingAddressId,
-              setShowAddressForm,
-              setAddressMessage,
-              setAddressesView,
-              onSetDefaultAddress,
-              onEditAddress,
-              onDeleteAddressById,
-            }}
-            formatAddressLines={formatAddressLines}
-          />
-        ) : null}
-      </section>
-      {renderAccountFooterActions(styles.mobileFooterActions)}
-      <AccountDashboardModals
-        styles={styles}
-        productsStyles={productsStyles}
-        serviceDetailsRow={serviceDetailsRow}
-        serviceDetailsIsPackageChild={serviceDetailsIsPackageChild}
-        setServiceDetailsRow={setServiceDetailsRow}
-        setServiceDetailsIsPackageChild={setServiceDetailsIsPackageChild}
-        orderDetails={orderDetails}
-        setOrderDetails={setOrderDetails}
-        scheduleEditRow={scheduleEditRow}
-        setScheduleEditRow={setScheduleEditRow}
-        scheduleEditDraft={scheduleEditDraft}
-        setScheduleEditDraft={setScheduleEditDraft}
-        sessionSavingId={sessionSavingId}
-        canEditSchedule={canEditSchedule}
-        formatServiceSchedule={formatServiceSchedule}
-        formatServiceStatus={formatServiceStatus}
-        formatMoney={formatMoney}
-        onSaveScheduleEdit={onSaveScheduleEdit}
-        onClearScheduleEdit={onClearScheduleEdit}
-        formatDateTime={formatDateTime}
-      />
-    </div>
+      </div>
+    </AccountDashboardProvider>
   )
 }

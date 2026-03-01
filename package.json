@@ -12,6 +12,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed:shop": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/run-shop-seed.ts",
     "seed:map-products": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/map-products-taxonomies.ts",
@@ -27,8 +28,10 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "start:perf": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
+    "test:e2e:smoke": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test --grep \"@smoke\" --reporter=line",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation\" pnpm exec playwright test",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "quality:gate": "pnpm lint && pnpm typecheck && pnpm test:int && pnpm test:e2e:smoke"
   },
   "browserslist": {
     "production": [
@@ -66,7 +69,8 @@
     "sharp": "0.34.5",
     "stripe": "20.3.1",
     "styled-components": "^6.3.8",
-    "swiper": "^12.0.3"
+    "swiper": "^12.0.3",
+    "swr": "^2.4.1"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

@@ -314,7 +314,7 @@ display: block;
   background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
 }
 
-.routineThumb img {
+.routineThumbImage {
   width: 100%;
   height: 100%;
   object-fit: cover;

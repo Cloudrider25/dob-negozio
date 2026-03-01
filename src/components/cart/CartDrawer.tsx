@@ -1,9 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
+import { MediaThumb } from '@/components/shared/MediaThumb'
 import styles from './CartDrawer.module.css'
 import { Trash } from '@/components/ui/icons'
 import { SideDrawer } from '@/components/ui/SideDrawer'
@@ -227,18 +227,14 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
           ) : (
             items.map((item) => (
               <div key={item.id} className={styles.item}>
-                <div className={styles.thumb}>
-                  {normalizeThumbnailSrc(item.coverImage) ? (
-                    <Image
-                      src={normalizeThumbnailSrc(item.coverImage) || ''}
-                      alt={item.title}
-                      fill
-                      className="object-contain"
-                      unoptimized={isRemoteThumbnailSrc(item.coverImage)}
-                      sizes="144px"
-                    />
-                  ) : null}
-                </div>
+                <MediaThumb
+                  src={normalizeThumbnailSrc(item.coverImage)}
+                  alt={item.title}
+                  sizes="144px"
+                  className={styles.thumb}
+                  imageClassName={styles.thumbImage}
+                  unoptimized={isRemoteThumbnailSrc(item.coverImage)}
+                />
                 <div>
                   <h2 className={`${styles.itemTitle} typo-small-upper`}>{item.title}</h2>
                   {item.brand && <div className={`${styles.itemMeta} typo-caption`}>{item.brand}</div>}
@@ -281,18 +277,14 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         </div>
 
         <div className={styles.routine}>
-          <div className={styles.routineThumb}>
-            {normalizeThumbnailSrc(recommended?.coverImage) ? (
-              <Image
-                src={normalizeThumbnailSrc(recommended?.coverImage) || ''}
-                alt={recommended?.title || copy.completeRoutine}
-                fill
-                className="object-contain"
-                unoptimized={isRemoteThumbnailSrc(recommended?.coverImage)}
-                sizes="52px"
-              />
-            ) : null}
-          </div>
+          <MediaThumb
+            src={normalizeThumbnailSrc(recommended?.coverImage)}
+            alt={recommended?.title || copy.completeRoutine}
+            sizes="52px"
+            className={styles.routineThumb}
+            imageClassName={styles.routineThumbImage}
+            unoptimized={isRemoteThumbnailSrc(recommended?.coverImage)}
+          />
           <div className={styles.routineInfo}>
             <p className={`${styles.routineTitle} typo-caption-upper`}>{recommended?.title || copy.completeRoutine}</p>
             <div className={`${styles.itemMeta} typo-caption`}>

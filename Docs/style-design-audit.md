@@ -88,6 +88,25 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
 
 ## Log blocchi chiusi
 
+- 2026-03-01 | Blocco CSS-051 (`MediaThumb` standardizzazione thumbnail sitewide)
+  - Scope: `src/components/shared/MediaThumb.*`, account orders/modals, checkout, cart (`drawer` + `page`), search drawer, routine builder thumbs.
+  - Decisione: unificare il rendering thumbnail su wrapper shared (`MediaThumb`) per coerenza visuale, fallback uniformi e rimozione duplicazioni `next/image`/`img` nei consumer.
+  - Implementazione:
+  - introdotto `MediaThumb` globale con props standard (`src`, `sizes`, `fallback`, `imageClassName`, `unoptimized`);
+  - migrati consumer thumbnail in account/checkout/cart/search/routine builder;
+  - rimossi `eslint-disable` legati a `@next/next/no-img-element` nei punti migrati.
+  - Verifica: `pnpm exec tsc --noEmit` ok; lint mirato sui file toccati ok.
+
+- 2026-03-01 | Blocco QA-052 (`Account` quality gate continuo + smoke E2E)
+  - Scope: `.github/workflows/quality-gate.yml`, `package.json`, `tests/e2e/account-management-smoke.e2e.spec.ts`, `tests/e2e/frontend.e2e.spec.ts`, `.github/pull_request_template.md`.
+  - Decisione: consolidare un gate riusabile per regressioni con pipeline minima obbligatoria (`lint`, `typecheck`, `test:int`, `test:e2e:smoke`) e smoke account sui flussi critici.
+  - Implementazione:
+  - aggiunti script `typecheck`, `test:e2e:smoke`, `quality:gate`;
+  - introdotta workflow GitHub Actions `Quality Gate`;
+  - aggiunto smoke E2E account (`@smoke`) con login, update profilo, gestione indirizzi, update data servizio;
+  - aggiornata DoD PR account con check performance/accessibilità/zero warning nuovi.
+  - Verifica: `pnpm quality:gate` ok (`typecheck`/`test:int`/`test:e2e:smoke` passati; lint con warning legacy senza errori).
+
 - 2026-03-01 | Blocco CSS-047 (`Account` domain reorganization: shared/tabs/hooks/forms/auth/dashboard)
   - Scope: `src/components/account/**`, `src/app/(checkout)/**`, `src/app/(frontend)/[locale]/account/page.tsx`.
   - Decisione: completare la riorganizzazione del dominio account in cartelle semantiche, separando chiaramente componenti shared, tab di dominio, hook per feature, auth layout/forms e dashboard orchestration.

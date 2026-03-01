@@ -10,6 +10,14 @@
 ## Validation
 - [ ] `pnpm tsc --noEmit --incremental false`
 - [ ] `pnpm build`
+- [ ] `pnpm lint`
+- [ ] `pnpm test:int`
+- [ ] `pnpm test:e2e:smoke` (se disponibili variabili env CI)
+
+## Definition of Done (Account)
+- [ ] Performance check eseguito sulle pagine toccate (no regressioni evidenti su LCP/CLS).
+- [ ] Accessibilità base verificata (keyboard navigation, focus, label/input, contrasto minimo).
+- [ ] Zero warning nuovi introdotti in lint/typecheck/test.
 
 ## Typography Checklist
 - [ ] Ho usato classi semantiche `typo-*` nei consumer TSX dove applicabile.

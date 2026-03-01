@@ -49,7 +49,7 @@ type AccountServicesTabProps = {
     setServiceDetailsIsPackageChild: (value: boolean) => void
     setServiceDetailsRow: (row: ServiceBookingRow | null) => void
   }
-  renderServiceDataPill: (row: ServiceBookingRow, interactive?: boolean) => React.ReactNode
+  renderSchedulePill: (row: ServiceBookingRow, interactive?: boolean) => React.ReactNode
 }
 
 export default function AccountServicesTab({
@@ -59,7 +59,7 @@ export default function AccountServicesTab({
   data,
   view,
   actions,
-  renderServiceDataPill,
+  renderSchedulePill,
 }: AccountServicesTabProps) {
   return (
     <>
@@ -99,7 +99,7 @@ export default function AccountServicesTab({
                     </p>
                   </div>
                   <div className={servicesStyles.accountSummaryServicePillWrap}>
-                    {renderServiceDataPill(row, false)}
+                    {renderSchedulePill(row, false)}
                   </div>
                 </>
               )
@@ -161,7 +161,7 @@ export default function AccountServicesTab({
                     </div>
                     <div className={servicesStyles.servicesListCell}>
                       <span className={servicesStyles.servicesListLabel}>Data</span>
-                      {renderServiceDataPill(row, false)}
+                      {renderSchedulePill(row, false)}
                     </div>
                   </div>
                 )
@@ -252,7 +252,7 @@ export default function AccountServicesTab({
                             </div>
                             <div className={servicesStyles.servicesListCell}>
                               <span className={servicesStyles.servicesListLabel}>Data</span>
-                              {renderServiceDataPill(row, false)}
+                              {renderSchedulePill(row, false)}
                             </div>
                           </div>
                         )),

@@ -4,6 +4,8 @@ import { Fragment } from 'react'
 import { ChevronDownIcon, EyeIcon } from '@heroicons/react/24/outline'
 
 import { SectionTitle } from '@/components/sections/SectionTitle'
+import { MediaThumb } from '@/components/shared/MediaThumb'
+import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
 
 import { AccountIconAction, AccountPillButton } from '../../shared/AccountButtons'
 import { onEnterOrSpace } from '../../shared/keyboard'
@@ -92,16 +94,18 @@ export default function AccountOrdersTab({
           {(() => {
             const order = data.nextProductDeliveryRow ?? data.latestPurchasedProductRow
             if (!order) return null
+            const purchaseThumb = normalizeThumbnailSrc(order.purchaseThumb)
             return (
               <div className={productsStyles.orderPurchaseCell}>
-                <span className={productsStyles.orderThumb}>
-                  {order.purchaseThumb ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={order.purchaseThumb} alt="" />
-                  ) : (
-                    <span className={productsStyles.orderThumbFallback} aria-hidden="true" />
-                  )}
-                </span>
+                <MediaThumb
+                  src={purchaseThumb}
+                  alt=""
+                  sizes="(min-width: 1025px) 64px, 96px"
+                  className={productsStyles.orderThumb}
+                  imageClassName={productsStyles.orderThumbImage}
+                  fallback={<span className={productsStyles.orderThumbFallback} aria-hidden="true" />}
+                  unoptimized={isRemoteThumbnailSrc(purchaseThumb)}
+                />
                 <div className={productsStyles.orderPurchaseMeta}>
                   <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
                     {order.purchaseTitle}
@@ -146,6 +150,7 @@ export default function AccountOrdersTab({
               {data.groupedProductRows.map((entry) => {
                 if (entry.kind === 'single') {
                   const order = entry.row
+                  const purchaseThumb = normalizeThumbnailSrc(order.purchaseThumb)
                   return (
                     <article
                       key={order.id}
@@ -158,14 +163,15 @@ export default function AccountOrdersTab({
                       <div className={productsStyles.ordersListCell}>
                         <span className={productsStyles.ordersListLabel}>Acquisto</span>
                         <div className={productsStyles.orderPurchaseCell}>
-                          <span className={productsStyles.orderThumb}>
-                            {order.purchaseThumb ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={order.purchaseThumb} alt="" />
-                            ) : (
-                              <span className={productsStyles.orderThumbFallback} aria-hidden="true" />
-                            )}
-                          </span>
+                          <MediaThumb
+                            src={purchaseThumb}
+                            alt=""
+                            sizes="(min-width: 1025px) 64px, 96px"
+                            className={productsStyles.orderThumb}
+                            imageClassName={productsStyles.orderThumbImage}
+                            fallback={<span className={productsStyles.orderThumbFallback} aria-hidden="true" />}
+                            unoptimized={isRemoteThumbnailSrc(purchaseThumb)}
+                          />
                           <div className={productsStyles.orderPurchaseMeta}>
                             <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
                               {formatDate(order.createdAt)}
@@ -202,6 +208,7 @@ export default function AccountOrdersTab({
                 }
 
                 const isExpanded = Boolean(view.expandedOrderGroups[entry.key])
+                const groupLeadPurchaseThumb = normalizeThumbnailSrc(entry.lead.purchaseThumb)
                 return (
                   <Fragment key={`order-group-${entry.key}`}>
                     <article
@@ -226,14 +233,15 @@ export default function AccountOrdersTab({
                       <div className={productsStyles.ordersListCell}>
                         <span className={productsStyles.ordersListLabel}>Acquisto</span>
                         <div className={productsStyles.orderPurchaseCell}>
-                          <span className={productsStyles.orderThumb}>
-                            {entry.lead.purchaseThumb ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={entry.lead.purchaseThumb} alt="" />
-                            ) : (
-                              <span className={productsStyles.orderThumbFallback} aria-hidden="true" />
-                            )}
-                          </span>
+                          <MediaThumb
+                            src={groupLeadPurchaseThumb}
+                            alt=""
+                            sizes="(min-width: 1025px) 64px, 96px"
+                            className={productsStyles.orderThumb}
+                            imageClassName={productsStyles.orderThumbImage}
+                            fallback={<span className={productsStyles.orderThumbFallback} aria-hidden="true" />}
+                            unoptimized={isRemoteThumbnailSrc(groupLeadPurchaseThumb)}
+                          />
                           <div className={productsStyles.orderPurchaseMeta}>
                             <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
                               {formatDate(entry.lead.createdAt)}
@@ -274,7 +282,9 @@ export default function AccountOrdersTab({
                       </div>
                     </article>
                     {isExpanded
-                      ? entry.rows.map((order) => (
+                      ? entry.rows.map((order) => {
+                          const purchaseThumb = normalizeThumbnailSrc(order.purchaseThumb)
+                          return (
                           <article
                             key={order.id}
                             className={`${productsStyles.ordersListRow} ${productsStyles.packageSessionRow}`}
@@ -286,14 +296,15 @@ export default function AccountOrdersTab({
                             <div className={productsStyles.ordersListCell}>
                               <span className={productsStyles.ordersListLabel}>Acquisto</span>
                               <div className={productsStyles.orderPurchaseCell}>
-                                <span className={productsStyles.orderThumb}>
-                                  {order.purchaseThumb ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={order.purchaseThumb} alt="" />
-                                  ) : (
-                                    <span className={productsStyles.orderThumbFallback} aria-hidden="true" />
-                                  )}
-                                </span>
+                                <MediaThumb
+                                  src={purchaseThumb}
+                                  alt=""
+                                  sizes="(min-width: 1025px) 64px, 96px"
+                                  className={productsStyles.orderThumb}
+                                  imageClassName={productsStyles.orderThumbImage}
+                                  fallback={<span className={productsStyles.orderThumbFallback} aria-hidden="true" />}
+                                  unoptimized={isRemoteThumbnailSrc(purchaseThumb)}
+                                />
                                 <div className={productsStyles.orderPurchaseMeta}>
                                   <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
                                     {formatDate(order.createdAt)}
@@ -326,7 +337,8 @@ export default function AccountOrdersTab({
                               </div>
                             </div>
                           </article>
-                        ))
+                          )
+                        })
                       : null}
                   </Fragment>
                 )

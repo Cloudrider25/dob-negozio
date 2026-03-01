@@ -423,6 +423,10 @@
   background: var(--pearl-1);
 }
 
+.summaryThumbImage {
+  object-fit: contain;
+}
+
 .summaryQtyBadge {
   position: absolute;
   top: -8px;
@@ -517,6 +521,10 @@
   border-radius: 12px;
   overflow: hidden;
   background: var(--paper);
+}
+
+.summaryRecoThumbImage {
+  object-fit: contain;
 }
 
 .summaryRecoContent {

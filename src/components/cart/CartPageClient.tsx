@@ -1,9 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
+import { MediaThumb } from '@/components/shared/MediaThumb'
 import { Minus, Plus, Trash } from '@/components/ui/icons'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media/thumbnail'
@@ -107,20 +107,15 @@ export function CartPageClient({ locale }: { locale: string }) {
                 className="grid grid-cols-[2.2fr_0.7fr_0.7fr_0.7fr_40px] items-center gap-4 py-6"
               >
                 <div className="flex items-center gap-6">
-                  <div className="relative h-28 w-28 rounded-lg bg-paper overflow-hidden">
-                    {normalizeThumbnailSrc(item.coverImage) ? (
-                      <Image
-                        src={normalizeThumbnailSrc(item.coverImage) || ''}
-                        alt={item.title}
-                        fill
-                        className="object-contain"
-                        unoptimized={isRemoteThumbnailSrc(item.coverImage)}
-                        sizes="112px"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--paper)_50%,transparent)]" />
-                    )}
-                  </div>
+                  <MediaThumb
+                    src={normalizeThumbnailSrc(item.coverImage)}
+                    alt={item.title}
+                    sizes="112px"
+                    className="relative h-28 w-28 rounded-lg bg-paper overflow-hidden"
+                    imageClassName="object-contain"
+                    fallback={<div className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--paper)_50%,transparent)]" />}
+                    unoptimized={isRemoteThumbnailSrc(item.coverImage)}
+                  />
                   <div>
                     <div className="text-base font-semibold text-text-primary">{item.title}</div>
                     {item.brand && <div className="text-xs text-text-muted">{item.brand}</div>}
