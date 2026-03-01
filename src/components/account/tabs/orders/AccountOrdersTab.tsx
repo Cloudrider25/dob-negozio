@@ -6,6 +6,7 @@ import { ChevronDownIcon, EyeIcon } from '@heroicons/react/24/outline'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
 import { AccountIconAction, AccountPillButton } from '../../shared/AccountButtons'
+import { onEnterOrSpace } from '../../shared/keyboard'
 import { AccountListHeader } from '../../shared/AccountListHeader'
 import type { OrderItem } from '../../types'
 
@@ -13,7 +14,6 @@ type AccountOrdersTabProps = {
   styles: Record<string, string>
   productsStyles: Record<string, string>
   identity: {
-    locale: string
     firstName: string
     fallbackCustomer: string
   }
@@ -47,6 +47,7 @@ type AccountOrdersTabProps = {
     setOrderDetails: (order: OrderItem | null) => void
   }
   formatMoney: (amount: number, currency: string) => string
+  formatDate: (value: string | Date | null | undefined, fallback?: string) => string
 }
 
 export default function AccountOrdersTab({
@@ -57,6 +58,7 @@ export default function AccountOrdersTab({
   view,
   actions,
   formatMoney,
+  formatDate,
 }: AccountOrdersTabProps) {
   if (data.ordersByDateDesc.length === 0) {
     return (
@@ -81,12 +83,11 @@ export default function AccountOrdersTab({
           role="button"
           tabIndex={0}
           onClick={() => actions.setOrderDetails((data.nextProductDeliveryRow ?? data.latestPurchasedProductRow)!)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault()
-              actions.setOrderDetails((data.nextProductDeliveryRow ?? data.latestPurchasedProductRow)!)
-            }
-          }}
+          onKeyDown={(event) =>
+            onEnterOrSpace(event, () =>
+              actions.setOrderDetails((data.nextProductDeliveryRow ?? data.latestPurchasedProductRow)!),
+            )
+          }
         >
           {(() => {
             const order = data.nextProductDeliveryRow ?? data.latestPurchasedProductRow
@@ -106,11 +107,7 @@ export default function AccountOrdersTab({
                     {order.purchaseTitle}
                   </p>
                   <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                    {new Intl.DateTimeFormat(identity.locale === 'it' ? 'it-IT' : 'en-US', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                    }).format(new Date(order.createdAt))}
+                    {formatDate(order.createdAt)}
                   </p>
                   <p className={`${productsStyles.orderInlinePrice} typo-caption`}>
                     {formatMoney(order.total, order.currency)}
@@ -156,12 +153,7 @@ export default function AccountOrdersTab({
                       onClick={() => actions.setOrderDetails(order)}
                       role="button"
                       tabIndex={0}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault()
-                          actions.setOrderDetails(order)
-                        }
-                      }}
+                      onKeyDown={(event) => onEnterOrSpace(event, () => actions.setOrderDetails(order))}
                     >
                       <div className={productsStyles.ordersListCell}>
                         <span className={productsStyles.ordersListLabel}>Acquisto</span>
@@ -176,11 +168,7 @@ export default function AccountOrdersTab({
                           </span>
                           <div className={productsStyles.orderPurchaseMeta}>
                             <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                              {new Intl.DateTimeFormat(identity.locale === 'it' ? 'it-IT' : 'en-US', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                              }).format(new Date(order.createdAt))}
+                              {formatDate(order.createdAt)}
                             </p>
                             <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
                               {order.purchaseTitle}
@@ -226,15 +214,14 @@ export default function AccountOrdersTab({
                       }
                       role="button"
                       tabIndex={0}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault()
+                      onKeyDown={(event) =>
+                        onEnterOrSpace(event, () =>
                           actions.setExpandedOrderGroups((prev) => ({
                             ...prev,
                             [entry.key]: !prev[entry.key],
-                          }))
-                        }
-                      }}
+                          })),
+                        )
+                      }
                     >
                       <div className={productsStyles.ordersListCell}>
                         <span className={productsStyles.ordersListLabel}>Acquisto</span>
@@ -249,11 +236,7 @@ export default function AccountOrdersTab({
                           </span>
                           <div className={productsStyles.orderPurchaseMeta}>
                             <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                              {new Intl.DateTimeFormat(identity.locale === 'it' ? 'it-IT' : 'en-US', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                              }).format(new Date(entry.lead.createdAt))}
+                              {formatDate(entry.lead.createdAt)}
                             </p>
                             <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
                               {entry.lead.orderNumber}
@@ -298,12 +281,7 @@ export default function AccountOrdersTab({
                             onClick={() => actions.setOrderDetails(order)}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(event) => {
-                              if (event.key === 'Enter' || event.key === ' ') {
-                                event.preventDefault()
-                                actions.setOrderDetails(order)
-                              }
-                            }}
+                            onKeyDown={(event) => onEnterOrSpace(event, () => actions.setOrderDetails(order))}
                           >
                             <div className={productsStyles.ordersListCell}>
                               <span className={productsStyles.ordersListLabel}>Acquisto</span>
@@ -318,11 +296,7 @@ export default function AccountOrdersTab({
                                 </span>
                                 <div className={productsStyles.orderPurchaseMeta}>
                                   <p className={`${styles.orderDate} ${productsStyles.orderDate} typo-caption`}>
-                                    {new Intl.DateTimeFormat(identity.locale === 'it' ? 'it-IT' : 'en-US', {
-                                      day: '2-digit',
-                                      month: '2-digit',
-                                      year: 'numeric',
-                                    }).format(new Date(order.createdAt))}
+                                    {formatDate(order.createdAt)}
                                   </p>
                                   <p className={`${styles.orderNumber} ${productsStyles.orderNumber} typo-body-lg`}>
                                     {order.purchaseTitle}

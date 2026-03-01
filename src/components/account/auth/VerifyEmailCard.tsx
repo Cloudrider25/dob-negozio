@@ -15,10 +15,11 @@ type VerifyEmailCardProps = {
 
 export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
   const copy = getAccountDictionary(locale).auth.verifyEmail
+  const { loading, missingToken, genericError, success, networkError } = copy
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [message, setMessage] = useState(copy.loading)
+  const [message, setMessage] = useState(loading)
   const didRun = useRef(false)
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
 
     if (!token) {
       setStatus('error')
-      setMessage(copy.missingToken)
+      setMessage(missingToken)
       return
     }
 
@@ -41,20 +42,20 @@ export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
         const data = (await response.json().catch(() => ({}))) as { message?: string }
         if (!response.ok) {
           setStatus('error')
-          setMessage(data.message || copy.genericError)
+          setMessage(data.message || genericError)
           return
         }
 
         setStatus('success')
-        setMessage(data.message || copy.success)
+        setMessage(data.message || success)
       } catch {
         setStatus('error')
-        setMessage(copy.networkError)
+        setMessage(networkError)
       }
     }
 
     void verify()
-  }, [token])
+  }, [genericError, missingToken, networkError, success, token])
 
   return (
     <div className={styles.card}>

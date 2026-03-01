@@ -10,6 +10,7 @@ import { MobileFilterDrawer } from '@/components/shared/MobileFilterDrawer'
 
 import { AccountDashboardModals } from './modals/AccountDashboardModals'
 import { AccountLogoutButton } from '../shared/AccountLogoutButton'
+import { useAccountFormatters } from '../shared/useAccountFormatters'
 import { fetchAestheticDraft, saveAestheticDraft } from '../client-api/aesthetic'
 import { updateUserProfile } from '../client-api/profile'
 import {
@@ -80,6 +81,7 @@ export function AccountDashboardClient({
   initialAddresses,
 }: AccountDashboardClientProps) {
   const copy = getAccountDictionary(locale).account
+  const { formatDate, formatDateTime, formatMoney } = useAccountFormatters(locale)
   const [section, setSection] = useState<AccountSection>('overview')
 
   const [serviceDetailsRow, setServiceDetailsRow] = useState<ServiceBookingRow | null>(null)
@@ -191,7 +193,7 @@ export function AccountDashboardClient({
     renderServiceDataPill,
     onSaveScheduleEdit,
     onClearScheduleEdit,
-  } = useAccountServices({ initialServiceRows, servicesStyles })
+  } = useAccountServices({ initialServiceRows, servicesStyles, locale })
 
   useEffect(() => {
     let active = true
@@ -213,13 +215,6 @@ export function AccountDashboardClient({
       active = false
     }
   }, [])
-
-  const formatMoney = (value: number, currency: string) =>
-    new Intl.NumberFormat(locale === 'it' ? 'it-IT' : locale === 'ru' ? 'ru-RU' : 'en-US', {
-      style: 'currency',
-      currency: currency || 'EUR',
-      minimumFractionDigits: 2,
-    }).format(value)
 
   const onSaveProfile = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -283,31 +278,6 @@ export function AccountDashboardClient({
       void load()
     }
   }
-
-  useEffect(() => {
-    const preloadAllTabs = () => {
-      Object.values(TAB_PREFETCHERS).forEach((load) => {
-        if (load) void load()
-      })
-    }
-
-    const win = window as Window & {
-      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number
-      cancelIdleCallback?: (id: number) => void
-    }
-
-    if (typeof win.requestIdleCallback === 'function') {
-      const idleId = win.requestIdleCallback(preloadAllTabs, { timeout: 2500 })
-      return () => {
-        if (typeof win.cancelIdleCallback === 'function') {
-          win.cancelIdleCallback(idleId)
-        }
-      }
-    }
-
-    const timeoutId = window.setTimeout(preloadAllTabs, 1200)
-    return () => window.clearTimeout(timeoutId)
-  }, [])
 
   const renderAccountFooterActions = (className?: string) => (
     <div className={className}>
@@ -412,7 +382,6 @@ export function AccountDashboardClient({
             styles={styles}
             productsStyles={productsStyles}
             identity={{
-              locale,
               firstName,
               fallbackCustomer: copy.fallbackCustomer,
             }}
@@ -435,6 +404,7 @@ export function AccountDashboardClient({
               setOrderDetails,
             }}
             formatMoney={formatMoney}
+            formatDate={formatDate}
           />
         ) : null}
 
@@ -554,7 +524,6 @@ export function AccountDashboardClient({
       </section>
       {renderAccountFooterActions(styles.mobileFooterActions)}
       <AccountDashboardModals
-        locale={locale}
         styles={styles}
         productsStyles={productsStyles}
         serviceDetailsRow={serviceDetailsRow}
@@ -574,6 +543,7 @@ export function AccountDashboardClient({
         formatMoney={formatMoney}
         onSaveScheduleEdit={onSaveScheduleEdit}
         onClearScheduleEdit={onClearScheduleEdit}
+        formatDateTime={formatDateTime}
       />
     </div>
   )

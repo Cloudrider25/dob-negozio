@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
@@ -25,6 +25,15 @@ export function SignUpForm({ locale }: { locale: string }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const redirectTimeoutRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current !== null) {
+        window.clearTimeout(redirectTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const isFormValid = useMemo(() => {
     return (
@@ -66,7 +75,10 @@ export function SignUpForm({ locale }: { locale: string }) {
       }
 
       setSuccess(copy.success)
-      setTimeout(() => {
+      if (redirectTimeoutRef.current !== null) {
+        window.clearTimeout(redirectTimeoutRef.current)
+      }
+      redirectTimeoutRef.current = window.setTimeout(() => {
         router.push(`/${locale}/signin`)
       }, 1400)
     } catch {

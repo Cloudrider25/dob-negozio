@@ -6,6 +6,7 @@ import { ChevronDownIcon, MinusIcon } from '@heroicons/react/24/outline'
 import { SectionTitle } from '@/components/sections/SectionTitle'
 
 import { AccountPillButton } from '../../shared/AccountButtons'
+import { onEnterOrSpace } from '../../shared/keyboard'
 import { AccountListHeader } from '../../shared/AccountListHeader'
 import type { FormMessage } from '../../forms/types'
 import type { ServiceBookingRow } from '../../types'
@@ -79,13 +80,12 @@ export default function AccountServicesTab({
               const row = (data.nextServiceAppointmentRow ?? data.latestServicePurchasedRow)!
               actions.openScheduleEditModal(row)
             }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
+            onKeyDown={(event) =>
+              onEnterOrSpace(event, () => {
                 const row = (data.nextServiceAppointmentRow ?? data.latestServicePurchasedRow)!
                 actions.openScheduleEditModal(row)
-              }
-            }}
+              })
+            }
           >
             {(() => {
               const row = data.nextServiceAppointmentRow ?? data.latestServicePurchasedRow
@@ -153,12 +153,7 @@ export default function AccountServicesTab({
                     role="button"
                     tabIndex={0}
                     onClick={() => actions.openScheduleEditModal(row)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault()
-                        actions.openScheduleEditModal(row)
-                      }
-                    }}
+                    onKeyDown={(event) => onEnterOrSpace(event, () => actions.openScheduleEditModal(row))}
                   >
                     <div className={servicesStyles.servicesListCell}>
                       <span className={servicesStyles.servicesListLabel}>Servizio</span>
@@ -185,15 +180,14 @@ export default function AccountServicesTab({
                         [entry.key]: !prev[entry.key],
                       }))
                     }
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault()
+                    onKeyDown={(event) =>
+                      onEnterOrSpace(event, () =>
                         actions.setExpandedPackageGroups((prev) => ({
                           ...prev,
                           [entry.key]: !prev[entry.key],
-                        }))
-                      }
-                    }}
+                        })),
+                      )
+                    }
                   >
                     <div className={servicesStyles.servicesListCell}>
                       <span className={servicesStyles.servicesListLabel}>Servizio</span>
@@ -246,12 +240,9 @@ export default function AccountServicesTab({
                             role="button"
                             tabIndex={0}
                             onClick={() => actions.openScheduleEditModal(row)}
-                            onKeyDown={(event) => {
-                              if (event.key === 'Enter' || event.key === ' ') {
-                                event.preventDefault()
-                                actions.openScheduleEditModal(row)
-                              }
-                            }}
+                            onKeyDown={(event) =>
+                              onEnterOrSpace(event, () => actions.openScheduleEditModal(row))
+                            }
                           >
                             <div className={servicesStyles.servicesListCell}>
                               <span className={servicesStyles.servicesListLabel}>Servizio</span>

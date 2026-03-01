@@ -1,6 +1,6 @@
 # Style & Design Audit (Active)
 
-Ultimo aggiornamento: 2026-02-20  
+Ultimo aggiornamento: 2026-03-01  
 Owner: Team DOB Milano
 
 ## Obiettivo
@@ -87,6 +87,48 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
 - Ogni blocco chiuso viene registrato in `Log blocchi chiusi` qui sotto (data, scope, decisione, file toccati, verifica).
 
 ## Log blocchi chiusi
+
+- 2026-03-01 | Blocco CSS-047 (`Account` domain reorganization: shared/tabs/hooks/forms/auth/dashboard)
+  - Scope: `src/components/account/**`, `src/app/(checkout)/**`, `src/app/(frontend)/[locale]/account/page.tsx`.
+  - Decisione: completare la riorganizzazione del dominio account in cartelle semantiche, separando chiaramente componenti shared, tab di dominio, hook per feature, auth layout/forms e dashboard orchestration.
+  - Implementazione:
+  - `forms`: separati in `forms/auth/*` e `forms/profile/*` con update import consumer;
+  - `tabs`: spostati in sottocartelle per dominio (`tabs/overview|orders|services|addresses|aesthetic`);
+  - `hooks`: riorganizzati per feature (`hooks/orders|services|addresses`);
+  - `shared`: spostati `AccountButtons`, `AccountListHeader`, `AccountModal`, `SchedulePill`, `AccountLogoutButton`;
+  - `dashboard`: spostati `AccountDashboardClient` + css e `AccountDashboardModals` in `dashboard/modals`;
+  - `auth`: spostati `AuthSplitLayout` + css e `VerifyEmailCard` in `auth/`;
+  - aggiornati import in tutte le pagine auth/account.
+  - Verifica: `pnpm exec tsc --noEmit` ok; `pnpm run generate:importmap` ok.
+
+- 2026-03-01 | Blocco CSS-048 (`Account` style module colocation con i tab di dominio)
+  - Scope: `src/components/account/AccountDashboardClient.tsx`, `src/components/account/tabs/orders/*`, `src/components/account/tabs/services/*`.
+  - Decisione: co-locare i CSS module specifici di lista ordini/servizi accanto ai rispettivi tab, riducendo file root “orfani” nel dominio account.
+  - Implementazione:
+  - `AccountProducts.module.css` rinominato/spostato in `tabs/orders/AccountOrders.module.css`;
+  - `AccountServices.module.css` spostato in `tabs/services/AccountServices.module.css`;
+  - aggiornati import nel dashboard client.
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+
+- 2026-03-01 | Blocco CSS-049 (`Account` API wrapper + constants centralization)
+  - Scope: `src/components/account/client-api/*`, `src/components/account/constants.ts`, hook/services/dashboard account.
+  - Decisione: ridurre rumore nei componenti UI e centralizzare opzioni statiche/label tecniche fuori dai render path.
+  - Implementazione:
+  - estratte chiamate client-side in `client-api/{profile,addresses,services,aesthetic}.ts`;
+  - centralizzate costanti menu/sort/filter in `constants.ts`;
+  - `AccountDashboardClient` e hook allineati ai nuovi helper.
+  - Verifica: `pnpm exec tsc --noEmit` ok.
+
+- 2026-03-01 | Blocco CSS-050 (`Aesthetic Folder` persistence hardening + sync CRM)
+  - Scope: `src/app/api/account/aesthetic-folder/route.ts`, `src/collections/AccountAestheticProfiles.ts`, `src/payload.config.ts`, `src/migrations/*`.
+  - Decisione: stabilizzare la persistenza cartella estetica evitando dipendenza fragile da tabella SQL custom in dev mode; mantenere (temporaneamente) sync verso `anagrafiche` per continuità CRM.
+  - Implementazione:
+  - introdotta collection Payload `account-aesthetic-profiles` come storage principale della cartella estetica;
+  - route `GET/PATCH` migrata da raw SQL a Local API (`overrideAccess: false` con `user`);
+  - aggiunto write-through verso `anagrafiche` su `PATCH` per aggiornare i campi “Anag. Cartella”;
+  - aggiunta migrazione di repair `20260228_160000` (stato transitorio, da rivalutare in DB full review);
+  - annotato TODO nel refactor plan per convergere a single source of truth DB.
+  - Verifica: `pnpm run generate:types` ok; `pnpm exec tsc --noEmit` ok.
 
 - 2026-02-20 | Blocco CSS-046 (`Service Detail` spacing parity + hero/media mobile-first pass)
   - Scope: `src/app/(frontend)/[locale]/services/service/[slug]/service-detail.module.css`, `src/app/(frontend)/[locale]/services/service/[slug]/page.tsx`.

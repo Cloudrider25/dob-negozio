@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/account-i18n'
 import { SectionSubtitle } from '@/components/sections/SectionSubtitle'
@@ -23,11 +23,20 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const redirectTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     const tokenFromQuery = searchParams.get('token')
     if (tokenFromQuery) setToken(tokenFromQuery)
   }, [searchParams])
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current !== null) {
+        window.clearTimeout(redirectTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -54,7 +63,10 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
       }
 
       setSuccess(copy.success)
-      setTimeout(() => {
+      if (redirectTimeoutRef.current !== null) {
+        window.clearTimeout(redirectTimeoutRef.current)
+      }
+      redirectTimeoutRef.current = window.setTimeout(() => {
         router.push(`/${locale}/signin`)
       }, 900)
     } catch {

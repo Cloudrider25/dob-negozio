@@ -12,7 +12,6 @@ type ScheduleEditDraft = {
 }
 
 type AccountDashboardModalsProps = {
-  locale: string
   styles: Record<string, string>
   productsStyles: Record<string, string>
   serviceDetailsRow: ServiceBookingRow | null
@@ -29,13 +28,13 @@ type AccountDashboardModalsProps = {
   canEditSchedule: (row: ServiceBookingRow) => boolean
   formatServiceSchedule: (row: ServiceBookingRow) => string
   formatServiceStatus: (row: ServiceBookingRow) => string
+  formatDateTime: (value: string | Date | null | undefined, fallback?: string) => string
   formatMoney: (value: number, currency: string) => string
   onSaveScheduleEdit: () => Promise<void>
   onClearScheduleEdit: () => Promise<void>
 }
 
 export function AccountDashboardModals({
-  locale,
   styles,
   productsStyles,
   serviceDetailsRow,
@@ -52,6 +51,7 @@ export function AccountDashboardModals({
   canEditSchedule,
   formatServiceSchedule,
   formatServiceStatus,
+  formatDateTime,
   formatMoney,
   onSaveScheduleEdit,
   onClearScheduleEdit,
@@ -81,13 +81,7 @@ export function AccountDashboardModals({
               <div>
                 <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Data ordine</p>
                 <p className={`${styles.value} typo-body-lg`}>
-                  {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }).format(new Date(serviceDetailsRow.orderCreatedAt))}
+                  {formatDateTime(serviceDetailsRow.orderCreatedAt)}
                 </p>
               </div>
             ) : null}
@@ -152,13 +146,7 @@ export function AccountDashboardModals({
             <div>
               <p className={`${styles.serviceCellTitle} typo-caption-upper`}>Data acquisto</p>
               <p className={`${styles.value} typo-body-lg`}>
-                {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }).format(new Date(orderDetails.createdAt))}
+                {formatDateTime(orderDetails.createdAt)}
               </p>
             </div>
             <div>
@@ -212,13 +200,7 @@ export function AccountDashboardModals({
                   Ultimo aggiornamento spedizione
                 </p>
                 <p className={`${styles.value} typo-body-lg`}>
-                  {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }).format(new Date(orderDetails.deliveryUpdatedAt))}
+                  {formatDateTime(orderDetails.deliveryUpdatedAt)}
                 </p>
               </div>
             ) : null}
@@ -271,13 +253,7 @@ export function AccountDashboardModals({
                           Data ordine
                         </p>
                         <p className={`${styles.value} typo-body-lg`}>
-                          {new Intl.DateTimeFormat(locale === 'it' ? 'it-IT' : 'en-US', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }).format(new Date(scheduleEditRow.orderCreatedAt))}
+                          {formatDateTime(scheduleEditRow.orderCreatedAt)}
                         </p>
                       </div>
                       <div>

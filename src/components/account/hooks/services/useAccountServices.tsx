@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ArrowPathIcon, CheckIcon, ClockIcon, MinusIcon } from '@heroicons/react/24/outline'
 
 import { patchServiceSessionSchedule } from '../../client-api/services'
 import { SERVICES_PRIMARY_OPTIONS, SERVICES_SUB_OPTIONS } from '../../constants'
 import { SchedulePill } from '../../shared/SchedulePill'
+import { useAccountFormatters } from '../../shared/useAccountFormatters'
 import type { FormMessage } from '../../forms/types'
 import type { ServiceBookingRow, ServicesFilter, ServicesSubFilter } from '../../types'
 
@@ -17,9 +18,15 @@ type ScheduleEditDraft = {
 type UseAccountServicesArgs = {
   initialServiceRows: ServiceBookingRow[]
   servicesStyles: Record<string, string>
+  locale: string
 }
 
-export function useAccountServices({ initialServiceRows, servicesStyles }: UseAccountServicesArgs) {
+export function useAccountServices({
+  initialServiceRows,
+  servicesStyles,
+  locale,
+}: UseAccountServicesArgs) {
+  const { formatDate } = useAccountFormatters(locale)
   const [servicesFilter, setServicesFilter] = useState<ServicesFilter>('not_used')
   const [servicesSubFilter, setServicesSubFilter] = useState<ServicesSubFilter>('all')
   const [sessionSavingId, setSessionSavingId] = useState<string | null>(null)
@@ -36,14 +43,7 @@ export function useAccountServices({ initialServiceRows, servicesStyles }: UseAc
 
   const formatDateTime = (dateValue: string | null, timeValue?: string | null) => {
     if (!dateValue) return '—'
-    const date = new Date(dateValue)
-    const dateLabel = Number.isNaN(date.getTime())
-      ? dateValue
-      : new Intl.DateTimeFormat('it-IT', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        }).format(date)
+    const dateLabel = formatDate(dateValue, dateValue)
     return timeValue?.trim() ? `${dateLabel} · ${timeValue}` : dateLabel
   }
 
@@ -66,25 +66,31 @@ export function useAccountServices({ initialServiceRows, servicesStyles }: UseAc
     return 'Da definire'
   }
 
-  const isPaidServiceRow = (row: ServiceBookingRow) =>
-    ['paid', 'authorized', 'processing'].includes((row.paymentStatus || '').toLowerCase())
+  const isPaidServiceRow = useCallback(
+    (row: ServiceBookingRow) =>
+      ['paid', 'authorized', 'processing'].includes((row.paymentStatus || '').toLowerCase()),
+    [],
+  )
 
-  const getConfirmedSessionTs = (row: ServiceBookingRow) => {
+  const getConfirmedSessionTs = useCallback((row: ServiceBookingRow) => {
     const dateSource = row.proposedDate ?? row.requestedDate
     if (!dateSource) return null
     const raw = row.proposedTime?.trim() || row.requestedTime?.trim()
     const time = raw && /^\d{1,2}:\d{2}/.test(raw) ? raw : '00:00'
     const ts = new Date(`${dateSource}T${time}:00`).getTime()
     return Number.isNaN(ts) ? null : ts
-  }
+  }, [])
 
-  const isUsedServiceRow = (row: ServiceBookingRow) => {
-    const currentTs = Date.now()
-    if (!isPaidServiceRow(row)) return false
-    if (!['confirmed', 'confirmed_by_customer'].includes(row.appointmentStatus)) return false
-    const confirmedTs = getConfirmedSessionTs(row)
-    return confirmedTs !== null && confirmedTs < currentTs
-  }
+  const isUsedServiceRow = useCallback(
+    (row: ServiceBookingRow) => {
+      const currentTs = Date.now()
+      if (!isPaidServiceRow(row)) return false
+      if (!['confirmed', 'confirmed_by_customer'].includes(row.appointmentStatus)) return false
+      const confirmedTs = getConfirmedSessionTs(row)
+      return confirmedTs !== null && confirmedTs < currentTs
+    },
+    [getConfirmedSessionTs, isPaidServiceRow],
+  )
 
   const serviceRowsFiltered = useMemo(() => {
     let rows = [...serviceRowsState].sort(
@@ -117,7 +123,7 @@ export function useAccountServices({ initialServiceRows, servicesStyles }: UseAc
       }
       return true
     })
-  }, [serviceRowsState, servicesFilter, servicesSubFilter])
+  }, [isUsedServiceRow, serviceRowsState, servicesFilter, servicesSubFilter])
 
   const formatServiceStatus = (row: ServiceBookingRow) => {
     if (isUsedServiceRow(row)) return 'Pagato · usufruito'
@@ -200,7 +206,7 @@ export function useAccountServices({ initialServiceRows, servicesStyles }: UseAc
       )
       .sort((a, b) => a.ts - b.ts)
     return candidates[0]?.row ?? null
-  }, [serviceRowsState])
+  }, [getConfirmedSessionTs, serviceRowsState])
 
   const latestServicePurchasedRow = useMemo(() => {
     const rows = [...serviceRowsState].sort(
