@@ -4,9 +4,11 @@
   "description": "A blank template to get started with Payload 3.0",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@10.28.0",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=12000\" NEXT_DISABLE_SWC_MINIFY=1 NEXT_TELEMETRY_DISABLED=1 next build",
-    "build:vercel": "pnpm payload migrate && pnpm build",
+    "build:vercel": "pnpm build",
+    "migrate:vercel": "pnpm payload migrate",
     "build:perf": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=12000\" NEXT_TELEMETRY_DISABLED=1 next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation NEXT_DIST_DIR=.next-dev next dev",
     "devsafe": "rm -rf .next-dev && cross-env NODE_OPTIONS=--no-deprecation NEXT_DIST_DIR=.next-dev next dev",
