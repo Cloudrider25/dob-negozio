@@ -1,5 +1,7 @@
 const TRANSPARENT_THUMBNAIL =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+const VERCEL_MEDIA_FALLBACK = '/brand/logo-black.png'
+const shouldUseFilenameFallback = process.env.VERCEL !== '1'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value)
@@ -38,6 +40,9 @@ export const normalizeThumbnailSrc = (value: unknown): string | null => {
 
   const filename = value.filename
   if (typeof filename === 'string' && filename.trim()) {
+    if (!shouldUseFilenameFallback) {
+      return VERCEL_MEDIA_FALLBACK
+    }
     return `/api/media/file/${encodeURIComponent(filename.trim())}`
   }
 
@@ -51,4 +56,3 @@ export const isRemoteThumbnailSrc = (value: unknown): boolean => {
   const normalized = normalizeThumbnailSrc(value)
   return Boolean(normalized && /^https?:\/\//i.test(normalized))
 }
-
