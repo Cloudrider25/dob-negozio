@@ -33,7 +33,9 @@ export const HeaderBrand = ({ locale, brandLabel }: HeaderBrandProps) => {
             priority
           />
         </span>
-        <h1 className={`${styles.brandTitle} dob-font typo-display-upper`}>DOB</h1>
+        <span className={`${styles.brandTitle} dob-font typo-display-upper`} aria-hidden="true">
+          DOB
+        </span>
         <span className="sr-only">{brandLabel}</span>
       </Link>
     </div>

@@ -2,6 +2,7 @@ import { cookies, headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { HeaderThemeObserver } from '@/frontend/layout/header/HeaderThemeObserver'
+import { DocumentLanguageSync } from '@/frontend/layout/locale/DocumentLanguageSync'
 import { PreferencesConfirmModal } from '@/frontend/layout/preferences/PreferencesConfirmModal'
 import { isLocale } from '@/lib/i18n/core'
 import {
@@ -31,6 +32,7 @@ export default async function CheckoutLayout({
 
   return (
     <>
+      <DocumentLanguageSync locale={locale} />
       <HeaderThemeObserver />
       <PreferencesConfirmModal
         currentLocale={locale}

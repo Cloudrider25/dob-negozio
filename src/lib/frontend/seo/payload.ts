@@ -1,0 +1,33 @@
+import { cache } from 'react'
+
+import type { Locale } from '@/lib/i18n/core'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+
+export type FrontendPageKey =
+  | 'home'
+  | 'services'
+  | 'shop'
+  | 'journal'
+  | 'location'
+  | 'our-story'
+  | 'dob-protocol'
+  | 'contact'
+  | 'checkout'
+
+export const getPageSeo = cache(async (locale: Locale, pageKey: FrontendPageKey) => {
+  const payload = await getPayloadClient()
+  const result = await payload.find({
+    collection: 'pages',
+    locale,
+    overrideAccess: false,
+    limit: 1,
+    depth: 1,
+    where: {
+      pageKey: {
+        equals: pageKey,
+      },
+    },
+  })
+
+  return result.docs[0]?.seo ?? null
+})

@@ -1,7 +1,28 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 
 import { getJourneyDictionary, isLocale } from '@/lib/i18n/core'
+import { buildSeoMetadata } from '@/lib/frontend/seo/metadata'
+
+export const generateMetadata = async ({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> => {
+  const { locale } = await params
+  if (!isLocale(locale)) return {}
+
+  return buildSeoMetadata({
+    locale,
+    title: 'Ordine completato | DOB Milano Shop',
+    description: 'Riepilogo conferma ordine DOB Milano.',
+    path: '/checkout/success',
+    seo: {
+      noIndex: true,
+    },
+  })
+}
 
 export default async function CheckoutSuccessPage({
   params,

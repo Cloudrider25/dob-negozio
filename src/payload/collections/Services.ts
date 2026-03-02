@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
+import { seoFields } from '../fields/seoFields'
 
 const slugify = (value: string) =>
   value
@@ -682,6 +683,7 @@ export const Services: CollectionConfig = {
         },
       ],
     },
+    ...seoFields,
   ],
   timestamps: true,
 }

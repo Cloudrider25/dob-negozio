@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
+import { seoFields } from '../fields/seoFields'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -648,6 +649,7 @@ export const Pages: CollectionConfig = {
         },
       ],
     },
+    ...seoFields,
   ],
   timestamps: true,
 }

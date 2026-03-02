@@ -4,6 +4,7 @@ import { HeaderThemeObserver } from '@/frontend/layout/header/HeaderThemeObserve
 import { Header } from '@/frontend/layout/header/Header'
 import { SearchDrawerLazy } from '@/frontend/layout/search/SearchDrawerLazy'
 import type { FrontendLocaleShellProps } from '@/frontend/layout/shell/contracts'
+import { LocalProofCtaStrip } from '@/frontend/layout/shell/LocalProofCtaStrip'
 import styles from './FrontendLocaleShell.module.css'
 
 export const FrontendLocaleShell = ({
@@ -39,6 +40,12 @@ export const FrontendLocaleShell = ({
         activePreferences={activePreferences}
         preferencesConfirmed={preferencesConfirmed}
         menuHighlights={menuHighlights}
+      />
+      <LocalProofCtaStrip
+        locale={locale}
+        addressDisplay={addressDisplay}
+        whatsappLink={whatsappLink}
+        phoneLink={phoneLink}
       />
       <div className={styles.content}>{children}</div>
       <SearchDrawerLazy locale={locale} />

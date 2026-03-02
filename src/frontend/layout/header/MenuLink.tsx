@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 
 type MenuLinkProps = {
   href: string
-  children: ReactNode
+  children?: ReactNode
   className?: string
   external?: boolean
   onNavigate?: () => void

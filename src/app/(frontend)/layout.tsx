@@ -1,8 +1,10 @@
 import React from 'react'
+import type { Metadata } from 'next'
 import { Instrument_Sans } from 'next/font/google'
 import { Work_Sans } from 'next/font/google'
 import '../../styles/globals.css'
 import { ThemeHydrator } from '@/frontend/components/theme/ThemeHydrator'
+import { getSeoBaseUrl } from '@/lib/frontend/seo/metadata'
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -20,10 +22,31 @@ const workSans = Work_Sans({
   weight: ['400', '500', '600', '700'],
 })
 
-export const metadata = {
+export const metadata: Metadata = {
+  metadataBase: new URL(getSeoBaseUrl()),
+  title: {
+    default: 'DOB - Department of Beauty Milano',
+    template: '%s | DOB Milano',
+  },
   description:
     'DOB - Department of Beauty Milano Rasori. Estetica avanzata, trattamenti e prodotti selezionati.',
-  title: 'DOB - Department of Beauty Milano',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'DOB Milano',
+    title: 'DOB - Department of Beauty Milano',
+    description:
+      'DOB - Department of Beauty Milano Rasori. Estetica avanzata, trattamenti e prodotti selezionati.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DOB - Department of Beauty Milano',
+    description:
+      'DOB - Department of Beauty Milano Rasori. Estetica avanzata, trattamenti e prodotti selezionati.',
+  },
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {

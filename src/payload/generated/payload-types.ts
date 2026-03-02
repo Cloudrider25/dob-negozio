@@ -636,6 +636,19 @@ export interface Service {
   zone?: (number | null) | Zone;
   intentCode?: string | null;
   zoneCode?: string | null;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -765,6 +778,19 @@ export interface Treatment {
   dobGroup?: string | null;
   slug: string;
   active?: boolean | null;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -796,6 +822,19 @@ export interface Objective {
     [k: string]: unknown;
   } | null;
   area: number | Area;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -826,6 +865,19 @@ export interface Area {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -883,6 +935,19 @@ export interface Program {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -998,6 +1063,19 @@ export interface Product {
     | null;
   stripeProductId?: string | null;
   stripePriceId?: string | null;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1450,6 +1528,19 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+  };
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -2059,6 +2150,15 @@ export interface ServicesSelect<T extends boolean = true> {
   zone?: T;
   intentCode?: T;
   zoneCode?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2087,6 +2187,15 @@ export interface TreatmentsSelect<T extends boolean = true> {
   dobGroup?: T;
   slug?: T;
   active?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2102,6 +2211,15 @@ export interface AreasSelect<T extends boolean = true> {
   cardTagline?: T;
   cardMedia?: T;
   cardDescription?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2118,6 +2236,15 @@ export interface ObjectivesSelect<T extends boolean = true> {
   cardMedia?: T;
   cardDescription?: T;
   area?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2176,6 +2303,15 @@ export interface ProgramsSelect<T extends boolean = true> {
         stepSubtitle?: T;
         stepBadge?: T;
         id?: T;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2268,6 +2404,15 @@ export interface ProductsSelect<T extends boolean = true> {
       };
   stripeProductId?: T;
   stripePriceId?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2660,6 +2805,15 @@ export interface PagesSelect<T extends boolean = true> {
               image?: T;
               id?: T;
             };
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;

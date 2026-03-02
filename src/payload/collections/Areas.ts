@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
+import { seoFields } from '../fields/seoFields'
 
 export const Areas: CollectionConfig = {
   slug: 'areas',
@@ -54,6 +55,7 @@ export const Areas: CollectionConfig = {
       type: 'richText',
       localized: true,
     },
+    ...seoFields,
   ],
   timestamps: true,
 }

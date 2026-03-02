@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
+import { seoFields } from '../fields/seoFields'
 
 export const Objectives: CollectionConfig = {
   slug: 'objectives',
@@ -60,6 +61,7 @@ export const Objectives: CollectionConfig = {
       relationTo: 'areas',
       required: true,
     },
+    ...seoFields,
   ],
   timestamps: true,
 }

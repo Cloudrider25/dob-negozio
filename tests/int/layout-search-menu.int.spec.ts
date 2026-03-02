@@ -3,12 +3,12 @@ import { createElement } from 'react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { MenuLink } from '@/frontend/components/layout/header/MenuLink'
-import { useSearchDrawerData } from '@/frontend/components/layout/search/hooks/useSearchDrawerData'
+import { MenuLink } from '@/frontend/layout/header/MenuLink'
+import { useSearchDrawerData } from '@/frontend/layout/search/hooks/useSearchDrawerData'
 import {
   fetchLiveSearchData,
   fetchSearchDrawerData,
-} from '@/frontend/components/layout/search/client-api/searchDrawer'
+} from '@/frontend/layout/search/client-api/searchDrawer'
 
 vi.mock('next/link', () => ({
   default: ({
@@ -29,7 +29,7 @@ vi.mock('next/link', () => ({
     ),
 }))
 
-vi.mock('@/frontend/components/layout/search/client-api/searchDrawer', () => ({
+vi.mock('@/frontend/layout/search/client-api/searchDrawer', () => ({
   fetchSearchDrawerData: vi.fn(),
   fetchLiveSearchData: vi.fn(),
 }))
