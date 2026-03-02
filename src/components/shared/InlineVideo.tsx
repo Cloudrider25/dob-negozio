@@ -2,16 +2,16 @@
 
 import { useRef, useState } from 'react'
 
-import styles from '@/components/pages/frontend/product-detail/ProductDetailPage.module.css'
+import styles from './InlineVideo.module.css'
 import { ScrollZoomOnScroll } from '@/components/ui/ScrollZoomOnScroll'
 
-type ProductInlineVideoProps = {
+type InlineVideoProps = {
   src: string
   poster?: string
   label?: string
 }
 
-export function ProductInlineVideo({ src, poster, label = 'Play video' }: ProductInlineVideoProps) {
+export function InlineVideo({ src, poster, label = 'Play video' }: InlineVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [started, setStarted] = useState(false)
 

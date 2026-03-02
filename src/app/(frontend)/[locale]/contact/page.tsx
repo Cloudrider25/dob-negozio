@@ -1,22 +1,3 @@
-import { notFound } from 'next/navigation'
+import ContactPage from '@/components/pages/frontend/legal/ContactPage'
 
-import { isLocale } from '@/lib/i18n'
-
-export default async function ContactPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
-  const { locale } = await params
-  if (!isLocale(locale)) notFound()
-
-  return (
-    <main className="mx-auto w-full max-w-[900px] px-6 py-16">
-      <h1 className="typo-h1">Contact</h1>
-      <p className="mt-4 text-text-secondary">Per assistenza ordini e informazioni:</p>
-      <div className="mt-4 space-y-2 text-text-primary">
-        <a className="block underline" href="mailto:info@dobmilano.it">info@dobmilano.it</a>
-      </div>
-    </main>
-  )
-}
+export default ContactPage

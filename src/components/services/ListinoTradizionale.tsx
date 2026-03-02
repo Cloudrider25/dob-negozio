@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-import { ShopAllSection } from '@/components/shop/ShopAllSection'
+import { ShopAllSection } from '@/components/shared/ShopAllSection'
 import { useNavigatorData } from '@/components/services/navigator-data-context'
 import type { CarouselItem } from '@/components/carousel'
 import { Button } from '@/components/ui/button'

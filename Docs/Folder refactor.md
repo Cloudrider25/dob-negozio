@@ -19,7 +19,8 @@
 - src/components/forms
 - src/components/checkout
 - src/components/heroes
-- src/components/layout (current)
+- src/components/layout
+- src/components/pages (current)
 
 
 
@@ -67,37 +68,43 @@ Regole operative per applicare lo stesso miglioramento su un nuovo folder (`X`):
 - KPI fase raggiunti e documentati con evidenza.
 - Snapshot finale punteggi + gap residui esplicitati in testa al documento di refactor.
 
+
+
+
+# Review Refactor Cartella Pages
+
+## Gap residui per chiudere a `10/10`
+- Ridurre la complessità dei page container monolitici (`HomePage`, `ShopPage`, `ProductDetailPage`, `ServiceDetailPage`) con estrazione di slice server/client e helper condivisi.
+- Uniformare struttura subfolder `frontend/*` per dominio (co-location completa di componenti page-specific, CSS e contratti tipi).
+- Ridurre duplicazioni di helper runtime lato pagina (`resolveMedia`, estrazione rich text, format utility) in utility condivise per migliorare velocità di sviluppo e ridurre regressioni.
+
 ## Valutazione sintetica
-- Manutenibilità: `6.9/10`
-- Velocità di sviluppo: `7.0/10`
-- Modernità approccio: `7.3/10`
-- Performance FE: `7.1/10`
+- Manutenibilità: `7.6/10`
+- Velocità di sviluppo: `7.5/10`
+- Modernità approccio: `8.1/10`
+- Performance FE: `7.9/10`
 
 ## Findings prioritizzati (più impattanti prima)
-1. **Header monolitico con responsabilità miste (layout/menu/navigation/icon actions)**
-- `Header.tsx` concentra menu mobile, nav desktop, brand, social/contact links, e trigger di componenti esterni in un unico blocco.
-- Riferimento: [Header.tsx](/Users/ale/Progetti/DOBMilano/src/components/layout/header/Header.tsx)
+1. **Container pagina troppo grandi in `frontend`**
+- File oltre soglia operativa: `ProductDetailPage.tsx` (`878`), `ServiceDetailPage.tsx` (`823`), `ShopPage.tsx` (`588`), `HomePage.tsx` (`433`).
+- Impatto: bassa leggibilità, testabilità ridotta, review lente.
 
-2. **CSS header molto esteso e difficile da evolvere**
-- `Header.module.css` è ampio (`586` righe) con regole duplicate per tema/stati globali e gestione responsive mista.
-- Riferimento: [Header.module.css](/Users/ale/Progetti/DOBMilano/src/components/layout/header/Header.module.css)
+2. **Duplicazione helper dati/media in più pagine**
+- Pattern ricorrenti (`resolveMedia`, resolve gallery cover, rich text text extraction) replicati in pagine diverse.
+- Impatto: rischio divergenze comportamento e bug cross-page.
 
-3. **Gestione menu basata su checkbox/DOM imperative**
-- Stato menu affidato a `#menu-toggle` + `label` + `MenuLink.closeMenu()` via DOM query: pattern fragile per testabilità/a11y avanzata.
-- Riferimenti: [Header.tsx](/Users/ale/Progetti/DOBMilano/src/components/layout/header/Header.tsx), [MenuLink.tsx](/Users/ale/Progetti/DOBMilano/src/components/layout/header/MenuLink.tsx)
+3. **Dettagli services/shop ancora sbilanciati lato server component**
+- Pagine detail contengono query + normalizzazione + rendering nello stesso file.
+- Impatto: cambio requisiti lento e maggiore rischio regressioni.
 
-4. **SearchDrawer con data fetching + UI nello stesso componente**
-- `SearchDrawer.tsx` accorpa fetch di suggerimenti/live search, routing decisionale e rendering; candidabile a split `hooks/client-api/ui`.
-- Riferimento: [SearchDrawer.tsx](/Users/ale/Progetti/DOBMilano/src/components/layout/search/SearchDrawer.tsx)
-
-5. **Observer globale body-class da isolare meglio**
-- `HeaderThemeObserver` manipola classi globali body con observer/scroll logic: utile ma da rendere più contrattualizzato/testabile.
-- Riferimento: [HeaderThemeObserver.tsx](/Users/ale/Progetti/DOBMilano/src/components/layout/header/HeaderThemeObserver.tsx)
+4. **Pagine legali statiche senza dominio dedicato di presentazione**
+- Sono corrette come route, ma possono convergere su template shared unico per coerenza e manutenzione.
+- Impatto: piccoli costi di mantenimento su contenuti statici ripetuti.
 
 ## Punti positivi
-- Dominio coerente e centralizzato per la shell globale (`Header`, search drawer, preferences).
-- CSS già basato su token design (`--stroke`, `--paper`, `--text-*`) senza hardcoded critici diffusi.
-- Lazy loading già presente sul drawer di ricerca con trigger dedicato.
+- Routing `app/(frontend)/[locale]` già convertito in pattern wrapper-only.
+- Coerenza buona nei domain folder `services/*` e `shop/*` sotto `pages/frontend`.
+- CSS page-level correttamente fuori da `app/` e co-locato nei domini componenti.
 
 ## Checklist monitor verso 10/10
 
@@ -108,56 +115,35 @@ Regole operative per applicare lo stesso miglioramento su un nuovo folder (`X`):
 - Performance FE: `10/10`
 
 ### 1) Quick wins (1 giorno)
-- [x] Verificare lint/typecheck + smoke base senza regressioni su layout.
-- [x] Uniformare className composition (`cn`) nei punti con template string duplicative.
-- [x] Introdurre fix a11y veloci (focus-visible coerente su trigger/menu actions).
-- [x] KPI: baseline stabile e nessuna regressione header/search/prefs.
-- Stato: quick wins layout completati il `2026-03-01` (`lint`: ok, `typecheck`: ok, `test:e2e:smoke`: `14/14`).
+- [x] Consolidare naming e subfolder omogenei in `pages/frontend/*` (co-location totale page-specific).
+- [x] Estrarre helper condivisi minimi (`media/richtext/format`) riusati da almeno 2 pagine.
+- [x] KPI: riduzione duplicazioni evidenti senza regressioni (`lint/typecheck` verdi).
+- Stato: quick wins pages completato il `2026-03-02` con estrazione utility condivise in `src/components/shared/media.ts` e `src/components/shared/richtext.ts`, applicate al cluster `services` (`ServicesPage`, `ServicesCategoryPage`, `ServiceAreaDetailPage`, `ServiceGoalDetailPage`, `ServiceTreatmentDetailPage`) e riallineamento naming/subfolder (`program-detail` -> `programs/program-detail`); `lint`/`typecheck` ok.
 
-### 2) Refactor medio (1-2 giorni)
-- [x] Riorganizzare folder in slice semantiche (`header/`, `search/`, `preferences/`, `footer/`, `shell/` + `header/parts`).
-- [x] Spezzare `Header.tsx` in blocchi (`HeaderBrand`, `HeaderNavigation`, `HeaderActions`, `HeaderMenuOverlay`).
-- [x] Estrarre contratti/layout models in `header/contracts.ts`.
-- [x] KPI: componenti principali più piccoli e API interne chiare.
-- Stato: refactor medio layout completato il `2026-03-02` (`Header.tsx` ridotto a `48` righe, `app/(frontend)/[locale]/layout.tsx` ridotto a `29` righe come route adapter, estrazione `Footer`, `FrontendLocaleShell` e loader server `shell/server/getFrontendLocaleShellData.ts`, migrazione root in `header/search/preferences/footer/shell`; `lint`/`typecheck`/`smoke 14/14` ok).
+### 2) Refactor medio (2-3 giorni)
+- [ ] Spezzare `HomePage` e `ShopPage` in slice leggibili (data mapper + sections render).
+- [ ] Estrarre contratti page-domain (`types.ts` / `contracts.ts`) per shop/services/home.
+- [ ] KPI: riduzione complessità interna e tempi review più rapidi.
+- Stato: refactor medio pages in corso al `2026-03-02`: `ShopPage` con estrazione `contracts` + helper shared (`src/components/pages/frontend/shop/contracts.ts`, `src/components/pages/frontend/shop/shared.ts`, riduzione `588 -> 529` righe), `HomePage` con estrazione `contracts` + helper shared (`src/components/pages/frontend/home/contracts.ts`, `src/components/pages/frontend/home/shared.ts`, riuso utility media condivise, riduzione `433 -> 362` righe), `ServiceDetailPage` con estrazione `contracts` + helper domain (`src/components/pages/frontend/services/service-detail/contracts.ts`, `src/components/pages/frontend/services/service-detail/shared.ts`, riduzione `823 -> 637` righe) e `ProductDetailPage` con estrazione `contracts` + helper domain (`src/components/pages/frontend/shop/product-detail/contracts.ts`, `src/components/pages/frontend/shop/product-detail/shared.ts`, riduzione `894 -> 736` righe). Consolidato anche riuso cross-detail (`product/service`) con componenti shared `InlineVideo`, `DetailFaqSection`, `DetailInsideSection` e `DetailAccordion`; nessuna regressione (`lint`/`typecheck` ok).
 
-### 3) Stato dati robusto (0.5-1 giorno)
-- [x] Estrarre fetch logic SearchDrawer in hook/client-api con abort/debounce/guardie.
-- [x] Formalizzare gestione stato menu senza accesso DOM imperative dove possibile.
-- [x] KPI: race conditions ridotte e stato UI più deterministico.
-- Stato: stato dati robusto layout completato il `2026-03-01` (`SearchDrawer` con `client-api + hook` e guardie race/abort/debounce; chiusura menu via callback `onNavigate` senza `document.getElementById`; `lint`/`typecheck`/`smoke 14/14` ok).
+### 3) Stato dati robusto (1-2 giorni)
+- [ ] Centralizzare normalizzazione media/richtext per pagine frontend in utility condivise.
+- [ ] Introdurre guardie consistenti per fallback contenuto (nullability/shape unknown).
+- [ ] KPI: comportamento uniforme nei fallback cross-page.
 
 ### 4) CSS e rendering (1-2 giorni)
-- [x] Rifattorizzare `Header.module.css` in blocchi/sottosezioni con naming coerente.
-- [x] Consolidare breakpoint strategy mobile-first per header/menu overlay.
-- [x] Ridurre regole tema duplicate (`:global body[data-theme=...]`) dove centralizzabile.
-- [x] Spostare i CSS modulo page-level fuori da `app/(frontend)/[locale]` verso dominio componenti (`src/components/pages/frontend/*`).
-- [x] KPI: CSS più compatto e prevedibile su mobile/desktop.
-- Stato: CSS e rendering layout completato il `2026-03-02` (assetto mobile-first base + override `@media (min-width: 1025px)`, sezioni CSS esplicite, dedup tema con variabili `--header-*`, migrazione CSS page-level fuori da `app/`); `lint`/`typecheck`/`smoke 14/14` ok.
+- [ ] Verificare mobile-first nei module CSS page-level residui.
+- [ ] Ridurre eccezioni `className` utility duplicate tra pagine detail.
+- [ ] KPI: regole più prevedibili e minore frammentazione stilistica.
 
 ### 5) Test, quality gate e regressioni (continuo)
-- [x] Aggiungere test int su helper search/menu state estratti.
-- [x] Aggiungere smoke E2E layout (`@smoke`) per header desktop/mobile + search drawer open/close + preferences modal.
-- [x] Includere coverage layout smoke nel gate standard.
-- [x] KPI: regressioni UI shell intercettate prima del merge.
-- Stato: fase 5 layout completata il `2026-03-01` con `tests/int/layout-search-menu.int.spec.ts` + `tests/e2e/layout-shell-smoke.e2e.spec.ts`; `lint`/`typecheck`/`test:int`/`test:e2e:smoke` tutti verdi (`14/14` smoke).
+- [ ] Aggiungere smoke `@smoke` dedicati ai percorsi page-critical rifattorizzati (`home`, `shop`, `services detail`).
+- [ ] Coprire con test int le utility condivise estratte (media/richtext formatters).
+- [ ] KPI: regressioni page-level intercettate in CI prima del merge.
 
 ### 6) Monitor finale punteggi (da aggiornare a fine fase)
-- [ ] Manutenibilità: `10/10` raggiunto. (stato fase layout: `9.5/10`)
-- [ ] Velocità di sviluppo: `10/10` raggiunto. (stato fase layout: `9.4/10`)
-- [ ] Modernità approccio: `10/10` raggiunto. (stato fase layout: `9.5/10`)
-- [ ] Performance FE: `10/10` raggiunto. (stato fase layout: `9.0/10`)
-- Delta vs avvio: manutenibilità `+2.6`, velocità `+2.4`, modernità `+2.2`, performance `+1.9`.
-- Esito fase layout: miglioramento sostanziale consolidato con riorganizzazione per dominio (`header/search/preferences/footer/shell`), shell globale semplificata (`app/(frontend)/[locale]/layout.tsx` ridotto a adapter), stato dati robusto e quality gate verde (`lint/typecheck/test:int/test:e2e:smoke`); `10/10` non marcato finché non si consolida trend storico performance.
-
-### Snapshot finale fase (2026-03-02)
-- Manutenibilità: `9.5/10`
-- Velocità di sviluppo: `9.4/10`
-- Modernità approccio: `9.5/10`
-- Performance FE: `9.0/10`
-
-### Snapshot avvio fase (2026-03-01)
-- Manutenibilità: `6.9/10`
-- Velocità di sviluppo: `7.0/10`
-- Modernità approccio: `7.3/10`
-- Performance FE: `7.1/10`
+- [ ] Manutenibilità: `10/10` raggiunto. (stato fase pages: `7.6/10`)
+- [ ] Velocità di sviluppo: `10/10` raggiunto. (stato fase pages: `7.5/10`)
+- [ ] Modernità approccio: `10/10` raggiunto. (stato fase pages: `8.1/10`)
+- [ ] Performance FE: `10/10` raggiunto. (stato fase pages: `7.9/10`)
+- Delta vs avvio fase pages: da aggiornare a chiusura.
