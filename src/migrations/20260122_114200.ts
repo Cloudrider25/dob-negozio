@@ -28,6 +28,8 @@ export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): P
   	"_parent_id" integer NOT NULL
   );
 
+  ALTER TABLE "service_categories" ADD COLUMN IF NOT EXISTS "image_id" integer;
+
   ALTER TABLE "treatments" ADD COLUMN IF NOT EXISTS "image_id" integer;
 
   INSERT INTO "treatments" (

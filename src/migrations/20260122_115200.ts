@@ -2,6 +2,8 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres'
 
 export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  ALTER TABLE "service_categories" ADD COLUMN IF NOT EXISTS "image_id" integer;
+
   ALTER TABLE "treatments" ADD COLUMN IF NOT EXISTS "image_id" integer;
 
   UPDATE "treatments"
