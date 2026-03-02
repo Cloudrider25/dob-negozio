@@ -40,20 +40,50 @@ const toLexicalJSON = (column: string) => sql`
 
 export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-    ALTER TABLE "services_locales"
-      ALTER COLUMN "results" TYPE jsonb USING ${toLexicalJSON('results')},
-      ALTER COLUMN "indications" TYPE jsonb USING ${toLexicalJSON('indications')},
-      ALTER COLUMN "tech_protocol_short" TYPE jsonb USING ${toLexicalJSON('tech_protocol_short')},
-      ALTER COLUMN "downtime" TYPE jsonb USING ${toLexicalJSON('downtime')};
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'services_locales') THEN
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'results') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "results" TYPE jsonb USING ${toLexicalJSON('results')};
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'indications') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "indications" TYPE jsonb USING ${toLexicalJSON('indications')};
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'tech_protocol_short') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "tech_protocol_short" TYPE jsonb USING ${toLexicalJSON('tech_protocol_short')};
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'downtime') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "downtime" TYPE jsonb USING ${toLexicalJSON('downtime')};
+        END IF;
+      END IF;
+    END $$;
   `)
 }
 
 export async function down({ db }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
-    ALTER TABLE "services_locales"
-      ALTER COLUMN "results" TYPE varchar USING "results"::text,
-      ALTER COLUMN "indications" TYPE varchar USING "indications"::text,
-      ALTER COLUMN "tech_protocol_short" TYPE varchar USING "tech_protocol_short"::text,
-      ALTER COLUMN "downtime" TYPE varchar USING "downtime"::text;
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'services_locales') THEN
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'results') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "results" TYPE varchar USING "results"::text;
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'indications') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "indications" TYPE varchar USING "indications"::text;
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'tech_protocol_short') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "tech_protocol_short" TYPE varchar USING "tech_protocol_short"::text;
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'services_locales' AND column_name = 'downtime') THEN
+          ALTER TABLE "services_locales"
+            ALTER COLUMN "downtime" TYPE varchar USING "downtime"::text;
+        END IF;
+      END IF;
+    END $$;
   `)
 }
