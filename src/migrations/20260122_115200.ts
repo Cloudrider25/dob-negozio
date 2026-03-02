@@ -2,14 +2,22 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres'
 
 export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-  ALTER TABLE "service_categories" ADD COLUMN IF NOT EXISTS "image_id" integer;
+  DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'service_categories') THEN
+      ALTER TABLE "service_categories" ADD COLUMN IF NOT EXISTS "image_id" integer;
+    END IF;
+  END $$;
 
   ALTER TABLE "treatments" ADD COLUMN IF NOT EXISTS "image_id" integer;
 
-  UPDATE "treatments"
-  SET "image_id" = "service_categories"."image_id"
-  FROM "service_categories"
-  WHERE "service_categories"."id" = "treatments"."id";
+  DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'service_categories') THEN
+      UPDATE "treatments"
+      SET "image_id" = "service_categories"."image_id"
+      FROM "service_categories"
+      WHERE "service_categories"."id" = "treatments"."id";
+    END IF;
+  END $$;
 
   DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'treatments_image_id_media_id_fk') THEN

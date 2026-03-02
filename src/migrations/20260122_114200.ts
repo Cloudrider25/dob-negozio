@@ -2,6 +2,12 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres'
 
 export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = '_locales') THEN
+      CREATE TYPE "_locales" AS ENUM ('it', 'en', 'ru');
+    END IF;
+  END $$;
+
   CREATE TABLE IF NOT EXISTS "treatments" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"hero_image_id" integer,
@@ -28,61 +34,73 @@ export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): P
   	"_parent_id" integer NOT NULL
   );
 
-  ALTER TABLE "service_categories" ADD COLUMN IF NOT EXISTS "image_id" integer;
+  DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'service_categories') THEN
+      ALTER TABLE "service_categories" ADD COLUMN IF NOT EXISTS "image_id" integer;
+    END IF;
+  END $$;
 
   ALTER TABLE "treatments" ADD COLUMN IF NOT EXISTS "image_id" integer;
 
-  INSERT INTO "treatments" (
-    "id",
-    "hero_image_id",
-    "image_id",
-    "highlight_image_left_id",
-    "highlight_image_right_id",
-    "dob_group",
-    "slug",
-    "active",
-    "updated_at",
-    "created_at"
-  )
-  SELECT
-    "id",
-    "hero_image_id",
-    "image_id",
-    "highlight_image_left_id",
-    "highlight_image_right_id",
-    "dob_group",
-    "slug",
-    "active",
-    "updated_at",
-    "created_at"
-  FROM "service_categories"
-  ON CONFLICT ("id") DO NOTHING;
+  DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'service_categories') THEN
+      INSERT INTO "treatments" (
+        "id",
+        "hero_image_id",
+        "image_id",
+        "highlight_image_left_id",
+        "highlight_image_right_id",
+        "dob_group",
+        "slug",
+        "active",
+        "updated_at",
+        "created_at"
+      )
+      SELECT
+        "id",
+        "hero_image_id",
+        "image_id",
+        "highlight_image_left_id",
+        "highlight_image_right_id",
+        "dob_group",
+        "slug",
+        "active",
+        "updated_at",
+        "created_at"
+      FROM "service_categories"
+      ON CONFLICT ("id") DO NOTHING;
+    END IF;
+  END $$;
 
-  INSERT INTO "treatments_locales" (
-    "id",
-    "title",
-    "description",
-    "highlight_lead",
-    "highlight_point_one_title",
-    "highlight_point_one_body",
-    "highlight_point_two_title",
-    "highlight_point_two_body",
-    "_locale",
-    "_parent_id"
-  )
-  SELECT
-    "id",
-    "title",
-    "description",
-    "highlight_lead",
-    "highlight_point_one_title",
-    "highlight_point_one_body",
-    "highlight_point_two_title",
-    "highlight_point_two_body",
-    "_locale",
-    "_parent_id"
-  FROM "service_categories_locales"
-  ON CONFLICT ("id") DO NOTHING;
+  DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'service_categories_locales') THEN
+      INSERT INTO "treatments_locales" (
+        "id",
+        "title",
+        "description",
+        "highlight_lead",
+        "highlight_point_one_title",
+        "highlight_point_one_body",
+        "highlight_point_two_title",
+        "highlight_point_two_body",
+        "_locale",
+        "_parent_id"
+      )
+      SELECT
+        "id",
+        "title",
+        "description",
+        "highlight_lead",
+        "highlight_point_one_title",
+        "highlight_point_one_body",
+        "highlight_point_two_title",
+        "highlight_point_two_body",
+        "_locale",
+        "_parent_id"
+      FROM "service_categories_locales"
+      ON CONFLICT ("id") DO NOTHING;
+    END IF;
+  END $$;
 
   SELECT setval(pg_get_serial_sequence('"treatments"', 'id'), COALESCE(MAX("id"), 1)) FROM "treatments";
   SELECT setval(pg_get_serial_sequence('"treatments_locales"', 'id'), COALESCE(MAX("id"), 1)) FROM "treatments_locales";
