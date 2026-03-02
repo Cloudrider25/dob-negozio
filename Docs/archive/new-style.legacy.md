@@ -42,4 +42,4 @@ Definire regole visive condivise e allineate all'implementazione corrente fronte
 - Account split: sidebar fluida (`minmax`) + content, collapse a 1 colonna su mobile.
 
 ## Note
-- Se una variazione rompe la coerenza split/layout, aggiornare prima `Docs/style-design-audit.md` e poi questo file.
+- Se una variazione rompe la coerenza split/layout, aggiornare prima `Docs/active/style-design-audit.md` e poi questo file.

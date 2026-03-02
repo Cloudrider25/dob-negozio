@@ -1,92 +1,36 @@
-# Style & Design Audit (Active)
-
-Ultimo aggiornamento: 2026-03-01  
-Owner: Team DOB Milano
-
-## Obiettivo
-Mantenere coerenza visuale e di interaction design sul frontend, riducendo custom CSS locali e convergendo su standard condivisi (token, componenti UI, varianti button, typography).
-
-## Stato corrente (snapshot)
-- Riorganizzazione `src/components` completata per domini principali.
-- Navigator legacy rimossi; i tipi sono stati migrati in `src/components/shop` e `src/components/services`.
-- Sistema button consolidato su `kind: main | card | hero` con motion condiviso.
-- Sistema label consolidato su `src/components/ui/label.tsx` + `label-theme.ts` con palette/varianti condivise.
-- Sezioni switcher allineate con spacing verticale coerente (`2.5vw`).
-- Form consulenza convergente su componente shared (`src/components/services/ConsulenzaSection.tsx`).
-- `SplitSection` unificata in classi globali (`.ui-split-section`, `.ui-split-column`) con adozione estesa nelle split principali.
-- `HeroGallery` unificata su componente shared (`src/components/ui/HeroGallery.tsx`) con consumer diretti in shop/service detail.
-- Layer Swiper centralizzato (`src/components/ui/swiper/index.ts`) con import CSS unificati.
-
-## Standard attivi
-- Breakpoint split/layout: `1024px`.
-- Spacing verticale baseline tra blocchi sotto switcher: `2.5vw`.
-- Button policy:
-- default `main`
-- `card` solo per card prodotto/servizio e CTA acquisto
-- `hero` solo per CTA hero
-- Carousel policy: `UIC_Carousel` + `UIC_CarouselCard` come base shared.
-
-## Backlog attivo (solo aperti)
-
-### P1 - Alta priorita
-
-- [ ] **Riduzione CSS globale monolitico**  
-Scope: `src/styles/globals.css`  
-Evidenza: presenti regole component-specific che dovrebbero vivere nei rispettivi module/componenti.  
-Azione: continuare migrazione verso CSS module/local scope e mantenere `globals.css` su foundations/reset/theme.
-
-### P2 - Design system quality
-
-- [ ] **Eliminazione colori hardcoded nelle pagine (`#...`)**  
-Scope: `src/app/**` (`tsx` + `module.css`)  
-Evidenza audit: hardcoded rilevati in `checkout.module.css` (73), `product-detail.module.css` (37), `service-detail.module.css` (26), `layout.tsx` (15).  
-Azione: migrare a token globali (`--text-*`, `--bg`, `--paper`, `--stroke`) garantendo contrasto/stati in light+dark.  
-Stato: in corso, batch completati `layout.tsx` + `service-detail.module.css` (hardcoded `#...` azzerati in entrambi i file).
-
-## Storico completato
-Le voci completate e i batch storici sono stati spostati in:
-- `Docs/archive/style-design-audit-completed.legacy.md`
-
-## Metodo di lavoro (operativo da ora)
-
-Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra module CSS, global CSS, classi Tailwind e inline style.
-
-1. Input blocco
-- Ricevo snippet CSS + file sorgente (module/path) come riferimento.
-
-2. Ricerca istanze simili/uguali (scope completo frontend runtime)
-- CSS module: selector e declaration simili/uguali.
-- Global CSS: regole equivalenti o in conflitto.
-- TSX/JSX: className Tailwind equivalenti.
-- TSX/JSX: `style={{ ... }}` inline equivalenti.
-
-3. Classificazione pattern
-- `Single-use`: usato in un solo punto.
-- `Repeated`: usato in piu consumer (stesso pattern o variante minima).
-- `System-level`: regola base trasversale (reset/foundation/theme).
-
-4. Decisione tecnica (decision tree)
-- `Single-use`: resta locale nel module del componente.
-- `Repeated` + semantica UI: creare/riusare componente shared (`ui/*` o `sections/*`).
-- `Repeated` + utility visuale semplice: usare Tailwind utility (inline className) o utility condivisa.
-- `System-level`: spostare in `globals.css` dentro layer appropriato:
-  - `@layer base` per elementi HTML/foundation
-  - `@layer components` per classi shared di componente
-  - `@layer utilities` per utility globali riusabili
-
-5. Implementazione
-- Applico la decisione approvata.
-- Aggiorno i consumer.
-- Rimuovo CSS legacy/duplicato residuo (module, global, inline).
-
-6. Verifica
-- Ricerca post-migrazione (`rg`) per confermare rimozione duplicati/vecchi selector.
-- Verifica tecnica: `pnpm -s tsc --noEmit` (e build quando richiesto dal blocco).
-
-7. Log chiusura blocco
-- Ogni blocco chiuso viene registrato in `Log blocchi chiusi` qui sotto (data, scope, decisione, file toccati, verifica).
+# Log
 
 ## Log blocchi chiusi
+
+- 2026-03-02 | Blocco ARCH-054 (`frontend` namespace hardening + page-domain structure normalization)
+  - Scope: `src/frontend/components/**`, `src/frontend/page-domains/**`, `src/lib/**`, route wrappers in `src/app/(frontend)/**`.
+  - Decisione: consolidare definitivamente la struttura frontend su due assi chiari:
+  - `src/frontend/components/*` solo componenti cross-domain riusabili;
+  - `src/frontend/page-domains/*` per pagine/sections per dominio.
+  - Implementazione:
+  - normalizzato placement componenti semantici non global (`ConsulenzaSection`, `ShopAllSection`) in `src/frontend/page-domains/shared/sections/*`;
+  - spostata utility richtext da layer component a `src/lib/frontend/services/richtext.ts`;
+  - uniformati domini non allineati a pattern `.../page/...`:
+    - `dob-protocol/page/*`
+    - `journal/page/*`
+    - `programs/pages/program-detail/page/*`;
+  - aggiornati import applicativi dopo i move (app routes + consumer page-domains).
+  - Verifica: `pnpm -s tsc --noEmit` ok.
+
+- 2026-03-02 | Blocco DOCS-055 (`Docs` information architecture cleanup)
+  - Scope: `Docs/**`, `.github/pull_request_template.md`.
+  - Decisione: separare chiaramente documenti operativi correnti, reference stabile e storico legacy per ridurre rumore e disallineamenti.
+  - Implementazione:
+  - creata struttura:
+    - `Docs/active/*`
+    - `Docs/reference/*` (`product`, `typography`)
+    - `Docs/archive/*`;
+  - spostati file operativi in `Docs/active` (`folder-refactor`, `style-design-audit`, `shop-journey-monitor`, `pr-checklist-typography`);
+  - spostati file guida stabili in `Docs/reference`;
+  - spostati documenti non più operativi in `Docs/archive/*.legacy.md`;
+  - riscritto `Docs/README.md` e aggiunto `Docs/INDEX.md` come registry unico;
+  - aggiornati i riferimenti nel PR template ai nuovi path docs attivi.
+  - Verifica: controllo link interno con `rg` su path `Docs/*.md` legacy completato (nessun riferimento residuo ai vecchi path root).
 
 - 2026-03-01 | Blocco CSS-051 (`MediaThumb` standardizzazione thumbnail sitewide)
   - Scope: `src/components/shared/MediaThumb.*`, account orders/modals, checkout, cart (`drawer` + `page`), search drawer, routine builder thumbs.
@@ -108,7 +52,7 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - Verifica: `pnpm quality:gate` ok (`typecheck`/`test:int`/`test:e2e:smoke` passati; lint con warning legacy senza errori).
 
 - 2026-03-01 | Blocco CSS/QA-053 (`Carousel` hardening + folder policy + smoke coverage)
-  - Scope: `src/components/carousel/**`, `src/components/sections/ProgramsSplitSection.tsx`, `tests/int/carousel-mappers.int.spec.ts`, `tests/e2e/carousel-smoke.e2e.spec.ts`, `Docs/Folder refactor.md`.
+  - Scope: `src/components/carousel/**`, `src/components/sections/ProgramsSplitSection.tsx`, `tests/int/carousel-mappers.int.spec.ts`, `tests/e2e/carousel-smoke.e2e.spec.ts`, `Docs/active/folder-refactor.md`.
   - Decisione: chiudere il ciclo refactor del dominio carousel con policy mobile-first, contratti/tipi separati, organizzazione cartelle semantica (`ui`/`shared`) e copertura regressioni dedicata.
   - Implementazione:
   - `carousel` riorganizzato in `src/components/carousel/ui/*` (componenti + CSS co-locati) e `src/components/carousel/shared/*` (contracts/types/mappers), mantenendo barrel pubblico `src/components/carousel/index.ts`;
@@ -694,7 +638,7 @@ Obiettivo: per ogni blocco CSS candidato, evitare duplicati/incoerenze tra modul
   - `src/collections/Anagrafiche.ts`
   - `src/collections/Users.ts`
   - `src/lib/anagrafiche/ensureAnagraficaForCustomer.ts`
-  - `src/scripts/backfill-anagrafiche-from-users.ts`
+  - `scripts/backfill-anagrafiche-from-users.ts`
   - `src/migrations/20260226_140500.ts`
   - Decisione: consolidare modello duale servizi (`Order Service Items` commerciale + `Order Service Sessions` operativo), chiudere persistenza anagrafiche e mantenere source-of-truth contatti/indirizzi su `users` con write-through da `anagrafiche`.
   - Implementazione backend:

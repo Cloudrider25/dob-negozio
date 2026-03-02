@@ -16,7 +16,7 @@ Owner: Team DOB Milano
 - [x] Auth journey (`signin/signup/forgot/reset/verify`) funzionante
 - [x] Area account (`overview/orders/addresses`) operativa
 - [x] Hardening sicurezza account completato
-- [x] Evidenza: documento aggiornato in `Docs/user-account.md`
+- [x] Evidenza: documento aggiornato in `Docs/archive/user-account.legacy.md`
 
 ### M2 - Shop Journey
 
@@ -30,7 +30,7 @@ Owner: Team DOB Milano
 - [x] Checkout quote: shipping a `0` sopra soglia
 - [x] Stripe/checkout backend: shipping non addebitato sopra soglia
 - [ ] QA smoke completo `shop -> cart -> checkout -> success` su `it/en/ru`
-- [ ] Evidenza: aggiornamento stato in `Docs/shop-journey-monitor.md`
+- [ ] Evidenza: aggiornamento stato in `Docs/active/shop-journey-monitor.md`
 
 ### M3 - Services
 
@@ -92,7 +92,7 @@ Owner: Team DOB Milano
 - Questo file è il navigator master cross-area.
 - L'indice documentazione aggiornato e in `Docs/README.md`.
 - I dettagli tecnici restano nei documenti verticali:
-- `Docs/user-account.md`
-- `Docs/shop-journey-monitor.md`
-- `Docs/services-configurator.md`
-- `Docs/db-product.md`
+- `Docs/archive/user-account.legacy.md`
+- `Docs/active/shop-journey-monitor.md`
+- `Docs/reference/services-configurator.md`
+- `Docs/reference/product/db-product.md`

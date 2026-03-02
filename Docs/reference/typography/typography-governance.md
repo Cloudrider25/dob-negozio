@@ -8,8 +8,8 @@ Evitare la reintroduzione di tipografia custom non standard e mantenere coerenza
 
 ## Stato Programma
 - Programma typography refactor completato (Fasi 0→6) in data 2026-02-17.
-- Dettaglio baseline: `Docs/typography-baseline-inventory.md`
-- Dettaglio scala/token: `Docs/typography-scale.md`
+- Dettaglio baseline: `Docs/reference/typography/typography-baseline-inventory.md`
+- Dettaglio scala/token: `Docs/reference/typography/typography-scale.md`
 - Storico batch: `Docs/archive/style-design-audit-completed.legacy.md`
 
 ## Regole vincolanti
@@ -20,7 +20,7 @@ Evitare la reintroduzione di tipografia custom non standard e mantenere coerenza
 - Le eccezioni tipografiche micro-UI devono essere:
   - motivate (vincolo tecnico/visuale specifico)
   - locali (non riusabili)
-  - annotate in `Docs/style-design-audit.md`
+  - annotate in `Docs/active/style-design-audit.md`
 
 ## Eccezioni deliberate attuali
 - `src/components/admin/RoutineTemplateBuilder.module.css` (admin Payload in uso)
@@ -38,7 +38,7 @@ Evitare la reintroduzione di tipografia custom non standard e mantenere coerenza
 4. Eseguire validazione tecnica:
    - `pnpm tsc --noEmit --incremental false`
    - `pnpm build`
-5. Aggiornare `Docs/style-design-audit.md` se si introduce o rimuove un'eccezione.
+5. Aggiornare `Docs/active/style-design-audit.md` se si introduce o rimuove un'eccezione.
 
 ## Audit rapido consigliato
 ```bash

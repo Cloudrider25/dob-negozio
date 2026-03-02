@@ -22,8 +22,8 @@
 ## Typography Checklist
 - [ ] Ho usato classi semantiche `typo-*` nei consumer TSX dove applicabile.
 - [ ] Non ho aggiunto tipografia custom in `*.module.css` (`font-size`, `line-height`, `letter-spacing`, `font-family`, `text-transform`) senza motivazione.
-- [ ] Se ho aggiunto un'eccezione tipografica, è locale, motivata e documentata in `Docs/style-design-audit.md`.
+- [ ] Se ho aggiunto un'eccezione tipografica, è locale, motivata e documentata in `Docs/active/style-design-audit.md`.
 - [ ] Ho verificato heading hierarchy (`h1/h2/h3`) nelle pagine toccate.
 - [ ] Ho verificato leggibilità minima su light/dark nelle pagine toccate.
 
-Riferimento esteso: `Docs/pr-checklist-typography.md`
+Riferimento esteso: `Docs/active/pr-checklist-typography.md`
