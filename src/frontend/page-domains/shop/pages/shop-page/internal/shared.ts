@@ -72,6 +72,7 @@ export const toIdArray = (value: unknown): string[] => {
 export const buildMediaUrl = (value: { url?: string | null; filename?: string | null }) => {
   if (typeof value.url === 'string' && value.url.length > 0) return value.url
   if (typeof value.filename === 'string' && value.filename.length > 0) {
+    if (process.env.VERCEL === '1') return '/brand/logo-black.png'
     return `/api/media/file/${encodeURIComponent(value.filename)}`
   }
   return null
