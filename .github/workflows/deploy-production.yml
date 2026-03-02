@@ -1,0 +1,85 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Verify Production Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Integration tests
+        run: pnpm test:int
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
+
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
+          NEXT_TELEMETRY_DISABLED: '1'
+
+      - name: Check required secrets for smoke
+        id: smoke-secrets
+        shell: bash
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
+        run: |
+          if [[ -n "${DATABASE_URL}" && -n "${PAYLOAD_SECRET}" ]]; then
+            echo "ready=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "ready=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Install Playwright browser
+        if: steps.smoke-secrets.outputs.ready == 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run smoke E2E
+        if: steps.smoke-secrets.outputs.ready == 'true'
+        run: pnpm test:e2e:smoke
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
+          NEXT_TELEMETRY_DISABLED: '1'
+
+  deploy:
+    name: Deploy Production
+    needs: verify
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Trigger production deploy webhook
+        if: ${{ secrets.PRODUCTION_DEPLOY_HOOK_URL != '' }}
+        run: curl -fsS -X POST "${{ secrets.PRODUCTION_DEPLOY_HOOK_URL }}"
+
+      - name: No deploy hook configured
+        if: ${{ secrets.PRODUCTION_DEPLOY_HOOK_URL == '' }}
+        run: echo "PRODUCTION_DEPLOY_HOOK_URL non configurato. Verifica completata, deploy non eseguito."
