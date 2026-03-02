@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -127,7 +128,14 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    vercelBlobStorage({
+      collections: {
+        media: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
+  ],
   hooks: {
     afterError: [
       async ({ collection, error, req }) => {
@@ -182,46 +190,53 @@ export default buildConfig({
     ],
   },
   onInit: async (payload) => {
-    const pageKeys = [
-      'home',
-      'services',
-      'shop',
-      'journal',
-      'location',
-      'our-story',
-      'dob-protocol',
-      'contact',
-      'checkout',
-    ] as const
-    const existing = await payload.find({
-      collection: 'pages',
-      depth: 0,
-      limit: pageKeys.length,
-    })
-    const existingKeys = new Set(
-      existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
-    )
+    try {
+      const pageKeys = [
+        'home',
+        'services',
+        'shop',
+        'journal',
+        'location',
+        'our-story',
+        'dob-protocol',
+        'contact',
+        'checkout',
+      ] as const
+      const existing = await payload.find({
+        collection: 'pages',
+        depth: 0,
+        limit: pageKeys.length,
+      })
+      const existingKeys = new Set(
+        existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
+      )
 
-    for (const key of pageKeys) {
-      if (!existingKeys.has(key)) {
-        await payload.create({
-          collection: 'pages',
-          data: {
-            pageKey: key,
-            heroTitleMode: 'fixed',
-            heroStyle: 'style1',
-          },
-          locale: 'it',
-          overrideAccess: true,
-          draft: false,
-        })
+      for (const key of pageKeys) {
+        if (!existingKeys.has(key)) {
+          await payload.create({
+            collection: 'pages',
+            data: {
+              pageKey: key,
+              heroTitleMode: 'fixed',
+              heroStyle: 'style1',
+            },
+            locale: 'it',
+            overrideAccess: true,
+            draft: false,
+          })
+        }
       }
-    }
 
-    const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
-    const isProduction = process.env.NODE_ENV === 'production'
-    if (!disableShopSeed && !isProduction) {
-      await seedShopTaxonomies(payload)
+      const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
+      const isProduction = process.env.NODE_ENV === 'production'
+      if (!disableShopSeed && !isProduction) {
+        await seedShopTaxonomies(payload)
+      }
+    } catch (error) {
+      payload.logger.warn({
+        msg: 'Skipping onInit seeds because database is not ready yet.',
+        err: error,
+      })
     }
   },
 })

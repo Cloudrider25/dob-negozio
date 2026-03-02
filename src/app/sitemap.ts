@@ -91,14 +91,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (entry) entries.push(entry)
     }
 
-    const [productSlugs, serviceSlugs, treatmentSlugs, areaSlugs, goalSlugs, programSlugs] = await Promise.all([
-      getCollectionSlugs({ locale, collection: 'products', where: { active: { equals: true } } }),
-      getCollectionSlugs({ locale, collection: 'services', where: { active: { equals: true } } }),
-      getCollectionSlugs({ locale, collection: 'treatments', where: { active: { equals: true } } }),
-      getCollectionSlugs({ locale, collection: 'areas' }),
-      getCollectionSlugs({ locale, collection: 'objectives' }),
-      getCollectionSlugs({ locale, collection: 'programs' }),
-    ])
+    let productSlugs: string[] = []
+    let serviceSlugs: string[] = []
+    let treatmentSlugs: string[] = []
+    let areaSlugs: string[] = []
+    let goalSlugs: string[] = []
+    let programSlugs: string[] = []
+
+    try {
+      ;[productSlugs, serviceSlugs, treatmentSlugs, areaSlugs, goalSlugs, programSlugs] =
+        await Promise.all([
+          getCollectionSlugs({ locale, collection: 'products', where: { active: { equals: true } } }),
+          getCollectionSlugs({ locale, collection: 'services', where: { active: { equals: true } } }),
+          getCollectionSlugs({ locale, collection: 'treatments', where: { active: { equals: true } } }),
+          getCollectionSlugs({ locale, collection: 'areas' }),
+          getCollectionSlugs({ locale, collection: 'objectives' }),
+          getCollectionSlugs({ locale, collection: 'programs' }),
+        ])
+    } catch (error) {
+      console.warn(`[sitemap] Skipping dynamic entries for locale "${locale}" because DB is not ready.`, error)
+    }
 
     for (const slug of productSlugs) {
       const entry = addEntry(toPath(locale, `/shop/${slug}`), 0.8, 'weekly')
