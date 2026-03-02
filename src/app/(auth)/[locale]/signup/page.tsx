@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
 
-import { AuthSplitLayout } from '@/components/account/auth/AuthSplitLayout'
-import { SignUpForm } from '@/components/account/forms/auth/SignUpForm'
-import { isLocale } from '@/lib/i18n'
+import { AuthSplitLayout } from '@/frontend/page-domains/account/auth/AuthSplitLayout'
+import { SignUpForm } from '@/frontend/page-domains/account/forms/auth/SignUpForm'
+import { isLocale } from '@/lib/i18n/core'
 
 export default async function SignUpPage({
   params,

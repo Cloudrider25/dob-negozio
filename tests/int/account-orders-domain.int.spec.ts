@@ -5,8 +5,8 @@ import {
   groupOrders,
   sortOrdersByDateDesc,
   sortOrdersForList,
-} from '@/components/account/hooks/orders/orders-domain'
-import type { OrderItem } from '@/components/account/types'
+} from '@/frontend/page-domains/account/hooks/orders/orders-domain'
+import type { OrderItem } from '@/frontend/page-domains/account/types'
 
 const baseOrder = (overrides: Partial<OrderItem>): OrderItem => ({
   id: 1,

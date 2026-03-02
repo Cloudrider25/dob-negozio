@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
 import React from 'react'
-import { isLocale, locales } from '@/lib/i18n'
-import { FrontendLocaleShell } from '@/components/layout/shell/FrontendLocaleShell'
-import { getFrontendLocaleShellData } from '@/components/layout/shell/server/getFrontendLocaleShellData'
+import { isLocale, locales } from '@/lib/i18n/core'
+import { FrontendLocaleShell } from '@/frontend/layout/shell/FrontendLocaleShell'
+import { getFrontendLocaleShellData } from '@/frontend/layout/shell/server/getFrontendLocaleShellData'
 
 export const generateStaticParams = () => locales.map((locale) => ({ locale }))
 

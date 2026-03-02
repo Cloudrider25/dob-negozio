@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { getPayload } from 'payload'
 
-import config from '../../src/payload.config'
+import config from '../../src/payload/config'
 
 type CheckoutProduct = {
   id: string

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import { isLocale, type Locale } from '@/lib/i18n'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import { isLocale, type Locale } from '@/lib/i18n/core'
 
 type SearchOption = {
   id: string

@@ -5,8 +5,8 @@ import {
   findNextServiceAppointmentRow,
   formatServiceStatus,
   groupServices,
-} from '@/components/account/hooks/services/services-domain'
-import type { ServiceBookingRow } from '@/components/account/types'
+} from '@/frontend/page-domains/account/hooks/services/services-domain'
+import type { ServiceBookingRow } from '@/frontend/page-domains/account/types'
 
 const baseServiceRow = (overrides: Partial<ServiceBookingRow>): ServiceBookingRow => ({
   id: 's-1',

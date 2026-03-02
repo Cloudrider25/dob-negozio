@@ -1,3 +1,3 @@
-import ShippingPage from '@/components/pages/frontend/legal/ShippingPage'
+import ShippingPage from '@/frontend/page-domains/legal/shipping/ShippingPage'
 
 export default ShippingPage

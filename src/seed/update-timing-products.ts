@@ -1,5 +1,5 @@
 import { getPayload } from 'payload'
-import config from '../payload.config'
+import config from '../payload/config'
 import { seedRoutineBuilder } from './fill-routine-builder'
 
 type RelationValue = number | string | { id?: number | string } | null | undefined

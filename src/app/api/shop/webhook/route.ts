@@ -2,12 +2,12 @@ import crypto from 'node:crypto'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import { isLocale, type Locale } from '@/lib/i18n'
-import { sendSMTPEmail } from '@/lib/email/sendSMTPEmail'
-import { commitOrderInventory, releaseOrderAllocation } from '@/lib/shop/orderInventory'
-import { getShopIntegrationsConfig } from '@/lib/shop/shopIntegrationsConfig'
-import { createSendcloudParcel } from '@/lib/sendcloud/createParcel'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import { isLocale, type Locale } from '@/lib/i18n/core'
+import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
+import { commitOrderInventory, releaseOrderAllocation } from '@/lib/server/shop/orderInventory'
+import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
+import { createSendcloudParcel } from '@/lib/server/sendcloud/createParcel'
 
 type WebhookPayload = {
   eventID?: string

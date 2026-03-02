@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveCheckoutStepTransition } from '@/components/checkout/shared/step-machine'
+import { resolveCheckoutStepTransition } from '@/frontend/page-domains/checkout/shared/step-machine'
 
 describe('checkout step machine', () => {
   it('blocks information -> shipping when required fields are missing', () => {

@@ -1,13 +1,13 @@
 import { cookies, headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { HeaderThemeObserver } from '@/components/layout/header/HeaderThemeObserver'
-import { PreferencesConfirmModal } from '@/components/layout/preferences/PreferencesConfirmModal'
-import { isLocale } from '@/lib/i18n'
+import { HeaderThemeObserver } from '@/frontend/layout/header/HeaderThemeObserver'
+import { PreferencesConfirmModal } from '@/frontend/layout/preferences/PreferencesConfirmModal'
+import { isLocale } from '@/lib/i18n/core'
 import {
   resolvePreferencesFromAcceptLanguage,
   USER_PREFS_COOKIE_KEYS,
-} from '@/lib/user-preferences'
+} from '@/lib/frontend/preferences/user-preferences'
 
 export default async function CheckoutLayout({
   children,

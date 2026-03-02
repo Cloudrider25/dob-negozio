@@ -1,3 +1,3 @@
-import HomePage from '@/components/pages/frontend/home/HomePage'
+import HomePage from '@/frontend/page-domains/home/page/HomePage'
 
 export default HomePage

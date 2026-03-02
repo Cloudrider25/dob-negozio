@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import type { OrderServiceSession } from '@/payload-types'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import type { OrderServiceSession } from '@/payload/generated/payload-types'
 
 export async function GET(request: Request) {
   const payload = await getPayloadClient()

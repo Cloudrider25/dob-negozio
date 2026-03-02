@@ -11,7 +11,7 @@ import {
   normalizeCartItems,
   removeCartItem,
   type CartItem,
-} from '@/components/cart'
+} from '@/frontend/components/cart'
 
 describe('cart domain normalization', () => {
   it('normalizes legacy values and merges duplicated ids', () => {

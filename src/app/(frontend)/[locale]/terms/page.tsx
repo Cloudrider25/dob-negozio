@@ -1,3 +1,3 @@
-import TermsPage from '@/components/pages/frontend/legal/TermsPage'
+import TermsPage from '@/frontend/page-domains/legal/terms/TermsPage'
 
 export default TermsPage

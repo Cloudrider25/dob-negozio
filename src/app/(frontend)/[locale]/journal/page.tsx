@@ -1,3 +1,3 @@
-import JournalPage from '@/components/pages/frontend/journal/JournalPage'
+import JournalPage from '@/frontend/page-domains/journal/page/JournalPage'
 
 export default JournalPage

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import { ensureAnagraficaForCustomer } from '@/lib/anagrafiche/ensureAnagraficaForCustomer'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 
 type AestheticFolderPayload = {
   lastAssessmentDate: string

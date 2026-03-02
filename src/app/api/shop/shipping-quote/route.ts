@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import { getSendcloudShippingOptions } from '@/lib/sendcloud/getShippingQuote'
-import { isFreeShippingUnlocked } from '@/lib/shop/shipping'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import { getSendcloudShippingOptions } from '@/lib/server/sendcloud/getShippingQuote'
+import { isFreeShippingUnlocked } from '@/lib/shared/shop/shipping'
 
 type ShippingQuoteRequest = {
   address?: string

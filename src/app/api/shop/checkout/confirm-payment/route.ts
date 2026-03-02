@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import { isLocale, type Locale } from '@/lib/i18n'
-import { commitOrderInventory } from '@/lib/shop/orderInventory'
-import { getShopIntegrationsConfig } from '@/lib/shop/shopIntegrationsConfig'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import { isLocale, type Locale } from '@/lib/i18n/core'
+import { commitOrderInventory } from '@/lib/server/shop/orderInventory'
+import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 
 type ConfirmPayload = {
   orderId?: string | number

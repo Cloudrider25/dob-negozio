@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { getPayload } from 'payload'
-import config from '../payload.config'
+import config from '../payload/config'
 import { writeFileSync } from 'fs'
 
 type TaxonomyMaps = {

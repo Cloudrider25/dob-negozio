@@ -5,7 +5,7 @@ import path from 'path'
 
 import { getPayload, type Payload } from 'payload'
 
-import configPromise from '../payload.config'
+import configPromise from '../payload/config'
 
 const rootDir = process.cwd()
 

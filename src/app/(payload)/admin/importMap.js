@@ -1,11 +1,11 @@
-import { default as default_2953f1e42753c50b899ea1e3de1d4c47 } from '../../../components/admin/AnagProductsPurchasesList'
-import { default as default_60d9020947daa64bf82b7fadce47e0b9 } from '../../../components/admin/AnagServicesPurchasesList'
-import { default as default_aff5c36b0a87722e3760737f6967ceca } from '../../../components/admin/OrderProductItemsList'
-import { default as default_5ae14ba28b2c8b303a6a51bf0acddc48 } from '../../../components/admin/OrderServiceItemsList'
-import { default as default_7eb31bc146d39d5e7d5719fba4150449 } from '../../../components/admin/SectionTitle'
-import { default as default_c41711f0c79a6095f245c88ba2d3606b } from '../../../components/admin/PackageVariableSelect'
-import { default as default_26fd4bd2add89f82886c50abcfd7d4a3 } from '../../../components/admin/PackageValueField'
-import { default as default_5a759a02e9879fdc224043bf81c6438e } from '../../../components/admin/ServicePackageRowLabel'
+import { default as default_d7dfd30fbd2518b2f2bc1c1a7731fff4 } from '../../../payload/admin/components/AnagProductsPurchasesList'
+import { default as default_4b747d35dbdc28debe7959d186f5e517 } from '../../../payload/admin/components/AnagServicesPurchasesList'
+import { default as default_e3695ce68af376caa3a3d5d3199e1212 } from '../../../payload/admin/components/OrderProductItemsList'
+import { default as default_b31f8897b1d7989c09709ed7f8b9aa53 } from '../../../payload/admin/components/OrderServiceItemsList'
+import { default as default_1ede004e1879acd3cdc1f0719f688eea } from '../../../payload/admin/components/SectionTitle'
+import { default as default_afddf280b889025dc52d337e87bfd765 } from '../../../payload/admin/components/PackageVariableSelect'
+import { default as default_c971da51e97c53c0524b7a5a2c135b26 } from '../../../payload/admin/components/PackageValueField'
+import { default as default_5d549487d8b25ebdcfb0b7d96d6019bf } from '../../../payload/admin/components/ServicePackageRowLabel'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -29,21 +29,21 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { default as default_55b26d7c159ac9b9522b89fffbca8bf2 } from '../../../components/admin/RoutineTemplateBuilderClient'
-import { default as default_c48e2201cfba14873e1c87dc9d0d96e7 } from '../../../components/admin/RoutineTemplateRulesClient'
-import { default as default_7baa115f993625802037a865276c70e2 } from '../../../components/admin/AdminSidebarLogo'
-import { default as default_962081a3c03430588afec20154b319ef } from '../../../components/admin/AdminSidebarHeader'
+import { default as default_ab1d23622ab994e20ed777b305b8a6dd } from '../../../payload/admin/components/RoutineTemplateBuilderClient'
+import { default as default_08847aa119deb03f203ed63fe48d9440 } from '../../../payload/admin/components/RoutineTemplateRulesClient'
+import { default as default_5e59f4e69d660c312ff48eca151b211a } from '../../../payload/admin/components/AdminSidebarLogo'
+import { default as default_c086fd4548e60a3ba9024fca9e868dc8 } from '../../../payload/admin/components/AdminSidebarHeader'
 import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 
 export const importMap = {
-  "/components/admin/AnagProductsPurchasesList#default": default_2953f1e42753c50b899ea1e3de1d4c47,
-  "/components/admin/AnagServicesPurchasesList#default": default_60d9020947daa64bf82b7fadce47e0b9,
-  "/components/admin/OrderProductItemsList#default": default_aff5c36b0a87722e3760737f6967ceca,
-  "/components/admin/OrderServiceItemsList#default": default_5ae14ba28b2c8b303a6a51bf0acddc48,
-  "/components/admin/SectionTitle#default": default_7eb31bc146d39d5e7d5719fba4150449,
-  "/components/admin/PackageVariableSelect#default": default_c41711f0c79a6095f245c88ba2d3606b,
-  "/components/admin/PackageValueField#default": default_26fd4bd2add89f82886c50abcfd7d4a3,
-  "/components/admin/ServicePackageRowLabel#default": default_5a759a02e9879fdc224043bf81c6438e,
+  "/admin/components/AnagProductsPurchasesList#default": default_d7dfd30fbd2518b2f2bc1c1a7731fff4,
+  "/admin/components/AnagServicesPurchasesList#default": default_4b747d35dbdc28debe7959d186f5e517,
+  "/admin/components/OrderProductItemsList#default": default_e3695ce68af376caa3a3d5d3199e1212,
+  "/admin/components/OrderServiceItemsList#default": default_b31f8897b1d7989c09709ed7f8b9aa53,
+  "/admin/components/SectionTitle#default": default_1ede004e1879acd3cdc1f0719f688eea,
+  "/admin/components/PackageVariableSelect#default": default_afddf280b889025dc52d337e87bfd765,
+  "/admin/components/PackageValueField#default": default_c971da51e97c53c0524b7a5a2c135b26,
+  "/admin/components/ServicePackageRowLabel#default": default_5d549487d8b25ebdcfb0b7d96d6019bf,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -67,9 +67,9 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "/components/admin/RoutineTemplateBuilderClient#default": default_55b26d7c159ac9b9522b89fffbca8bf2,
-  "/components/admin/RoutineTemplateRulesClient#default": default_c48e2201cfba14873e1c87dc9d0d96e7,
-  "/components/admin/AdminSidebarLogo#default": default_7baa115f993625802037a865276c70e2,
-  "/components/admin/AdminSidebarHeader#default": default_962081a3c03430588afec20154b319ef,
+  "/admin/components/RoutineTemplateBuilderClient#default": default_ab1d23622ab994e20ed777b305b8a6dd,
+  "/admin/components/RoutineTemplateRulesClient#default": default_08847aa119deb03f203ed63fe48d9440,
+  "/admin/components/AdminSidebarLogo#default": default_5e59f4e69d660c312ff48eca151b211a,
+  "/admin/components/AdminSidebarHeader#default": default_c086fd4548e60a3ba9024fca9e868dc8,
   "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a
 }

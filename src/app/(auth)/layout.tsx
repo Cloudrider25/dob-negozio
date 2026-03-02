@@ -1,7 +1,7 @@
 import React from 'react'
 import { Instrument_Sans, Work_Sans } from 'next/font/google'
 import '../../styles/globals.css'
-import { ThemeHydrator } from '@/components/theme/ThemeHydrator'
+import { ThemeHydrator } from '@/frontend/components/theme/ThemeHydrator'
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],

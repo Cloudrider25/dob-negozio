@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import { isLocale, type Locale } from '@/lib/i18n'
-import { normalizeThumbnailSrc } from '@/lib/media/thumbnail'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import { isLocale, type Locale } from '@/lib/i18n/core'
+import { normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
 
 const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 

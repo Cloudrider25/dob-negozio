@@ -1,3 +1,3 @@
-import PrivacyPage from '@/components/pages/frontend/legal/PrivacyPage'
+import PrivacyPage from '@/frontend/page-domains/legal/privacy/PrivacyPage'
 
 export default PrivacyPage

@@ -6,7 +6,7 @@ import {
   normalizeCarouselItems,
   normalizeCarouselItem,
   resolveCarouselCtaLabel,
-} from '@/components/carousel'
+} from '@/frontend/components/carousel'
 
 describe('carousel mappers', () => {
   it('creates a normalized item with fallback image and trimmed strings', () => {

@@ -1,3 +1,3 @@
-import ServiceAreaDetailPage from '@/components/pages/frontend/services/area-detail/ServiceAreaDetailPage'
+import ServiceAreaDetailPage from '@/frontend/page-domains/services/legacy/area-detail/ServiceAreaDetailPage'
 
 export default ServiceAreaDetailPage

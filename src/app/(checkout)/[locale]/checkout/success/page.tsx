@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { getJourneyDictionary, isLocale } from '@/lib/i18n'
+import { getJourneyDictionary, isLocale } from '@/lib/i18n/core'
 
 export default async function CheckoutSuccessPage({
   params,

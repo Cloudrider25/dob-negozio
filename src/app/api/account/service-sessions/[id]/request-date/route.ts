@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 
 const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 

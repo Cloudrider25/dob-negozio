@@ -1,3 +1,3 @@
-import ServicesPage from '@/components/pages/frontend/services/ServicesPage'
+import ServicesPage from '@/frontend/page-domains/services/pages/services-page/page/ServicesPage'
 
 export default ServicesPage

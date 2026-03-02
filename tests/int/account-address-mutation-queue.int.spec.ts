@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMutationQueue } from '@/components/account/hooks/addresses/mutationQueue'
+import { createMutationQueue } from '@/frontend/page-domains/account/hooks/addresses/mutationQueue'
 
 describe('account address mutation queue', () => {
   it('serializes tasks even when scheduled concurrently', async () => {

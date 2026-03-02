@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { getPayload, type Payload } from 'payload'
 
-import config from '../../src/payload.config'
+import config from '../../src/payload/config'
 
 const runId = Date.now()
 const userEmail = `qa.account.journey.${runId}@example.com`

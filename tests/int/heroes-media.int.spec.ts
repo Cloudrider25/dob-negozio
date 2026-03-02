@@ -5,7 +5,7 @@ import {
   normalizeStoryHighlightMedia,
   resolveHeroImageAlt,
   resolveStoryHighlightMedia,
-} from '@/components/heroes/shared/media'
+} from '@/frontend/components/heroes/shared/media'
 
 describe('heroes media helpers', () => {
   it('uses fallback alt when alt is missing or blank', () => {

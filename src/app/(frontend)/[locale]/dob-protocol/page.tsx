@@ -1,3 +1,3 @@
-import DobProtocolPage from '@/components/pages/frontend/dob-protocol/DobProtocolPage'
+import DobProtocolPage from '@/frontend/page-domains/dob-protocol/page/DobProtocolPage'
 
 export default DobProtocolPage

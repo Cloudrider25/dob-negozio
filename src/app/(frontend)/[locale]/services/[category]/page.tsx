@@ -1,3 +1,3 @@
-import ServicesCategoryPage from '@/components/pages/frontend/services/category/ServicesCategoryPage'
+import ServicesCategoryPage from '@/frontend/page-domains/services/legacy/services-category-page/ServicesCategoryPage'
 
 export default ServicesCategoryPage

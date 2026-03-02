@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import {
   INITIAL_SERVICE_SCHEDULE_MUTATIONS_STATE,
   serviceScheduleMutationsReducer,
-} from '@/components/account/hooks/services/useServiceScheduleMutations'
-import type { ServiceBookingRow } from '@/components/account/types'
+} from '@/frontend/page-domains/account/hooks/services/useServiceScheduleMutations'
+import type { ServiceBookingRow } from '@/frontend/page-domains/account/types'
 
 const row: ServiceBookingRow = {
   id: 'sess-1',

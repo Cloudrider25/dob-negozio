@@ -1,3 +1,3 @@
-import RefundPage from '@/components/pages/frontend/legal/RefundPage'
+import RefundPage from '@/frontend/page-domains/legal/refund/RefundPage'
 
 export default RefundPage

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { toConsultationSubmitPayload } from '@/components/forms/shared/payload'
-import { toggleConcernSelection } from '@/components/forms/shared/state'
+import { toConsultationSubmitPayload } from '@/frontend/components/forms/shared/payload'
+import { toggleConcernSelection } from '@/frontend/components/forms/shared/state'
 
 describe('forms domain payload', () => {
   it('sanitizes required and optional fields before submit', () => {

@@ -1,7 +1,7 @@
 import { beforeAll, afterAll, describe, expect, it } from 'vitest'
 import { getPayload, type Payload } from 'payload'
 
-import config from '@/payload.config'
+import config from '@/payload/config'
 
 type TestUser = {
   id: number

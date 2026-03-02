@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
 
-import { isLocale } from '@/lib/i18n'
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import { CheckoutClient } from '@/components/checkout/CheckoutClient'
+import { isLocale } from '@/lib/i18n/core'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import { CheckoutClient } from '@/frontend/page-domains/checkout/page/CheckoutClient'
 
 export default async function CheckoutPage({
   params,

@@ -3,12 +3,12 @@ import { createElement } from 'react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { MenuLink } from '@/components/layout/header/MenuLink'
-import { useSearchDrawerData } from '@/components/layout/search/hooks/useSearchDrawerData'
+import { MenuLink } from '@/frontend/components/layout/header/MenuLink'
+import { useSearchDrawerData } from '@/frontend/components/layout/search/hooks/useSearchDrawerData'
 import {
   fetchLiveSearchData,
   fetchSearchDrawerData,
-} from '@/components/layout/search/client-api/searchDrawer'
+} from '@/frontend/components/layout/search/client-api/searchDrawer'
 
 vi.mock('next/link', () => ({
   default: ({
@@ -29,7 +29,7 @@ vi.mock('next/link', () => ({
     ),
 }))
 
-vi.mock('@/components/layout/search/client-api/searchDrawer', () => ({
+vi.mock('@/frontend/components/layout/search/client-api/searchDrawer', () => ({
   fetchSearchDrawerData: vi.fn(),
   fetchLiveSearchData: vi.fn(),
 }))
@@ -37,7 +37,7 @@ vi.mock('@/components/layout/search/client-api/searchDrawer', () => ({
 describe('layout menu link navigation callback', () => {
   it('calls onNavigate for internal links', () => {
     const onNavigate = vi.fn()
-    render(createElement(MenuLink, { href: '/it/shop', onNavigate, children: 'Shop' }))
+    render(createElement(MenuLink, { href: '/it/shop', onNavigate }, 'Shop'))
 
     fireEvent.click(document.querySelector('button[data-href="/it/shop"]') as HTMLButtonElement)
     expect(onNavigate).toHaveBeenCalledTimes(1)
@@ -48,7 +48,8 @@ describe('layout menu link navigation callback', () => {
     render(
       createElement(
         MenuLink,
-        { href: '#external', external: true, onNavigate, children: 'External' },
+        { href: '#external', external: true, onNavigate },
+        'External',
       ),
     )
 

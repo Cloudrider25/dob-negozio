@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildCheckoutSubmitPayload } from '@/components/checkout/shared/checkout-submit'
-import type { CartItem } from '@/lib/cartStorage'
+import { buildCheckoutSubmitPayload } from '@/frontend/page-domains/checkout/shared/checkout-submit'
+import type { CartItem } from '@/lib/frontend/cart/storage'
 
 const customer = {
   email: 'user@example.com',

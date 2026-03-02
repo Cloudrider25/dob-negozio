@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { parseCartItems } from '@/lib/cartStorage'
+import { parseCartItems } from '@/lib/frontend/cart/storage'
 
 describe('cartStorage.parseCartItems', () => {
   afterEach(() => {

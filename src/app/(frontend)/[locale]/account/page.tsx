@@ -1,3 +1,3 @@
-import AccountPage from '@/components/pages/frontend/account/AccountPage'
+import AccountPage from '@/frontend/page-domains/account/page/AccountPage'
 
 export default AccountPage

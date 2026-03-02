@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
-import { getPayloadClient } from '@/lib/getPayloadClient'
-import type { ConsultationLeadInput } from '@/lib/consultation/types'
+import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
+import type { ConsultationLeadInput } from '@/lib/shared/consultation/types'
 
 const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 const asStringArray = (value: unknown) =>

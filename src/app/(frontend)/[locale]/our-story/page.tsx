@@ -1,3 +1,3 @@
-import OurStoryPage from '@/components/pages/frontend/our-story/OurStoryPage'
+import OurStoryPage from '@/frontend/page-domains/our-story/page/OurStoryPage'
 
 export default OurStoryPage

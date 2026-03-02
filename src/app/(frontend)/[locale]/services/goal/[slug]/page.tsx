@@ -1,3 +1,3 @@
-import ServiceGoalDetailPage from '@/components/pages/frontend/services/goal-detail/ServiceGoalDetailPage'
+import ServiceGoalDetailPage from '@/frontend/page-domains/services/legacy/goal-detail/ServiceGoalDetailPage'
 
 export default ServiceGoalDetailPage
