@@ -1,0 +1,123 @@
+'use client'
+
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+
+import { getAccountDictionary } from '@/lib/i18n/account'
+import { SectionSubtitle } from '@/frontend/components/ui/primitives/section-subtitle'
+import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
+import { Input } from '@/frontend/components/ui/primitives/input'
+
+import styles from './AuthForms.module.css'
+import { getAuthErrorMessage } from './auth-utils'
+
+const PASSWORD_MIN_LENGTH = 10
+
+export function ResetPasswordForm({ locale }: { locale: string }) {
+  const router = useRouter()
+  const copy = getAccountDictionary(locale).auth.resetPassword
+  const searchParams = useSearchParams()
+  const [token, setToken] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const redirectTimeoutRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const tokenFromQuery = searchParams?.get('token')
+    if (tokenFromQuery) setToken(tokenFromQuery)
+  }, [searchParams])
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current !== null) {
+        window.clearTimeout(redirectTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (submitting) return
+
+    setSubmitting(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const response = await fetch('/api/users/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ token, password }),
+      })
+
+      const data = (await response.json().catch(() => ({}))) as unknown
+      if (!response.ok) {
+        setError(getAuthErrorMessage(data, copy.errors.generic))
+        return
+      }
+
+      setSuccess(copy.success)
+      if (redirectTimeoutRef.current !== null) {
+        window.clearTimeout(redirectTimeoutRef.current)
+      }
+      redirectTimeoutRef.current = window.setTimeout(() => {
+        router.push(`/${locale}/signin`)
+      }, 900)
+    } catch {
+      setError(copy.errors.network)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <form className={styles.card} onSubmit={onSubmit}>
+      <SectionTitle as="h1" size="h1" uppercase className={styles.title}>
+        {copy.title}
+      </SectionTitle>
+      <SectionSubtitle className={styles.subtitle}>{copy.subtitle}</SectionSubtitle>
+
+      {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
+      {success ? <p className={`${styles.message} ${styles.success} typo-small`}>{success}</p> : null}
+      <SectionSubtitle className={styles.subtitle}>{copy.passwordPolicy}</SectionSubtitle>
+
+      <div className={styles.inlineGrid}>
+        <Input
+          type="text"
+          className={`${styles.input} typo-body`}
+          value={token}
+          onChange={(event) => setToken(event.target.value)}
+          placeholder={copy.tokenPlaceholder}
+          required
+        />
+
+        <Input
+          type="password"
+          className={`${styles.input} typo-body`}
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder={copy.passwordPlaceholder}
+          minLength={PASSWORD_MIN_LENGTH}
+          autoComplete="new-password"
+          required
+        />
+      </div>
+
+      <div className={styles.actions} style={{ marginTop: '1.25rem' }}>
+        <button className={`${styles.submit} typo-small-upper`} type="submit" disabled={submitting}>
+          {submitting ? copy.submitting : copy.submit}
+        </button>
+
+        <Link className={`${styles.link} typo-small`} href={`/${locale}/signin`}>
+          {copy.backToSignIn}
+        </Link>
+      </div>
+    </form>
+  )
+}

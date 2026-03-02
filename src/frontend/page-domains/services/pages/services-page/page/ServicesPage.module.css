@@ -1,0 +1,23 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.navigatorSection {
+  margin-top: 2.5vw;
+}
+
+.consultationSection {
+  margin-top: 2.5vw;
+  width: 100%;
+  background: var(--bg);
+  padding: 5rem 2.5vw;
+}
+
+.listinoSection {
+  margin-top: 2.5vw;
+  width: 100%;
+  background: transparent;
+  padding-bottom: 4rem;
+}

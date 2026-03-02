@@ -1,0 +1,15 @@
+.page {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 900px;
+  padding: 4rem 1.5rem;
+}
+
+.title {
+  margin: 0;
+}
+
+.subtitle {
+  margin-top: 1rem;
+  color: var(--color-text-secondary);
+}

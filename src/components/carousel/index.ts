@@ -1,5 +1,0 @@
-export * from './ui/UIC_Carousel'
-export * from './ui/UIC_CarouselCard'
-export * from './shared/contracts'
-export * from './shared/mappers'
-export * from './shared/types'

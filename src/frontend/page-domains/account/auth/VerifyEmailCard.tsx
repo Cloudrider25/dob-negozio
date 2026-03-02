@@ -1,0 +1,80 @@
+'use client'
+
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+
+import { getAccountDictionary } from '@/lib/i18n/account'
+import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
+
+import styles from '../forms/auth/AuthForms.module.css'
+
+type VerifyEmailCardProps = {
+  locale: string
+}
+
+export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
+  const copy = getAccountDictionary(locale).auth.verifyEmail
+  const { loading, missingToken, genericError, success, networkError } = copy
+  const searchParams = useSearchParams()
+  const token = searchParams?.get('token') ?? null
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+  const [message, setMessage] = useState(loading)
+  const didRun = useRef(false)
+
+  useEffect(() => {
+    if (didRun.current) return
+    didRun.current = true
+
+    if (!token) {
+      setStatus('error')
+      setMessage(missingToken)
+      return
+    }
+
+    const verify = async () => {
+      try {
+        const response = await fetch(`/api/users/verify/${encodeURIComponent(token)}`, {
+          method: 'POST',
+          credentials: 'include',
+        })
+
+        const data = (await response.json().catch(() => ({}))) as { message?: string }
+        if (!response.ok) {
+          setStatus('error')
+          setMessage(data.message || genericError)
+          return
+        }
+
+        setStatus('success')
+        setMessage(data.message || success)
+      } catch {
+        setStatus('error')
+        setMessage(networkError)
+      }
+    }
+
+    void verify()
+  }, [genericError, missingToken, networkError, success, token])
+
+  return (
+    <div className={styles.card}>
+      <SectionTitle as="h1" size="h1" uppercase className={styles.title}>
+        {copy.title}
+      </SectionTitle>
+      <p
+        className={`${styles.message} typo-small ${
+          status === 'success' ? styles.success : status === 'error' ? styles.error : styles.muted
+        }`}
+      >
+        {message}
+      </p>
+
+      <div className={styles.actions}>
+        <Link className={`${styles.submit} typo-small-upper`} href={`/${locale}/signin`}>
+          {copy.goToSignIn}
+        </Link>
+      </div>
+    </div>
+  )
+}

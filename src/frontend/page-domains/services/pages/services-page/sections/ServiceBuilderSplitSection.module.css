@@ -1,0 +1,236 @@
+.split {
+  margin-top: 0;
+  margin-bottom: 2.55vw;
+}
+
+.panel {
+  min-height: 56vh;
+  height: 56vh;
+  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--stroke) 68%, transparent);
+  background: color-mix(in srgb, var(--bg) 94%, #ffffff 6%);
+  overflow: hidden;
+}
+
+.panelContent {
+  height: 100%;
+  min-height: 0;
+  padding: 1.65rem;
+}
+
+.panelMedia {
+  display: flex;
+}
+
+.panelContentMedia {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.leftSwiper,
+.mediaSwiper {
+  width: 100%;
+  height: 100%;
+}
+
+.leftSwiper :global(.swiper-wrapper),
+.leftSwiper :global(.swiper-slide),
+.mediaSwiper :global(.swiper-wrapper),
+.mediaSwiper :global(.swiper-slide) {
+  height: 100%;
+}
+
+.leftSlide,
+.mediaSlide {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.heading {
+  margin: 0;
+}
+
+.bodyText {
+  margin: 0;
+}
+
+.circleList {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.circleItem {
+  min-width: 112px;
+  min-height: 112px;
+  padding: 0.8rem;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.blockLabel {
+  margin: 0;
+}
+
+.pillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.pillItem {
+  white-space: nowrap;
+}
+
+.pillItemActive {
+  --btn-bg: var(--btn-active-bg);
+  --btn-text: var(--btn-active-text);
+  --btn-border: var(--btn-active-border);
+}
+
+.stepActions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.stepActionSpacer {
+  width: 1px;
+  height: 1px;
+}
+
+.navButton {
+  flex-shrink: 0;
+}
+
+.serviceList {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.serviceCard {
+  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-radius: 14px;
+  padding: 0.82rem 0.95rem;
+  background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
+  text-align: left;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.serviceCard:hover,
+.serviceCardActive {
+  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+}
+
+.serviceTitle {
+  margin: 0;
+}
+
+.serviceMeta {
+  margin: 0.35rem 0 0;
+}
+
+.emptyState {
+  margin: 0.2rem 0 0;
+}
+
+.mediaImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+display: block;
+}
+
+.summaryPanel {
+  height: 100%;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.summaryPill {
+  border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
+  border-radius: 999px;
+  padding: 0.32rem 0.7rem;
+}
+
+.serviceImage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  object-fit: cover;
+border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
+}
+
+.serviceInfo {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.serviceInfoTitle {
+  margin: 0;
+}
+
+.serviceInfoMeta {
+  margin: 0;
+}
+
+.serviceInfoDescription {
+  margin: 0.25rem 0 0;
+}
+
+.mediaPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--stroke) 55%, transparent);
+  border-radius: 14px;
+}
+
+.section {
+  grid-template-columns: 1fr;
+  min-height: auto;
+}
+
+@media (min-width: 1025px) {
+  .section {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .panel {
+    min-height: 64vh;
+    height: 64vh;
+  }
+}

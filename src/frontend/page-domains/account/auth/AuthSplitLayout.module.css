@@ -1,0 +1,132 @@
+.page {
+  min-height: 100dvh;
+  background: var(--page-bg);
+  padding: clamp(12px, 1.2vw, 20px);
+}
+
+.shell {
+  min-height: calc(100dvh - clamp(24px, 2.4vw, 40px));
+  border-radius: 12px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  background: var(--bg);
+}
+
+.visual {
+  position: relative;
+  min-height: 520px;
+  display: none;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  left: clamp(20px, 3vw, 58px);
+  bottom: clamp(20px, 4vw, 72px);
+  margin: 0;
+  background: rgba(0, 0, 0, 0.95);
+  color: #fff;
+  font-weight: 500;
+  padding: 0.24em 0.34em;
+}
+
+.formCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 2.4vw, 32px);
+  padding: clamp(24px, 7vw, 42px) clamp(20px, 5vw, 32px);
+}
+
+.formWrap {
+  width: min(100%, 780px);
+}
+
+.brand {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.85rem, 1.2vw, 1.2rem);
+  margin-top: 0;
+  margin-bottom: 10vw;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brandMark {
+  position: relative;
+  display: inline-flex;
+  height: clamp(62px, 6vw, 78px);
+  width: clamp(62px, 6vw, 78px);
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLight {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.2s ease;
+  opacity: 1;
+}
+
+.logoDark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.2s ease;
+  opacity: 0;
+}
+
+.brandTitle {
+  margin: 0;
+  font-size: clamp(3.9rem, 6.2vw, 4.9rem);
+  line-height: 1;
+}
+
+@media (min-width: 1025px) {
+  .shell {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+
+  .visual {
+    display: block;
+  }
+
+  .formCol {
+    padding: clamp(24px, 5vw, 72px) clamp(20px, 4vw, 64px);
+  }
+
+  .brand {
+    margin-top: 5vw;
+    margin-bottom: 5vw;
+  }
+}
+
+:global(body[data-theme="light"]) .logoLight,
+:global(body.header-on-light) .logoLight {
+  opacity: 0;
+}
+
+:global(body[data-theme="light"]) .logoDark,
+:global(body.header-on-light) .logoDark {
+  opacity: 1;
+}
+
+:global(body[data-theme="light"]) .brand,
+:global(html[data-theme="light"]) .brand,
+:global(body.light) .brand {
+  color: var(--text-primary);
+}
+
+:global(body[data-theme="dark"]) .brand,
+:global(html[data-theme="dark"]) .brand,
+:global(body.dark) .brand {
+  color: var(--text-primary);
+}

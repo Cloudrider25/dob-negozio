@@ -1,0 +1,27 @@
+'use client'
+
+import type { ReactNode } from 'react'
+import { emitCartOpen } from '@/lib/frontend/cart/storage'
+
+export function CartDrawerTrigger({
+  children,
+  className,
+  ariaLabel,
+}: {
+  children: ReactNode
+  className?: string
+  ariaLabel: string
+}) {
+  return (
+    <button
+      type="button"
+      className={className}
+      aria-label={ariaLabel}
+      onClick={() => {
+        emitCartOpen()
+      }}
+    >
+      {children}
+    </button>
+  )
+}
