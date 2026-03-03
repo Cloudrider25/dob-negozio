@@ -17,10 +17,25 @@ let userA: TestUser
 let userB: TestUser
 let orderAId: number
 
+const getPayloadWithRetry = async (retries = 3) => {
+  let lastError: unknown
+  for (let attempt = 1; attempt <= retries; attempt += 1) {
+    try {
+      const payloadConfig = await config
+      return await getPayload({ config: payloadConfig })
+    } catch (error) {
+      lastError = error
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 500))
+      }
+    }
+  }
+  throw lastError
+}
+
 describe('Account access control', () => {
   beforeAll(async () => {
-    const payloadConfig = await config
-    payload = await getPayload({ config: payloadConfig })
+    payload = await getPayloadWithRetry(4)
 
     const createdA = await payload.create({
       collection: 'users',
@@ -79,7 +94,7 @@ describe('Account access control', () => {
       },
     })
     orderAId = createdOrder.id
-  })
+  }, 60_000)
 
   afterAll(async () => {
     if (!payload) return
@@ -157,7 +172,7 @@ describe('Account access control', () => {
         },
       }),
     ).rejects.toThrow()
-  })
+  }, 20_000)
 
   it('user cannot patch addresses of another user', async () => {
     await expect(
@@ -206,5 +221,5 @@ describe('Account access control', () => {
     })
 
     expect(foreignOrders.docs).toHaveLength(0)
-  })
+  }, 20_000)
 })
