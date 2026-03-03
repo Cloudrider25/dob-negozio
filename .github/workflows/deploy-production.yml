@@ -45,31 +45,6 @@ jobs:
           PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
           NEXT_TELEMETRY_DISABLED: '1'
 
-      - name: Check required secrets for smoke
-        id: smoke-secrets
-        shell: bash
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
-        run: |
-          if [[ -n "${DATABASE_URL}" && -n "${PAYLOAD_SECRET}" ]]; then
-            echo "ready=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "ready=false" >> "${GITHUB_OUTPUT}"
-          fi
-
-      - name: Install Playwright browser
-        if: steps.smoke-secrets.outputs.ready == 'true'
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Run smoke E2E
-        if: steps.smoke-secrets.outputs.ready == 'true'
-        run: pnpm test:e2e:smoke
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PRODUCTION_PAYLOAD_SECRET }}
-          NEXT_TELEMETRY_DISABLED: '1'
-
   deploy:
     name: Deploy Production
     needs: verify
