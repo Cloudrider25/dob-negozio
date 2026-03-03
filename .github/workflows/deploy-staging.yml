@@ -51,10 +51,22 @@ jobs:
     runs-on: ubuntu-latest
     if: success()
     steps:
+      - name: Check deploy hook
+        id: deploy-hook
+        shell: bash
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.STAGING_DEPLOY_HOOK_URL }}
+        run: |
+          if [[ -n "${DEPLOY_HOOK_URL}" ]]; then
+            echo "ready=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "ready=false" >> "${GITHUB_OUTPUT}"
+          fi
+
       - name: Trigger staging deploy webhook
-        if: ${{ secrets.STAGING_DEPLOY_HOOK_URL != '' }}
+        if: steps.deploy-hook.outputs.ready == 'true'
         run: curl -fsS -X POST "${{ secrets.STAGING_DEPLOY_HOOK_URL }}"
 
       - name: No deploy hook configured
-        if: ${{ secrets.STAGING_DEPLOY_HOOK_URL == '' }}
+        if: steps.deploy-hook.outputs.ready != 'true'
         run: echo "STAGING_DEPLOY_HOOK_URL non configurato. Verifica completata, deploy non eseguito."
