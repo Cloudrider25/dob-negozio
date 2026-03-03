@@ -54,6 +54,12 @@ import { seedShopTaxonomies } from '../seed/shop-seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const blobReadWriteToken =
+  process.env.BLOB_READ_WRITE_TOKEN ||
+  (process.env.VERCEL_ENV === 'production'
+    ? process.env.PROD_READ_WRITE_TOKEN
+    : process.env.STG_READ_WRITE_TOKEN) ||
+  ''
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -133,7 +139,7 @@ export default buildConfig({
       collections: {
         media: true,
       },
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: blobReadWriteToken,
     }),
   ],
   hooks: {
