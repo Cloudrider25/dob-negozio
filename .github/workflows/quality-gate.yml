@@ -8,6 +8,10 @@ on:
       - staging
       - prod
 
+concurrency:
+  group: quality-gate-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   static-checks:
     name: Lint + Typecheck + Int Tests
