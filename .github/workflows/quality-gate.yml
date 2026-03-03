@@ -35,16 +35,17 @@ jobs:
       - name: Integration tests
         run: pnpm test:int
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.STAGING_PAYLOAD_SECRET }}
 
   e2e-smoke:
     name: E2E Smoke
     needs: static-checks
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PAYLOAD_SECRET: ${{ secrets.STAGING_PAYLOAD_SECRET }}
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - name: Checkout
