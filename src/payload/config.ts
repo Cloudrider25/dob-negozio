@@ -61,6 +61,7 @@ const blobReadWriteToken =
   process.env.BLOB_READ_WRITE_TOKEN ||
   ''
 const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
+const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
@@ -166,7 +167,7 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: hasValidBlobToken
+  plugins: enableBlobPlugin
     ? [
         vercelBlobStorage({
           collections: {
