@@ -54,6 +54,21 @@ import { seedShopTaxonomies } from '../seed/shop-seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const resolvedDatabaseURL =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.PRISMA_DATABASE_URL ||
+  process.env.STAGING_DATABASE_URL ||
+  process.env.STG_DATABASE_URL ||
+  process.env.PRODUCTION_DATABASE_URL ||
+  process.env.PROD_DATABASE_URL ||
+  process.env.prod_DATABASE_URL ||
+  ''
+const resolvedPayloadSecret =
+  process.env.PAYLOAD_SECRET ||
+  process.env.STAGING_PAYLOAD_SECRET ||
+  process.env.PRODUCTION_PAYLOAD_SECRET ||
+  ''
 const blobReadWriteToken =
   process.env.BLOB_READ_WRITE_TOKEN ||
   (process.env.VERCEL_ENV === 'production'
@@ -124,13 +139,13 @@ export default buildConfig({
   },
   editor: lexicalEditor(),
   email: siteSettingsSMTPAdapter(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: resolvedPayloadSecret,
   typescript: {
     outputFile: path.resolve(dirname, 'generated/payload-types.ts'),
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: resolvedDatabaseURL,
     },
   }),
   sharp,
