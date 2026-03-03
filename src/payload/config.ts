@@ -55,16 +55,30 @@ import { seedShopTaxonomies } from '../seed/shop-seed'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const blobReadWriteToken =
-  process.env.BLOB_READ_WRITE_TOKEN ||
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
     : process.env.STG_READ_WRITE_TOKEN) ||
+  process.env.BLOB_READ_WRITE_TOKEN ||
   ''
+const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
+const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
+// Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
+// Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
+const isVercelProduction = process.env.VERCEL_ENV === 'production'
+const envDatabaseUrl = isVercelProduction
+  ? process.env.PROD_POSTGRES_URL ??
+    process.env.PROD_DATABASE_URL ??
+    process.env.PROD_PRISMA_DATABASE_URL
+  : process.env.STG_POSTGRES_URL ??
+    process.env.STG_DATABASE_URL ??
+    process.env.STG_PRISMA_DATABASE_URL
+
 export const databaseUrl =
-  process.env.POSTGRES_PRISMA_URL ??
-  process.env.POSTGRES_URL_NON_POOLING ??
+  envDatabaseUrl ??
   process.env.POSTGRES_URL ??
   process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL_NON_POOLING ??
+  process.env.POSTGRES_PRISMA_URL ??
   ''
 const databaseMeta = (() => {
   if (!databaseUrl) return null
@@ -153,14 +167,16 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [
-    vercelBlobStorage({
-      collections: {
-        media: true,
-      },
-      token: blobReadWriteToken,
-    }),
-  ],
+  plugins: enableBlobPlugin
+    ? [
+        vercelBlobStorage({
+          collections: {
+            media: true,
+          },
+          token: blobReadWriteToken,
+        }),
+      ]
+    : [],
   hooks: {
     afterError: [
       async ({ collection, error, req }) => {
