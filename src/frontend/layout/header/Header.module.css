@@ -514,10 +514,10 @@
     height: 54px;
   }
 
-  .brandTitle {
-    font-size: inherit;
-    line-height: inherit;
-    letter-spacing: inherit;
+  .header .brandTitle {
+    font-size: 54px;
+    line-height: 1;
+    letter-spacing: 0.04em;
   }
 
   .right {

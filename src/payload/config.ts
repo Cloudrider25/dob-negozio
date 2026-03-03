@@ -61,7 +61,11 @@ const blobReadWriteToken =
     : process.env.STG_READ_WRITE_TOKEN) ||
   ''
 const databaseUrl =
-  process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || ''
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_URL_NON_POOLING ||
+  process.env.DATABASE_URL ||
+  ''
 export default buildConfig({
   admin: {
     user: Users.slug,

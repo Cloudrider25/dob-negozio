@@ -215,6 +215,13 @@
   transform: scale(1.22);
 }
 
+@media screen and (max-width: 640px) {
+  .hero {
+    height: 70vh;
+    height: 70dvh;
+  }
+}
+
 @keyframes heroReveal {
   from {
     opacity: 0;
