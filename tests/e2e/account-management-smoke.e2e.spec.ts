@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
-import { getPayload, type Payload } from 'payload'
+import type { Payload } from 'payload'
 
-import config from '../../src/payload/config'
+import { getE2EPayload } from './support/getE2EPayload'
 
 const runId = Date.now()
 const userEmail = `qa.account.management.${runId}@example.com`
@@ -48,8 +48,8 @@ const buildPreferenceCookies = () => [
 
 test.describe('Account management smoke', () => {
   test.beforeAll(async () => {
-    const payloadConfig = await config
-    payload = await getPayload({ config: payloadConfig })
+    test.setTimeout(120_000)
+    payload = await getE2EPayload()
 
     const createdUser = await payload.create({
       collection: 'users',

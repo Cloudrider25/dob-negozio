@@ -120,7 +120,12 @@ const resolveAppointmentMode = (value: unknown): 'requested_slot' | 'contact_lat
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as CheckoutPayload
+    let body: CheckoutPayload
+    try {
+      body = (await request.json()) as CheckoutPayload
+    } catch {
+      return NextResponse.json({ error: 'Payload checkout non valido.' }, { status: 400 })
+    }
     const localeInput = toString(body.locale)
     const locale: Locale = isLocale(localeInput) ? localeInput : 'it'
     const checkoutMode =
