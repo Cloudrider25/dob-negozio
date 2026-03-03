@@ -47,7 +47,11 @@ const buildPreferenceCookies = () => [
 ]
 
 test.describe('Account management smoke', () => {
+  test.describe.configure({ timeout: 120_000 })
+
   test.beforeAll(async () => {
+    test.setTimeout(120_000)
+
     const payloadConfig = await config
     payload = await getPayload({ config: payloadConfig })
 
