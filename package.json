@@ -122,6 +122,12 @@
       "sharp",
       "esbuild",
       "unrs-resolver"
+    ],
+    "ignoredBuiltDependencies": [
+      "core-js",
+      "ejs",
+      "es5-ext",
+      "nx"
     ]
   },
   "nx": {}
