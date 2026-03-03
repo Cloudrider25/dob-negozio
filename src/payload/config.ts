@@ -60,6 +60,8 @@ const blobReadWriteToken =
     ? process.env.PROD_READ_WRITE_TOKEN
     : process.env.STG_READ_WRITE_TOKEN) ||
   ''
+const databaseUrl =
+  process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL || ''
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -130,7 +132,7 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: databaseUrl,
     },
   }),
   sharp,
