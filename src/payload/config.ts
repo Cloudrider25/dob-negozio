@@ -60,7 +60,25 @@ const blobReadWriteToken =
     ? process.env.PROD_READ_WRITE_TOKEN
     : process.env.STG_READ_WRITE_TOKEN) ||
   ''
-const databaseUrl = process.env.DATABASE_URL || ''
+export const databaseUrl =
+  process.env.POSTGRES_PRISMA_URL ??
+  process.env.POSTGRES_URL_NON_POOLING ??
+  process.env.POSTGRES_URL ??
+  process.env.DATABASE_URL ??
+  ''
+const databaseMeta = (() => {
+  if (!databaseUrl) return null
+  try {
+    const parsed = new URL(databaseUrl)
+    return {
+      host: parsed.hostname || 'n/a',
+      database: parsed.pathname.replace('/', '') || 'n/a',
+      user: parsed.username || 'n/a',
+    }
+  } catch {
+    return null
+  }
+})()
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -198,6 +216,16 @@ export default buildConfig({
   },
   onInit: async (payload) => {
     try {
+      if (process.env.SKIP_DB_INIT === '1' || process.env.NEXT_PHASE === 'phase-production-build') {
+        payload.logger.info('Skipping DB init on build phase.')
+        return
+      }
+      if (databaseMeta) {
+        payload.logger.info(
+          `[db] host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
+        )
+      }
+
       const pageKeys = [
         'home',
         'services',
