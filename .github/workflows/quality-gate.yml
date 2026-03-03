@@ -4,7 +4,13 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - dev
+      - staging
+      - prod
+
+concurrency:
+  group: quality-gate-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   static-checks:
@@ -37,6 +43,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
+          STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
 
   e2e-smoke:
     name: E2E Smoke
@@ -45,6 +53,8 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
+      STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - name: Checkout
@@ -66,7 +76,7 @@ jobs:
         id: secrets-check
         shell: bash
         run: |
-          if [[ -n "${DATABASE_URL}" && -n "${PAYLOAD_SECRET}" ]]; then
+          if [[ -n "${DATABASE_URL}" && -n "${PAYLOAD_SECRET}" && -n "${BLOB_READ_WRITE_TOKEN}" ]]; then
             echo "has_secrets=true" >> "${GITHUB_OUTPUT}"
           else
             echo "has_secrets=false" >> "${GITHUB_OUTPUT}"
@@ -75,7 +85,7 @@ jobs:
       - name: Skip smoke when secrets are missing
         if: steps.secrets-check.outputs.has_secrets != 'true'
         run: |
-          echo "Skipping smoke E2E: DATABASE_URL or PAYLOAD_SECRET not configured."
+          echo "Skipping smoke E2E: DATABASE_URL, PAYLOAD_SECRET or BLOB_READ_WRITE_TOKEN not configured."
 
       - name: Install Playwright browser
         if: steps.secrets-check.outputs.has_secrets == 'true'
