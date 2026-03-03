@@ -1,0 +1,10 @@
+node_modules
+.next
+.next-dev
+.git
+.nx
+playwright-report
+.tmp
+coverage
+*.log
+/media
