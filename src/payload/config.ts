@@ -60,11 +60,13 @@ const blobReadWriteToken =
     ? process.env.PROD_READ_WRITE_TOKEN
     : process.env.STG_READ_WRITE_TOKEN) ||
   ''
+// Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
+// Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 export const databaseUrl =
-  process.env.POSTGRES_PRISMA_URL ??
-  process.env.POSTGRES_URL_NON_POOLING ??
   process.env.POSTGRES_URL ??
   process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL_NON_POOLING ??
+  process.env.POSTGRES_PRISMA_URL ??
   ''
 const databaseMeta = (() => {
   if (!databaseUrl) return null
