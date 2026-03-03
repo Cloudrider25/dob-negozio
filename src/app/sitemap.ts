@@ -4,6 +4,9 @@ import type { Where } from 'payload'
 import { locales, type Locale } from '@/lib/i18n/core'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const localizedPaths = [
   '',
   '/services',
