@@ -104,7 +104,15 @@ const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
-const databaseUrlCandidate = isVercelProduction
+const isCI = process.env.CI === 'true'
+const databaseUrlCandidate = isCI
+  ? pickDatabaseUrl([
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+  : isVercelProduction
   ? pickDatabaseUrl([
       { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
       { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
