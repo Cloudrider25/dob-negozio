@@ -41,7 +41,5 @@ jobs:
       - name: Integration tests
         run: pnpm test:int
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
-          STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
