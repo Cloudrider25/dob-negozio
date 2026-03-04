@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import type { StripeElementsOptions } from '@stripe/stripe-js'
 
@@ -8,6 +8,16 @@ import { createPaymentElementSession, CheckoutSessionError } from '@/frontend/pa
 import type { CustomerSnapshot, PaymentSession } from '@/frontend/page-domains/checkout/shared/contracts'
 import { STRIPE_LOCALE_MAP } from '@/frontend/page-domains/checkout/shared/contracts'
 import type { CartItem } from '@/lib/frontend/cart/storage'
+
+const resolveCssColor = (varName: string, fallback: string) => {
+  if (typeof window === 'undefined') return fallback
+  const fromBody = document.body
+    ? getComputedStyle(document.body).getPropertyValue(varName).trim()
+    : ''
+  if (fromBody) return fromBody
+  const fromRoot = getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
+  return fromRoot || fallback
+}
 
 export const useCheckoutPaymentSession = ({
   activeStep,
@@ -50,6 +60,7 @@ export const useCheckoutPaymentSession = ({
   const [prefetching, setPrefetching] = useState(false)
   const [expressPrefetchTried, setExpressPrefetchTried] = useState(false)
   const [expressPrefetchError, setExpressPrefetchError] = useState<string | null>(null)
+  const inFlightRef = useRef(false)
 
   const createPaymentSession = useCallback(
     async ({
@@ -59,7 +70,7 @@ export const useCheckoutPaymentSession = ({
       silent?: boolean
       allowIncompleteForExpress?: boolean
     } = {}) => {
-      if (submitting || prefetching) return
+      if (inFlightRef.current || submitting || prefetching) return
       if (!allowIncompleteForExpress && !isFormComplete) {
         if (!silent) setError(messages.completeRequiredFields)
         return
@@ -69,6 +80,7 @@ export const useCheckoutPaymentSession = ({
         return
       }
 
+      inFlightRef.current = true
       if (silent) {
         setPrefetching(true)
       } else {
@@ -120,6 +132,7 @@ export const useCheckoutPaymentSession = ({
         } else {
           setSubmitting(false)
         }
+        inFlightRef.current = false
       }
     },
     [
@@ -145,23 +158,6 @@ export const useCheckoutPaymentSession = ({
   )
 
   useEffect(() => {
-    if (activeStep !== 'information') return
-    if (items.length === 0) return
-    if (paymentSession || submitting || prefetching || expressPrefetchTried) return
-
-    setExpressPrefetchTried(true)
-    void createPaymentSession({ silent: true, allowIncompleteForExpress: true })
-  }, [
-    activeStep,
-    createPaymentSession,
-    expressPrefetchTried,
-    items.length,
-    paymentSession,
-    prefetching,
-    submitting,
-  ])
-
-  useEffect(() => {
     setExpressPrefetchTried(false)
     setExpressPrefetchError(null)
   }, [cartFingerprint, locale])
@@ -172,6 +168,14 @@ export const useCheckoutPaymentSession = ({
     }
   }, [activeStep])
 
+  useEffect(() => {
+    if (activeStep !== 'information') return
+    if (expressPrefetchTried) return
+
+    setExpressPrefetchTried(true)
+    void createPaymentSession({ silent: true, allowIncompleteForExpress: true })
+  }, [activeStep, createPaymentSession, expressPrefetchTried])
+
   const stripePromise = useMemo(() => {
     if (!paymentSession?.publishableKey) return null
     return loadStripe(paymentSession.publishableKey)
@@ -179,6 +183,12 @@ export const useCheckoutPaymentSession = ({
 
   const stripeOptions = useMemo<StripeElementsOptions | null>(() => {
     const stripeLocale = STRIPE_LOCALE_MAP[locale] ?? 'en'
+    const colorPrimary = resolveCssColor('--text-secondary', '#b3b3b3')
+    const colorBackground = resolveCssColor('--paper', '#2d2d2e')
+    const colorText = resolveCssColor('--text-primary', '#f6f2ea')
+    const colorTextSecondary = resolveCssColor('--text-secondary', '#b3b3b3')
+    const colorDanger = resolveCssColor('--neon-red', '#ff2d2d')
+    const colorBorder = resolveCssColor('--stroke', 'rgba(255, 255, 255, 0.1)')
 
     return paymentSession
       ? {
@@ -187,38 +197,38 @@ export const useCheckoutPaymentSession = ({
           appearance: {
             theme: 'flat' as const,
             variables: {
-              colorPrimary: 'var(--text-secondary)',
-              colorBackground: 'var(--paper)',
-              colorText: 'var(--text-primary)',
-              colorTextSecondary: 'var(--text-secondary)',
-              colorDanger: 'var(--neon-red)',
+              colorPrimary,
+              colorBackground,
+              colorText,
+              colorTextSecondary,
+              colorDanger,
               borderRadius: '12px',
               spacingUnit: '4px',
               fontFamily: 'Instrument Sans, system-ui, sans-serif',
             },
             rules: {
               '.AccordionItem': {
-                border: '1px solid var(--stroke)',
+                border: `1px solid ${colorBorder}`,
                 boxShadow: 'none',
               },
               '.AccordionItem--selected': {
-                borderColor: 'var(--text-secondary)',
+                borderColor: colorTextSecondary,
               },
               '.Input': {
-                border: '1px solid var(--stroke)',
+                border: `1px solid ${colorBorder}`,
                 boxShadow: 'none',
               },
               '.Block': {
-                border: '1px solid var(--stroke)',
+                border: `1px solid ${colorBorder}`,
                 boxShadow: 'none',
               },
               '.Tab': {
-                border: '1px solid var(--stroke)',
+                border: `1px solid ${colorBorder}`,
                 boxShadow: 'none',
               },
               '.Tab--selected': {
-                borderColor: 'var(--text-secondary)',
-                boxShadow: '0 0 0 1px var(--text-secondary)',
+                borderColor: colorTextSecondary,
+                boxShadow: `0 0 0 1px ${colorTextSecondary}`,
               },
               '.Label': {
                 fontWeight: '500',
@@ -232,6 +242,7 @@ export const useCheckoutPaymentSession = ({
   const onExpressRetry = () => {
     setExpressPrefetchTried(false)
     setExpressPrefetchError(null)
+    setPaymentSession(null)
   }
 
   return {

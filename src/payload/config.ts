@@ -130,8 +130,8 @@ const databaseUrlCandidate = isCI
     ])
   : isVercelProduction
   ? pickDatabaseUrl([
-      { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
       { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
       { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
       { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
       { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
@@ -139,8 +139,8 @@ const databaseUrlCandidate = isCI
       { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
     ])
   : pickDatabaseUrl([
-      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
       { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
       { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
       { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
       { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
@@ -236,6 +236,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: databaseUrl,
+      // Serverless-safe defaults to avoid connection storms on upstream providers.
+      max: 2,
+      min: 0,
+      connectionTimeoutMillis: 10_000,
+      idleTimeoutMillis: 30_000,
     },
   }),
   sharp,
@@ -310,44 +315,46 @@ export default buildConfig({
         )
       }
 
-      const pageKeys = [
-        'home',
-        'services',
-        'shop',
-        'journal',
-        'location',
-        'our-story',
-        'dob-protocol',
-        'contact',
-        'checkout',
-      ] as const
-      const existing = await payload.find({
-        collection: 'pages',
-        depth: 0,
-        limit: pageKeys.length,
-      })
-      const existingKeys = new Set(
-        existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
-      )
+      const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
+      const isProduction = process.env.NODE_ENV === 'production'
+      if (!isProduction) {
+        const pageKeys = [
+          'home',
+          'services',
+          'shop',
+          'journal',
+          'location',
+          'our-story',
+          'dob-protocol',
+          'contact',
+          'checkout',
+        ] as const
+        const existing = await payload.find({
+          collection: 'pages',
+          depth: 0,
+          limit: pageKeys.length,
+        })
+        const existingKeys = new Set(
+          existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
+        )
 
-      for (const key of pageKeys) {
-        if (!existingKeys.has(key)) {
-          await payload.create({
-            collection: 'pages',
-            data: {
-              pageKey: key,
-              heroTitleMode: 'fixed',
-              heroStyle: 'style1',
-            },
-            locale: 'it',
-            overrideAccess: true,
-            draft: false,
-          })
+        for (const key of pageKeys) {
+          if (!existingKeys.has(key)) {
+            await payload.create({
+              collection: 'pages',
+              data: {
+                pageKey: key,
+                heroTitleMode: 'fixed',
+                heroStyle: 'style1',
+              },
+              locale: 'it',
+              overrideAccess: true,
+              draft: false,
+            })
+          }
         }
       }
 
-      const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
-      const isProduction = process.env.NODE_ENV === 'production'
       if (!disableShopSeed && !isProduction) {
         await seedShopTaxonomies(payload)
       }
