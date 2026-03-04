@@ -36,7 +36,7 @@
 .media::before {
   content: '';
   display: block;
-  padding-bottom: 88.16%;
+  padding-bottom: 70.53%;
 }
 
 .media img {
@@ -151,11 +151,11 @@
     --card-subtitle-min-height: 2.4rem;
     --card-cta-height: 2.75rem;
     --card-cta-margin: 0.8rem 1.2rem 1.2rem;
-    min-height: 426px;
+    min-height: 341px;
   }
 
   .media::before {
-    padding-bottom: 88.28%;
+    padding-bottom: 70.62%;
   }
 
   .titleRow {
@@ -165,6 +165,6 @@
 
 @media (min-width: 1280px) {
   .card {
-    min-height: 438px;
+    min-height: 350px;
   }
 }

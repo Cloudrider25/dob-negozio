@@ -37,28 +37,29 @@ export default async function ServicesPage({
   }
 
   const t = getDictionary(locale)
-  const payload = await getPayloadClient()
-  const pageConfig = await payload.find({
-    collection: 'pages',
-    locale,
-    overrideAccess: false,
-    limit: 1,
-    depth: 1,
-    where: {
-      pageKey: {
-        equals: 'services',
+  try {
+    const payload = await getPayloadClient()
+    const pageConfig = await payload.find({
+      collection: 'pages',
+      locale,
+      overrideAccess: false,
+      limit: 1,
+      depth: 1,
+      where: {
+        pageKey: {
+          equals: 'services',
+        },
       },
-    },
-  })
-  const pageDoc = pageConfig.docs[0]
-  const heroMedia = Array.isArray(pageDoc?.heroMedia) ? pageDoc?.heroMedia : []
-  const heroDark = resolveMedia(heroMedia?.[0], t.services.title)
-  const heroLight = resolveMedia(heroMedia?.[1], t.services.title)
-  const hasHero = Boolean(heroDark || heroLight)
-  const heroTitle =
-    pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle ? pageDoc.heroTitle : t.services.title
-  const heroDescription = pageDoc?.heroDescription ?? t.services.lead
-  const heroStyle = pageDoc?.heroStyle === 'style2' ? 'style2' : 'style1'
+    })
+    const pageDoc = pageConfig.docs[0]
+    const heroMedia = Array.isArray(pageDoc?.heroMedia) ? pageDoc?.heroMedia : []
+    const heroDark = resolveMedia(heroMedia?.[0], t.services.title)
+    const heroLight = resolveMedia(heroMedia?.[1], t.services.title)
+    const hasHero = Boolean(heroDark || heroLight)
+    const heroTitle =
+      pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle ? pageDoc.heroTitle : t.services.title
+    const heroDescription = pageDoc?.heroDescription ?? t.services.lead
+    const heroStyle = pageDoc?.heroStyle === 'style2' ? 'style2' : 'style1'
 
   const [areasResult, objectivesResult, treatmentsResult, servicesResult, siteSettings] =
     await Promise.all([
@@ -262,36 +263,50 @@ export default async function ServicesPage({
         ? 'listino'
         : 'navigator'
 
-  return (
-    <div className={styles.page}>
-      {hasHero && (
+    return (
+      <div className={styles.page}>
+        {hasHero && (
+          <Hero
+            eyebrow={t.services.title}
+            title={heroTitle}
+            description={heroDescription}
+            variant={heroStyle}
+            mediaDark={heroDark || undefined}
+            mediaLight={heroLight || undefined}
+          />
+        )}
+        <ServicesSectionSwitcher currentView={initialViewMode} />
+        {initialViewMode === 'navigator' ? (
+          <div className={styles.navigatorSection}>
+            <ServiceBuilderSplitSection data={navigatorData} />
+          </div>
+        ) : null}
+        {initialViewMode === 'consulenza' ? (
+          <section className={styles.consultationSection}>
+            <ConsulenzaSection contactLinks={contactLinks} />
+          </section>
+        ) : null}
+        {initialViewMode === 'listino' ? (
+          <section className={styles.listinoSection}>
+            <NavigatorDataProvider data={navigatorData}>
+              <ListinoTradizionale />
+            </NavigatorDataProvider>
+          </section>
+        ) : null}
+      </div>
+    )
+  } catch (error) {
+    console.error(`[services] Failed to render services page (${locale}).`, error)
+
+    return (
+      <div className={styles.page}>
         <Hero
           eyebrow={t.services.title}
-          title={heroTitle}
-          description={heroDescription}
-          variant={heroStyle}
-          mediaDark={heroDark || undefined}
-          mediaLight={heroLight || undefined}
+          title={t.services.title}
+          description={t.services.lead}
+          variant="style1"
         />
-      )}
-      <ServicesSectionSwitcher currentView={initialViewMode} />
-      {initialViewMode === 'navigator' ? (
-        <div className={styles.navigatorSection}>
-          <ServiceBuilderSplitSection data={navigatorData} />
-        </div>
-      ) : null}
-      {initialViewMode === 'consulenza' ? (
-        <section className={styles.consultationSection}>
-          <ConsulenzaSection contactLinks={contactLinks} />
-        </section>
-      ) : null}
-      {initialViewMode === 'listino' ? (
-        <section className={styles.listinoSection}>
-          <NavigatorDataProvider data={navigatorData}>
-            <ListinoTradizionale />
-          </NavigatorDataProvider>
-        </section>
-      ) : null}
-    </div>
-  )
+      </div>
+    )
+  }
 }
