@@ -90,6 +90,19 @@ const getCachedShellPublicData = async (locale: Locale) => {
   return loader()
 }
 
+const getShellPublicDataSafe = async (locale: Locale) => {
+  try {
+    return await getCachedShellPublicData(locale)
+  } catch (error) {
+    console.error('[shell] Failed to load cached public shell data.', error)
+    return {
+      siteSettings: null,
+      latestProducts: { docs: [] as Array<Record<string, unknown>> },
+      latestServices: { docs: [] as Array<Record<string, unknown>> },
+    }
+  }
+}
+
 export const getFrontendLocaleShellData = async (
   locale: Locale,
 ): Promise<FrontendLocaleShellData> => {
@@ -108,7 +121,7 @@ export const getFrontendLocaleShellData = async (
   const hasSessionCookie = Boolean(await readPayloadSessionCookie())
 
   const t = getDictionary(locale)
-  const { siteSettings, latestProducts, latestServices } = await getCachedShellPublicData(locale)
+  const { siteSettings, latestProducts, latestServices } = await getShellPublicDataSafe(locale)
 
   const latestProduct = latestProducts.docs[0]
   const latestService = latestServices.docs[0]

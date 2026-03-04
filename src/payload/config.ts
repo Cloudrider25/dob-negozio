@@ -130,18 +130,18 @@ const databaseUrlCandidate = isCI
     ])
   : isVercelProduction
   ? pickDatabaseUrl([
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
       { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
       { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
       { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
       { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
     ])
   : pickDatabaseUrl([
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
       { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
       { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
       { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
@@ -152,11 +152,11 @@ const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
 export const databaseUrl = databaseUrlCandidate
   ? normalizePrismaSslCompat(databaseUrlCandidate.value)
   : ''
-const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '10')
+const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
 const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
 const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
 const dbPoolIdleTimeoutInput = Number(process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || '30000')
-const dbPoolMax = Number.isFinite(dbPoolMaxInput) && dbPoolMaxInput > 0 ? Math.floor(dbPoolMaxInput) : 10
+const dbPoolMax = Number.isFinite(dbPoolMaxInput) && dbPoolMaxInput > 0 ? Math.floor(dbPoolMaxInput) : 4
 const dbPoolMin = Number.isFinite(dbPoolMinInput) && dbPoolMinInput >= 0 ? Math.floor(dbPoolMinInput) : 0
 const dbPoolConnectTimeout =
   Number.isFinite(dbPoolConnectTimeoutInput) && dbPoolConnectTimeoutInput > 0
