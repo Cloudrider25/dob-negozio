@@ -5,6 +5,7 @@ import { seoFields } from '../fields/seoFields'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  lockDocuments: false,
   admin: {
     group: 'Contenuti',
     useAsTitle: 'pageKey',
