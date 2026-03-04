@@ -459,7 +459,7 @@
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  overflow: visible;
+  overflow: visible !important;
   background: var(--pearl-1);
 }
 

@@ -5,7 +5,11 @@ import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 import { isLocale, type Locale } from '@/lib/i18n/core'
 import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
-import { allocateOrderInventory, commitOrderInventory } from '@/lib/server/shop/orderInventory'
+import {
+  allocateOrderInventory,
+  commitOrderInventory,
+  releaseOrderAllocation,
+} from '@/lib/server/shop/orderInventory'
 import { acquireInventoryLocks, releaseInventoryLocks } from '@/lib/server/shop/inventoryLocks'
 import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 import { getSendcloudShippingOptions } from '@/lib/server/sendcloud/getShippingQuote'
@@ -15,6 +19,7 @@ import Stripe from 'stripe'
 
 const GENERIC_CHECKOUT_ERROR = 'Si è verificato un errore durante il checkout. Riprova.'
 const IDEMPOTENCY_WINDOW_MS = 20 * 60 * 1000
+const STALE_ALLOCATION_WINDOW_MS = 15 * 60 * 1000
 
 type CheckoutItemInput = {
   id: string
@@ -150,6 +155,77 @@ const computeCheckoutFingerprint = ({
   ].join('||')
 
   return createHash('sha256').update(raw).digest('hex')
+}
+
+const releaseStaleAllocationsForProducts = async ({
+  payload,
+  locale,
+  productIDs,
+}: {
+  payload: Awaited<ReturnType<typeof getPayloadClient>>
+  locale: Locale
+  productIDs: string[]
+}) => {
+  if (productIDs.length === 0) return 0
+
+  const cutoffISO = new Date(Date.now() - STALE_ALLOCATION_WINDOW_MS).toISOString()
+  const staleOrders = await payload.find({
+    collection: 'orders',
+    overrideAccess: true,
+    depth: 0,
+    limit: 500,
+    where: {
+      and: [
+        { paymentProvider: { equals: 'stripe' } },
+        { status: { equals: 'pending' } },
+        { paymentStatus: { equals: 'pending' } },
+        { inventoryCommitted: { equals: false } },
+        { allocationReleased: { equals: false } },
+        { createdAt: { less_than: cutoffISO } },
+      ],
+    },
+  })
+
+  if (staleOrders.docs.length === 0) return 0
+  const staleOrderIDs = staleOrders.docs.map((doc) => String(doc.id))
+
+  const staleOrderItems = await payload.find({
+    collection: 'order-items',
+    overrideAccess: true,
+    depth: 0,
+    limit: 1000,
+    where: {
+      and: [{ order: { in: staleOrderIDs } }, { product: { in: productIDs } }],
+    },
+    select: {
+      order: true,
+    },
+  })
+
+  const orderIDsToRelease = new Set<string>()
+  for (const orderItem of staleOrderItems.docs) {
+    const orderID =
+      typeof orderItem.order === 'object' && orderItem.order && 'id' in orderItem.order
+        ? String(orderItem.order.id)
+        : String(orderItem.order)
+    if (orderID) orderIDsToRelease.add(orderID)
+  }
+
+  let released = 0
+  for (const orderID of orderIDsToRelease) {
+    try {
+      const didRelease = await releaseOrderAllocation({
+        payload,
+        orderID,
+        locale,
+      })
+      if (didRelease) released += 1
+    } catch {
+      // Best-effort cleanup: release failures should not block checkout flow.
+    }
+  }
+
+  return released
 }
 
 const getOrderCartSignature = async ({
@@ -571,10 +647,11 @@ export async function POST(request: Request) {
 
       const productLineItems: ProductLineItem[] = []
       const serviceLineItems: ServiceLineItem[] = []
+      let staleReleaseAttempted = false
 
       for (const item of parsedCartItems) {
         if (item.kind === 'product') {
-          const product = productsById.get(item.productID)
+          let product = productsById.get(item.productID)
           if (!product) continue
           if (typeof product.price !== 'number' || product.price < 0) {
             return NextResponse.json(
@@ -586,12 +663,62 @@ export async function POST(request: Request) {
           const allocated = typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
           const available = Math.max(0, stock - allocated)
           if (item.quantity > available) {
+            if (!staleReleaseAttempted) {
+              staleReleaseAttempted = true
+              const released = await releaseStaleAllocationsForProducts({
+                payload,
+                locale,
+                productIDs: productIds,
+              })
+
+              if (released > 0) {
+                const refreshed = await payload.findByID({
+                  collection: 'products',
+                  id: item.productID,
+                  overrideAccess: false,
+                  locale,
+                  depth: 0,
+                  select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    brand: true,
+                    coverImage: true,
+                    price: true,
+                    stock: true,
+                    allocatedStock: true,
+                    active: true,
+                  },
+                })
+
+                if (refreshed && refreshed.active) {
+                  productsById.set(item.productID, refreshed as Product)
+                  product = refreshed as Product
+                }
+              }
+            }
+
+            const latestStock = typeof product.stock === 'number' ? product.stock : 0
+            const latestAllocated =
+              typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
+            const latestAvailable = Math.max(0, latestStock - latestAllocated)
+            if (item.quantity <= latestAvailable) {
+              productLineItems.push({
+                product,
+                quantity: item.quantity,
+                unitPrice: product.price,
+                lineTotal: product.price * item.quantity,
+                available: latestAvailable,
+              })
+              continue
+            }
+
             return NextResponse.json(
               {
                 error: `Disponibilità insufficiente per ${product.title || item.productID}.`,
                 productId: item.productID,
                 requested: item.quantity,
-                available,
+                available: latestAvailable,
               },
               { status: 409 },
             )
