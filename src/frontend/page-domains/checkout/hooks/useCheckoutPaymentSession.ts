@@ -19,6 +19,37 @@ const resolveCssColor = (varName: string, fallback: string) => {
   return fromRoot || fallback
 }
 
+const toStripeColor = (value: string, fallback: string) => {
+  const input = (value || '').trim()
+  if (!input) return fallback
+
+  if (input.startsWith('#') || input.startsWith('rgb(') || input.startsWith('hsl(')) {
+    return input
+  }
+
+  const rgbaMatch = input.match(
+    /^rgba\(\s*(\d{1,3})\s*[, ]\s*(\d{1,3})\s*[, ]\s*(\d{1,3})\s*[,/]\s*([0-9.]+)\s*\)$/i,
+  )
+  if (rgbaMatch) {
+    const [, r, g, b] = rgbaMatch
+    return `rgb(${r}, ${g}, ${b})`
+  }
+
+  return fallback
+}
+
+const detectThemeMode = (): 'dark' | 'light' => {
+  if (typeof document === 'undefined') return 'dark'
+  const bodyTheme = document.body?.getAttribute('data-theme')
+  const htmlTheme = document.documentElement.getAttribute('data-theme')
+  const classes = `${document.body?.className || ''} ${document.documentElement.className || ''}`.toLowerCase()
+  if (bodyTheme === 'light' || htmlTheme === 'light') return 'light'
+  if (bodyTheme === 'dark' || htmlTheme === 'dark') return 'dark'
+  if (classes.includes('light')) return 'light'
+  if (classes.includes('dark')) return 'dark'
+  return 'dark'
+}
+
 export const useCheckoutPaymentSession = ({
   activeStep,
   locale,
@@ -60,6 +91,7 @@ export const useCheckoutPaymentSession = ({
   const [prefetching, setPrefetching] = useState(false)
   const [expressPrefetchTried, setExpressPrefetchTried] = useState(false)
   const [expressPrefetchError, setExpressPrefetchError] = useState<string | null>(null)
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark')
   const inFlightRef = useRef(false)
 
   const createPaymentSession = useCallback(
@@ -176,6 +208,26 @@ export const useCheckoutPaymentSession = ({
     void createPaymentSession({ silent: true, allowIncompleteForExpress: true })
   }, [activeStep, createPaymentSession, expressPrefetchTried])
 
+  useEffect(() => {
+    const syncTheme = () => setThemeMode(detectThemeMode())
+    syncTheme()
+
+    if (typeof MutationObserver === 'undefined') return
+
+    const observer = new MutationObserver(syncTheme)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    })
+    if (document.body) {
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'data-theme'],
+      })
+    }
+    return () => observer.disconnect()
+  }, [])
+
   const stripePromise = useMemo(() => {
     if (!paymentSession?.publishableKey) return null
     return loadStripe(paymentSession.publishableKey)
@@ -183,11 +235,14 @@ export const useCheckoutPaymentSession = ({
 
   const stripeOptions = useMemo<StripeElementsOptions | null>(() => {
     const stripeLocale = STRIPE_LOCALE_MAP[locale] ?? 'en'
-    const colorPrimary = resolveCssColor('--text-secondary', '#b3b3b3')
-    const colorBackground = resolveCssColor('--paper', '#2d2d2e')
-    const colorText = resolveCssColor('--text-primary', '#f6f2ea')
-    const colorTextSecondary = resolveCssColor('--text-secondary', '#b3b3b3')
-    const colorDanger = resolveCssColor('--neon-red', '#ff2d2d')
+    const colorPrimary = toStripeColor(resolveCssColor('--text-secondary', '#b3b3b3'), '#b3b3b3')
+    const colorBackground = toStripeColor(resolveCssColor('--paper', '#2d2d2e'), '#2d2d2e')
+    const colorText = toStripeColor(resolveCssColor('--text-primary', '#f6f2ea'), '#f6f2ea')
+    const colorTextSecondary = toStripeColor(
+      resolveCssColor('--text-secondary', '#b3b3b3'),
+      '#b3b3b3',
+    )
+    const colorDanger = toStripeColor(resolveCssColor('--neon-red', '#ff2d2d'), '#ff2d2d')
     const colorBorder = resolveCssColor('--stroke', 'rgba(255, 255, 255, 0.1)')
 
     return paymentSession
@@ -195,7 +250,7 @@ export const useCheckoutPaymentSession = ({
           clientSecret: paymentSession.clientSecret,
           locale: stripeLocale,
           appearance: {
-            theme: 'flat' as const,
+            theme: themeMode === 'dark' ? ('night' as const) : ('stripe' as const),
             variables: {
               colorPrimary,
               colorBackground,
@@ -237,7 +292,7 @@ export const useCheckoutPaymentSession = ({
           },
         }
       : null
-  }, [paymentSession, locale])
+  }, [paymentSession, locale, themeMode])
 
   const onExpressRetry = () => {
     setExpressPrefetchTried(false)
