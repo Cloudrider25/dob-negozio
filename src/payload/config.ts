@@ -54,32 +54,104 @@ import { seedShopTaxonomies } from '../seed/shop-seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const isPlaceholderToken = (value: string): boolean => {
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'host' || normalized === 'user' || normalized === 'password' || normalized === 'database'
+}
+
+const isUsableDatabaseUrl = (value: string | undefined): value is string => {
+  if (!value) return false
+  const trimmed = value.trim()
+  if (!trimmed) return false
+
+  try {
+    const parsed = new URL(trimmed)
+    const host = parsed.hostname.trim().toLowerCase()
+    const user = parsed.username.trim().toLowerCase()
+    const dbName = parsed.pathname.replace('/', '').trim().toLowerCase()
+
+    if (!host || isPlaceholderToken(host)) return false
+    if (user && isPlaceholderToken(user)) return false
+    if (dbName && isPlaceholderToken(dbName)) return false
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+const pickDatabaseUrl = (
+  candidates: Array<{ name: string; value: string | undefined }>,
+): { name: string; value: string } | null => {
+  for (const candidate of candidates) {
+    if (isUsableDatabaseUrl(candidate.value)) {
+      return { name: candidate.name, value: candidate.value.trim() }
+    }
+  }
+
+  return null
+}
+
+const normalizePrismaSslCompat = (value: string): string => {
+  try {
+    const parsed = new URL(value)
+    const host = parsed.hostname.trim().toLowerCase()
+    const sslMode = parsed.searchParams.get('sslmode')?.trim().toLowerCase()
+    const hasLibpqCompat = parsed.searchParams.has('uselibpqcompat')
+
+    if (host.endsWith('db.prisma.io') && sslMode === 'require' && !hasLibpqCompat) {
+      parsed.searchParams.set('uselibpqcompat', 'true')
+      return parsed.toString()
+    }
+
+    return value
+  } catch {
+    return value
+  }
+}
+
 const blobReadWriteToken =
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
-    : process.env.STG_READ_WRITE_TOKEN) ||
-  process.env.BLOB_READ_WRITE_TOKEN ||
-  ''
+    : process.env.STG_READ_WRITE_TOKEN) || ''
 const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
 const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
-const envDatabaseUrl = isVercelProduction
-  ? process.env.PROD_POSTGRES_URL ??
-    process.env.PROD_DATABASE_URL ??
-    process.env.PROD_PRISMA_DATABASE_URL
-  : process.env.STG_POSTGRES_URL ??
-    process.env.STG_DATABASE_URL ??
-    process.env.STG_PRISMA_DATABASE_URL
+const isCI = process.env.CI === 'true'
+const databaseUrlCandidate = isCI
+  ? pickDatabaseUrl([
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+  : isVercelProduction
+  ? pickDatabaseUrl([
+      { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+  : pickDatabaseUrl([
+      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
 
-export const databaseUrl =
-  envDatabaseUrl ??
-  process.env.POSTGRES_URL ??
-  process.env.DATABASE_URL ??
-  process.env.POSTGRES_URL_NON_POOLING ??
-  process.env.POSTGRES_PRISMA_URL ??
-  ''
+const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
+export const databaseUrl = databaseUrlCandidate
+  ? normalizePrismaSslCompat(databaseUrlCandidate.value)
+  : ''
 const databaseMeta = (() => {
   if (!databaseUrl) return null
   try {
@@ -232,13 +304,9 @@ export default buildConfig({
   },
   onInit: async (payload) => {
     try {
-      if (process.env.SKIP_DB_INIT === '1' || process.env.NEXT_PHASE === 'phase-production-build') {
-        payload.logger.info('Skipping DB init on build phase.')
-        return
-      }
       if (databaseMeta) {
         payload.logger.info(
-          `[db] host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
+          `[db] source=${databaseUrlSource} host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
         )
       }
 

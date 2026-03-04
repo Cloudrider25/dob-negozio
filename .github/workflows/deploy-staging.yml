@@ -36,13 +36,13 @@ jobs:
         run: pnpm test:int
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.STAGING_PAYLOAD_SECRET }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
       - name: Build
         run: pnpm build
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.STAGING_PAYLOAD_SECRET }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_TELEMETRY_DISABLED: '1'
 
   deploy:
