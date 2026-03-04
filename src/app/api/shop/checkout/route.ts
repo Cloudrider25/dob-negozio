@@ -690,6 +690,7 @@ export async function POST(request: Request) {
       }
 
       const productSubtotal = productLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
+      const productItemsCount = productLineItems.reduce((sum, item) => sum + item.quantity, 0)
       const serviceSubtotal = serviceLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
       const subtotal = productSubtotal + serviceSubtotal
       let shippingAmount = 0
@@ -703,6 +704,7 @@ export async function POST(request: Request) {
           payload,
           toCountry: 'IT',
           toPostalCode: postalCode,
+          itemsCount: productItemsCount,
         })
         if (shippingOptions.length > 0) {
           const selectedOption =

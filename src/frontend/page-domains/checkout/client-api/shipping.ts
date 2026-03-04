@@ -16,10 +16,12 @@ export type ShippingQuoteResult = {
 export const fetchShippingQuote = async ({
   shippingAddress,
   subtotal,
+  itemsCount,
   signal,
 }: {
   shippingAddress: ShippingAddressSnapshot
   subtotal: number
+  itemsCount: number
   signal: AbortSignal
 }): Promise<ShippingQuoteResult | null> => {
   const response = await fetch('/api/shop/shipping-quote', {
@@ -35,6 +37,7 @@ export const fetchShippingQuote = async ({
       postalCode: shippingAddress.postalCode,
       country: 'IT',
       subtotal,
+      itemsCount,
     }),
   })
 

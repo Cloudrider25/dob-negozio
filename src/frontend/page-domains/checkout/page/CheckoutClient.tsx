@@ -94,6 +94,10 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     () => items.reduce((sum, item) => (isServiceCartItem(item) ? sum : sum + (item.price ?? 0) * item.quantity), 0),
     [items],
   )
+  const productItemsCount = useMemo(
+    () => items.reduce((sum, item) => (isServiceCartItem(item) ? sum : sum + item.quantity), 0),
+    [items],
+  )
   const requiresShippingAddress = hasProducts && productFulfillmentMode === 'shipping'
   const shippingDisabled = !hasProducts || productFulfillmentMode !== 'shipping'
 
@@ -183,7 +187,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     formState,
     requiresShippingAddress,
     isShippingAddressComplete,
-    itemsCount: items.length,
+    itemsCount: productItemsCount,
     productSubtotal,
   })
 

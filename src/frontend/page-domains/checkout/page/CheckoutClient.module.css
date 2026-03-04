@@ -476,13 +476,18 @@
   height: 24px;
   border-radius: 999px;
   background: var(--panel);
-  color: var(--text-inverse);
+  color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   border: 2px solid var(--bg);
   padding: 0 0.3rem;
+  overflow: visible;
+  line-height: 1;
+  font-size: clamp(0.68rem, 0.55vw, 0.78rem);
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .summaryTitle {
@@ -511,9 +516,9 @@
   border-radius: 10px;
   border: 1px solid var(--stroke);
   padding: 0.7rem 1rem;
-  background: var(--pearl-1);
+  background: var(--paper);
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .applyButton:focus-visible {
@@ -552,7 +557,7 @@
   border: 1px solid var(--stroke);
   border-radius: 14px;
   padding: 0.9rem;
-  background: var(--pearl-1);
+  background: var(--paper);
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) auto;
   gap: 0.9rem;
@@ -597,7 +602,7 @@
   background: transparent;
   text-decoration: underline;
   text-underline-offset: 3px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
