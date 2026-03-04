@@ -5,7 +5,7 @@ const getBaseUrl = (): string => {
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.SITE_URL ||
     process.env.PAYLOAD_PUBLIC_SERVER_URL ||
-    'https://dobmilano.it'
+    'https://dobmilano.com'
 
   return raw.endsWith('/') ? raw.slice(0, -1) : raw
 }
