@@ -93,12 +93,28 @@ const pickDatabaseUrl = (
   return null
 }
 
+const normalizePrismaSslCompat = (value: string): string => {
+  try {
+    const parsed = new URL(value)
+    const host = parsed.hostname.trim().toLowerCase()
+    const sslMode = parsed.searchParams.get('sslmode')?.trim().toLowerCase()
+    const hasLibpqCompat = parsed.searchParams.has('uselibpqcompat')
+
+    if (host.endsWith('db.prisma.io') && sslMode === 'require' && !hasLibpqCompat) {
+      parsed.searchParams.set('uselibpqcompat', 'true')
+      return parsed.toString()
+    }
+
+    return value
+  } catch {
+    return value
+  }
+}
+
 const blobReadWriteToken =
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
-    : process.env.STG_READ_WRITE_TOKEN) ||
-  process.env.BLOB_READ_WRITE_TOKEN ||
-  ''
+    : process.env.STG_READ_WRITE_TOKEN) || ''
 const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
 const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
@@ -133,7 +149,9 @@ const databaseUrlCandidate = isCI
     ])
 
 const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
-export const databaseUrl = databaseUrlCandidate?.value ?? ''
+export const databaseUrl = databaseUrlCandidate
+  ? normalizePrismaSslCompat(databaseUrlCandidate.value)
+  : ''
 const databaseMeta = (() => {
   if (!databaseUrl) return null
   try {
