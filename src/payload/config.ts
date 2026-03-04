@@ -152,6 +152,20 @@ const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
 export const databaseUrl = databaseUrlCandidate
   ? normalizePrismaSslCompat(databaseUrlCandidate.value)
   : ''
+const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '10')
+const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
+const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
+const dbPoolIdleTimeoutInput = Number(process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || '30000')
+const dbPoolMax = Number.isFinite(dbPoolMaxInput) && dbPoolMaxInput > 0 ? Math.floor(dbPoolMaxInput) : 10
+const dbPoolMin = Number.isFinite(dbPoolMinInput) && dbPoolMinInput >= 0 ? Math.floor(dbPoolMinInput) : 0
+const dbPoolConnectTimeout =
+  Number.isFinite(dbPoolConnectTimeoutInput) && dbPoolConnectTimeoutInput > 0
+    ? Math.floor(dbPoolConnectTimeoutInput)
+    : 30_000
+const dbPoolIdleTimeout =
+  Number.isFinite(dbPoolIdleTimeoutInput) && dbPoolIdleTimeoutInput > 0
+    ? Math.floor(dbPoolIdleTimeoutInput)
+    : 30_000
 const databaseMeta = (() => {
   if (!databaseUrl) return null
   try {
@@ -236,11 +250,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: databaseUrl,
-      // Serverless-safe defaults to avoid connection storms on upstream providers.
-      max: 2,
-      min: 0,
-      connectionTimeoutMillis: 10_000,
-      idleTimeoutMillis: 30_000,
+      // Tunable pool sizing: previous hard-coded max=2 caused admin lock/save timeouts under load.
+      max: dbPoolMax,
+      min: dbPoolMin,
+      connectionTimeoutMillis: dbPoolConnectTimeout,
+      idleTimeoutMillis: dbPoolIdleTimeout,
     },
   }),
   sharp,
@@ -312,6 +326,9 @@ export default buildConfig({
       if (databaseMeta) {
         payload.logger.info(
           `[db] source=${databaseUrlSource} host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
+        )
+        payload.logger.info(
+          `[db] pool max=${dbPoolMax} min=${dbPoolMin} connectTimeoutMs=${dbPoolConnectTimeout} idleTimeoutMs=${dbPoolIdleTimeout}`,
         )
       }
 
