@@ -304,10 +304,6 @@ export default buildConfig({
   },
   onInit: async (payload) => {
     try {
-      if (process.env.SKIP_DB_INIT === '1' || process.env.NEXT_PHASE === 'phase-production-build') {
-        payload.logger.info('Skipping DB init on build phase.')
-        return
-      }
       if (databaseMeta) {
         payload.logger.info(
           `[db] source=${databaseUrlSource} host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
