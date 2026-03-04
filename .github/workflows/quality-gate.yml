@@ -9,7 +9,7 @@ on:
       - prod
 
 concurrency:
-  group: quality-gate-${{ github.event.pull_request.head.ref || github.ref_name }}
+  group: quality-gate-${{ github.event_name }}-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
