@@ -11,6 +11,9 @@ jobs:
   static-checks:
     name: Lint + Typecheck + Int Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,11 +36,20 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Validate staging DB secrets
+        shell: bash
+        run: |
+          if [[ -z "${DATABASE_URL}" ]]; then
+            echo "::error::Missing secret STAGING_DATABASE_URL for Quality Gate."
+            exit 1
+          fi
+          if [[ -z "${PAYLOAD_SECRET}" ]]; then
+            echo "::error::Missing secret PAYLOAD_SECRET for Quality Gate."
+            exit 1
+          fi
+
       - name: Integration tests
         run: pnpm test:int
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
   e2e-smoke:
     name: E2E Smoke
