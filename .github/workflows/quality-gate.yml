@@ -6,6 +6,11 @@ on:
       - dev
       - staging
       - prod
+  pull_request:
+    branches:
+      - dev
+      - staging
+      - prod
 
 concurrency:
   group: quality-gate-${{ github.event_name }}-${{ github.event.pull_request.head.ref || github.ref_name }}
