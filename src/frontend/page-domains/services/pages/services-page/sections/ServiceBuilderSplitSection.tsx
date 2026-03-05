@@ -15,6 +15,13 @@ import styles from './ServiceBuilderSplitSection.module.css'
 
 type ServiceBuilderSplitSectionProps = {
   data: NavigatorData
+  step0Config?: {
+    heading?: string | null
+    description?: string | null
+    mediaPlaceholder?: string | null
+    mediaUrl?: string | null
+    mediaAlt?: string | null
+  }
 }
 
 const formatPrice = (price?: number) => {
@@ -25,7 +32,7 @@ const formatPrice = (price?: number) => {
   })
 }
 
-export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionProps) {
+export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilderSplitSectionProps) {
   const orderedAreas = useMemo(() => {
     const list = [...data.areas]
     list.sort((a, b) => {
@@ -135,6 +142,7 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
   return (
     <SplitSection
       className={styles.split}
+      mobileOrder="right-first"
       leftClassName={styles.panel}
       rightClassName={`${styles.panel} ${styles.panelMedia}`}
       left={
@@ -152,10 +160,11 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
                 <SectionTitle as="h2" size="h2" uppercase className={styles.heading}>
-                  Scegli il risultato. Al resto pensiamo noi.
+                  {step0Config?.heading || 'Scegli il risultato. Al resto pensiamo noi.'}
                 </SectionTitle>
                 <SectionSubtitle className={styles.bodyText}>
-                  Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.
+                  {step0Config?.description ||
+                    'Seleziona l&apos;area, definisci l&apos;obiettivo, scopri il trattamento più adatto.'}
                 </SectionSubtitle>
                 <div className={styles.stepActions}>
                   <span className={styles.stepActionSpacer} aria-hidden="true" />
@@ -214,12 +223,10 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
             <SwiperSlide className={styles.leftSlide}>
               <div className={styles.column}>
                 <SectionTitle as="h2" size="h2" uppercase className={styles.heading}>
-                  Definisci obiettivo e trattamento
+                  Definisci l&apos;obiettivo
                 </SectionTitle>
                 <SectionSubtitle className={styles.bodyText}>
-                  {selectedGoal?.description ||
-                    selectedTreatment?.description ||
-                    'Scegli il percorso più adatto al risultato che vuoi ottenere.'}
+                  {selectedGoal?.description || 'Scegli il risultato che vuoi ottenere.'}
                 </SectionSubtitle>
 
                 {goalsForArea.length > 0 ? (
@@ -243,7 +250,39 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                       ))}
                     </div>
                   </div>
-                ) : null}
+                ) : (
+                  <SectionSubtitle className={styles.emptyState}>
+                    Nessun obiettivo disponibile per l&apos;area selezionata.
+                  </SectionSubtitle>
+                )}
+
+                <div className={styles.stepActions}>
+                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(1)}>
+                    Torna indietro
+                  </Button>
+                  <Button
+                    kind="main"
+                    size="sm"
+                    interactive
+                    type="button"
+                    className={styles.navButton}
+                    onClick={() => goToStep(3)}
+                  >
+                    Prosegui
+                  </Button>
+                </div>
+              </div>
+            </SwiperSlide>
+
+            <SwiperSlide className={styles.leftSlide}>
+              <div className={styles.column}>
+                <SectionTitle as="h2" size="h2" uppercase className={styles.heading}>
+                  Scegli il trattamento
+                </SectionTitle>
+                <SectionSubtitle className={styles.bodyText}>
+                  {selectedTreatment?.description ||
+                    'Seleziona il trattamento più adatto al risultato scelto.'}
+                </SectionSubtitle>
 
                 <div className={styles.block}>
                   <p className={`${styles.blockLabel} typo-caption-upper`}>Trattamento</p>
@@ -267,7 +306,7 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                 </div>
 
                 <div className={styles.stepActions}>
-                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(1)}>
+                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(2)}>
                     Torna indietro
                   </Button>
                   <Button
@@ -277,7 +316,7 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                     type="button"
                     className={styles.navButton}
                     disabled={!selectedTreatment}
-                    onClick={() => goToStep(3)}
+                    onClick={() => goToStep(4)}
                   >
                     Prosegui
                   </Button>
@@ -320,7 +359,7 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
                   )}
                 </div>
                 <div className={styles.stepActions}>
-                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(2)}>
+                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(3)}>
                     Torna indietro
                   </Button>
                 </div>
@@ -342,7 +381,21 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
             }}
           >
             <SwiperSlide className={styles.mediaSlide}>
-              <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Inizia il percorso</div>
+              {step0Config?.mediaUrl ? (
+                <Image
+                  className={styles.mediaImage}
+                  src={step0Config.mediaUrl}
+                  alt={step0Config.mediaAlt || step0Config.heading || 'Inizia il percorso'}
+                  width={1600}
+                  height={1200}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
+                />
+              ) : (
+                <div className={`${styles.mediaPlaceholder} typo-small-upper`}>
+                  {step0Config?.mediaPlaceholder || 'Inizia il percorso'}
+                </div>
+              )}
             </SwiperSlide>
 
             <SwiperSlide className={styles.mediaSlide}>
@@ -363,19 +416,36 @@ export function ServiceBuilderSplitSection({ data }: ServiceBuilderSplitSectionP
             </SwiperSlide>
 
             <SwiperSlide className={styles.mediaSlide}>
-              {selectedGoal?.imageUrl || selectedTreatment?.imageUrl ? (
+              {selectedGoal?.imageUrl ? (
                 <Image
-                  key={`${selectedGoal?.id || 'goal'}-${selectedTreatment?.id || 'treatment'}-media`}
+                  key={`${selectedGoal?.id || 'goal'}-media`}
                   className={styles.mediaImage}
-                  src={selectedGoal?.imageUrl || selectedTreatment?.imageUrl || ''}
-                  alt={selectedGoal?.label || selectedTreatment?.label || 'Anteprima trattamento'}
+                  src={selectedGoal?.imageUrl || ''}
+                  alt={selectedGoal?.label || 'Anteprima obiettivo'}
                   width={1600}
                   height={1200}
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   loading="lazy"
                 />
               ) : (
-                <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima obiettivo/trattamento</div>
+                <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima obiettivo</div>
+              )}
+            </SwiperSlide>
+
+            <SwiperSlide className={styles.mediaSlide}>
+              {selectedTreatment?.imageUrl ? (
+                <Image
+                  key={`${selectedTreatment?.id || 'treatment'}-media`}
+                  className={styles.mediaImage}
+                  src={selectedTreatment?.imageUrl || ''}
+                  alt={selectedTreatment?.label || 'Anteprima trattamento'}
+                  width={1600}
+                  height={1200}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
+                />
+              ) : (
+                <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima trattamento</div>
               )}
             </SwiperSlide>
 

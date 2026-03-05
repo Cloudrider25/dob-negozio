@@ -18,6 +18,8 @@ type CreateCarouselItemArgs = {
   badgeLeft?: string | null
   badgeRight?: string | null
   href?: string
+  mobileCtaLabel?: string | null
+  ctaAction?: CarouselItem['ctaAction']
 }
 
 const normalizeText = (value: string | null | undefined): string | null => {
@@ -39,6 +41,8 @@ export const createCarouselItem = ({
   badgeLeft,
   badgeRight,
   href,
+  mobileCtaLabel,
+  ctaAction,
 }: CreateCarouselItemArgs): CarouselItem | null => {
   const normalizedTitle = normalizeText(title)
   if (!normalizedTitle) return null
@@ -61,6 +65,8 @@ export const createCarouselItem = ({
     badgeLeft: normalizeText(badgeLeft),
     badgeRight: normalizeText(badgeRight),
     href: normalizeText(href) || undefined,
+    mobileCtaLabel: normalizeText(mobileCtaLabel),
+    ctaAction,
   }
 }
 
@@ -94,6 +100,8 @@ export const normalizeCarouselItem = (
     badgeLeft: item.badgeLeft,
     badgeRight: item.badgeRight,
     href: item.href,
+    mobileCtaLabel: item.mobileCtaLabel,
+    ctaAction: item.ctaAction,
   })
 }
 

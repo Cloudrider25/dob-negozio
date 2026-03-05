@@ -60,6 +60,14 @@ export default async function ServicesPage({
       pageDoc?.heroTitleMode === 'fixed' && pageDoc?.heroTitle ? pageDoc.heroTitle : t.services.title
     const heroDescription = pageDoc?.heroDescription ?? t.services.lead
     const heroStyle = pageDoc?.heroStyle === 'style2' ? 'style2' : 'style1'
+    const step0Media = resolveMedia(pageDoc?.serviceNavigator?.step0Media, 'Inizia il percorso')
+    const navigatorStep0Config = {
+      heading: pageDoc?.serviceNavigator?.step0Heading || null,
+      description: pageDoc?.serviceNavigator?.step0Description || null,
+      mediaPlaceholder: pageDoc?.serviceNavigator?.step0MediaPlaceholder || null,
+      mediaUrl: step0Media?.url || null,
+      mediaAlt: step0Media?.alt || null,
+    }
 
   const [areasResult, objectivesResult, treatmentsResult, servicesResult, siteSettings] =
     await Promise.all([
@@ -103,6 +111,9 @@ export default async function ServicesPage({
           slug: true,
           description: true,
           price: true,
+          variabili: true,
+          pacchetti: true,
+          nomeVariabile: true,
           treatments: true,
           gallery: true,
         },
@@ -211,6 +222,28 @@ export default async function ServicesPage({
       description: service.description || undefined,
       price: service.price || undefined,
       imageUrl: serviceMedia?.url || undefined,
+      variabili: Array.isArray(service.variabili)
+        ? service.variabili
+            .map((item) => ({
+              id: String(item?.id || ''),
+              name: item?.varNome || service.nomeVariabile || 'Default',
+              durationMinutes: typeof item?.varDurationMinutes === 'number' ? item.varDurationMinutes : null,
+              price: typeof item?.varPrice === 'number' ? item.varPrice : undefined,
+            }))
+            .filter((item) => item.id.length > 0)
+        : [],
+      pacchetti: Array.isArray(service.pacchetti)
+        ? service.pacchetti
+            .map((item) => ({
+              id: String(item?.id || ''),
+              name: item?.nomePacchetto || 'Pacchetto',
+              linkedTo: item?.collegaAVariabile || 'default',
+              sessions: typeof item?.numeroSedute === 'number' ? item.numeroSedute : null,
+              packagePrice: typeof item?.prezzoPacchetto === 'number' ? item.prezzoPacchetto : undefined,
+              packageValue: typeof item?.valorePacchetto === 'number' ? item.valorePacchetto : null,
+            }))
+            .filter((item) => item.id.length > 0)
+        : [],
     }
   })
 
@@ -257,11 +290,9 @@ export default async function ServicesPage({
     whatsapp: siteSettings?.whatsapp,
   })
   const initialViewMode =
-    viewParam === 'listino' || viewParam === 'consulenza'
+    viewParam === 'navigator' || viewParam === 'listino' || viewParam === 'consulenza'
       ? viewParam
-      : queryParam
-        ? 'listino'
-        : 'navigator'
+      : 'listino'
 
     return (
       <div className={styles.page}>
@@ -278,7 +309,7 @@ export default async function ServicesPage({
         <ServicesSectionSwitcher currentView={initialViewMode} />
         {initialViewMode === 'navigator' ? (
           <div className={styles.navigatorSection}>
-            <ServiceBuilderSplitSection data={navigatorData} />
+            <ServiceBuilderSplitSection data={navigatorData} step0Config={navigatorStep0Config} />
           </div>
         ) : null}
         {initialViewMode === 'consulenza' ? (

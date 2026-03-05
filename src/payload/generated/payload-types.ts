@@ -1445,6 +1445,24 @@ export interface Page {
    * Titolo Step 2.
    */
   routineBuilderStep2Title?: string | null;
+  serviceNavigator?: {
+    /**
+     * Titolo step 0 del Service Navigator.
+     */
+    step0Heading?: string | null;
+    /**
+     * Testo step 0 del Service Navigator.
+     */
+    step0Description?: string | null;
+    /**
+     * Testo fallback sopra il media dello step 0.
+     */
+    step0MediaPlaceholder?: string | null;
+    /**
+     * Media dello step 0 nel pannello destro.
+     */
+    step0Media?: (number | null) | Media;
+  };
   servicesCarousel?: {
     limit?: number | null;
     serviceTypes?: ('single' | 'package')[] | null;
@@ -1808,10 +1826,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'exclusions';
         value: number | Exclusion;
-      } | null)
-    | ({
-        relationTo: 'pages';
-        value: number | Page;
       } | null)
     | ({
         relationTo: 'posts';
@@ -2713,6 +2727,14 @@ export interface PagesSelect<T extends boolean = true> {
   heroMedia?: T;
   routineBuilderStep1Title?: T;
   routineBuilderStep2Title?: T;
+  serviceNavigator?:
+    | T
+    | {
+        step0Heading?: T;
+        step0Description?: T;
+        step0MediaPlaceholder?: T;
+        step0Media?: T;
+      };
   servicesCarousel?:
     | T
     | {

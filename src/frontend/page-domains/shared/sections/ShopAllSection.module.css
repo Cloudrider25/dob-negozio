@@ -2,6 +2,93 @@
   display: flex;
   flex-direction: column;
   background: transparent;
+  gap: 0.9rem;
+}
+
+.toolbar {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sortLabel {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+.sortSelect {
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sortSelectActive {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.sortSelectIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.sortSelectDivider {
+  width: 1px;
+  height: 16px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.sortIndicator {
+  min-width: 1rem;
+  text-align: center;
+  color: currentColor;
+}
+
+.toolbarMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.count {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.viewToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.viewButton {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-block;
+  line-height: 0;
+  cursor: pointer;
+}
+
+.viewButtonActive {
+  color: var(--text-primary);
+}
+
+.viewIcon {
+  width: 24px;
+  height: 24px;
 }
 
 .grid {
@@ -10,8 +97,162 @@
   gap: 1.4rem;
 }
 
+.gridList {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.optionsDrawerPanel {
+  gap: 0.8rem;
+}
+
+.optionsDrawerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: 0.4rem;
+}
+
+.variantsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.variantsHeading {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.variantsRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+}
+
+.variantPill {
+  border: 1px solid var(--stroke);
+  background: color-mix(in oklab, var(--paper) 96%, var(--bg) 4%);
+  color: var(--text-primary);
+  border-radius: 999px;
+  width: 124px;
+  min-width: 124px;
+  height: 124px;
+  padding: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.variantLabel {
+  line-height: 1.24;
+  letter-spacing: 0.06em;
+}
+
+.optionButton {
+  width: 100%;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--text-primary);
+  padding: 0.9rem 1rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.optionLabel {
+  color: var(--text-primary);
+}
+
+.optionButtonActive {
+  border-color: var(--text-primary);
+}
+
+.optionMeta {
+  color: var(--text-secondary);
+}
+
+.optionCancel {
+  margin-top: 0.2rem;
+}
+
+.drawerResetButton {
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.controlAccordion {
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.controlSummary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.controlSummary::-webkit-details-marker {
+  display: none;
+}
+
+.controlSummaryLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.controlSummaryCount {
+  color: var(--text-secondary);
+}
+
+.controlSummaryChevron {
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.controlAccordion[open] .controlSummaryChevron {
+  transform: rotate(180deg);
+}
+
+.controlContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0.75rem 0.75rem;
+}
+
+.controlEmpty {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  padding: 0.2rem 0.25rem;
+}
+
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gridList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
