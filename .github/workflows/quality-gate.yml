@@ -36,7 +36,7 @@ jobs:
       - name: Integration tests
         run: pnpm test:int
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
   e2e-smoke:
@@ -44,7 +44,7 @@ jobs:
     needs: static-checks
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
