@@ -41,890 +41,251 @@ export const Pages: CollectionConfig = {
       },
     },
     {
-      type: 'row',
-      admin: {
-        condition: (data) => data?.pageKey === 'privacy',
-      },
-      fields: [
-<<<<<<< ours
-=======
+      type: 'tabs',
+      tabs: [
         {
-          type: 'tabs',
-          tabs: [
-            {
-              label: 'Privacy SEO',
-              fields: [...seoFields],
-            },
-            {
-              label: 'Privacy Content',
-              fields: [
-                {
-                  name: 'privacyContent',
-                  type: 'richText',
-                  localized: true,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: 'row',
-      admin: {
-        condition: (data) => data?.pageKey !== 'privacy',
-      },
-      fields: [
-        {
-          type: 'tabs',
-          tabs: [
->>>>>>> theirs
-        {
-          type: 'tabs',
-          tabs: [
-            {
-              label: 'Privacy SEO',
-              fields: [...seoFields],
-            },
-            {
-              label: 'Privacy Content',
-              fields: [
-                {
-                  name: 'privacyContent',
-                  type: 'richText',
-                  localized: true,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: 'row',
-      admin: {
-        condition: (data) => data?.pageKey !== 'privacy',
-      },
-      fields: [
-        {
-          type: 'tabs',
-          tabs: [
-            {
-              label: 'Legal SEO',
-              admin: {
-                condition: (data) => data?.pageKey === 'privacy',
-              },
-              fields: [...seoFields],
-              type: 'tabs',
-              tabs: [
-                {
-                  label: 'Privacy SEO',
-                  fields: [...seoFields],
-                },
-                {
-                  label: 'Privacy Content',
-                  fields: [
-                    {
-                      name: 'privacyContent',
-                      type: 'richText',
-                      localized: true,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          type: 'row',
+          label: 'Sezione 1',
           admin: {
-            condition: (data) => data?.pageKey !== 'privacy',
+            condition: (data) =>
+              data?.pageKey === 'home' || data?.pageKey === 'our-story' || data?.pageKey === 'shop',
           },
           fields: [
             {
-              type: 'tabs',
-              tabs: [
+              name: 'heroTitleMode',
+              type: 'select',
+              required: true,
+              defaultValue: 'fixed',
+              options: [
+                { label: 'Fisso', value: 'fixed' },
+                { label: 'Dinamico', value: 'dynamic' },
+              ],
+            },
+            {
+              name: 'heroStyle',
+              type: 'select',
+              required: true,
+              defaultValue: 'style1',
+              options: [
+                { label: 'Style 1', value: 'style1' },
+                { label: 'Style 2', value: 'style2' },
+              ],
+            },
+            {
+              name: 'heroTitle',
+              type: 'text',
+              localized: true,
+            },
+            {
+              name: 'heroDescription',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              name: 'heroMedia',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              maxRows: 2,
+            },
+          ],
+        },
+        {
+          label: 'Routine Builder',
+          admin: {
+            condition: (data) => data?.pageKey === 'shop',
+          },
+          fields: [
+            {
+              name: 'routineBuilderStep1Title',
+              type: 'text',
+              localized: true,
+              admin: {
+                description: 'Titolo Step 1.',
+              },
+            },
+            {
+              name: 'routineBuilderStep2Title',
+              type: 'text',
+              localized: true,
+              admin: {
+                description: 'Titolo Step 2.',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Service Navigator',
+          admin: {
+            condition: (data) => data?.pageKey === 'services',
+          },
+          fields: [
+            {
+              name: 'serviceNavigator',
+              type: 'group',
+              fields: [
                 {
-                  label: 'Privacy Content',
+                  name: 'step0Heading',
+                  type: 'text',
+                  localized: true,
                   admin: {
-                    condition: (data) => data?.pageKey === 'privacy',
+                    description: 'Titolo step 0 del Service Navigator.',
                   },
-                  fields: [
-                    {
-                      name: 'privacyContent',
-                      type: 'richText',
-                      localized: true,
-                    },
-                  ],
                 },
                 {
-                  label: 'Home Hero',
+                  name: 'step0Description',
+                  type: 'textarea',
+                  localized: true,
                   admin: {
-                    condition: (data) =>
-                      data?.pageKey === 'home' ||
-                      data?.pageKey === 'our-story' ||
-                      data?.pageKey === 'shop' ||
-                      data?.pageKey === 'services',
+                    description: 'Testo step 0 del Service Navigator.',
                   },
+                },
+                {
+                  name: 'step0MediaPlaceholder',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    description: 'Testo fallback sopra il media dello step 0.',
+                  },
+                },
+                {
+                  name: 'step0Media',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Media dello step 0 nel pannello destro.',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 2',
+          admin: {
+            condition: (data) => data?.pageKey === 'home',
+          },
+          fields: [
+            {
+              name: 'servicesCarousel',
+              type: 'group',
+              label: 'Service Carousel',
+              fields: [
+                {
+                  type: 'row',
                   fields: [
                     {
-                      name: 'heroTitleMode',
+                      name: 'limit',
+                      type: 'number',
+                      min: 1,
+                      defaultValue: 6,
+                      admin: {
+                        width: '25%',
+                      },
+                    },
+                    {
+                      name: 'serviceTypes',
                       type: 'select',
-                      required: true,
-                      defaultValue: 'fixed',
-                      options: [
-                        { label: 'Fisso', value: 'fixed' },
-                        { label: 'Dinamico', value: 'dynamic' },
-                      ],
-                    },
-                    {
-                      name: 'heroStyle',
-                      type: 'select',
-                      required: true,
-                      defaultValue: 'style1',
-                      options: [
-                        { label: 'Style 1', value: 'style1' },
-                        { label: 'Style 2', value: 'style2' },
-                      ],
-                    },
-                    {
-                      name: 'heroTitle',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'heroDescription',
-                      type: 'textarea',
-                      localized: true,
-                    },
-                    {
-                      name: 'heroMedia',
-                      type: 'upload',
-                      relationTo: 'media',
                       hasMany: true,
-                      maxRows: 2,
-                    },
-                  ],
-                },
-                {
-                  label: 'Routine Builder',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'shop',
-                  },
-                  fields: [
-                    {
-                      name: 'routineBuilderStep1Title',
-                      type: 'text',
-                      localized: true,
+                      options: [
+                        { label: 'Singolo', value: 'single' },
+                        { label: 'Pacchetto', value: 'package' },
+                      ],
                       admin: {
-                        description: 'Titolo Step 1.',
-                      },
-                    },
-                    {
-                      name: 'routineBuilderStep2Title',
-                      type: 'text',
-                      localized: true,
-                      admin: {
-                        description: 'Titolo Step 2.',
+                        width: '75%',
                       },
                     },
                   ],
                 },
                 {
-                  label: 'Serv.Navigator',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'services',
-                  },
+                  type: 'row',
                   fields: [
                     {
-                      name: 'serviceNavigator',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'step0Heading',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            description: 'Titolo step 0 del Service Navigator.',
-                          },
-                        },
-                        {
-                          name: 'step0Description',
-                          type: 'textarea',
-                          localized: true,
-                          admin: {
-                            description: 'Testo step 0 del Service Navigator.',
-                          },
-                        },
-                        {
-                          name: 'step0MediaPlaceholder',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            description: 'Testo fallback sopra il media dello step 0.',
-                          },
-                        },
-                        {
-                          name: 'step0Media',
-                          type: 'upload',
-                          relationTo: 'media',
-                          admin: {
-                            description: 'Media dello step 0 nel pannello destro.',
-                          },
-                        },
+                      name: 'gender',
+                      type: 'select',
+                      hasMany: true,
+                      options: [
+                        { label: 'Unisex', value: 'unisex' },
+                        { label: 'Donna', value: 'female' },
+                        { label: 'Uomo', value: 'male' },
                       ],
+                      admin: {
+                        width: '50%',
+                      },
                     },
-                  ],
-                },
-                {
-                  label: 'Home Serv.Carousel',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'our-story',
-                  },
-                  fields: [
                     {
-                      name: 'servicesCarousel',
-                      type: 'group',
-                      label: 'Service Carousel',
-                      fields: [
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'limit',
-                              type: 'number',
-                              min: 1,
-                              defaultValue: 6,
-                              admin: {
-                                width: '25%',
-                              },
-                            },
-                            {
-                              name: 'serviceTypes',
-                              type: 'select',
-                              hasMany: true,
-                              options: [
-                                { label: 'Singolo', value: 'single' },
-                                { label: 'Pacchetto', value: 'package' },
-                              ],
-                              admin: {
-                                width: '75%',
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'gender',
-                              type: 'select',
-                              hasMany: true,
-                              options: [
-                                { label: 'Unisex', value: 'unisex' },
-                                { label: 'Donna', value: 'female' },
-                                { label: 'Uomo', value: 'male' },
-                              ],
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                            {
-                              name: 'modality',
-                              type: 'select',
-                              hasMany: true,
-                              options: [
-                                { label: 'Device', value: 'device' },
-                                { label: 'Manual', value: 'manual' },
-                                { label: 'Laser', value: 'laser' },
-                                { label: 'Consultation', value: 'consultation' },
-                                { label: 'Wax', value: 'wax' },
-                              ],
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'treatments',
-                              type: 'relationship',
-                              relationTo: 'treatments',
-                              hasMany: true,
-                              admin: {
-                                width: '100%',
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'objective',
-                              type: 'relationship',
-                              relationTo: 'objectives',
-                              hasMany: true,
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                            {
-                              name: 'area',
-                              type: 'relationship',
-                              relationTo: 'areas',
-                              hasMany: true,
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'intent',
-                              type: 'relationship',
-                              relationTo: 'intents',
-                              hasMany: true,
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                            {
-                              name: 'zone',
-                              type: 'relationship',
-                              relationTo: 'zones',
-                              hasMany: true,
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                          ],
-                        },
+                      name: 'modality',
+                      type: 'select',
+                      hasMany: true,
+                      options: [
+                        { label: 'Device', value: 'device' },
+                        { label: 'Manual', value: 'manual' },
+                        { label: 'Laser', value: 'laser' },
+                        { label: 'Consultation', value: 'consultation' },
+                        { label: 'Wax', value: 'wax' },
                       ],
+                      admin: {
+                        width: '50%',
+                      },
                     },
                   ],
                 },
                 {
-                  label: 'Checkout',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'checkout',
-                  },
+                  type: 'row',
                   fields: [
                     {
-                      name: 'checkoutNotice',
-                      type: 'textarea',
-                      localized: true,
-                    },
-                  ],
-                },
-                {
-                  label: 'Home Protocol',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'home',
-                  },
-                  fields: [
-                    {
-                      name: 'protocolSplit',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'eyebrow',
-                          type: 'text',
-                          localized: true,
-                        },
-                        {
-                          name: 'steps',
-                          type: 'array',
-                          minRows: 1,
-                          fields: [
-                            {
-                              name: 'label',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'title',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'subtitle',
-                              type: 'textarea',
-                              localized: true,
-                            },
-                            {
-                              name: 'media',
-                              type: 'upload',
-                              relationTo: 'media',
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  label: 'Diagnosi',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'dob-protocol',
-                  },
-                  fields: [
-                    {
-                      name: 'dobProtocolDiagnosi',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'title',
-                          type: 'text',
-                          localized: true,
-                        },
-                        {
-                          name: 'description',
-                          type: 'textarea',
-                          localized: true,
-                        },
-                        {
-                          name: 'media',
-                          type: 'upload',
-                          relationTo: 'media',
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  label: 'Trattamenti',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'dob-protocol',
-                  },
-                  fields: [
-                    {
-                      name: 'dobProtocolTrattamenti',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'title',
-                          type: 'text',
-                          localized: true,
-                        },
-                        {
-                          name: 'description',
-                          type: 'textarea',
-                          localized: true,
-                        },
-                        {
-                          name: 'media',
-                          type: 'upload',
-                          relationTo: 'media',
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  label: 'Routine',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'dob-protocol',
-                  },
-                  fields: [
-                    {
-                      name: 'dobProtocolRoutine',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'title',
-                          type: 'text',
-                          localized: true,
-                        },
-                        {
-                          name: 'description',
-                          type: 'textarea',
-                          localized: true,
-                        },
-                        {
-                          name: 'media',
-                          type: 'upload',
-                          relationTo: 'media',
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  label: 'Check up',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'dob-protocol',
-                  },
-                  fields: [
-                    {
-                      name: 'dobProtocolCheckUp',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'title',
-                          type: 'text',
-                          localized: true,
-                        },
-                        {
-                          name: 'description',
-                          type: 'textarea',
-                          localized: true,
-                        },
-                        {
-                          name: 'media',
-                          type: 'upload',
-                          relationTo: 'media',
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  label: 'Home StoryHero',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'home',
-                  },
-                  fields: [
-                    {
-                      name: 'storyHeroHomeTitle',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'storyHeroHomeBody',
-                      type: 'textarea',
-                      localized: true,
-                    },
-                    {
-                      type: 'row',
-                      fields: [
-                        {
-                          name: 'storyHeroHomeCtaLabel',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            width: '50%',
-                          },
-                        },
-                        {
-                          name: 'storyHeroHomeCtaHref',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            width: '50%',
-                          },
-                        },
-                      ],
-                    },
-                    {
-                      name: 'storyHeroHomeMedia',
-                      type: 'upload',
-                      relationTo: 'media',
-                    },
-                  ],
-                },
-                {
-                  label: 'Sezione 2',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'our-story',
-                  },
-                  fields: [
-                    {
-                      name: 'storyHeroTitle',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'storyHeroBody',
-                      type: 'textarea',
-                      localized: true,
-                    },
-                    {
-                      type: 'row',
-                      fields: [
-                        {
-                          name: 'storyHeroCtaLabel',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            width: '50%',
-                          },
-                        },
-                        {
-                          name: 'storyHeroCtaHref',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            width: '50%',
-                          },
-                        },
-                      ],
-                    },
-                    {
-                      name: 'storyHeroMedia',
-                      type: 'upload',
-                      relationTo: 'media',
-                    },
-                  ],
-                },
-                {
-                  label: 'Sezione 3',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'our-story',
-                  },
-                  fields: [
-                    {
-                      name: 'storyNoteLabel',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'storyNoteBody',
-                      type: 'textarea',
-                      localized: true,
-                    },
-                    {
-                      type: 'row',
-                      fields: [
-                        {
-                          name: 'storyNoteCtaLabel',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            width: '50%',
-                          },
-                        },
-                        {
-                          name: 'storyNoteCtaHref',
-                          type: 'text',
-                          localized: true,
-                          admin: {
-                            width: '50%',
-                          },
-                        },
-                      ],
-                    },
-                    {
-                      name: 'storyNoteMedia',
-                      type: 'upload',
-                      relationTo: 'media',
-                    },
-                  ],
-                },
-                {
-                  label: 'Home Home Program',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'home',
-                  },
-                  fields: [
-                    {
-                      name: 'homeProgram',
+                      name: 'treatments',
                       type: 'relationship',
-                      relationTo: 'programs',
+                      relationTo: 'treatments',
+                      hasMany: true,
                       admin: {
-                        description: 'Seleziona il programma da mostrare in homepage.',
+                        width: '100%',
                       },
                     },
                   ],
                 },
                 {
-                  label: 'Home Prod.Carousel',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'home',
-                  },
+                  type: 'row',
                   fields: [
                     {
-                      name: 'productsCarousel',
-                      type: 'group',
-                      label: 'Product Carousel',
-                      fields: [
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'limit',
-                              type: 'number',
-                              min: 1,
-                              defaultValue: 6,
-                              admin: {
-                                width: '25%',
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'needs',
-                              type: 'relationship',
-                              relationTo: 'needs',
-                              hasMany: true,
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                          ],
-                        },
-                        {
-                          type: 'row',
-                          fields: [
-                            {
-                              name: 'textures',
-                              type: 'relationship',
-                              relationTo: 'textures',
-                              hasMany: true,
-                              admin: {
-                                width: '50%',
-                              },
-                            },
-                          ],
-                        },
-                      ],
+                      name: 'objective',
+                      type: 'relationship',
+                      relationTo: 'objectives',
+                      hasMany: true,
+                      admin: {
+                        width: '50%',
+                      },
+                    },
+                    {
+                      name: 'area',
+                      type: 'relationship',
+                      relationTo: 'areas',
+                      hasMany: true,
+                      admin: {
+                        width: '50%',
+                      },
                     },
                   ],
                 },
                 {
-                  label: 'Home Values',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'home',
-                  },
+                  type: 'row',
                   fields: [
                     {
-                      name: 'valuesSection',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'items',
-                          type: 'array',
-                          minRows: 1,
-                          fields: [
-                            {
-                              name: 'label',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'title',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'ctaLabel',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'ctaHref',
-                              type: 'text',
-                              localized: true,
-                            },
-                          ],
-                        },
-                        {
-                          name: 'media',
-                          type: 'upload',
-                          relationTo: 'media',
-                        },
-                      ],
+                      name: 'intent',
+                      type: 'relationship',
+                      relationTo: 'intents',
+                      hasMany: true,
+                      admin: {
+                        width: '50%',
+                      },
                     },
-                  ],
-                },
-                {
-                  label: 'Sezione 4',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'our-story',
-                  },
-                  fields: [
                     {
-                      name: 'storyValues',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'items',
-                          type: 'array',
-                          minRows: 1,
-                          fields: [
-                            {
-                              name: 'label',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'title',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'description',
-                              type: 'textarea',
-                              localized: true,
-                            },
-                            {
-                              name: 'media',
-                              type: 'upload',
-                              relationTo: 'media',
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  label: 'Sezione 5',
-                  admin: {
-                    condition: (data) => data?.pageKey === 'our-story',
-                  },
-                  fields: [
-                    {
-                      name: 'storyTeam',
-                      type: 'group',
-                      fields: [
-                        {
-                          name: 'title',
-                          type: 'text',
-                          localized: true,
-                        },
-                        {
-                          name: 'description',
-                          type: 'textarea',
-                          localized: true,
-                        },
-                        {
-                          name: 'items',
-                          type: 'array',
-                          minRows: 1,
-                          fields: [
-                            {
-                              name: 'name',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'role',
-                              type: 'text',
-                              localized: true,
-                            },
-                            {
-                              name: 'bio',
-                              type: 'textarea',
-                              localized: true,
-                            },
-                            {
-                              name: 'image',
-                              type: 'upload',
-                              relationTo: 'media',
-                            },
-                          ],
-                        },
-                      ],
+                      name: 'zone',
+                      type: 'relationship',
+                      relationTo: 'zones',
+                      hasMany: true,
+                      admin: {
+                        width: '50%',
+                      },
                     },
                   ],
                 },
@@ -932,10 +293,540 @@ export const Pages: CollectionConfig = {
             },
           ],
         },
+        {
+          label: 'Checkout',
+          admin: {
+            condition: (data) => data?.pageKey === 'checkout',
+          },
+          fields: [
+            {
+              name: 'checkoutNotice',
+              type: 'textarea',
+              localized: true,
+            },
+          ],
+        },
+        {
+          label: 'Sezione 3',
+          admin: {
+            condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'protocolSplit',
+              type: 'group',
+              fields: [
+                {
+                  name: 'eyebrow',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'steps',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'label',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'title',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'subtitle',
+                      type: 'textarea',
+                      localized: true,
+                    },
+                    {
+                      name: 'media',
+                      type: 'upload',
+                      relationTo: 'media',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Diagnosi',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolDiagnosi',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Trattamenti',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolTrattamenti',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Routine',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolRoutine',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Check up',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolCheckUp',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Privacy Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'privacy',
+          },
+          fields: [
+            {
+              name: 'privacyContent',
+              type: 'richText',
+              localized: true,
+            },
+          ],
+        },
+        {
+          label: 'Sezione 4',
+          admin: {
+            condition: (data) => data?.pageKey === 'home',
+          },
+          fields: [
+            {
+              name: 'storyHeroHomeTitle',
+              type: 'text',
+              localized: true,
+            },
+            {
+              name: 'storyHeroHomeBody',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'storyHeroHomeCtaLabel',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+                {
+                  name: 'storyHeroHomeCtaHref',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'storyHeroHomeMedia',
+              type: 'upload',
+              relationTo: 'media',
+            },
+          ],
+        },
+        {
+          label: 'Sezione 2',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
+          },
+          fields: [
+            {
+              name: 'storyHeroTitle',
+              type: 'text',
+              localized: true,
+            },
+            {
+              name: 'storyHeroBody',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'storyHeroCtaLabel',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+                {
+                  name: 'storyHeroCtaHref',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'storyHeroMedia',
+              type: 'upload',
+              relationTo: 'media',
+            },
+          ],
+        },
+        {
+          label: 'Sezione 3',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
+          },
+          fields: [
+            {
+              name: 'storyNoteLabel',
+              type: 'text',
+              localized: true,
+            },
+            {
+              name: 'storyNoteBody',
+              type: 'textarea',
+              localized: true,
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'storyNoteCtaLabel',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+                {
+                  name: 'storyNoteCtaHref',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    width: '50%',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'storyNoteMedia',
+              type: 'upload',
+              relationTo: 'media',
+            },
+          ],
+        },
+        {
+          label: 'Sezione 5',
+          admin: {
+            condition: (data) => data?.pageKey === 'home',
+          },
+          fields: [
+            {
+              name: 'homeProgram',
+              type: 'relationship',
+              relationTo: 'programs',
+              admin: {
+                description: 'Seleziona il programma da mostrare in homepage.',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Sezione 6',
+          admin: {
+            condition: (data) => data?.pageKey === 'home',
+          },
+          fields: [
+            {
+              name: 'productsCarousel',
+              type: 'group',
+              label: 'Product Carousel',
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'limit',
+                      type: 'number',
+                      min: 1,
+                      defaultValue: 6,
+                      admin: {
+                        width: '25%',
+                      },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'needs',
+                      type: 'relationship',
+                      relationTo: 'needs',
+                      hasMany: true,
+                      admin: {
+                        width: '50%',
+                      },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'textures',
+                      type: 'relationship',
+                      relationTo: 'textures',
+                      hasMany: true,
+                      admin: {
+                        width: '50%',
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 7',
+          admin: {
+            condition: (data) => data?.pageKey === 'home',
+          },
+          fields: [
+            {
+              name: 'valuesSection',
+              type: 'group',
+              fields: [
+                {
+                  name: 'items',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'label',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'title',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'ctaLabel',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'ctaHref',
+                      type: 'text',
+                      localized: true,
+                    },
+                  ],
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 4',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
+          },
+          fields: [
+            {
+              name: 'storyValues',
+              type: 'group',
+              fields: [
+                {
+                  name: 'items',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'label',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'title',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'description',
+                      type: 'textarea',
+                      localized: true,
+                    },
+                    {
+                      name: 'media',
+                      type: 'upload',
+                      relationTo: 'media',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Sezione 5',
+          admin: {
+            condition: (data) => data?.pageKey === 'our-story',
+          },
+          fields: [
+            {
+              name: 'storyTeam',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'items',
+                  type: 'array',
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: 'name',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'role',
+                      type: 'text',
+                      localized: true,
+                    },
+                    {
+                      name: 'bio',
+                      type: 'textarea',
+                      localized: true,
+                    },
+                    {
+                      name: 'image',
+                      type: 'upload',
+                      relationTo: 'media',
+                    },
+                  ],
+                },
+              ],
+            },
           ],
         },
       ],
     },
+    ...seoFields,
   ],
   timestamps: true,
 }
