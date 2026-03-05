@@ -350,6 +350,11 @@ export default buildConfig({
           collection: 'pages',
           depth: 0,
           limit: pageKeys.length,
+          where: {
+            pageKey: {
+              in: [...pageKeys],
+            },
+          },
         })
         const existingKeys = new Set(
           existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
@@ -357,17 +362,41 @@ export default buildConfig({
 
         for (const key of pageKeys) {
           if (!existingKeys.has(key)) {
-            await payload.create({
-              collection: 'pages',
-              data: {
-                pageKey: key,
-                heroTitleMode: 'fixed',
-                heroStyle: 'style1',
-              },
-              locale: 'it',
-              overrideAccess: true,
-              draft: false,
-            })
+            try {
+              await payload.create({
+                collection: 'pages',
+                data: {
+                  pageKey: key,
+                  heroTitleMode: 'fixed',
+                  heroStyle: 'style1',
+                },
+                locale: 'it',
+                overrideAccess: true,
+                draft: false,
+              })
+            } catch (createError) {
+              const isDuplicateKeyError =
+                typeof createError === 'object' &&
+                createError !== null &&
+                'data' in createError &&
+                typeof createError.data === 'object' &&
+                createError.data !== null &&
+                'errors' in createError.data &&
+                Array.isArray(createError.data.errors) &&
+                createError.data.errors.some(
+                  (error) =>
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'path' in error &&
+                    error.path === 'pageKey' &&
+                    'message' in error &&
+                    error.message === 'Value must be unique',
+                )
+
+              if (!isDuplicateKeyError) {
+                throw createError
+              }
+            }
           }
         }
       }
