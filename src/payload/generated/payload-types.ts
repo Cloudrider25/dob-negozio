@@ -1432,6 +1432,19 @@ export interface Page {
     | 'dob-protocol'
     | 'contact'
     | 'checkout';
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   heroTitleMode: 'fixed' | 'dynamic';
   heroStyle: 'style1' | 'style2';
   heroTitle?: string | null;
@@ -1486,6 +1499,26 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+  };
+  dobProtocolDiagnosi?: {
+    title?: string | null;
+    description?: string | null;
+    media?: (number | null) | Media;
+  };
+  dobProtocolTrattamenti?: {
+    title?: string | null;
+    description?: string | null;
+    media?: (number | null) | Media;
+  };
+  dobProtocolRoutine?: {
+    title?: string | null;
+    description?: string | null;
+    media?: (number | null) | Media;
+  };
+  dobProtocolCheckUp?: {
+    title?: string | null;
+    description?: string | null;
+    media?: (number | null) | Media;
   };
   storyHeroHomeTitle?: string | null;
   storyHeroHomeBody?: string | null;
@@ -1546,19 +1579,6 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
-  };
-  /**
-   * Impostazioni SEO specifiche per questa pagina.
-   */
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Path relativo senza locale. Esempio: /services/service/laser-viso
-     */
-    canonicalPath?: string | null;
-    noIndex?: boolean | null;
-    image?: (number | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -2720,6 +2740,15 @@ export interface ExclusionsSelect<T extends boolean = true> {
  */
 export interface PagesSelect<T extends boolean = true> {
   pageKey?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   heroTitleMode?: T;
   heroStyle?: T;
   heroTitle?: T;
@@ -2762,6 +2791,34 @@ export interface PagesSelect<T extends boolean = true> {
               media?: T;
               id?: T;
             };
+      };
+  dobProtocolDiagnosi?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        media?: T;
+      };
+  dobProtocolTrattamenti?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        media?: T;
+      };
+  dobProtocolRoutine?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        media?: T;
+      };
+  dobProtocolCheckUp?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        media?: T;
       };
   storyHeroHomeTitle?: T;
   storyHeroHomeBody?: T;
@@ -2827,15 +2884,6 @@ export interface PagesSelect<T extends boolean = true> {
               image?: T;
               id?: T;
             };
-      };
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        canonicalPath?: T;
-        noIndex?: T;
-        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;

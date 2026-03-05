@@ -30,7 +30,6 @@ export default async function ServicesPage({
 }) {
   const { locale } = await params
   const viewParam = (await searchParams)?.view?.trim()
-  const queryParam = (await searchParams)?.q?.trim()
 
   if (!isLocale(locale)) {
     notFound()

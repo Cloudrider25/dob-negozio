@@ -198,17 +198,22 @@ export function ListinoTradizionale() {
     syncFiltersToQuery(next)
   }, [filterOptions, filters.areas, filters.treatments, syncFiltersToQuery])
 
-  const toggleFilter = (group: FilterKey, id: string) => {
-    const nextGroup = new Set(filters[group])
-    if (nextGroup.has(id)) nextGroup.delete(id)
-    else nextGroup.add(id)
-    const next = {
-      ...filters,
-      [group]: nextGroup,
-    }
-    setFilters(next)
-    syncFiltersToQuery(next)
-  }
+  const toggleFilter = useCallback(
+    (group: FilterKey, id: string) => {
+      setFilters((prev) => {
+        const nextGroup = new Set(prev[group])
+        if (nextGroup.has(id)) nextGroup.delete(id)
+        else nextGroup.add(id)
+        const next = {
+          ...prev,
+          [group]: nextGroup,
+        }
+        syncFiltersToQuery(next)
+        return next
+      })
+    },
+    [syncFiltersToQuery],
+  )
 
   const filteredServices = useMemo(() => {
     const matchesSet = (values: Array<{ id: string }>, selected: Set<string>) =>
@@ -410,7 +415,7 @@ export function ListinoTradizionale() {
       },
       clearFiltersLabel: 'Rimuovi filtri',
     }
-  }, [filterOptions.areas, filterOptions.treatments, filters.areas, filters.treatments, orderBy, syncFiltersToQuery])
+  }, [filterOptions.areas, filterOptions.treatments, filters.areas, filters.treatments, orderBy, syncFiltersToQuery, toggleFilter])
 
   return (
     <motion.div
