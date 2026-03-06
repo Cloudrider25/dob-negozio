@@ -2,6 +2,7 @@ import crypto from 'node:crypto'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
+import { sendAdminNewOrderNotification } from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { isLocale, type Locale } from '@/lib/i18n/core'
 import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
@@ -322,6 +323,20 @@ export async function POST(request: Request) {
                 msg: `Order confirmation email failed for order ${order.orderNumber}`,
               })
             }
+
+            await sendAdminNewOrderNotification({
+              payload,
+              orderNumber: order.orderNumber,
+              customerEmail: order.customerEmail,
+              customerFirstName: order.customerFirstName,
+              customerLastName: order.customerLastName,
+              total: order.total,
+              cartMode: order.cartMode,
+              productFulfillmentMode: order.productFulfillmentMode,
+              appointmentMode: order.appointmentMode,
+              appointmentRequestedDate: order.appointmentRequestedDate,
+              appointmentRequestedTime: order.appointmentRequestedTime,
+            })
           }
 
           if (

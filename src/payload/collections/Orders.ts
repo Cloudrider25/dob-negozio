@@ -1,7 +1,7 @@
 import type { Access, CollectionConfig } from 'payload'
 
+import { sendAppointmentStatusNotifications } from '@/lib/server/email/businessNotifications'
 import { isAdmin } from '../access/isAdmin'
-import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
 
 const createOrderNumber = () => {
   const now = new Date()
@@ -219,7 +219,13 @@ export const Orders: CollectionConfig = {
           typeof previousDoc?.appointmentStatus === 'string' ? previousDoc.appointmentStatus : 'none'
 
         if (nextStatus === prevStatus) return doc
-        if (nextStatus !== 'alternative_proposed' && nextStatus !== 'confirmed') return doc
+        if (
+          nextStatus !== 'alternative_proposed' &&
+          nextStatus !== 'confirmed' &&
+          nextStatus !== 'confirmed_by_customer'
+        ) {
+          return doc
+        }
 
         const customerEmail = typeof doc.customerEmail === 'string' ? doc.customerEmail.trim() : ''
         const customerName = [doc.customerFirstName, doc.customerLastName]
@@ -233,86 +239,19 @@ export const Orders: CollectionConfig = {
         const requestedTime = typeof doc.appointmentRequestedTime === 'string' ? doc.appointmentRequestedTime : ''
         const note = typeof doc.appointmentProposalNote === 'string' ? doc.appointmentProposalNote : ''
 
-        const formatDate = (value: string) => {
-          if (!value) return ''
-          const d = new Date(value)
-          if (Number.isNaN(d.getTime())) return value
-          return new Intl.DateTimeFormat('it-IT', { dateStyle: 'medium' }).format(d)
-        }
-
-        const slotText =
-          nextStatus === 'alternative_proposed'
-            ? [formatDate(proposedDate), proposedTime].filter(Boolean).join(' · ') || 'Da definire'
-            : [formatDate(proposedDate || requestedDate), proposedTime || requestedTime]
-                .filter(Boolean)
-                .join(' · ') || 'Da definire'
-
-        const subject =
-          nextStatus === 'alternative_proposed'
-            ? `Proposta nuovo appuntamento per ordine ${orderNumber}`
-            : `Appuntamento confermato per ordine ${orderNumber}`
-
-        const text =
-          nextStatus === 'alternative_proposed'
-            ? [
-                `Ciao ${customerName},`,
-                '',
-                `ti proponiamo un'alternativa per il tuo appuntamento relativo all'ordine ${orderNumber}.`,
-                `Slot proposto: ${slotText}`,
-                note ? `Nota: ${note}` : '',
-                '',
-                'Ti contatteremo per conferma.',
-                'DOB Milano',
-              ]
-                .filter(Boolean)
-                .join('\n')
-            : [
-                `Ciao ${customerName},`,
-                '',
-                `il tuo appuntamento per l'ordine ${orderNumber} è stato confermato.`,
-                `Slot: ${slotText}`,
-                note ? `Nota: ${note}` : '',
-                '',
-                'A presto,',
-                'DOB Milano',
-              ]
-                .filter(Boolean)
-                .join('\n')
-
-        const html = `
-          <p>Ciao ${customerName},</p>
-          <p>${
-            nextStatus === 'alternative_proposed'
-              ? `ti proponiamo un'alternativa per il tuo appuntamento relativo all'ordine <strong>${orderNumber}</strong>.`
-              : `il tuo appuntamento per l'ordine <strong>${orderNumber}</strong> è stato confermato.`
-          }</p>
-          <p><strong>Slot:</strong> ${slotText}</p>
-          ${note ? `<p><strong>Nota:</strong> ${note}</p>` : ''}
-          <p>${nextStatus === 'alternative_proposed' ? 'Ti contatteremo per conferma.' : 'A presto,'}<br/>DOB Milano</p>
-        `
-
-        const adminEmail =
-          process.env.SHOP_APPOINTMENT_ADMIN_EMAIL?.trim() || process.env.ADMIN_EMAIL?.trim() || ''
-
         try {
-          if (customerEmail && customerEmail.includes('@')) {
-            await sendSMTPEmail({
-              payload: req.payload,
-              to: customerEmail,
-              subject,
-              text,
-              html,
-            })
-          }
-          if (adminEmail && adminEmail.includes('@')) {
-            await sendSMTPEmail({
-              payload: req.payload,
-              to: adminEmail,
-              subject: `[Admin] ${subject}`,
-              text: `Customer: ${customerEmail || 'n/a'}\n${text}`,
-              html: `<p><strong>Customer:</strong> ${customerEmail || 'n/a'}</p>${html}`,
-            })
-          }
+          await sendAppointmentStatusNotifications({
+            payload: req.payload,
+            nextStatus,
+            customerEmail,
+            customerName,
+            orderNumber,
+            proposedDate,
+            proposedTime,
+            requestedDate,
+            requestedTime,
+            note,
+          })
         } catch (emailError) {
           req.payload.logger.error({
             err: emailError,

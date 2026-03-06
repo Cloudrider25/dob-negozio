@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { sendServiceDateRequestNotifications } from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 
 const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -101,28 +102,44 @@ export async function PATCH(
 
   if (orderServiceItemId) {
     const itemKind = typeof session.itemKind === 'string' ? session.itemKind : 'service'
-    if (itemKind === 'package') {
-      return NextResponse.json({
-        ok: true,
-        id: updated.id,
-      })
+    if (itemKind !== 'package') {
+      await payload.update({
+        collection: 'order-service-items',
+        id: orderServiceItemId,
+        depth: 0,
+        overrideAccess: true,
+        context: {
+          skipSessionSync: true,
+        },
+        data: {
+          appointmentMode: action === 'clear' ? 'contact_later' : 'requested_slot',
+          appointmentStatus: action === 'clear' ? 'none' : 'pending',
+          appointmentRequestedDate: action === 'clear' ? null : date!.toISOString(),
+          appointmentRequestedTime: action === 'clear' ? null : requestedTime,
+        },
+      }).catch(() => undefined)
     }
+  }
 
-    await payload.update({
-      collection: 'order-service-items',
-      id: orderServiceItemId,
-      depth: 0,
-      overrideAccess: true,
-      context: {
-        skipSessionSync: true,
-      },
-      data: {
-        appointmentMode: action === 'clear' ? 'contact_later' : 'requested_slot',
-        appointmentStatus: action === 'clear' ? 'none' : 'pending',
-        appointmentRequestedDate: action === 'clear' ? null : date!.toISOString(),
-        appointmentRequestedTime: action === 'clear' ? null : requestedTime,
-      },
-    }).catch(() => undefined)
+  if (action === 'set') {
+    const customerName =
+      [ownedOrder.customerFirstName, ownedOrder.customerLastName]
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+        .join(' ')
+        .trim() || 'Cliente'
+    const orderNumber =
+      typeof ownedOrder.orderNumber === 'string' ? ownedOrder.orderNumber : `#${String(ownedOrder.id)}`
+    const customerEmail =
+      typeof ownedOrder.customerEmail === 'string' ? ownedOrder.customerEmail.trim() : ''
+
+    await sendServiceDateRequestNotifications({
+      payload,
+      orderNumber,
+      customerEmail,
+      customerName,
+      requestedDate: date!.toISOString(),
+      requestedTime,
+    })
   }
 
   return NextResponse.json({
