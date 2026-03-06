@@ -53,7 +53,7 @@ Production:
 - Require a pull request before merging
 - Require approvals: almeno `1`
 - Require status checks:
-  - `Verify Staging Build`
+  - `Lint + Typecheck + Int Tests`
 - Restrict who can push directly: enabled
 
 `prod`:
