@@ -1,6 +1,9 @@
 name: Deploy Production
 
 on:
+  pull_request:
+    branches:
+      - prod
   push:
     branches:
       - prod
@@ -49,7 +52,7 @@ jobs:
     name: Deploy Production
     needs: verify
     runs-on: ubuntu-latest
-    if: success()
+    if: success() && github.event_name == 'push'
     steps:
       - name: Check deploy hook
         id: deploy-hook
