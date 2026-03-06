@@ -53,7 +53,7 @@ const expectHeroCtas = async (page: Page) => {
 }
 
 test.describe('Heroes smoke', () => {
-  test('@smoke desktop + mobile render and CTA visibility', async ({ page }) => {
+  test('@ui-smoke desktop + mobile render and CTA visibility', async ({ page }) => {
     test.setTimeout(60_000)
     for (const viewport of [
       { width: 1440, height: 960 },

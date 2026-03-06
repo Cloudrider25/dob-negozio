@@ -199,7 +199,7 @@ test.describe('Account management smoke', () => {
     }
   })
 
-  test('@smoke login + profile + addresses + service-date', async ({ page }) => {
+  test('@critical login + profile + addresses + service-date', async ({ page }) => {
     test.setTimeout(60_000)
     test.skip(!userId, 'Fixture user not available')
 

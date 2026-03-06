@@ -39,7 +39,7 @@ const addPreferenceCookies = async (page: Page) => {
 }
 
 test.describe('Carousel smoke', () => {
-  test('@smoke desktop navigation + mobile swipe + cta', async ({ page }) => {
+  test('@ui-smoke desktop navigation + mobile swipe + cta', async ({ page }) => {
     test.setTimeout(60_000)
     await addPreferenceCookies(page)
     await page.goto(HOME_URL, { waitUntil: 'domcontentloaded' })

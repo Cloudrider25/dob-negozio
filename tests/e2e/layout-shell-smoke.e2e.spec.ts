@@ -66,7 +66,7 @@ test.describe('Layout shell smoke', () => {
     await expect(backdrop).toHaveAttribute('aria-hidden', 'true')
   })
 
-  test('@smoke desktop search drawer open/close', async ({ page }) => {
+  test('@ui-smoke desktop search drawer open/close', async ({ page }) => {
     test.setTimeout(60_000)
     await page.context().addCookies(buildPreferenceCookies())
     await page.setViewportSize({ width: 1440, height: 960 })
