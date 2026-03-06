@@ -111,6 +111,16 @@ const normalizePrismaSslCompat = (value: string): string => {
   }
 }
 
+const isLocalDatabaseHost = (value: string): boolean => {
+  try {
+    const parsed = new URL(value)
+    const host = parsed.hostname.trim().toLowerCase()
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1'
+  } catch {
+    return false
+  }
+}
+
 const blobReadWriteToken =
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
@@ -122,6 +132,7 @@ const enableBlobPlugin = hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
+const isDevelopment = process.env.NODE_ENV === 'development'
 const isCI = process.env.CI === 'true'
 const databaseUrlCandidate = isCI
   ? pickDatabaseUrl([
@@ -129,6 +140,18 @@ const databaseUrlCandidate = isCI
       { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
       { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+  : isDevelopment
+  ? pickDatabaseUrl([
+      { name: 'LOCAL_DATABASE_URL', value: process.env.LOCAL_DATABASE_URL },
+      { name: 'DEV_DATABASE_URL', value: process.env.DEV_DATABASE_URL },
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
+      { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+      { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
     ])
   : isVercelProduction
   ? pickDatabaseUrl([
@@ -154,6 +177,9 @@ const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
 export const databaseUrl = databaseUrlCandidate
   ? normalizePrismaSslCompat(databaseUrlCandidate.value)
   : ''
+const enableSchemaPush =
+  process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true' ||
+  (isDevelopment && isLocalDatabaseHost(databaseUrl))
 const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
 const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
 const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
@@ -258,6 +284,9 @@ export default buildConfig({
       connectionTimeoutMillis: dbPoolConnectTimeout,
       idleTimeoutMillis: dbPoolIdleTimeout,
     },
+    // Shared environments (CI/staging/prod) must not mutate schema implicitly.
+    // Keep automatic schema push only for true local development.
+    push: enableSchemaPush,
   }),
   sharp,
   plugins: enableBlobPlugin
