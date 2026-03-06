@@ -1,7 +1,7 @@
 import { cookies, headers } from 'next/headers'
+import { unstable_cache } from 'next/cache'
 
 import { buildContactLinks } from '@/lib/frontend/contact/links'
-import { getAuthenticatedUser } from '@/lib/server/auth/getAuthenticatedUser'
 import { getDictionary, type Locale } from '@/lib/i18n/core'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
@@ -26,6 +26,83 @@ const readLocalized = (value: unknown, locale: string) => {
   return ''
 }
 
+const readPayloadSessionCookie = async () => {
+  const cookieStore = await cookies()
+  return (
+    cookieStore.get('__Secure-payload-token')?.value ||
+    cookieStore.get('payload-token')?.value ||
+    ''
+  )
+}
+
+const getCachedShellPublicData = async (locale: Locale) => {
+  const loader = unstable_cache(
+    async () => {
+      const payload = await getPayloadClient()
+      const siteSettings = await payload.findGlobal({
+        slug: 'site-settings',
+        locale,
+        overrideAccess: false,
+      })
+
+      const [latestProducts, latestServices] = await Promise.all([
+        payload.find({
+          collection: 'products',
+          locale,
+          depth: 1,
+          overrideAccess: false,
+          limit: 1,
+          where: {
+            active: { equals: true },
+          },
+          sort: '-createdAt',
+          select: {
+            title: true,
+            slug: true,
+            coverImage: true,
+            images: true,
+          },
+        }),
+        payload.find({
+          collection: 'services',
+          locale,
+          depth: 1,
+          overrideAccess: false,
+          limit: 1,
+          where: {
+            active: { equals: true },
+          },
+          sort: '-createdAt',
+          select: {
+            name: true,
+            slug: true,
+            gallery: true,
+          },
+        }),
+      ])
+
+      return { siteSettings, latestProducts, latestServices }
+    },
+    [`frontend-shell-public-${locale}`],
+    { revalidate: 300, tags: [`frontend-shell-public-${locale}`] },
+  )
+
+  return loader()
+}
+
+const getShellPublicDataSafe = async (locale: Locale) => {
+  try {
+    return await getCachedShellPublicData(locale)
+  } catch (error) {
+    console.error('[shell] Failed to load cached public shell data.', error)
+    return {
+      siteSettings: null,
+      latestProducts: { docs: [] as Array<Record<string, unknown>> },
+      latestServices: { docs: [] as Array<Record<string, unknown>> },
+    }
+  }
+}
+
 export const getFrontendLocaleShellData = async (
   locale: Locale,
 ): Promise<FrontendLocaleShellData> => {
@@ -41,51 +118,10 @@ export const getFrontendLocaleShellData = async (
   })
   const activePreferences = storedPreferences || detectedPreferences
   const preferencesConfirmed = cookieStore.get(USER_PREFS_COOKIE_KEYS.confirmed)?.value === '1'
+  const hasSessionCookie = Boolean(await readPayloadSessionCookie())
 
   const t = getDictionary(locale)
-  const payload = await getPayloadClient()
-  const user = await getAuthenticatedUser()
-  const siteSettings = await payload.findGlobal({
-    slug: 'site-settings',
-    locale,
-    overrideAccess: false,
-  })
-
-  const [latestProducts, latestServices] = await Promise.all([
-    payload.find({
-      collection: 'products',
-      locale,
-      depth: 1,
-      overrideAccess: false,
-      limit: 1,
-      where: {
-        active: { equals: true },
-      },
-      sort: '-createdAt',
-      select: {
-        title: true,
-        slug: true,
-        coverImage: true,
-        images: true,
-      },
-    }),
-    payload.find({
-      collection: 'services',
-      locale,
-      depth: 1,
-      overrideAccess: false,
-      limit: 1,
-      where: {
-        active: { equals: true },
-      },
-      sort: '-createdAt',
-      select: {
-        name: true,
-        slug: true,
-        gallery: true,
-      },
-    }),
-  ])
+  const { siteSettings, latestProducts, latestServices } = await getShellPublicDataSafe(locale)
 
   const latestProduct = latestProducts.docs[0]
   const latestService = latestServices.docs[0]
@@ -135,7 +171,7 @@ export const getFrontendLocaleShellData = async (
 
   return {
     locale,
-    accountHref: user ? `/${locale}/account` : `/${locale}/signin`,
+    accountHref: hasSessionCookie ? `/${locale}/account` : `/${locale}/signin`,
     t,
     whatsappLink,
     phoneLink,

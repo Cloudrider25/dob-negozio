@@ -5,6 +5,7 @@ import { seoFields } from '../fields/seoFields'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  lockDocuments: false,
   admin: {
     group: 'Contenuti',
     useAsTitle: 'pageKey',
@@ -31,6 +32,7 @@ export const Pages: CollectionConfig = {
         { label: 'Location', value: 'location' },
         { label: 'Our Story', value: 'our-story' },
         { label: 'DOB Protocol', value: 'dob-protocol' },
+        { label: 'Privacy', value: 'privacy' },
         { label: 'Contact', value: 'contact' },
         { label: 'Checkout', value: 'checkout' },
       ],
@@ -108,6 +110,52 @@ export const Pages: CollectionConfig = {
               admin: {
                 description: 'Titolo Step 2.',
               },
+            },
+          ],
+        },
+        {
+          label: 'Service Navigator',
+          admin: {
+            condition: (data) => data?.pageKey === 'services',
+          },
+          fields: [
+            {
+              name: 'serviceNavigator',
+              type: 'group',
+              fields: [
+                {
+                  name: 'step0Heading',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    description: 'Titolo step 0 del Service Navigator.',
+                  },
+                },
+                {
+                  name: 'step0Description',
+                  type: 'textarea',
+                  localized: true,
+                  admin: {
+                    description: 'Testo step 0 del Service Navigator.',
+                  },
+                },
+                {
+                  name: 'step0MediaPlaceholder',
+                  type: 'text',
+                  localized: true,
+                  admin: {
+                    description: 'Testo fallback sopra il media dello step 0.',
+                  },
+                },
+                {
+                  name: 'step0Media',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Media dello step 0 nel pannello destro.',
+                  },
+                },
+              ],
             },
           ],
         },
@@ -301,6 +349,135 @@ export const Pages: CollectionConfig = {
                   ],
                 },
               ],
+            },
+          ],
+        },
+        {
+          label: 'Diagnosi',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolDiagnosi',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Trattamenti',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolTrattamenti',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Routine',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolRoutine',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Check up',
+          admin: {
+            condition: (data) => data?.pageKey === 'dob-protocol',
+          },
+          fields: [
+            {
+              name: 'dobProtocolCheckUp',
+              type: 'group',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  localized: true,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  localized: true,
+                },
+                {
+                  name: 'media',
+                  type: 'upload',
+                  relationTo: 'media',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Privacy Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'privacy',
+          },
+          fields: [
+            {
+              name: 'privacyContent',
+              type: 'richText',
+              localized: true,
             },
           ],
         },

@@ -371,6 +371,28 @@ export default async function ShopPage({
     const brandLine = brandLineId
       ? { id: brandLineId, name: brandLinesById.get(brandLineId)?.label || brandLineId }
       : undefined
+    const alternatives = Array.isArray(product.alternatives)
+      ? product.alternatives
+          .map((alternative) => {
+            const relatedId = getRelationId(alternative?.product)
+            if (!relatedId) return null
+            const related = productsResult.docs.find((entry) => String(entry.id) === relatedId)
+            return {
+              id: relatedId,
+              title: related?.title || product.title || '',
+              slug: related?.slug || undefined,
+              format: alternative?.format || related?.format || null,
+              price:
+                typeof alternative?.price === 'number'
+                  ? alternative.price
+                  : typeof related?.price === 'number'
+                    ? related.price
+                    : undefined,
+              coverImage: resolveMedia(related?.coverImage),
+            }
+          })
+          .filter((item): item is NonNullable<typeof item> => Boolean(item))
+      : []
     return {
       id: String(product.id),
       title: product.title || '',
@@ -386,6 +408,7 @@ export default async function ShopPage({
       productAreas: areasRel,
       timingProducts: timingsRel,
       skinTypes: [...skinPrimary, ...skinSecondary],
+      alternatives,
     }
   })
 

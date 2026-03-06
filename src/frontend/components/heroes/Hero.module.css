@@ -144,13 +144,6 @@
   opacity: 0;
 }
 
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, var(--obsidian), var(--panel));
-  z-index: 2;
-  opacity: 0.7;
-}
 
 :global(body[data-theme="light"]) .overlay {
   background: linear-gradient(120deg, var(--panel), var(--obsidian));

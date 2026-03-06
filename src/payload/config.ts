@@ -116,7 +116,9 @@ const blobReadWriteToken =
     ? process.env.PROD_READ_WRITE_TOKEN
     : process.env.STG_READ_WRITE_TOKEN) || ''
 const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
-const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
+// Blob storage must stay enabled in CI as well, otherwise /api/media/file falls back
+// to local filesystem and image fetches fail for Blob-backed media.
+const enableBlobPlugin = hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
@@ -131,8 +133,8 @@ const databaseUrlCandidate = isCI
   : isVercelProduction
   ? pickDatabaseUrl([
       { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
       { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
       { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
@@ -140,8 +142,8 @@ const databaseUrlCandidate = isCI
     ])
   : pickDatabaseUrl([
       { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
       { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
       { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
@@ -152,6 +154,20 @@ const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
 export const databaseUrl = databaseUrlCandidate
   ? normalizePrismaSslCompat(databaseUrlCandidate.value)
   : ''
+const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
+const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
+const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
+const dbPoolIdleTimeoutInput = Number(process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || '30000')
+const dbPoolMax = Number.isFinite(dbPoolMaxInput) && dbPoolMaxInput > 0 ? Math.floor(dbPoolMaxInput) : 4
+const dbPoolMin = Number.isFinite(dbPoolMinInput) && dbPoolMinInput >= 0 ? Math.floor(dbPoolMinInput) : 0
+const dbPoolConnectTimeout =
+  Number.isFinite(dbPoolConnectTimeoutInput) && dbPoolConnectTimeoutInput > 0
+    ? Math.floor(dbPoolConnectTimeoutInput)
+    : 30_000
+const dbPoolIdleTimeout =
+  Number.isFinite(dbPoolIdleTimeoutInput) && dbPoolIdleTimeoutInput > 0
+    ? Math.floor(dbPoolIdleTimeoutInput)
+    : 30_000
 const databaseMeta = (() => {
   if (!databaseUrl) return null
   try {
@@ -236,6 +252,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: databaseUrl,
+      // Tunable pool sizing: previous hard-coded max=2 caused admin lock/save timeouts under load.
+      max: dbPoolMax,
+      min: dbPoolMin,
+      connectionTimeoutMillis: dbPoolConnectTimeout,
+      idleTimeoutMillis: dbPoolIdleTimeout,
     },
   }),
   sharp,
@@ -308,46 +329,80 @@ export default buildConfig({
         payload.logger.info(
           `[db] source=${databaseUrlSource} host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
         )
-      }
-
-      const pageKeys = [
-        'home',
-        'services',
-        'shop',
-        'journal',
-        'location',
-        'our-story',
-        'dob-protocol',
-        'contact',
-        'checkout',
-      ] as const
-      const existing = await payload.find({
-        collection: 'pages',
-        depth: 0,
-        limit: pageKeys.length,
-      })
-      const existingKeys = new Set(
-        existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
-      )
-
-      for (const key of pageKeys) {
-        if (!existingKeys.has(key)) {
-          await payload.create({
-            collection: 'pages',
-            data: {
-              pageKey: key,
-              heroTitleMode: 'fixed',
-              heroStyle: 'style1',
-            },
-            locale: 'it',
-            overrideAccess: true,
-            draft: false,
-          })
-        }
+        payload.logger.info(
+          `[db] pool max=${dbPoolMax} min=${dbPoolMin} connectTimeoutMs=${dbPoolConnectTimeout} idleTimeoutMs=${dbPoolIdleTimeout}`,
+        )
       }
 
       const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
       const isProduction = process.env.NODE_ENV === 'production'
+      if (!isProduction) {
+        const pageKeys = [
+          'home',
+          'services',
+          'shop',
+          'journal',
+          'location',
+          'our-story',
+          'dob-protocol',
+          'contact',
+          'checkout',
+        ] as const
+        const existing = await payload.find({
+          collection: 'pages',
+          depth: 0,
+          limit: pageKeys.length,
+          where: {
+            pageKey: {
+              in: [...pageKeys],
+            },
+          },
+        })
+        const existingKeys = new Set(
+          existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
+        )
+
+        for (const key of pageKeys) {
+          if (!existingKeys.has(key)) {
+            try {
+              await payload.create({
+                collection: 'pages',
+                data: {
+                  pageKey: key,
+                  heroTitleMode: 'fixed',
+                  heroStyle: 'style1',
+                },
+                locale: 'it',
+                overrideAccess: true,
+                draft: false,
+              })
+            } catch (createError) {
+              const isDuplicateKeyError =
+                typeof createError === 'object' &&
+                createError !== null &&
+                'data' in createError &&
+                typeof createError.data === 'object' &&
+                createError.data !== null &&
+                'errors' in createError.data &&
+                Array.isArray(createError.data.errors) &&
+                createError.data.errors.some(
+                  (error) =>
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'path' in error &&
+                    error.path === 'pageKey' &&
+                    'message' in error &&
+                    error.message === 'Value must be unique',
+                )
+
+              if (!isDuplicateKeyError) {
+                throw createError
+              }
+            }
+          }
+        }
+      }
+
       if (!disableShopSeed && !isProduction) {
         await seedShopTaxonomies(payload)
       }

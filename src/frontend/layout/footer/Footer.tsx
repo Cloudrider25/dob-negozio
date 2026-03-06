@@ -20,120 +20,139 @@ export const Footer = ({
   activePreferences,
   preferencesConfirmed,
 }: FooterProps) => {
+  const toExternalHref = (raw: string | null | undefined, fallback: string) => {
+    const value = raw?.trim()
+    if (!value) return fallback
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(value)) return value
+    return `https://${value.replace(/^\/+/, '')}`
+  }
+
+  const instagramHref = toExternalHref(instagram, 'https://instagram.com')
+  const facebookHref = toExternalHref(facebook, 'https://facebook.com')
+
   return (
-    <footer className="mt-auto border-t border-stroke bg-[var(--bg)] text-[color:var(--text-secondary)]">
-      <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-[2.25vw] lg:py-12">
-        <div className="mb-6 flex justify-start sm:mb-8 sm:justify-center">
-          <Link
-            href={`/${locale}`}
-            className="flex w-full items-center justify-start gap-2 text-left sm:w-auto sm:justify-center sm:gap-4 sm:text-center lg:gap-6"
-          >
+    <footer className={styles.footer}>
+      <div className={styles.inner}>
+        <div className={styles.brandBlock}>
+          <Link href={`/${locale}`} className={styles.brandLink}>
             <span className={styles.footerBrandMark}>
               <Image
                 src="/brand/logo-black.png"
                 alt=""
                 width={256}
                 height={256}
-                className={`${styles.footerLogoDark} h-14 w-14 sm:h-24 sm:w-24 lg:h-40 lg:w-40`}
+                className={`${styles.footerLogoDark} ${styles.footerLogo}`}
               />
               <Image
                 src="/brand/logo-white.png"
                 alt=""
                 width={256}
                 height={256}
-                className={`${styles.footerLogoLight} h-14 w-14 sm:h-24 sm:w-24 lg:h-40 lg:w-40`}
+                className={`${styles.footerLogoLight} ${styles.footerLogo}`}
               />
             </span>
-            <span className={`${styles.footerTitle} dob-font typo-display-upper font-semibold`}>
-              DOB
-            </span>
+            <span className={`${styles.footerTitle} dob-font`}>DOB</span>
           </Link>
         </div>
-        <div className="grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))]">
-          <div className="space-y-4 typo-body md:col-span-2 lg:col-span-1">
-            <p className="m-0">Unisciti a DOB per una bellezza essenziale, senza sforzo.</p>
-            <p className="m-0 text-[color:var(--text-muted)]">Ricevi tips, routine e contenuti esclusivi.</p>
-            <form className="flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-stroke bg-[var(--paper)] sm:flex-row sm:rounded-full">
+
+        <section className={styles.newsletterBlock}>
+          <p className={`${styles.newsLead} typo-h2-upper`}>Unisciti a DOB per una bellezza essenziale, senza sforzo.</p>
+          <p className={`${styles.newsSub} typo-body-lg`}>Ricevi tips, routine e contenuti esclusivi.</p>
+          <form className={styles.newsForm}>
+            <div className={styles.newsInputWrap}>
               <input
-                className="w-full border-0 bg-transparent px-4 py-2.5 typo-small-upper text-[color:var(--text-secondary)] outline-none"
+                className={`${styles.newsInput} typo-small-upper`}
                 placeholder="Email Address"
               />
-              <button
-                className="border-t border-stroke px-4 py-2.5 typo-caption-upper sm:border-l sm:border-t-0 sm:py-2"
-                type="button"
-              >
-                Iscriviti
-              </button>
-            </form>
-            <p className="m-0 typo-caption normal-case text-[color:var(--text-muted)]">
-              Iscrivendoti, accetti la nostra{' '}
-              <Link className="underline" href={`/${locale}/privacy`}>
-                Privacy Policy
-              </Link>
-              .
-            </p>
-          </div>
-          <div className="space-y-3 typo-small">
-            <p className="m-0 typo-caption-upper">Navigate</p>
-            <Link href={`/${locale}/shop`} className="block">
+            </div>
+            <button className={`${styles.newsButton} typo-caption-upper`} type="button">
+              Iscriviti
+            </button>
+          </form>
+          <p className={`${styles.newsPolicy} typo-small`}>
+            Iscrivendoti, accetti la nostra{' '}
+            <Link className={styles.inlineLink} href={`/${locale}/privacy`}>
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        </section>
+
+        <section className={styles.columnsBlock}>
+          <div className={styles.column}>
+            <p className={`${styles.columnTitle} typo-caption-upper`}>Navigate</p>
+            <Link href={`/${locale}/shop`} className={`${styles.columnLink} typo-small`}>
               Shop
             </Link>
-            <Link href={`/${locale}/our-story`} className="block">
+            <Link href={`/${locale}/our-story`} className={`${styles.columnLink} typo-small`}>
               About
             </Link>
-            <Link href={`/${locale}/dob-protocol`} className="block">
+            <Link href={`/${locale}/dob-protocol`} className={`${styles.columnLink} typo-small`}>
               DOB Protocol
             </Link>
-            <span className="block text-[color:var(--text-muted)]">Futures (placeholder)</span>
-            <span className="block text-[color:var(--text-muted)]">Impact (placeholder)</span>
-            <Link href={`/${locale}/journal`} className="block">
+            <Link href={`/${locale}/services`} className={`${styles.columnLink} typo-small`}>
+              Services
+            </Link>
+            <Link href={`/${locale}/journal`} className={`${styles.columnLink} typo-small`}>
               Journal
             </Link>
           </div>
-          <div className="space-y-3 typo-small">
-            <p className="m-0 typo-caption-upper">Social</p>
-            <Link href={instagram || '#'} className="block">
-              Instagram{instagram ? '' : ' (placeholder)'}
-            </Link>
-            <Link href={facebook || '#'} className="block">
-              Facebook{facebook ? '' : ' (placeholder)'}
-            </Link>
-            <span className="block text-[color:var(--text-muted)]">YouTube (placeholder)</span>
-            <span className="block text-[color:var(--text-muted)]">TikTok (placeholder)</span>
+          <div className={styles.column}>
+            <p className={`${styles.columnTitle} typo-caption-upper`}>Social</p>
+            <a
+              href={instagramHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.columnLink} typo-small`}
+            >
+              Instagram
+            </a>
+            <a
+              href={facebookHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.columnLink} typo-small`}
+            >
+              Facebook
+            </a>
+            <span className={`${styles.columnMuted} typo-small`}>YouTube</span>
+            <span className={`${styles.columnMuted} typo-small`}>TikTok</span>
           </div>
-          <div className="space-y-3 typo-small">
-            <p className="m-0 typo-caption-upper">Official</p>
-            <Link href={`/${locale}/privacy`} className="block">
+          <div className={styles.column}>
+            <p className={`${styles.columnTitle} typo-caption-upper`}>Official</p>
+            <Link href={`/${locale}/privacy`} className={`${styles.columnLink} typo-small`}>
               Privacy
             </Link>
-            <span className="block text-[color:var(--text-muted)]">Terms (placeholder)</span>
-            <span className="block text-[color:var(--text-muted)]">Accessibility (placeholder)</span>
-            <span className="block text-[color:var(--text-muted)]">FAQ (placeholder)</span>
-            <span className="block text-[color:var(--text-muted)]">Contact (placeholder)</span>
-            <span className="block text-[color:var(--text-muted)]">Events (placeholder)</span>
+            <span className={`${styles.columnMuted} typo-small`}>Terms (placeholder)</span>
+            <span className={`${styles.columnMuted} typo-small`}>Accessibility (placeholder)</span>
+            <span className={`${styles.columnMuted} typo-small`}>FAQ (placeholder)</span>
+            <span className={`${styles.columnMuted} typo-small`}>Contact (placeholder)</span>
+            <span className={`${styles.columnMuted} typo-small`}>Events (placeholder)</span>
           </div>
-          <div className="space-y-3 typo-small">
-            <p className="m-0 typo-caption-upper">Support</p>
-            <p className="m-0">Siamo qui Lun–Ven 9–17 CET.</p>
-            <a className="block" href="mailto:info@dobmilano.it">
-              info@dobmilano.it
-            </a>
-            <a className="block" href={phoneLink}>
-              Tel: {phoneDisplay}
-            </a>
-            <a className="block" href={whatsappLink}>
-              WhatsApp: {whatsappDisplay}
-            </a>
-            <p className="m-0">{addressDisplay}</p>
-            <p className="m-0 text-[color:var(--text-muted)]">Preferenze cookie (placeholder)</p>
-          </div>
-        </div>
+        </section>
+
+        <section className={styles.supportBlock}>
+          <p className={`${styles.supportTitle} typo-caption-upper`}>Support</p>
+          <p className={`${styles.supportText} typo-small`}>Siamo qui Lun–Ven 9–17 CET.</p>
+          <a className={`${styles.supportLink} typo-small`} href="mailto:info@dobmilano.it">
+            info@dobmilano.it
+          </a>
+          <a className={`${styles.supportLink} typo-small`} href={phoneLink}>
+            Tel: {phoneDisplay}
+          </a>
+          <a className={`${styles.supportLink} typo-small`} href={whatsappLink}>
+            WhatsApp: {whatsappDisplay}
+          </a>
+          <p className={`${styles.supportText} typo-small`}>{addressDisplay}</p>
+          <p className={`${styles.supportMuted} typo-small`}>Preferenze cookie (placeholder)</p>
+        </section>
       </div>
-      <div className="flex flex-col items-start justify-between gap-3 border-t border-stroke px-4 py-4 typo-caption text-[color:var(--text-muted)] sm:flex-row sm:items-center sm:gap-4 sm:px-6 lg:px-[2.25vw]">
-        <p className="m-0">
+
+      <div className={styles.bottomBar}>
+        <p className={`${styles.copyright} typo-caption-upper`}>
           © {new Date().getFullYear()} {siteName}
         </p>
-        <div className="flex items-center gap-4 self-start sm:self-auto">
+        <div className={styles.bottomActions}>
           <ThemeToggle />
           <PreferencesFooterControl
             currentLocale={locale}

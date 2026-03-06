@@ -29,6 +29,18 @@
   gap: 1.2rem;
 }
 
+.panelBottom {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: auto;
+  max-height: 82vh;
+  width: 100vw;
+  border-radius: 22px 22px 0 0;
+  transform: translateY(110%);
+}
+
 .open {
   pointer-events: auto;
 }
@@ -41,12 +53,24 @@
   transform: translateX(0);
 }
 
+.open .panelBottom {
+  transform: translateY(0);
+}
+
 .header {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   color: var(--text-secondary);
+}
+
+.title {
+  justify-self: start;
+}
+
+.center {
+  justify-self: center;
 }
 
 .closeButton {
@@ -54,6 +78,7 @@
   background: transparent;
   cursor: pointer;
   color: var(--text-secondary);
+  justify-self: end;
 }
 
 @media (min-width: 701px) {

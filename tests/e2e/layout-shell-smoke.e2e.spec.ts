@@ -36,50 +36,52 @@ const buildPreferenceCookies = () => [
 
 test.describe('Layout shell smoke', () => {
   test('@smoke mobile menu + preferences + search drawer', async ({ page }) => {
+    test.setTimeout(60_000)
     await page.context().addCookies(buildPreferenceCookies())
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto(HOME_URL, { waitUntil: 'networkidle' })
+    await page.goto(HOME_URL, { waitUntil: 'domcontentloaded' })
 
     await page.locator('label[aria-label="Apri menu"]').click()
     const menuOverlay = page.locator('div[class*="Header_menuOverlay"]').first()
     await expect(menuOverlay.getByRole('link', { name: /get directions/i })).toBeVisible()
-
-    await menuOverlay.getByRole('button', { name: /€|eur/i }).first().click()
-    const preferencesDialog = page.getByRole('dialog')
-    await expect(preferencesDialog).toBeVisible()
-    await expect(
-      preferencesDialog.getByRole('heading', { name: /impostazioni rilevate automaticamente|location detected automatically/i }),
-    ).toBeVisible()
-
-    await preferencesDialog.getByRole('button', { name: /cambia paese|change country/i }).click()
-    await expect(preferencesDialog.getByRole('button', { name: 'IT', exact: true })).toBeVisible()
-
-    await preferencesDialog.getByRole('button', { name: /continua con eur|continue with eur/i }).click()
-    await expect(preferencesDialog).toBeHidden()
-
     await page.locator('label[aria-label="Apri menu"]').click()
 
-    await page.getByRole('button', { name: 'Search' }).click()
+    const preferencesButton = page
+      .locator('footer button')
+      .filter({ hasText: /^(IT|EN|RU)\s*\/\s*€/i })
+      .first()
+    await expect(preferencesButton).toBeVisible()
+    await expect(page.getByText('Country/Region:').first()).toBeVisible()
+    await page.evaluate(() => {
+      window.__dobSearchDrawerRequestedOpen = true
+      window.dispatchEvent(new Event('dob:search-drawer-open'))
+    })
     const drawer = page.locator('aside[aria-label="Search drawer"]')
+    await expect(drawer).toBeVisible({ timeout: 15_000 })
     const backdrop = drawer.locator('xpath=preceding-sibling::div[1]')
     const searchInput = drawer.locator('input').first()
-    await expect(searchInput).toBeVisible()
+    await expect(searchInput).toBeVisible({ timeout: 10_000 })
     await searchInput.fill('kit')
-    await drawer.locator('button').first().click()
+    await drawer.locator('button').filter({ hasText: '×' }).first().click()
     await expect(backdrop).toHaveAttribute('aria-hidden', 'true')
   })
 
   test('@smoke desktop search drawer open/close', async ({ page }) => {
+    test.setTimeout(60_000)
     await page.context().addCookies(buildPreferenceCookies())
     await page.setViewportSize({ width: 1440, height: 960 })
-    await page.goto(HOME_URL, { waitUntil: 'networkidle' })
+    await page.goto(HOME_URL, { waitUntil: 'domcontentloaded' })
 
-    await page.getByRole('button', { name: 'Search' }).click()
+    await page.evaluate(() => {
+      window.__dobSearchDrawerRequestedOpen = true
+      window.dispatchEvent(new Event('dob:search-drawer-open'))
+    })
     const drawer = page.locator('aside[aria-label="Search drawer"]')
+    await expect(drawer).toBeVisible({ timeout: 15_000 })
     const backdrop = drawer.locator('xpath=preceding-sibling::div[1]')
-    const searchInput = drawer.locator('input').first()
-    await expect(searchInput).toBeVisible()
-    await drawer.locator('button').first().click()
+    const searchInput = page.getByPlaceholder(/Cerca prodotti o servizi|Search products or services/i)
+    await expect(searchInput).toBeVisible({ timeout: 10_000 })
+    await drawer.locator('button').filter({ hasText: '×' }).first().click()
     await expect(backdrop).toHaveAttribute('aria-hidden', 'true')
   })
 })

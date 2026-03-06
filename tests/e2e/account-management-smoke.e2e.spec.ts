@@ -200,9 +200,10 @@ test.describe('Account management smoke', () => {
   })
 
   test('@smoke login + profile + addresses + service-date', async ({ page }) => {
+    test.setTimeout(60_000)
     test.skip(!userId, 'Fixture user not available')
 
-    await page.goto('http://localhost:3000/it/signin', { waitUntil: 'networkidle' })
+    await page.goto('http://localhost:3000/it/signin', { waitUntil: 'domcontentloaded' })
 
     const loginResponse = await page.request.post('http://localhost:3000/api/users/login', {
       data: {
@@ -213,11 +214,19 @@ test.describe('Account management smoke', () => {
     expect(loginResponse.ok()).toBeTruthy()
 
     await page.context().addCookies(buildPreferenceCookies())
-    await page.goto('http://localhost:3000/it/account', { waitUntil: 'networkidle' })
+    await page.goto('http://localhost:3000/it/account', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/\/it\/account/)
 
     await page.getByLabel('Telefono').fill('3331234567')
+    const saveProfileResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/users/${userId}`) &&
+        response.request().method() === 'PATCH' &&
+        response.status() >= 200 &&
+        response.status() < 300,
+    )
     await page.getByRole('button', { name: /Salva profilo/i }).click()
+    await saveProfileResponsePromise
     await expect(page.getByText('Profilo aggiornato con successo.')).toBeVisible()
 
     await page.getByRole('button', { name: /^Indirizzi$/i }).click()

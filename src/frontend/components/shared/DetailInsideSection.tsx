@@ -152,12 +152,7 @@ export function DetailInsideSection({
                 >
                   {title}
                 </SectionTitle>
-                {includedDescriptionHtml ? (
-                  <div
-                    className={[classNames.rich, 'typo-body'].filter(Boolean).join(' ')}
-                    dangerouslySetInnerHTML={{ __html: includedDescriptionHtml }}
-                  />
-                ) : includedLeadText ? (
+                {includedLeadText ? (
                   <p className={[classNames.lead, 'typo-body'].filter(Boolean).join(' ')}>
                     {includedLeadText}
                   </p>

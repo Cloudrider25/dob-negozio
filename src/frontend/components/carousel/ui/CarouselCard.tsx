@@ -1,6 +1,8 @@
 'use client'
 
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import type { CarouselItem } from '../shared/types'
 import styles from './CarouselCard.module.css'
@@ -16,25 +18,57 @@ export const CarouselCard = ({
   mediaClassName,
   prioritizeImage = false,
   ctaLabel,
+  onCtaClick,
 }: {
   item: CarouselItem
   cardClassName?: string
   mediaClassName?: string
   prioritizeImage?: boolean
   ctaLabel?: CarouselCtaLabel
+  onCtaClick?: (item: CarouselItem) => void
 }) => {
+  const router = useRouter()
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mediaQuery = window.matchMedia('(pointer: coarse)')
+    const sync = () => {
+      setIsTouchDevice(mediaQuery.matches)
+    }
+    sync()
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
+  }, [])
+
   const resolvedCtaLabel = resolveCarouselCtaLabel(item, ctaLabel)
+  const ctaText = isTouchDevice && item.mobileCtaLabel ? item.mobileCtaLabel : resolvedCtaLabel
 
   const imageUrl = typeof item.image?.url === 'string' ? item.image.url.trim() : ''
   const hasImage = imageUrl.length > 0
+  const singleBadge = item.badgeRight || item.tag || item.badgeLeft || null
+
+  const handleNavigateToDetail = () => {
+    if (!isTouchDevice || !item.href) return
+    router.push(item.href)
+  }
 
   return (
-    <article className={`${styles.card} typo-body ${cardClassName ?? ''}`}>
+    <article
+      className={`${styles.card} ${isTouchDevice && item.href ? styles.cardTouchLink : ''} typo-body ${cardClassName ?? ''}`}
+      onClick={handleNavigateToDetail}
+      onKeyDown={(event) => {
+        if (!isTouchDevice || !item.href) return
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          router.push(item.href)
+        }
+      }}
+      role={isTouchDevice && item.href ? 'link' : undefined}
+      tabIndex={isTouchDevice && item.href ? 0 : undefined}
+    >
       <div className={`${styles.media} ${mediaClassName ?? ''}`}>
-        {item.badgeLeft && <span className={`${styles.badgeLeft} typo-caption-upper`}>{item.badgeLeft}</span>}
-        {(item.badgeRight || item.tag) && (
-          <span className={`${styles.badgeRight} typo-caption-upper`}>{item.badgeRight || item.tag}</span>
-        )}
+        {singleBadge ? <span className={`${styles.badgeRight} typo-caption-upper`}>{singleBadge}</span> : null}
         {hasImage ? (
           <Image
             src={imageUrl}
@@ -51,7 +85,7 @@ export const CarouselCard = ({
       </div>
       <div className={styles.titleBlock}>
         <div className={styles.titleRow}>
-          <SectionTitle as="h3" size="body" uppercase className={styles.title}>
+          <SectionTitle as="h3" size="caption" uppercase className={styles.title}>
             {item.title}
           </SectionTitle>
           <span className={styles.price}>{item.price || ''}</span>
@@ -64,13 +98,37 @@ export const CarouselCard = ({
         <div className={`${styles.meta} ${styles.metaRow} typo-small`}>
           <span>{item.duration || ''}</span>
         </div>
-        {item.href ? (
-          <ButtonLink className={styles.cta} href={item.href} kind="card" size="sm" interactive>
-            {resolvedCtaLabel}
+        {onCtaClick ? (
+          <Button
+            className={styles.cta}
+            type="button"
+            kind="card"
+            size="sm"
+            interactive
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              onCtaClick(item)
+            }}
+          >
+            {ctaText}
+          </Button>
+        ) : item.href ? (
+          <ButtonLink
+            className={styles.cta}
+            href={item.href}
+            kind="card"
+            size="sm"
+            interactive
+            onClick={(event) => {
+              event.stopPropagation()
+            }}
+          >
+            {ctaText}
           </ButtonLink>
         ) : (
           <Button className={styles.cta} type="button" kind="card" size="sm" interactive disabled>
-            {resolvedCtaLabel}
+            {ctaText}
           </Button>
         )}
       </div>

@@ -16,10 +16,15 @@
   height: auto;
   z-index: 2;
   color: var(--text-secondary);
-  background: var(--bg);
+  background: var(--paper);
   border-radius: var(--card-radius);
   border: 1px solid var(--stroke);
   box-shadow: none;
+  overflow: hidden;
+}
+
+.cardTouchLink {
+  cursor: pointer;
 }
 
 .media {
@@ -36,13 +41,13 @@
 .media::before {
   content: '';
   display: block;
-  padding-bottom: 70.53%;
+  padding-bottom: 100%;
 }
 
 .media img {
   object-fit: cover;
   object-position: center;
-  transform: scale(1.08);
+  transform: none;
 }
 
 .mediaFallback {
@@ -51,23 +56,27 @@
   background: var(--paper);
 }
 
-.badgeRight,
-.badgeLeft {
+.badgeLeft,
+.badgeRight {
   position: absolute;
   top: 14px;
-  background: var(--text-secondary);
-  color: var(--bg);
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
   z-index: 2;
-}
-
-.badgeRight {
-  right: 14px;
+  line-height: 1;
 }
 
 .badgeLeft {
   left: 14px;
+  background: color-mix(in oklab, var(--bg) 95%, white 5%);
+  color: var(--text-primary);
+  border-radius: 4px;
+}
+
+.badgeRight {
+  right: 14px;
+  background: color-mix(in oklab, var(--text-secondary) 78%, var(--paper) 22%);
+  color: var(--bg);
+  border-radius: 999px;
 }
 
 .title {
@@ -82,10 +91,10 @@
 
 .titleRow {
   display: grid;
-  grid-template-columns: 72% 28%;
+  grid-template-columns: 1fr auto;
   gap: var(--card-title-gap);
-  align-items: end;
-  padding: var(--card-content-inline) var(--card-content-inline) 0;
+  align-items: center;
+  padding: calc(var(--card-content-inline) - 0.15rem) var(--card-content-inline) 0;
   min-height: var(--card-title-min-height);
 }
 
@@ -122,7 +131,7 @@
 
 .metaRow {
   padding: 0 var(--card-content-inline);
-  margin-top: 0.6rem;
+  margin-top: 0.2rem;
 }
 
 .bottomBlock {
@@ -139,6 +148,17 @@
 .cta {
   margin: var(--card-cta-margin);
   height: var(--card-cta-height);
+  --btn-bg: transparent;
+  --btn-text: color-mix(in oklab, var(--text-secondary) 90%, black 10%);
+  --btn-border: color-mix(in oklab, var(--text-secondary) 70%, var(--paper) 30%);
+  --btn-hover-bg: color-mix(in oklab, var(--paper) 85%, var(--text-secondary) 15%);
+  --btn-hover-text: var(--text-primary);
+  --btn-hover-border: color-mix(in oklab, var(--text-secondary) 80%, var(--paper) 20%);
+  --btn-active-bg: color-mix(in oklab, var(--paper) 78%, var(--text-secondary) 22%);
+  --btn-active-text: var(--text-primary);
+  --btn-active-border: color-mix(in oklab, var(--text-secondary) 85%, var(--paper) 15%);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
 }
 
 @media (min-width: 1024px) {
@@ -160,6 +180,43 @@
 
   .titleRow {
     grid-template-columns: 70% 30%;
+  }
+
+  .subtitle {
+    display: -webkit-box;
+  }
+
+  .metaRow {
+    display: flex;
+  }
+}
+
+@media (max-width: 1023px) {
+  .card {
+    --card-subtitle-min-height: 0;
+    --card-cta-margin: 0.9rem 0.95rem 1rem;
+  }
+
+  .subtitle,
+  .metaRow {
+    display: none;
+  }
+
+  .title {
+    min-height: 40px;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    display: block;
+    overflow: visible;
+    letter-spacing: 0.02em;
+  }
+
+  .titleRow {
+    grid-template-columns: 1fr;
+  }
+
+  .price {
+    display: none;
   }
 }
 

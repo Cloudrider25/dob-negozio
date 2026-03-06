@@ -1,11 +1,12 @@
 .split {
   margin-top: 0;
   margin-bottom: 2.55vw;
+  gap: 1rem;
 }
 
 .panel {
-  min-height: 56vh;
-  height: 56vh;
+  min-height: 50vh;
+  height: 50vh;
   border-radius: 22px;
   border: 1px solid color-mix(in srgb, var(--stroke) 68%, transparent);
   background: color-mix(in srgb, var(--bg) 94%, #ffffff 6%);
@@ -20,6 +21,8 @@
 
 .panelMedia {
   display: flex;
+  min-height: 36vh;
+  height: 36vh;
 }
 
 .panelContentMedia {
@@ -67,14 +70,19 @@
 .circleList {
   margin-top: 0.55rem;
   display: flex;
+  column-gap: 1.7rem;
+  row-gap: 0.4rem;
   flex-wrap: wrap;
-  gap: 0.7rem;
+  justify-content: center;
+  margin: 0 20px;
 }
 
 .circleItem {
-  min-width: 112px;
-  min-height: 112px;
+  min-width: 90px;
+  min-height: 90px;
   padding: 0.8rem;
+  font-size: 0.68rem;
+  line-height: 1.15;
 }
 
 .block {
@@ -232,5 +240,17 @@ border: 1px solid color-mix(in srgb, var(--stroke) 55%, transparent);
   .panel {
     min-height: 64vh;
     height: 64vh;
+  }
+
+  .panelMedia {
+    min-height: 64vh;
+    height: 64vh;
+  }
+
+  .circleItem {
+    min-width: 112px;
+    min-height: 112px;
+    font-size: inherit;
+    line-height: inherit;
   }
 }

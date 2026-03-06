@@ -18,6 +18,20 @@ export interface ServiceFinal {
   description?: string;
   price?: number; // TODO: collegare con listino reale
   imageUrl?: string;
+  variabili?: Array<{
+    id: string;
+    name: string;
+    durationMinutes?: number | null;
+    price?: number;
+  }>;
+  pacchetti?: Array<{
+    id: string;
+    name: string;
+    linkedTo: string;
+    sessions?: number | null;
+    packagePrice?: number;
+    packageValue?: number | null;
+  }>;
 }
 
 // Servizio selezionato con contesto completo

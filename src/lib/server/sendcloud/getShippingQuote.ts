@@ -57,14 +57,27 @@ export type SendcloudShippingOption = {
   deliveryEstimate: string
 }
 
+const SENDCLOUD_METHOD_STANDARD_HOME_0_2 = 'Poste Delivery Business Standard Domicilio 0-2kg'
+const SENDCLOUD_METHOD_STANDARD_HOME_2_5 = 'Poste Delivery Business Standard Domicilio 2-5kg'
+
+const normalizeMethodName = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
 export const getSendcloudShippingOptions = async ({
   payload,
   toCountry,
   toPostalCode,
+  itemsCount = 0,
 }: {
   payload: Payload
   toCountry: string
   toPostalCode: string
+  itemsCount?: number
 }): Promise<SendcloudShippingOption[]> => {
   const config = await getShopIntegrationsConfig(payload)
   const publicKey = config.sendcloud.publicKey
@@ -100,8 +113,18 @@ export const getSendcloudShippingOptions = async ({
   const shippingMethods = Array.isArray(json.shipping_methods) ? json.shipping_methods : []
   if (shippingMethods.length === 0) return []
 
+  const normalizedPrimary = normalizeMethodName(SENDCLOUD_METHOD_STANDARD_HOME_0_2)
+  const normalizedSecondary = normalizeMethodName(SENDCLOUD_METHOD_STANDARD_HOME_2_5)
+  const allowSecondary = itemsCount >= 6
+
   const options: SendcloudShippingOption[] = []
   for (const method of shippingMethods) {
+    const methodName = toString(method.name)
+    const normalizedName = normalizeMethodName(methodName)
+    const keepMethod =
+      normalizedName === normalizedPrimary || (allowSecondary && normalizedName === normalizedSecondary)
+    if (!keepMethod) continue
+
     const topLevel = toNumber(method.price)
     const countryPrice = Array.isArray(method.countries)
       ? method.countries
@@ -115,15 +138,21 @@ export const getSendcloudShippingOptions = async ({
     options.push({
       id:
         (typeof method.id === 'number' ? String(method.id) : '') ||
-        `${toString(method.name) || 'sendcloud'}-${price}`,
-      name: toString(method.name) || 'Sendcloud',
+        `${methodName || 'sendcloud'}-${price}`,
+      name: methodName || 'Sendcloud',
       amount: price,
       currency: 'EUR',
       deliveryEstimate: deliveryEstimate(method),
     })
   }
 
-  return options.sort((a, b) => a.amount - b.amount)
+  return options.sort((a, b) => {
+    const aPrimary = normalizeMethodName(a.name) === normalizedPrimary
+    const bPrimary = normalizeMethodName(b.name) === normalizedPrimary
+    if (aPrimary && !bPrimary) return -1
+    if (!aPrimary && bPrimary) return 1
+    return a.amount - b.amount
+  })
 }
 
 export const getSendcloudShippingQuote = async (args: {

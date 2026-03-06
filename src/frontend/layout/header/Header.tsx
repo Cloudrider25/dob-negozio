@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 
 import { cn } from '@/lib/shared/ui/cn'
@@ -16,6 +17,7 @@ export const Header = ({
   locale,
   accountHref,
   t,
+  addressDisplay,
   whatsappLink,
   phoneLink,
   instagramLink,
@@ -26,6 +28,14 @@ export const Header = ({
   menuHighlights,
 }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
+  const isItalian = locale === 'it'
+  const fallbackHref = `/${locale}/contact`
+  const primaryHref = whatsappLink || phoneLink || fallbackHref
+  const primaryIsInternal = primaryHref.startsWith('/')
+  const proofText =
+    isItalian
+      ? `Centro estetico a Milano${addressDisplay ? ` - ${addressDisplay}` : ''}`
+      : `Beauty center in Milan${addressDisplay ? ` - ${addressDisplay}` : ''}`
 
   return (
     <div className={styles.shell}>
@@ -36,7 +46,25 @@ export const Header = ({
         checked={menuOpen}
         onChange={(event) => setMenuOpen(event.target.checked)}
       />
-      <div className={cn(styles.topBar, 'typo-caption-upper')}>prenota una consulenza gratuita</div>
+      <div className={styles.topBar} aria-label={isItalian ? 'Prova locale e prenotazione' : 'Local proof and booking'}>
+        <div className={styles.topBarInner}>
+          <p className={styles.topBarProof}>{proofText}</p>
+          <div className={styles.topBarActions}>
+            {primaryIsInternal ? (
+              <Link href={primaryHref} className={cn(styles.topBarPrimary, 'typo-caption-upper')}>
+                {isItalian ? 'Prenota consulenza' : 'Book consultation'}
+              </Link>
+            ) : (
+              <a href={primaryHref} className={cn(styles.topBarPrimary, 'typo-caption-upper')}>
+                {isItalian ? 'Prenota consulenza' : 'Book consultation'}
+              </a>
+            )}
+            <Link href={fallbackHref} className={cn(styles.topBarSecondary, 'typo-caption-upper')}>
+              {isItalian ? 'Contattaci' : 'Contact us'}
+            </Link>
+          </div>
+        </div>
+      </div>
       <header className={styles.header}>
         <HeaderNavigation locale={locale} t={t} />
         <HeaderBrand locale={locale} brandLabel={t.brand} />

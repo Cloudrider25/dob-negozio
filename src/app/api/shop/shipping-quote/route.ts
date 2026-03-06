@@ -11,6 +11,7 @@ type ShippingQuoteRequest = {
   postalCode?: string
   country?: string
   subtotal?: number
+  itemsCount?: number
 }
 
 const toString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -25,6 +26,10 @@ export async function POST(request: Request) {
     const country = toString(body.country) || 'IT'
     const subtotal =
       typeof body.subtotal === 'number' && Number.isFinite(body.subtotal) ? body.subtotal : 0
+    const itemsCount =
+      typeof body.itemsCount === 'number' && Number.isFinite(body.itemsCount) && body.itemsCount > 0
+        ? Math.floor(body.itemsCount)
+        : 0
 
     if (!address || !city || !province || !postalCode) {
       return NextResponse.json(
@@ -41,6 +46,7 @@ export async function POST(request: Request) {
       payload,
       toCountry: country,
       toPostalCode: postalCode,
+      itemsCount,
     })
     const isFree = isFreeShippingUnlocked(subtotal)
     const normalizedOptions = isFree

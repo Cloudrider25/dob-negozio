@@ -194,12 +194,13 @@ export default async function HomePage({
   const serviceItems: CarouselItem[] = servicesResult.docs
     .map((service) => {
       const media = resolveGalleryCover(service.gallery, service.name || '') || fallbackImage
+      const formattedPrice = formatPrice(locale, service.price, 'EUR') || null
       return createCarouselItem({
         id: service.id,
         slug: service.slug || undefined,
         title: service.name,
         subtitle: service.description || undefined,
-        price: formatPrice(locale, service.price, 'EUR') || null,
+        price: formattedPrice,
         duration: formatDuration(service.durationMinutes) || null,
         image: { url: media.url, alt: media.alt },
         tag: formatServiceTag(service.serviceType),
@@ -212,6 +213,7 @@ export default async function HomePage({
             ? String((service.badge as { name?: string }).name || '')
             : null,
         href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
+        mobileCtaLabel: formattedPrice ? `prenota - ${formattedPrice}` : 'prenota',
       })
     })
     .filter((item): item is CarouselItem => Boolean(item))
@@ -220,18 +222,20 @@ export default async function HomePage({
     .map((product) => {
       const gallery = Array.isArray(product.images) ? product.images : []
       const media = resolveMedia(product.coverImage || gallery[0], product.title || '') || fallbackImage
+      const formattedPrice = formatPrice(locale, product.price) || null
       return createCarouselItem({
         id: product.id,
         slug: product.slug || undefined,
         title: product.title,
         subtitle: product.description || undefined,
-        price: formatPrice(locale, product.price) || null,
+        price: formattedPrice,
         duration: null,
         image: { url: media.url, alt: media.alt },
         tag: null,
         badgeLeft: null,
         badgeRight: null,
         href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
+        mobileCtaLabel: formattedPrice ? `compra - ${formattedPrice}` : 'compra',
       })
     })
     .filter((item): item is CarouselItem => Boolean(item))
