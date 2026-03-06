@@ -154,6 +154,7 @@ const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
 export const databaseUrl = databaseUrlCandidate
   ? normalizePrismaSslCompat(databaseUrlCandidate.value)
   : ''
+const enableSchemaPush = process.env.NODE_ENV === 'development'
 const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
 const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
 const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
@@ -258,6 +259,9 @@ export default buildConfig({
       connectionTimeoutMillis: dbPoolConnectTimeout,
       idleTimeoutMillis: dbPoolIdleTimeout,
     },
+    // Shared environments (CI/staging/prod) must not mutate schema implicitly.
+    // Keep automatic schema push only for true local development.
+    push: enableSchemaPush,
   }),
   sharp,
   plugins: enableBlobPlugin
