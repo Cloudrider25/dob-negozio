@@ -8,6 +8,7 @@ const asString = (value: unknown) => (typeof value === 'string' ? value.trim() :
 
 export async function GET(request: Request) {
   const cronHeader = asString(request.headers.get('x-vercel-cron'))
+  const userAgent = asString(request.headers.get('user-agent')).toLowerCase()
   const expectedSecret =
     asString(process.env.SHOP_RELEASE_ALLOCATIONS_SECRET) || asString(process.env.CRON_SECRET)
   const providedSecret = asString(new URL(request.url).searchParams.get('secret'))
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
       ? authHeader.slice(7).trim()
       : ''
 
-  const authorizedByCron = cronHeader === '1'
+  const authorizedByCron = cronHeader === '1' || userAgent === 'vercel-cron/1.0'
   const authorizedBySecret =
     expectedSecret.length > 0 &&
     (providedSecret === expectedSecret || bearerSecret === expectedSecret)
