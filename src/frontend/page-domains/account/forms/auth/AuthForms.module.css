@@ -12,7 +12,7 @@
 }
 
 .subtitle {
-  margin: 0 0 1.6rem;
+  margin: 0 0 1rem;
   text-align: center;
   color: #66625d;
 }
@@ -83,10 +83,27 @@
   padding: 0.75rem 0.95rem;
 }
 
-.error {
-  background: rgba(204, 0, 0, 0.1);
-  color: #8a1010;
-  border: 1px solid rgba(138, 16, 16, 0.25);
+.inlineError {
+  margin: 0 0 0.85rem;
+  text-align: center;
+}
+
+.inlineErrorText {
+  margin: 0;
+  color: #c44747;
+}
+
+.inlineErrorLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.inlineErrorLink {
+  color: #c44747;
+  text-decoration: underline;
 }
 
 .success {
