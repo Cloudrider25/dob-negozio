@@ -23,3 +23,5 @@
 ## Reference
 
 - [Database Environment Policy](./reference/database-environment-policy.md)
+
+- [CI/CD Deploy Model](./reference/cicd-deploy-model.md)

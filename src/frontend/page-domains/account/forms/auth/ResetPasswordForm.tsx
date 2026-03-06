@@ -8,11 +8,10 @@ import { getAccountDictionary } from '@/lib/i18n/account'
 import { SectionSubtitle } from '@/frontend/components/ui/primitives/section-subtitle'
 import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
 import { Input } from '@/frontend/components/ui/primitives/input'
+import { PASSWORD_MIN_LENGTH } from '@/lib/shared/auth/passwordPolicy'
 
 import styles from './AuthForms.module.css'
 import { getAuthErrorMessage } from './auth-utils'
-
-const PASSWORD_MIN_LENGTH = 10
 
 export function ResetPasswordForm({ locale }: { locale: string }) {
   const router = useRouter()

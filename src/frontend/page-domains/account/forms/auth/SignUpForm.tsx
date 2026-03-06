@@ -8,12 +8,14 @@ import { getAccountDictionary } from '@/lib/i18n/account'
 import { SectionSubtitle } from '@/frontend/components/ui/primitives/section-subtitle'
 import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
 import { Input } from '@/frontend/components/ui/primitives/input'
+import {
+  getPasswordMissingRequirementKeys,
+  isStrongPassword,
+  PASSWORD_MIN_LENGTH,
+} from '@/lib/shared/auth/passwordPolicy'
 
 import styles from './AuthForms.module.css'
-import { getAuthErrorMessage } from './auth-utils'
-
-const PASSWORD_MIN_LENGTH = 10
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$/
+import { getSignUpErrorFeedback, type SignUpErrorFeedback } from './auth-utils'
 
 export function SignUpForm({ locale }: { locale: string }) {
   const router = useRouter()
@@ -23,7 +25,7 @@ export function SignUpForm({ locale }: { locale: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<SignUpErrorFeedback | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const redirectTimeoutRef = useRef<number | null>(null)
 
@@ -40,10 +42,21 @@ export function SignUpForm({ locale }: { locale: string }) {
       firstName.trim().length > 0 &&
       lastName.trim().length > 0 &&
       email.trim().length > 0 &&
-      password.length >= PASSWORD_MIN_LENGTH &&
-      PASSWORD_REGEX.test(password)
+      isStrongPassword(password)
     )
   }, [firstName, lastName, email, password])
+
+  const passwordGuidance = useMemo(() => {
+    if (password.length === 0) return copy.passwordPolicy
+
+    const missing = getPasswordMissingRequirementKeys(password).map(
+      (requirement) => copy.passwordRequirements[requirement],
+    )
+
+    return missing.length === 0
+      ? copy.passwordStatusComplete
+      : `${copy.passwordStatusMissingPrefix} ${missing.join(', ')}.`
+  }, [copy, password])
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -70,7 +83,7 @@ export function SignUpForm({ locale }: { locale: string }) {
 
       const data = (await response.json().catch(() => ({}))) as unknown
       if (!response.ok) {
-        setError(getAuthErrorMessage(data, copy.errors.generic))
+        setError(getSignUpErrorFeedback(data, copy.errors.generic, copy.feedback))
         return
       }
 
@@ -82,7 +95,12 @@ export function SignUpForm({ locale }: { locale: string }) {
         router.push(`/${locale}/signin`)
       }, 1400)
     } catch {
-      setError(copy.errors.network)
+      setError({
+        title: copy.feedback.networkTitle,
+        body: copy.errors.network,
+        suggestLogin: false,
+        suggestResetPassword: false,
+      })
     } finally {
       setSubmitting(false)
     }
@@ -94,9 +112,28 @@ export function SignUpForm({ locale }: { locale: string }) {
         {copy.title}
       </SectionTitle>
 
-      {error ? <p className={`${styles.message} ${styles.error} typo-small`}>{error}</p> : null}
+      {error ? (
+        <div className={styles.inlineError} role="alert" aria-live="polite">
+          <p className={`${styles.inlineErrorText} typo-small`}>
+            <strong>{error.title}.</strong> {error.body}
+          </p>
+          {error.suggestLogin || error.suggestResetPassword ? (
+            <div className={styles.inlineErrorLinks}>
+              {error.suggestLogin ? (
+                <Link className={`${styles.inlineErrorLink} typo-small`} href={`/${locale}/signin`}>
+                  {copy.feedback.signInLink}
+                </Link>
+              ) : null}
+              {error.suggestResetPassword ? (
+                <Link className={`${styles.inlineErrorLink} typo-small`} href={`/${locale}/forgot-password`}>
+                  {copy.feedback.resetPasswordLink}
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       {success ? <p className={`${styles.message} ${styles.success} typo-small`}>{success}</p> : null}
-      <SectionSubtitle className={styles.subtitle}>{copy.passwordPolicy}</SectionSubtitle>
 
       <div className={styles.inlineGrid}>
         <Input
@@ -140,6 +177,8 @@ export function SignUpForm({ locale }: { locale: string }) {
           required
         />
       </div>
+
+      <SectionSubtitle className={styles.subtitle}>{passwordGuidance}</SectionSubtitle>
 
       <div className={styles.actions} style={{ marginTop: '1rem' }}>
         <button className={`${styles.submit} typo-small-upper`} type="submit" disabled={submitting || !isFormValid}>

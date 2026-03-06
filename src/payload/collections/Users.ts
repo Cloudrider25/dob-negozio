@@ -1,29 +1,51 @@
 import type { CollectionConfig } from 'payload'
 
 import { getAccountDictionary, resolveLocale } from '@/lib/i18n/account'
+import { getPasswordValidationFailureKey } from '@/lib/shared/auth/passwordPolicy'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 
 import { isAdmin, isAdminField } from '../access/isAdmin'
 import { isAdminOrSelf } from '../access/isAdminOrSelf'
 
-const PASSWORD_MIN_LENGTH = 10
-
-const validatePasswordStrength = (password: string) => {
-  if (password.length < PASSWORD_MIN_LENGTH) {
-    return `La password deve avere almeno ${PASSWORD_MIN_LENGTH} caratteri.`
-  }
-  if (!/[a-z]/.test(password)) return 'La password deve contenere almeno una lettera minuscola.'
-  if (!/[A-Z]/.test(password)) return 'La password deve contenere almeno una lettera maiuscola.'
-  if (!/[0-9]/.test(password)) return 'La password deve contenere almeno un numero.'
-  if (!/[^A-Za-z0-9]/.test(password))
-    return 'La password deve contenere almeno un carattere speciale.'
-  return null
-}
-
 const getClientIP = (req: { headers: Headers }) =>
   req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
   req.headers.get('x-real-ip')?.trim() ||
   ''
+
+const getPreferredRequestLocale = (req: { headers: Headers; locale?: unknown }, data?: Record<string, unknown>) => {
+  if (typeof req.locale === 'string') {
+    return resolveLocale(req.locale)
+  }
+
+  const preferredLocale =
+    data &&
+    'preferences' in data &&
+    typeof data.preferences === 'object' &&
+    data.preferences &&
+    'preferredLocale' in data.preferences &&
+    typeof data.preferences.preferredLocale === 'string'
+      ? data.preferences.preferredLocale
+      : undefined
+
+  if (preferredLocale) {
+    return resolveLocale(preferredLocale)
+  }
+
+  const acceptLanguage = req.headers.get('accept-language')?.split(',')[0]?.trim()
+  if (acceptLanguage) {
+    return resolveLocale(acceptLanguage.split('-')[0] ?? acceptLanguage)
+  }
+
+  return 'it'
+}
+
+const getPasswordValidationMessage = (
+  locale: ReturnType<typeof resolveLocale>,
+  requirementKey: NonNullable<ReturnType<typeof getPasswordValidationFailureKey>>,
+) => {
+  const copy = getAccountDictionary(locale).auth.signUp
+  return `${copy.feedback.passwordInvalidTitle}. ${copy.passwordStatusMissingPrefix} ${copy.passwordRequirements[requirementKey]}.`
+}
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -196,9 +218,10 @@ export const Users: CollectionConfig = {
         }
 
         if (typeof data.password === 'string' && data.password.length > 0) {
-          const passwordError = validatePasswordStrength(data.password)
-          if (passwordError) {
-            throw new Error(passwordError)
+          const passwordFailureKey = getPasswordValidationFailureKey(data.password)
+          if (passwordFailureKey) {
+            const locale = getPreferredRequestLocale(req, data)
+            throw new Error(getPasswordValidationMessage(locale, passwordFailureKey))
           }
         }
 
