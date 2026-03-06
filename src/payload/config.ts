@@ -374,6 +374,7 @@ export default buildConfig({
           'location',
           'our-story',
           'dob-protocol',
+          'privacy',
           'contact',
           'checkout',
         ] as const
