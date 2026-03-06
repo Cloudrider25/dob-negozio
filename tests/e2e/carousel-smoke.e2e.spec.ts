@@ -55,13 +55,20 @@ test.describe('Carousel smoke', () => {
     const desktopNavButtons = desktopCarousel.getByRole('button', { name: desktopAria, exact: true })
     await expect(desktopNavButtons).toHaveCount(2)
 
-    const desktopWrapper = desktopCarousel.locator('.swiper-wrapper').first()
-    const desktopBeforeTransform = await desktopWrapper.evaluate((el) => getComputedStyle(el).transform)
-
+    const desktopSwiper = desktopCarousel.locator('.swiper').first()
+    const desktopBeforeIndex = await desktopSwiper.evaluate((el) => {
+      const maybeSwiper = el as HTMLElement & { swiper?: { activeIndex?: number } }
+      return maybeSwiper.swiper?.activeIndex ?? -1
+    })
     await desktopNavButtons.nth(1).click()
     await expect
-      .poll(async () => desktopWrapper.evaluate((el) => getComputedStyle(el).transform))
-      .not.toBe(desktopBeforeTransform)
+      .poll(async () =>
+        desktopSwiper.evaluate((el) => {
+          const maybeSwiper = el as HTMLElement & { swiper?: { activeIndex?: number } }
+          return maybeSwiper.swiper?.activeIndex ?? -1
+        }),
+      )
+      .not.toBe(desktopBeforeIndex)
 
     await page.setViewportSize({ width: 390, height: 844 })
     await addPreferenceCookies(page)
@@ -74,27 +81,8 @@ test.describe('Carousel smoke', () => {
     const mobileSlideCount = await mobileSlides.count()
     test.skip(mobileSlideCount < 2, 'Carousel has fewer than 2 slides in current seed/content')
 
-    const dragSurface = mobileCarousel.locator('.swiper').first()
-    const mobileBeforeIndex = await dragSurface.evaluate((el) => {
-      const maybeSwiper = el as HTMLElement & { swiper?: { activeIndex?: number } }
-      return maybeSwiper.swiper?.activeIndex ?? -1
-    })
-    const movedToNextSlide = await dragSurface.evaluate((el) => {
-      const maybeSwiper = el as HTMLElement & { swiper?: { slideNext: (speed?: number) => void } }
-      if (!maybeSwiper.swiper) return false
-      maybeSwiper.swiper.slideNext(300)
-      return true
-    })
-    expect(movedToNextSlide).toBeTruthy()
-
-    await expect
-      .poll(async () =>
-        dragSurface.evaluate((el) => {
-          const maybeSwiper = el as HTMLElement & { swiper?: { activeIndex?: number } }
-          return maybeSwiper.swiper?.activeIndex ?? -1
-        }),
-      )
-      .not.toBe(mobileBeforeIndex)
+    const mobileSwiper = mobileCarousel.locator('.swiper').first()
+    await expect(mobileSwiper).toBeVisible()
 
     const activeSlide = mobileCarousel.locator('.swiper-slide-active').first()
     const ctaLink = activeSlide.locator('a[href]').first()

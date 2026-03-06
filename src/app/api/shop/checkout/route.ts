@@ -1024,6 +1024,7 @@ export async function POST(request: Request) {
         const isStripeEnabled = stripeSecret.length > 0
 
         if (isStripeEnabled) {
+          const stripeKeyPrefix = `${checkoutFingerprint}:${createdOrder.id}`
           if (
             (checkoutMode === 'embedded' || checkoutMode === 'payment_element') &&
             stripePublishableKey.length === 0
@@ -1089,7 +1090,7 @@ export async function POST(request: Request) {
           }
 
           if (checkoutMode === 'payment_element') {
-            const paymentIntentIdempotencyKey = `${checkoutFingerprint}:pi`
+            const paymentIntentIdempotencyKey = `${stripeKeyPrefix}:pi`
             const paymentIntent = await stripe.paymentIntents.create({
               amount: toStripeAmount(total),
               currency: 'eur',
@@ -1141,7 +1142,7 @@ export async function POST(request: Request) {
                   ui_mode: 'embedded',
                   return_url: `${baseUrl}/${locale}/checkout/success?order=${encodeURIComponent(createdOrder.orderNumber || '')}&session_id={CHECKOUT_SESSION_ID}`,
                 }, {
-                  idempotencyKey: `${checkoutFingerprint}:embedded`,
+                  idempotencyKey: `${stripeKeyPrefix}:embedded`,
                 })
               : await stripe.checkout.sessions.create({
                   ...sessionPayloadBase,
@@ -1149,7 +1150,7 @@ export async function POST(request: Request) {
                   success_url: `${baseUrl}/${locale}/checkout/success?order=${encodeURIComponent(createdOrder.orderNumber || '')}&session_id={CHECKOUT_SESSION_ID}`,
                   cancel_url: `${baseUrl}/${locale}/checkout`,
                 }, {
-                  idempotencyKey: `${checkoutFingerprint}:redirect`,
+                  idempotencyKey: `${stripeKeyPrefix}:redirect`,
                 })
 
           await payload.update({

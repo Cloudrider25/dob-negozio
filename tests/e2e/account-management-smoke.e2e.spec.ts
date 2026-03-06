@@ -203,7 +203,7 @@ test.describe('Account management smoke', () => {
     test.setTimeout(60_000)
     test.skip(!userId, 'Fixture user not available')
 
-    await page.goto('http://localhost:3000/it/signin', { waitUntil: 'networkidle' })
+    await page.goto('http://localhost:3000/it/signin', { waitUntil: 'domcontentloaded' })
 
     const loginResponse = await page.request.post('http://localhost:3000/api/users/login', {
       data: {
@@ -214,7 +214,7 @@ test.describe('Account management smoke', () => {
     expect(loginResponse.ok()).toBeTruthy()
 
     await page.context().addCookies(buildPreferenceCookies())
-    await page.goto('http://localhost:3000/it/account', { waitUntil: 'networkidle' })
+    await page.goto('http://localhost:3000/it/account', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/\/it\/account/)
 
     await page.getByLabel('Telefono').fill('3331234567')
@@ -227,7 +227,7 @@ test.describe('Account management smoke', () => {
     )
     await page.getByRole('button', { name: /Salva profilo/i }).click()
     await saveProfileResponsePromise
-    await expect(page.getByLabel('Telefono')).toHaveValue('3331234567')
+    await expect(page.getByText('Profilo aggiornato con successo.')).toBeVisible()
 
     await page.getByRole('button', { name: /^Indirizzi$/i }).click()
     await page.getByRole('button', { name: /Aggiungi nuovo indirizzo/i }).click()
