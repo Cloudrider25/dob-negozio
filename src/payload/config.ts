@@ -111,6 +111,16 @@ const normalizePrismaSslCompat = (value: string): string => {
   }
 }
 
+const isLocalDatabaseHost = (value: string): boolean => {
+  try {
+    const parsed = new URL(value)
+    const host = parsed.hostname.trim().toLowerCase()
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1'
+  } catch {
+    return false
+  }
+}
+
 const blobReadWriteToken =
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
@@ -154,7 +164,9 @@ const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
 export const databaseUrl = databaseUrlCandidate
   ? normalizePrismaSslCompat(databaseUrlCandidate.value)
   : ''
-const enableSchemaPush = process.env.NODE_ENV === 'development'
+const enableSchemaPush =
+  process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true' ||
+  (process.env.NODE_ENV === 'development' && isLocalDatabaseHost(databaseUrl))
 const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
 const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
 const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
