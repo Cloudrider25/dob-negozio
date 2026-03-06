@@ -8,6 +8,8 @@ const BASE_RETRY_DELAY_MS = 300
 let payloadClientPromise: Promise<Payload> | null = null
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+const toError = (error: unknown) =>
+  error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown payload init error')
 
 const createPayloadClient = async () => {
   let lastError: unknown = null
@@ -15,13 +17,13 @@ const createPayloadClient = async () => {
     try {
       return await getPayload({ config: await configPromise })
     } catch (error) {
-      lastError = error
+      lastError = toError(error)
       if (attempt < MAX_RETRIES) {
         await wait(BASE_RETRY_DELAY_MS * attempt)
       }
     }
   }
-  throw lastError
+  throw toError(lastError)
 }
 
 export const getPayloadClient = async () => {
@@ -34,6 +36,6 @@ export const getPayloadClient = async () => {
   } catch (error) {
     // Do not retain a failed client promise forever.
     payloadClientPromise = null
-    throw error
+    throw toError(error)
   }
 }
