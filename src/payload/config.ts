@@ -116,7 +116,9 @@ const blobReadWriteToken =
     ? process.env.PROD_READ_WRITE_TOKEN
     : process.env.STG_READ_WRITE_TOKEN) || ''
 const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
-const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
+// Blob storage must stay enabled in CI as well, otherwise /api/media/file falls back
+// to local filesystem and image fetches fail for Blob-backed media.
+const enableBlobPlugin = hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
