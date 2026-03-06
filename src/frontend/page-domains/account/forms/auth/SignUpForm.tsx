@@ -134,7 +134,6 @@ export function SignUpForm({ locale }: { locale: string }) {
         </div>
       ) : null}
       {success ? <p className={`${styles.message} ${styles.success} typo-small`}>{success}</p> : null}
-      <SectionSubtitle className={styles.subtitle}>{passwordGuidance}</SectionSubtitle>
 
       <div className={styles.inlineGrid}>
         <Input
@@ -178,6 +177,8 @@ export function SignUpForm({ locale }: { locale: string }) {
           required
         />
       </div>
+
+      <SectionSubtitle className={styles.subtitle}>{passwordGuidance}</SectionSubtitle>
 
       <div className={styles.actions} style={{ marginTop: '1rem' }}>
         <button className={`${styles.submit} typo-small-upper`} type="submit" disabled={submitting || !isFormValid}>
