@@ -4,12 +4,17 @@ on:
   pull_request:
   push:
     branches:
+      - dev
       - prod
 
 jobs:
   static-checks:
     name: Lint + Typecheck + Int Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,19 +37,32 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Validate staging DB secrets
+        shell: bash
+        run: |
+          if [[ -z "${DATABASE_URL}" ]]; then
+            echo "::error::Missing secret STAGING_DATABASE_URL for Quality Gate."
+            exit 1
+          fi
+          if [[ -z "${PAYLOAD_SECRET}" ]]; then
+            echo "::error::Missing secret PAYLOAD_SECRET for Quality Gate."
+            exit 1
+          fi
+          if [[ -z "${STG_READ_WRITE_TOKEN}" ]]; then
+            echo "::warning::Missing secret STG_READ_WRITE_TOKEN. Blob-backed media may fail in CI."
+          fi
+
       - name: Integration tests
         run: pnpm test:int
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
   e2e-smoke:
     name: E2E Smoke
     needs: static-checks
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - name: Checkout

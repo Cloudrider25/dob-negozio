@@ -1,14 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-import { ShopAllSection } from '@/frontend/page-domains/shared/sections/ShopAllSection'
+import { ShopAllSection, type ShopAllControls } from '@/frontend/page-domains/shared/sections/ShopAllSection'
 import { useNavigatorData } from '@/frontend/page-domains/services/pages/services-page/sections/navigator-data-context'
 import type { CarouselItem } from '@/frontend/components/carousel'
-import { Button } from '@/frontend/components/ui/primitives/button'
-import filterStyles from '@/frontend/components/sections/SectionFilters.module.css'
 import styles from '@/frontend/page-domains/services/pages/services-page/sections/ListinoTradizionale.module.css'
 
 const FALLBACK_IMAGE = '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg'
@@ -25,6 +23,20 @@ type ServiceView = {
   imageUrl?: string
   treatmentOptions: Array<{ id: string; label: string }>
   areaOptions: Array<{ id: string; label: string }>
+  variabili: Array<{
+    id: string
+    name: string
+    durationMinutes?: number | null
+    price?: number
+  }>
+  pacchetti: Array<{
+    id: string
+    name: string
+    linkedTo: string
+    sessions?: number | null
+    packagePrice?: number
+    packageValue?: number | null
+  }>
 }
 
 const parseFilterIds = (raw: string | null) =>
@@ -43,9 +55,7 @@ export function ListinoTradizionale() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const showFilters = searchParams?.get('filters') === 'open'
   const queryTerm = (searchParams?.get('q') ?? '').trim().toLowerCase()
-  const [openFilter, setOpenFilter] = useState<string | null>(null)
   const [orderBy, setOrderBy] = useState<'recent' | 'price-asc' | 'price-desc' | 'title'>('recent')
   const [filters, setFilters] = useState(() => ({
     treatments: parseFilterIds(searchParams?.get('ft') ?? null),
@@ -109,6 +119,8 @@ export function ListinoTradizionale() {
         imageUrl: service.imageUrl,
         treatmentOptions,
         areaOptions: Array.from(areasMapForService.entries()).map(([id, label]) => ({ id, label })),
+        variabili: Array.isArray(service.variabili) ? service.variabili : [],
+        pacchetti: Array.isArray(service.pacchetti) ? service.pacchetti : [],
       }
     })
   }, [data.areas, data.goals, data.services, data.treatments])
@@ -184,36 +196,24 @@ export function ListinoTradizionale() {
     if (!changed) return
     setFilters(next)
     syncFiltersToQuery(next)
-    setOpenFilter(null)
   }, [filterOptions, filters.areas, filters.treatments, syncFiltersToQuery])
 
-  const filterRowRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (!openFilter) return
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as Node | null
-      if (!filterRowRef.current || !target) return
-      if (filterRowRef.current.contains(target)) return
-      setOpenFilter(null)
-    }
-    document.addEventListener('click', handleClick)
-    return () => {
-      document.removeEventListener('click', handleClick)
-    }
-  }, [openFilter])
-
-  const toggleFilter = (group: FilterKey, id: string) => {
-    const nextGroup = new Set(filters[group])
-    if (nextGroup.has(id)) nextGroup.delete(id)
-    else nextGroup.add(id)
-    const next = {
-      ...filters,
-      [group]: nextGroup,
-    }
-    setFilters(next)
-    syncFiltersToQuery(next)
-  }
+  const toggleFilter = useCallback(
+    (group: FilterKey, id: string) => {
+      setFilters((prev) => {
+        const nextGroup = new Set(prev[group])
+        if (nextGroup.has(id)) nextGroup.delete(id)
+        else nextGroup.add(id)
+        const next = {
+          ...prev,
+          [group]: nextGroup,
+        }
+        syncFiltersToQuery(next)
+        return next
+      })
+    },
+    [syncFiltersToQuery],
+  )
 
   const filteredServices = useMemo(() => {
     const matchesSet = (values: Array<{ id: string }>, selected: Set<string>) =>
@@ -258,25 +258,164 @@ export function ListinoTradizionale() {
 
   const servicesAsCards = useMemo<CarouselItem[]>(
     () =>
-      filteredServices.map((service) => ({
-        title: service.title,
-        subtitle: service.description || '',
-        price: typeof service.price === 'number' ? priceFormatter.format(service.price) : null,
-        duration:
-          typeof service.durationMin === 'number' && service.durationMin > 0
-            ? `${service.durationMin} min`
-            : null,
-        image: {
-          url: service.imageUrl || FALLBACK_IMAGE,
-          alt: service.title,
-        },
-        tag: service.treatmentOptions[0]?.label || null,
-        badgeLeft: service.areaOptions[0]?.label || null,
-        badgeRight: null,
-        href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
-      })),
+      filteredServices.map((service) => {
+        const formattedBasePrice =
+          typeof service.price === 'number' ? priceFormatter.format(service.price) : null
+        const defaultServicePayload = {
+          id: `${service.id}:service:default`,
+          title: service.title,
+          slug: service.slug,
+          price: service.price,
+          currency: 'EUR',
+          coverImage: service.imageUrl || null,
+        }
+        const variableOptions = service.variabili.map((variable) => ({
+          id: variable.id,
+          label: variable.durationMinutes
+            ? `${variable.name} (${variable.durationMinutes} min)`
+            : variable.name,
+          meta: typeof variable.price === 'number' ? priceFormatter.format(variable.price) : null,
+          group: 'variant' as const,
+          payload: {
+            id: `${service.id}:service:${variable.id}`,
+            title: `${service.title} ${variable.name}`.trim(),
+            slug: service.slug,
+            price: variable.price,
+            currency: 'EUR',
+            coverImage: service.imageUrl || null,
+          },
+        }))
+        const defaultVariantOption =
+          typeof service.price === 'number'
+            ? {
+                id: `${service.id}:variant:default`,
+                label:
+                  typeof service.durationMin === 'number' && service.durationMin > 0
+                    ? `Base (${service.durationMin} min)`
+                    : 'Base',
+                meta: priceFormatter.format(service.price),
+                group: 'variant' as const,
+                payload: {
+                  id: `${service.id}:service:default`,
+                  title:
+                    typeof service.durationMin === 'number' && service.durationMin > 0
+                      ? `${service.title} Base (${service.durationMin} min)`
+                      : `${service.title} Base`,
+                  slug: service.slug,
+                  price: service.price,
+                  currency: 'EUR',
+                  coverImage: service.imageUrl || null,
+                },
+              }
+            : null
+        const packageOptions = service.pacchetti.map((pkg) => ({
+          id: pkg.id,
+          label: pkg.name,
+          meta: [
+            typeof pkg.packagePrice === 'number' ? priceFormatter.format(pkg.packagePrice) : null,
+            pkg.sessions ? `${pkg.sessions} sedute` : null,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+          group: 'package' as const,
+          payload: {
+            id: `${service.id}:package:${pkg.id}`,
+            title: pkg.name,
+            slug: service.slug,
+            price: pkg.packagePrice,
+            currency: 'EUR',
+            coverImage: service.imageUrl || null,
+          },
+        }))
+        const hasOptions = variableOptions.length > 0 || packageOptions.length > 0
+        const allVariantOptions = defaultVariantOption
+          ? [defaultVariantOption, ...variableOptions]
+          : variableOptions
+
+        return {
+          title: service.title,
+          subtitle: service.description || '',
+          price: formattedBasePrice,
+          duration:
+            typeof service.durationMin === 'number' && service.durationMin > 0
+              ? `${service.durationMin} min`
+              : null,
+          image: {
+            url: service.imageUrl || FALLBACK_IMAGE,
+            alt: service.title,
+          },
+          tag: service.treatmentOptions[0]?.label || null,
+          badgeLeft: service.areaOptions[0]?.label || null,
+          badgeRight: null,
+          href: service.slug ? `/${locale}/services/service/${service.slug}` : undefined,
+          mobileCtaLabel: formattedBasePrice ? `prenota - ${formattedBasePrice}` : 'prenota',
+          ctaAction: hasOptions
+            ? {
+              mode: 'options' as const,
+              drawerTitle: service.title,
+              options: [...allVariantOptions, ...packageOptions],
+            }
+            : {
+                mode: 'direct' as const,
+                payload: defaultServicePayload,
+              },
+        }
+      }),
     [filteredServices, locale, priceFormatter],
   )
+
+  const controls = useMemo<ShopAllControls>(() => {
+    const sortValue =
+      orderBy === 'price-asc' || orderBy === 'price-desc' ? orderBy : orderBy === 'title' ? 'name' : 'featured'
+
+    return {
+      labelPrefix: 'Sort/Filter',
+      filtersNoneLabel: 'none',
+      sortValue,
+      sortOptions: [
+        { key: 'featured', label: 'featured' },
+        { key: 'price-asc', label: 'price low-high' },
+        { key: 'price-desc', label: 'price high-low' },
+        { key: 'name', label: 'name' },
+      ],
+      onSortChange: (next) => {
+        if (next === 'price-asc' || next === 'price-desc') {
+          setOrderBy(next)
+          return
+        }
+        if (next === 'name') {
+          setOrderBy('title')
+          return
+        }
+        setOrderBy('recent')
+      },
+      filterGroups: [
+        {
+          key: 'treatments',
+          label: 'Trattamenti',
+          options: filterOptions.treatments,
+          selected: filters.treatments,
+        },
+        {
+          key: 'areas',
+          label: 'Aree',
+          options: filterOptions.areas,
+          selected: filters.areas,
+        },
+      ],
+      onFilterToggle: (groupKey, optionId) => {
+        if (groupKey === 'treatments' || groupKey === 'areas') {
+          toggleFilter(groupKey, optionId)
+        }
+      },
+      onClearFilters: () => {
+        const next = { treatments: new Set<string>(), areas: new Set<string>() }
+        setFilters(next)
+        syncFiltersToQuery(next)
+      },
+      clearFiltersLabel: 'Rimuovi filtri',
+    }
+  }, [filterOptions.areas, filterOptions.treatments, filters.areas, filters.treatments, orderBy, syncFiltersToQuery, toggleFilter])
 
   return (
     <motion.div
@@ -286,91 +425,9 @@ export function ListinoTradizionale() {
       transition={{ duration: 0.35, ease: 'easeOut' }}
       className={styles.wrapper}
     >
-      {showFilters && (
-        <section className={filterStyles.filters}>
-          <div className={filterStyles.filterRow} ref={filterRowRef}>
-            {[
-              { key: 'treatments', label: 'Trattamenti', options: filterOptions.treatments },
-              { key: 'areas', label: 'Aree', options: filterOptions.areas },
-            ].map((group) => (
-              <div key={group.key} className={filterStyles.filterGroup}>
-                <Button
-                  kind="main"
-                  size="sm"
-                  interactive
-                  className={filterStyles.filterPill}
-                  onClick={() => setOpenFilter((prev) => (prev === group.key ? null : group.key))}
-                >
-                  {group.label}
-                </Button>
-                {openFilter === group.key && (
-                  <div className={filterStyles.dropdown}>
-                    {group.options.length === 0 && (
-                      <div className={filterStyles.dropdownEmpty}>Nessuna opzione</div>
-                    )}
-                    {group.options.map((option) => (
-                      <Button
-                        key={option.id}
-                        kind="main"
-                        size="sm"
-                        interactive
-                        aria-pressed={filters[group.key as FilterKey].has(option.id)}
-                        className={`${filterStyles.dropdownItem} ${
-                          filters[group.key as FilterKey].has(option.id)
-                            ? filterStyles.dropdownItemActive
-                            : ''
-                        }`}
-                        onClick={() => toggleFilter(group.key as FilterKey, option.id)}
-                      >
-                        {option.label}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            <div className={filterStyles.filterGroup}>
-              <Button
-                kind="main"
-                size="sm"
-                interactive
-                className={filterStyles.filterPill}
-                onClick={() => setOpenFilter((prev) => (prev === 'order' ? null : 'order'))}
-              >
-                Ordina per
-              </Button>
-              {openFilter === 'order' && (
-                <div className={filterStyles.dropdown}>
-                  {[
-                    { id: 'recent', label: 'Recenti' },
-                    { id: 'price-asc', label: 'Prezzo crescente' },
-                    { id: 'price-desc', label: 'Prezzo decrescente' },
-                    { id: 'title', label: 'Titolo' },
-                  ].map((option) => (
-                    <Button
-                      key={option.id}
-                      kind="main"
-                      size="sm"
-                      interactive
-                      aria-pressed={orderBy === option.id}
-                      className={`${filterStyles.dropdownItem} ${
-                        orderBy === option.id ? filterStyles.dropdownItemActive : ''
-                      }`}
-                      onClick={() => setOrderBy(option.id as typeof orderBy)}
-                    >
-                      {option.label}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <div className={showFilters ? styles.cardsBlockWithFilters : styles.cardsBlock}>
+      <div className={styles.cardsBlock}>
         {servicesAsCards.length > 0 ? (
-          <ShopAllSection items={servicesAsCards} />
+          <ShopAllSection items={servicesAsCards} controls={controls} />
         ) : (
           <div className={`${styles.empty} typo-body`}>Nessun servizio disponibile con i filtri selezionati.</div>
         )}

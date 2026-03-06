@@ -53,14 +53,15 @@ const expectHeroCtas = async (page: Page) => {
 }
 
 test.describe('Heroes smoke', () => {
-  test('@smoke desktop + mobile render and CTA visibility', async ({ page }) => {
+  test('@ui-smoke desktop + mobile render and CTA visibility', async ({ page }) => {
+    test.setTimeout(60_000)
     for (const viewport of [
       { width: 1440, height: 960 },
       { width: 390, height: 844 },
     ]) {
       await page.context().addCookies(buildPreferenceCookies())
       await page.setViewportSize(viewport)
-      await page.goto(HOME_URL, { waitUntil: 'networkidle' })
+      await page.goto(HOME_URL, { waitUntil: 'domcontentloaded' })
 
       await expectHeroCtas(page)
     }

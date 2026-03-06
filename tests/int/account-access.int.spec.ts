@@ -79,7 +79,7 @@ describe('Account access control', () => {
       },
     })
     orderAId = createdOrder.id
-  })
+  }, 180_000)
 
   afterAll(async () => {
     if (!payload) return

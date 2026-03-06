@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
-import { getPayload } from 'payload'
 
-import config from '../../src/payload/config'
+import { getE2EPayload } from './support/getE2EPayload'
 
 type CheckoutProduct = {
   id: string
@@ -47,8 +46,7 @@ const buildPreferenceCookies = () => [
 ]
 
 const getCheckoutProduct = async (): Promise<CheckoutProduct | null> => {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
+  const payload = await getE2EPayload()
 
   const result = await payload.find({
     collection: 'products',
@@ -142,7 +140,7 @@ const fillCheckoutInformationStep = async (page: Page) => {
 test.describe('Checkout step flow smoke', () => {
   // Scope intentionally limited to information step stability.
   // Full contact->shipping->payment flow remains tracked in refactor monitor.
-  test('@smoke desktop information step render and interactions', async ({ page }) => {
+  test('@critical desktop information step render and interactions', async ({ page }) => {
     test.setTimeout(120_000)
 
     const product = await getCheckoutProduct()
@@ -161,7 +159,7 @@ test.describe('Checkout step flow smoke', () => {
     await expect(page.getByText('Subtotale')).toBeVisible()
   })
 
-  test('@smoke mobile information step render and interactions', async ({ page }) => {
+  test('@critical mobile information step render and interactions', async ({ page }) => {
     test.setTimeout(120_000)
 
     const product = await getCheckoutProduct()
@@ -180,7 +178,7 @@ test.describe('Checkout step flow smoke', () => {
     await expect(page.getByText('Subtotale')).toHaveCount(0)
   })
 
-  test('@smoke desktop shipping -> payment deterministic step entry', async ({ page }) => {
+  test('@critical desktop shipping -> payment deterministic step entry', async ({ page }) => {
     test.setTimeout(120_000)
 
     const product = await getCheckoutProduct()

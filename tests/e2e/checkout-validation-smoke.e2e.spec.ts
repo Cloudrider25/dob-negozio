@@ -24,7 +24,7 @@ test.describe('Checkout validation smoke', () => {
     expect(json.error).toBe('Carrello vuoto.')
   })
 
-  test('@smoke rejects service checkout when requested slot is incomplete', async ({ request }) => {
+  test('@critical rejects service checkout when requested slot is incomplete', async ({ request }) => {
     const response = await request.post('http://localhost:3000/api/shop/checkout', {
       data: {
         locale: 'it',

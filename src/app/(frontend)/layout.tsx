@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Instrument_Sans } from 'next/font/google'
 import { Work_Sans } from 'next/font/google'
 import '../../styles/globals.css'
@@ -21,6 +22,8 @@ const workSans = Work_Sans({
   variable: '--font-work',
   weight: ['400', '500', '600', '700'],
 })
+
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-TVGRNVCTDC'
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSeoBaseUrl()),
@@ -55,6 +58,18 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="it">
       <body className={`site ${instrumentSans.variable} ${workSans.variable}`} data-theme="dark">
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gaMeasurementId}');
+          `}
+        </Script>
         <ThemeHydrator />
         <main>{children}</main>
       </body>

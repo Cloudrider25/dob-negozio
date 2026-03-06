@@ -10,9 +10,38 @@ export type CarouselItem = {
   badgeLeft?: string | null
   badgeRight?: string | null
   href?: string
+  mobileCtaLabel?: string | null
+  ctaAction?: CarouselCtaAction
 }
 
 export type ServicesCarouselItem = CarouselItem
+
+export type CarouselCartPayload = {
+  id: string
+  title: string
+  slug?: string
+  price?: number
+  currency?: string
+  brand?: string
+  coverImage?: string | null
+}
+
+export type CarouselCtaAction =
+  | {
+      mode: 'direct'
+      payload: CarouselCartPayload
+    }
+  | {
+      mode: 'options'
+      drawerTitle: string
+    options: Array<{
+      id: string
+      label: string
+      meta?: string | null
+      group?: 'variant' | 'package' | 'default'
+      payload: CarouselCartPayload
+    }>
+  }
 
 export const getCarouselItemKey = (item: CarouselItem, index: number): string => {
   if (typeof item.id === 'string' || typeof item.id === 'number') {

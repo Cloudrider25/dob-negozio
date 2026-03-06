@@ -41,7 +41,7 @@ const fillRequiredFields = async (page: Page) => {
 }
 
 test.describe('Consultation form smoke', () => {
-  test('@smoke submit success prevents duplicate request on rapid retry', async ({ page }) => {
+  test('@regression submit success prevents duplicate request on rapid retry', async ({ page }) => {
     let submitHits = 0
 
     await page.route('**/api/consultation-leads', async (route) => {
@@ -70,7 +70,7 @@ test.describe('Consultation form smoke', () => {
     expect(submitHits).toBe(1)
   })
 
-  test('@smoke keyboard navigation + mobile and desktop render + submit error', async ({ page }) => {
+  test('@regression keyboard navigation + mobile and desktop render + submit error', async ({ page }) => {
     await page.route('**/api/consultation-leads', async (route) => {
       await route.fulfill({
         status: 500,

@@ -18,3 +18,8 @@
 | `Docs/reference/typography/typography-governance.md` | reference | regole tipografia |
 | `Docs/reference/typography/typography-scale.md` | reference | scala tipografica |
 | `Docs/archive/*.legacy.md` | legacy | storico non operativo |
+# Docs Index
+
+## Reference
+
+- [Database Environment Policy](./reference/database-environment-policy.md)

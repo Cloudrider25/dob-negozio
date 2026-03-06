@@ -28,6 +28,7 @@ export type HeaderProps = {
   locale: string
   accountHref: string
   t: HeaderTranslations
+  addressDisplay?: string | null
   whatsappLink: string
   phoneLink: string
   instagramLink: string

@@ -135,6 +135,14 @@ export function ShopSectionSwitcher({
     productAreas: Array<{ id: string; label: string }>
     timingProducts: Array<{ id: string; label: string }>
     skinTypes: Array<{ id: string; label: string }>
+    alternatives: Array<{
+      id: string
+      title: string
+      slug?: string
+      format?: string | null
+      price?: number
+      coverImage?: { url: string; alt?: string | null } | null
+    }>
   }>
   productBasePath: string
   contactLinks: ContactLinks
@@ -439,6 +447,57 @@ export function ShopSectionSwitcher({
           : null
       const imageUrl = media?.url || TRANSPARENT_IMAGE_PLACEHOLDER
       const imageAlt = media?.alt || product.title
+      const ctaPriceLabel = typeof product.price === 'number' ? priceFormatter.format(product.price) : ''
+      const optionRows = [
+        {
+          id: product.id,
+          title: product.title,
+          slug: product.slug,
+          format: null,
+          price: product.price,
+          coverImage: product.coverImage,
+        },
+        ...product.alternatives,
+      ]
+      const uniqueOptions = Array.from(
+        optionRows.reduce((acc, option) => {
+          if (!acc.has(option.id)) acc.set(option.id, option)
+          return acc
+        }, new Map<string, (typeof optionRows)[number]>()),
+      ).map(([, value]) => value)
+      const ctaAction =
+        uniqueOptions.length > 1
+          ? ({
+              mode: 'options',
+              drawerTitle: product.title,
+              options: uniqueOptions.map((option) => ({
+                id: option.id,
+                label: option.format?.trim() || option.title,
+                meta: typeof option.price === 'number' ? priceFormatter.format(option.price) : null,
+                group: 'default' as const,
+                payload: {
+                  id: option.id,
+                  title: option.title,
+                  slug: option.slug,
+                  price: option.price,
+                  currency: 'EUR',
+                  brand: brandLabel || undefined,
+                  coverImage: option.coverImage?.url ?? product.coverImage?.url ?? null,
+                },
+              })),
+            } as const)
+          : ({
+              mode: 'direct',
+              payload: {
+                id: product.id,
+                title: product.title,
+                slug: product.slug,
+                price: product.price,
+                currency: 'EUR',
+                brand: brandLabel || undefined,
+                coverImage: product.coverImage?.url ?? null,
+              },
+            } as const)
       return {
         title: product.title,
         subtitle: brandLabel,
@@ -449,6 +508,8 @@ export function ShopSectionSwitcher({
         badgeRight: null,
         href: product.slug ? `/${locale}/shop/${product.slug}` : undefined,
         duration: null,
+        mobileCtaLabel: ctaPriceLabel ? `compra - ${ctaPriceLabel}` : 'compra',
+        ctaAction,
       }
     })
   }, [filteredProducts, locale, priceFormatter])

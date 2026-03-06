@@ -48,6 +48,8 @@ export const getShopBaseData = cache(async (locale: Locale) => {
         description: true,
         slug: true,
         price: true,
+        format: true,
+        alternatives: true,
         brand: true,
         brandLine: true,
         coverImage: true,

@@ -83,11 +83,10 @@ export function ExpressCheckoutQuickForm({
               maxRows: 1,
               overflow: 'auto',
             },
-            paymentMethodOrder: ['apple_pay', 'google_pay', 'paypal', 'link'],
+            paymentMethodOrder: ['apple_pay', 'google_pay', 'link'],
             paymentMethods: {
               applePay: 'always',
               googlePay: 'always',
-              paypal: 'auto',
               link: 'auto',
             },
           }}

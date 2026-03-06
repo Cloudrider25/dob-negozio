@@ -1,5 +1,77 @@
 .page {
+  --stack-gap: 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: var(--stack-gap);
+}
+
+.page > :first-child {
+  margin-top: var(--stack-gap);
+}
+
+.page > :last-child {
+  margin-bottom: var(--stack-gap);
+}
+
+.split {
+  align-items: stretch;
+}
+
+.splitCol {
+  min-height: 100%;
+}
+
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  padding: clamp(1rem, 2vw, 2rem);
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  min-height: clamp(280px, 30vw, 420px);
+}
+
+.stepIndex {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.copy {
+  margin: 0;
+  max-width: 52ch;
+}
+
+.mediaWrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid var(--stroke);
+  min-height: clamp(280px, 30vw, 420px);
+  background: var(--bg-alt);
+}
+
+.mediaImage {
+  object-fit: cover;
+}
+
+@media (max-width: 1024px) {
+  .mediaWrap {
+    border-radius: 18px 18px 0 0;
+  }
+
+  .panel {
+    border-radius: 0 0 18px 18px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .panel {
+    align-content: flex-end;
+    min-height: clamp(420px, 42vw, 700px);
+  }
+
+  .mediaWrap {
+    min-height: clamp(420px, 42vw, 700px);
+  }
 }

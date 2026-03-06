@@ -11,11 +11,22 @@ type SideDrawerProps = {
   onClose: () => void
   ariaLabel: string
   title: ReactNode
+  headerCenter?: ReactNode
   children: ReactNode
   panelClassName?: string
+  placement?: 'right' | 'bottom'
 }
 
-export function SideDrawer({ open, onClose, ariaLabel, title, children, panelClassName }: SideDrawerProps) {
+export function SideDrawer({
+  open,
+  onClose,
+  ariaLabel,
+  title,
+  headerCenter,
+  children,
+  panelClassName,
+  placement = 'right',
+}: SideDrawerProps) {
   useEffect(() => {
     if (!open) return
     const handleKey = (event: KeyboardEvent) => {
@@ -28,9 +39,13 @@ export function SideDrawer({ open, onClose, ariaLabel, title, children, panelCla
   return (
     <div className={cn(styles.root, open && styles.open)}>
       <div className={styles.backdrop} aria-hidden={!open} onClick={onClose} />
-      <aside className={cn(styles.panel, panelClassName)} aria-label={ariaLabel}>
+      <aside
+        className={cn(styles.panel, placement === 'bottom' && styles.panelBottom, panelClassName)}
+        aria-label={ariaLabel}
+      >
         <div className={`${styles.header} typo-caption-upper`}>
-          <span>{title}</span>
+          <span className={styles.title}>{title}</span>
+          <span className={styles.center}>{headerCenter}</span>
           <button className={`${styles.closeButton} typo-h3`} type="button" onClick={onClose}>
             ×
           </button>

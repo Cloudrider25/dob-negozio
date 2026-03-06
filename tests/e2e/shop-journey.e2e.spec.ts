@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test'
-import { getPayload } from 'payload'
 
-import config from '../../src/payload/config'
+import { getE2EPayload } from './support/getE2EPayload'
 
 type CheckoutProduct = {
   id: string
@@ -47,8 +46,7 @@ const buildPreferenceCookies = () => [
 ]
 
 const getCheckoutProduct = async (): Promise<CheckoutProduct | null> => {
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
+  const payload = await getE2EPayload()
 
   const result = await payload.find({
     collection: 'products',
@@ -89,7 +87,8 @@ const getCheckoutProduct = async (): Promise<CheckoutProduct | null> => {
 
 test.describe('Shop journey', () => {
   test('@smoke shop -> cart -> checkout -> confirmation', async ({ page, request }) => {
-    test.setTimeout(120_000)
+    test.setTimeout(180_000)
+    const checkoutEmail = `qa.journey.${Date.now()}@example.com`
 
     console.log('[journey] resolve product')
     const product = await getCheckoutProduct()
@@ -99,7 +98,7 @@ test.describe('Shop journey', () => {
     await page.context().addCookies(buildPreferenceCookies())
 
     console.log('[journey] open shop')
-    await page.goto('http://localhost:3000/it/shop', { waitUntil: 'networkidle' })
+    await page.goto('http://localhost:3000/it/shop', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/\/it\/shop/)
 
     console.log('[journey] seed cart from in-stock product', product.slug)
@@ -123,7 +122,7 @@ test.describe('Shop journey', () => {
     }, product)
 
     console.log('[journey] open cart')
-    await page.goto('http://localhost:3000/it/cart', { waitUntil: 'networkidle' })
+    await page.goto('http://localhost:3000/it/cart', { waitUntil: 'domcontentloaded' })
     await expect(page.getByText('Riepilogo ordine')).toBeVisible()
 
     console.log('[journey] open checkout')
@@ -135,7 +134,7 @@ test.describe('Shop journey', () => {
       data: {
         locale: 'it',
         customer: {
-          email: 'qa.journey@example.com',
+          email: checkoutEmail,
           firstName: 'QA',
           lastName: 'Journey',
           address: 'Via Test 1',

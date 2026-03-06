@@ -2,6 +2,13 @@
   --frontend-page-gap: 2.5rem;
 }
 
+.page :global(section[data-hero="true"]) {
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+  border: 1px solid var(--stroke);
+  border-top: 0;
+}
+
 .card {
   transform: translateY(12px);
   opacity: 0;

@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server'
+import { createHash } from 'node:crypto'
 
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 import { isLocale, type Locale } from '@/lib/i18n/core'
 import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
-import { allocateOrderInventory, commitOrderInventory } from '@/lib/server/shop/orderInventory'
+import {
+  allocateOrderInventory,
+  commitOrderInventory,
+  releaseOrderAllocation,
+} from '@/lib/server/shop/orderInventory'
 import { acquireInventoryLocks, releaseInventoryLocks } from '@/lib/server/shop/inventoryLocks'
 import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 import { getSendcloudShippingOptions } from '@/lib/server/sendcloud/getShippingQuote'
@@ -13,6 +18,8 @@ import type { Product, Service } from '@/payload/generated/payload-types'
 import Stripe from 'stripe'
 
 const GENERIC_CHECKOUT_ERROR = 'Si è verificato un errore durante il checkout. Riprova.'
+const IDEMPOTENCY_WINDOW_MS = 20 * 60 * 1000
+const STALE_ALLOCATION_WINDOW_MS = 15 * 60 * 1000
 
 type CheckoutItemInput = {
   id: string
@@ -106,6 +113,205 @@ const parseCartItemKey = (id: string, quantity: number): ParsedCartItemKey => {
   }
 }
 
+const toCartSignature = (items: ParsedCartItemKey[]) =>
+  items
+    .map((item) => {
+      if (item.kind === 'product') return `p:${item.productID}:${item.quantity}`
+      return `s:${item.serviceID}:${item.serviceLineKind}:${item.variantKey}:${item.quantity}`
+    })
+    .sort()
+    .join('|')
+
+const computeCheckoutFingerprint = ({
+  locale,
+  email,
+  productFulfillmentMode,
+  shippingOptionID,
+  appointmentMode,
+  requestedAppointmentDate,
+  requestedAppointmentTime,
+  items,
+}: {
+  locale: string
+  email: string
+  productFulfillmentMode: 'shipping' | 'pickup' | 'none'
+  shippingOptionID: string
+  appointmentMode: 'requested_slot' | 'contact_later' | 'none'
+  requestedAppointmentDate: string
+  requestedAppointmentTime: string
+  items: ParsedCartItemKey[]
+}) => {
+  const normalizedItems = toCartSignature(items)
+
+  const raw = [
+    locale,
+    email.toLowerCase(),
+    productFulfillmentMode,
+    shippingOptionID,
+    appointmentMode,
+    requestedAppointmentDate,
+    requestedAppointmentTime,
+    normalizedItems,
+  ].join('||')
+
+  return createHash('sha256').update(raw).digest('hex')
+}
+
+const releaseStaleAllocationsForProducts = async ({
+  payload,
+  locale,
+  productIDs,
+}: {
+  payload: Awaited<ReturnType<typeof getPayloadClient>>
+  locale: Locale
+  productIDs: string[]
+}) => {
+  if (productIDs.length === 0) return 0
+
+  const cutoffISO = new Date(Date.now() - STALE_ALLOCATION_WINDOW_MS).toISOString()
+  const staleOrders = await payload.find({
+    collection: 'orders',
+    overrideAccess: true,
+    depth: 0,
+    limit: 500,
+    where: {
+      and: [
+        { paymentProvider: { equals: 'stripe' } },
+        { status: { equals: 'pending' } },
+        { paymentStatus: { equals: 'pending' } },
+        { inventoryCommitted: { equals: false } },
+        { allocationReleased: { equals: false } },
+        { createdAt: { less_than: cutoffISO } },
+      ],
+    },
+  })
+
+  if (staleOrders.docs.length === 0) return 0
+  const staleOrderIDs = staleOrders.docs.map((doc) => String(doc.id))
+
+  const staleOrderItems = await payload.find({
+    collection: 'order-items',
+    overrideAccess: true,
+    depth: 0,
+    limit: 1000,
+    where: {
+      and: [{ order: { in: staleOrderIDs } }, { product: { in: productIDs } }],
+    },
+    select: {
+      order: true,
+    },
+  })
+
+  const orderIDsToRelease = new Set<string>()
+  for (const orderItem of staleOrderItems.docs) {
+    const orderID =
+      typeof orderItem.order === 'object' && orderItem.order && 'id' in orderItem.order
+        ? String(orderItem.order.id)
+        : String(orderItem.order)
+    if (orderID) orderIDsToRelease.add(orderID)
+  }
+
+  let released = 0
+  for (const orderID of orderIDsToRelease) {
+    try {
+      const didRelease = await releaseOrderAllocation({
+        payload,
+        orderID,
+        locale,
+      })
+      if (didRelease) released += 1
+    } catch {
+      // Best-effort cleanup: release failures should not block checkout flow.
+    }
+  }
+
+  return released
+}
+
+const getOrderCartSignature = async ({
+  payload,
+  orderID,
+}: {
+  payload: Awaited<ReturnType<typeof getPayloadClient>>
+  orderID: string | number
+}) => {
+  const [orderItems, orderServiceItems] = await Promise.all([
+    payload.find({
+      collection: 'order-items',
+      overrideAccess: true,
+      depth: 0,
+      limit: 500,
+      where: {
+        order: { equals: orderID },
+      },
+      select: {
+        product: true,
+        quantity: true,
+      },
+    }),
+    payload.find({
+      collection: 'order-service-items',
+      overrideAccess: true,
+      depth: 0,
+      limit: 500,
+      where: {
+        order: { equals: orderID },
+      },
+      select: {
+        service: true,
+        itemKind: true,
+        variantKey: true,
+        quantity: true,
+      },
+    }),
+  ])
+
+  const parsed: ParsedCartItemKey[] = []
+
+  for (const item of orderItems.docs) {
+    const productRaw = item.product
+    const productID =
+      typeof productRaw === 'number'
+        ? String(productRaw)
+        : productRaw && typeof productRaw === 'object' && 'id' in productRaw
+          ? String(productRaw.id)
+          : ''
+    const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
+    if (!productID || quantity <= 0) continue
+    parsed.push({
+      kind: 'product',
+      sourceID: productID,
+      productID,
+      quantity,
+    })
+  }
+
+  for (const item of orderServiceItems.docs) {
+    const serviceRaw = item.service
+    const serviceID =
+      typeof serviceRaw === 'number'
+        ? String(serviceRaw)
+        : serviceRaw && typeof serviceRaw === 'object' && 'id' in serviceRaw
+          ? String(serviceRaw.id)
+          : ''
+    const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
+    if (!serviceID || quantity <= 0) continue
+
+    const itemKind = item.itemKind === 'package' ? 'package' : 'service'
+    const variantKey = toString(item.variantKey) || 'default'
+    parsed.push({
+      kind: 'service',
+      sourceID: `${serviceID}:${itemKind}:${variantKey}`,
+      serviceID,
+      serviceLineKind: itemKind,
+      variantKey,
+      quantity,
+    })
+  }
+
+  return toCartSignature(parsed)
+}
+
 const resolveRequestedFulfillmentMode = (value: unknown): 'shipping' | 'pickup' | 'none' => {
   if (value === 'pickup') return 'pickup'
   if (value === 'none') return 'none'
@@ -120,7 +326,12 @@ const resolveAppointmentMode = (value: unknown): 'requested_slot' | 'contact_lat
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as CheckoutPayload
+    let body: CheckoutPayload
+    try {
+      body = (await request.json()) as CheckoutPayload
+    } catch {
+      return NextResponse.json({ error: 'Payload checkout non valido.' }, { status: 400 })
+    }
     const localeInput = toString(body.locale)
     const locale: Locale = isLocale(localeInput) ? localeInput : 'it'
     const checkoutMode =
@@ -233,6 +444,92 @@ export async function POST(request: Request) {
       }
     }
     let locks: Awaited<ReturnType<typeof acquireInventoryLocks>> = []
+    const requestedCartSignature = toCartSignature(parsedCartItems)
+    const checkoutFingerprint = computeCheckoutFingerprint({
+      locale,
+      email,
+      productFulfillmentMode,
+      shippingOptionID,
+      appointmentMode,
+      requestedAppointmentDate,
+      requestedAppointmentTime,
+      items: parsedCartItems,
+    })
+
+    if (checkoutMode === 'payment_element') {
+      const existingResult = await payload.find({
+        collection: 'orders',
+        overrideAccess: true,
+        depth: 0,
+        limit: 20,
+        sort: '-createdAt',
+        where: {
+          and: [
+            { customerEmail: { equals: email } },
+            { paymentProvider: { equals: 'stripe' } },
+            { status: { equals: 'pending' } },
+            { paymentStatus: { equals: 'pending' } },
+            { inventoryCommitted: { equals: false } },
+            { allocationReleased: { equals: false } },
+            {
+              createdAt: {
+                greater_than: new Date(Date.now() - IDEMPOTENCY_WINDOW_MS).toISOString(),
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          paymentReference: true,
+        },
+      })
+
+      let existingOrder: (typeof existingResult.docs)[number] | undefined
+      for (const candidate of existingResult.docs) {
+        const candidateSignature = await getOrderCartSignature({
+          payload,
+          orderID: candidate.id,
+        })
+        if (candidateSignature === requestedCartSignature) {
+          existingOrder = candidate
+          break
+        }
+      }
+
+      const existingPaymentReference = toString(existingOrder?.paymentReference)
+      if (existingOrder && existingPaymentReference.startsWith('pi_')) {
+        const integrations = await getShopIntegrationsConfig(payload)
+        const stripeSecret = integrations.stripe.secretKey
+        const stripePublishableKey = integrations.stripe.publishableKey
+        if (stripeSecret && stripePublishableKey) {
+          const stripe = new Stripe(stripeSecret, {
+            apiVersion: '2026-01-28.clover',
+          })
+          try {
+            const paymentIntent = await stripe.paymentIntents.retrieve(existingPaymentReference)
+            if (paymentIntent.client_secret && paymentIntent.status !== 'canceled') {
+              return NextResponse.json({
+                ok: true,
+                orderId: existingOrder.id,
+                orderNumber: existingOrder.orderNumber,
+                paymentProvider: 'stripe',
+                paymentIntentClientSecret: paymentIntent.client_secret,
+                stripePublishableKey,
+                checkoutMode: 'payment_element',
+                reused: true,
+              })
+            }
+          } catch (reuseError) {
+            payload.logger.warn({
+              err: reuseError,
+              msg: `Unable to reuse Stripe payment intent for order ${String(existingOrder.id)}.`,
+            })
+          }
+        }
+      }
+    }
+
     if (productIds.length > 0) {
       try {
         locks = await acquireInventoryLocks({
@@ -245,7 +542,10 @@ export async function POST(request: Request) {
           msg: 'Unable to acquire inventory locks for checkout.',
         })
         return NextResponse.json(
-          { error: 'Checkout momentaneamente occupato. Riprova tra qualche secondo.' },
+          {
+            error:
+              'Checkout già in elaborazione per questo carrello. Attendi qualche secondo e riprova una sola volta.',
+          },
           { status: 409 },
         )
       }
@@ -347,10 +647,11 @@ export async function POST(request: Request) {
 
       const productLineItems: ProductLineItem[] = []
       const serviceLineItems: ServiceLineItem[] = []
+      let staleReleaseAttempted = false
 
       for (const item of parsedCartItems) {
         if (item.kind === 'product') {
-          const product = productsById.get(item.productID)
+          let product = productsById.get(item.productID)
           if (!product) continue
           if (typeof product.price !== 'number' || product.price < 0) {
             return NextResponse.json(
@@ -362,12 +663,62 @@ export async function POST(request: Request) {
           const allocated = typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
           const available = Math.max(0, stock - allocated)
           if (item.quantity > available) {
+            if (!staleReleaseAttempted) {
+              staleReleaseAttempted = true
+              const released = await releaseStaleAllocationsForProducts({
+                payload,
+                locale,
+                productIDs: productIds,
+              })
+
+              if (released > 0) {
+                const refreshed = await payload.findByID({
+                  collection: 'products',
+                  id: item.productID,
+                  overrideAccess: false,
+                  locale,
+                  depth: 0,
+                  select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    brand: true,
+                    coverImage: true,
+                    price: true,
+                    stock: true,
+                    allocatedStock: true,
+                    active: true,
+                  },
+                })
+
+                if (refreshed && refreshed.active) {
+                  productsById.set(item.productID, refreshed as Product)
+                  product = refreshed as Product
+                }
+              }
+            }
+
+            const latestStock = typeof product.stock === 'number' ? product.stock : 0
+            const latestAllocated =
+              typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
+            const latestAvailable = Math.max(0, latestStock - latestAllocated)
+            if (item.quantity <= latestAvailable) {
+              productLineItems.push({
+                product,
+                quantity: item.quantity,
+                unitPrice: product.price,
+                lineTotal: product.price * item.quantity,
+                available: latestAvailable,
+              })
+              continue
+            }
+
             return NextResponse.json(
               {
                 error: `Disponibilità insufficiente per ${product.title || item.productID}.`,
                 productId: item.productID,
                 requested: item.quantity,
-                available,
+                available: latestAvailable,
               },
               { status: 409 },
             )
@@ -466,6 +817,7 @@ export async function POST(request: Request) {
       }
 
       const productSubtotal = productLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
+      const productItemsCount = productLineItems.reduce((sum, item) => sum + item.quantity, 0)
       const serviceSubtotal = serviceLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
       const subtotal = productSubtotal + serviceSubtotal
       let shippingAmount = 0
@@ -479,6 +831,7 @@ export async function POST(request: Request) {
           payload,
           toCountry: 'IT',
           toPostalCode: postalCode,
+          itemsCount: productItemsCount,
         })
         if (shippingOptions.length > 0) {
           const selectedOption =
@@ -671,6 +1024,7 @@ export async function POST(request: Request) {
         const isStripeEnabled = stripeSecret.length > 0
 
         if (isStripeEnabled) {
+          const stripeKeyPrefix = `${checkoutFingerprint}:${createdOrder.id}`
           if (
             (checkoutMode === 'embedded' || checkoutMode === 'payment_element') &&
             stripePublishableKey.length === 0
@@ -736,6 +1090,7 @@ export async function POST(request: Request) {
           }
 
           if (checkoutMode === 'payment_element') {
+            const paymentIntentIdempotencyKey = `${stripeKeyPrefix}:pi`
             const paymentIntent = await stripe.paymentIntents.create({
               amount: toStripeAmount(total),
               currency: 'eur',
@@ -749,6 +1104,8 @@ export async function POST(request: Request) {
               automatic_payment_methods: {
                 enabled: true,
               },
+            }, {
+              idempotencyKey: paymentIntentIdempotencyKey,
             })
 
             await payload.update({
@@ -784,12 +1141,16 @@ export async function POST(request: Request) {
                   line_items: stripeLineItems,
                   ui_mode: 'embedded',
                   return_url: `${baseUrl}/${locale}/checkout/success?order=${encodeURIComponent(createdOrder.orderNumber || '')}&session_id={CHECKOUT_SESSION_ID}`,
+                }, {
+                  idempotencyKey: `${stripeKeyPrefix}:embedded`,
                 })
               : await stripe.checkout.sessions.create({
                   ...sessionPayloadBase,
                   line_items: stripeLineItems,
                   success_url: `${baseUrl}/${locale}/checkout/success?order=${encodeURIComponent(createdOrder.orderNumber || '')}&session_id={CHECKOUT_SESSION_ID}`,
                   cancel_url: `${baseUrl}/${locale}/checkout`,
+                }, {
+                  idempotencyKey: `${stripeKeyPrefix}:redirect`,
                 })
 
           await payload.update({

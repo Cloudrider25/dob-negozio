@@ -4,6 +4,9 @@ import type { Where } from 'payload'
 import { locales, type Locale } from '@/lib/i18n/core'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const localizedPaths = [
   '',
   '/services',
@@ -26,7 +29,7 @@ const getBaseUrl = (): string => {
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.SITE_URL ||
     process.env.PAYLOAD_PUBLIC_SERVER_URL ||
-    'https://dobmilano.it'
+    'https://dobmilano.com'
 
   return raw.endsWith('/') ? raw.slice(0, -1) : raw
 }

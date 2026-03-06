@@ -54,12 +54,159 @@ import { seedShopTaxonomies } from '../seed/shop-seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const isPlaceholderToken = (value: string): boolean => {
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'host' || normalized === 'user' || normalized === 'password' || normalized === 'database'
+}
+
+const isUsableDatabaseUrl = (value: string | undefined): value is string => {
+  if (!value) return false
+  const trimmed = value.trim()
+  if (!trimmed) return false
+
+  try {
+    const parsed = new URL(trimmed)
+    const host = parsed.hostname.trim().toLowerCase()
+    const user = parsed.username.trim().toLowerCase()
+    const dbName = parsed.pathname.replace('/', '').trim().toLowerCase()
+
+    if (!host || isPlaceholderToken(host)) return false
+    if (user && isPlaceholderToken(user)) return false
+    if (dbName && isPlaceholderToken(dbName)) return false
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+const pickDatabaseUrl = (
+  candidates: Array<{ name: string; value: string | undefined }>,
+): { name: string; value: string } | null => {
+  for (const candidate of candidates) {
+    if (isUsableDatabaseUrl(candidate.value)) {
+      return { name: candidate.name, value: candidate.value.trim() }
+    }
+  }
+
+  return null
+}
+
+const normalizePrismaSslCompat = (value: string): string => {
+  try {
+    const parsed = new URL(value)
+    const host = parsed.hostname.trim().toLowerCase()
+    const sslMode = parsed.searchParams.get('sslmode')?.trim().toLowerCase()
+    const hasLibpqCompat = parsed.searchParams.has('uselibpqcompat')
+
+    if (host.endsWith('db.prisma.io') && sslMode === 'require' && !hasLibpqCompat) {
+      parsed.searchParams.set('uselibpqcompat', 'true')
+      return parsed.toString()
+    }
+
+    return value
+  } catch {
+    return value
+  }
+}
+
+const isLocalDatabaseHost = (value: string): boolean => {
+  try {
+    const parsed = new URL(value)
+    const host = parsed.hostname.trim().toLowerCase()
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1'
+  } catch {
+    return false
+  }
+}
+
 const blobReadWriteToken =
-  process.env.BLOB_READ_WRITE_TOKEN ||
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
-    : process.env.STG_READ_WRITE_TOKEN) ||
-  ''
+    : process.env.STG_READ_WRITE_TOKEN) || ''
+const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
+// Blob storage must stay enabled in CI as well, otherwise /api/media/file falls back
+// to local filesystem and image fetches fail for Blob-backed media.
+const enableBlobPlugin = hasValidBlobToken
+// Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
+// Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
+const isVercelProduction = process.env.VERCEL_ENV === 'production'
+const isDevelopment = process.env.NODE_ENV === 'development'
+const isCI = process.env.CI === 'true'
+const databaseUrlCandidate = isCI
+  ? pickDatabaseUrl([
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+  : isDevelopment
+  ? pickDatabaseUrl([
+      { name: 'LOCAL_DATABASE_URL', value: process.env.LOCAL_DATABASE_URL },
+      { name: 'DEV_DATABASE_URL', value: process.env.DEV_DATABASE_URL },
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
+      { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+      { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
+    ])
+  : isVercelProduction
+  ? pickDatabaseUrl([
+      { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
+      { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+  : pickDatabaseUrl([
+      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
+      { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+
+const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
+export const databaseUrl = databaseUrlCandidate
+  ? normalizePrismaSslCompat(databaseUrlCandidate.value)
+  : ''
+const enableSchemaPush =
+  process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true' ||
+  (isDevelopment && isLocalDatabaseHost(databaseUrl))
+const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
+const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
+const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
+const dbPoolIdleTimeoutInput = Number(process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || '30000')
+const dbPoolMax = Number.isFinite(dbPoolMaxInput) && dbPoolMaxInput > 0 ? Math.floor(dbPoolMaxInput) : 4
+const dbPoolMin = Number.isFinite(dbPoolMinInput) && dbPoolMinInput >= 0 ? Math.floor(dbPoolMinInput) : 0
+const dbPoolConnectTimeout =
+  Number.isFinite(dbPoolConnectTimeoutInput) && dbPoolConnectTimeoutInput > 0
+    ? Math.floor(dbPoolConnectTimeoutInput)
+    : 30_000
+const dbPoolIdleTimeout =
+  Number.isFinite(dbPoolIdleTimeoutInput) && dbPoolIdleTimeoutInput > 0
+    ? Math.floor(dbPoolIdleTimeoutInput)
+    : 30_000
+const databaseMeta = (() => {
+  if (!databaseUrl) return null
+  try {
+    const parsed = new URL(databaseUrl)
+    return {
+      host: parsed.hostname || 'n/a',
+      database: parsed.pathname.replace('/', '') || 'n/a',
+      user: parsed.username || 'n/a',
+    }
+  } catch {
+    return null
+  }
+})()
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -130,18 +277,28 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: databaseUrl,
+      // Tunable pool sizing: previous hard-coded max=2 caused admin lock/save timeouts under load.
+      max: dbPoolMax,
+      min: dbPoolMin,
+      connectionTimeoutMillis: dbPoolConnectTimeout,
+      idleTimeoutMillis: dbPoolIdleTimeout,
     },
+    // Shared environments (CI/staging/prod) must not mutate schema implicitly.
+    // Keep automatic schema push only for true local development.
+    push: enableSchemaPush,
   }),
   sharp,
-  plugins: [
-    vercelBlobStorage({
-      collections: {
-        media: true,
-      },
-      token: blobReadWriteToken,
-    }),
-  ],
+  plugins: enableBlobPlugin
+    ? [
+        vercelBlobStorage({
+          collections: {
+            media: true,
+          },
+          token: blobReadWriteToken,
+        }),
+      ]
+    : [],
   hooks: {
     afterError: [
       async ({ collection, error, req }) => {
@@ -197,44 +354,85 @@ export default buildConfig({
   },
   onInit: async (payload) => {
     try {
-      const pageKeys = [
-        'home',
-        'services',
-        'shop',
-        'journal',
-        'location',
-        'our-story',
-        'dob-protocol',
-        'contact',
-        'checkout',
-      ] as const
-      const existing = await payload.find({
-        collection: 'pages',
-        depth: 0,
-        limit: pageKeys.length,
-      })
-      const existingKeys = new Set(
-        existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
-      )
-
-      for (const key of pageKeys) {
-        if (!existingKeys.has(key)) {
-          await payload.create({
-            collection: 'pages',
-            data: {
-              pageKey: key,
-              heroTitleMode: 'fixed',
-              heroStyle: 'style1',
-            },
-            locale: 'it',
-            overrideAccess: true,
-            draft: false,
-          })
-        }
+      if (databaseMeta) {
+        payload.logger.info(
+          `[db] source=${databaseUrlSource} host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
+        )
+        payload.logger.info(
+          `[db] pool max=${dbPoolMax} min=${dbPoolMin} connectTimeoutMs=${dbPoolConnectTimeout} idleTimeoutMs=${dbPoolIdleTimeout}`,
+        )
       }
 
       const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
       const isProduction = process.env.NODE_ENV === 'production'
+      if (!isProduction) {
+        const pageKeys = [
+          'home',
+          'services',
+          'shop',
+          'journal',
+          'location',
+          'our-story',
+          'dob-protocol',
+          'privacy',
+          'contact',
+          'checkout',
+        ] as const
+        const existing = await payload.find({
+          collection: 'pages',
+          depth: 0,
+          limit: pageKeys.length,
+          where: {
+            pageKey: {
+              in: [...pageKeys],
+            },
+          },
+        })
+        const existingKeys = new Set(
+          existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
+        )
+
+        for (const key of pageKeys) {
+          if (!existingKeys.has(key)) {
+            try {
+              await payload.create({
+                collection: 'pages',
+                data: {
+                  pageKey: key,
+                  heroTitleMode: 'fixed',
+                  heroStyle: 'style1',
+                },
+                locale: 'it',
+                overrideAccess: true,
+                draft: false,
+              })
+            } catch (createError) {
+              const isDuplicateKeyError =
+                typeof createError === 'object' &&
+                createError !== null &&
+                'data' in createError &&
+                typeof createError.data === 'object' &&
+                createError.data !== null &&
+                'errors' in createError.data &&
+                Array.isArray(createError.data.errors) &&
+                createError.data.errors.some(
+                  (error) =>
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'path' in error &&
+                    error.path === 'pageKey' &&
+                    'message' in error &&
+                    error.message === 'Value must be unique',
+                )
+
+              if (!isDuplicateKeyError) {
+                throw createError
+              }
+            }
+          }
+        }
+      }
+
       if (!disableShopSeed && !isProduction) {
         await seedShopTaxonomies(payload)
       }

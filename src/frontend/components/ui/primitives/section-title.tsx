@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { cn } from '@/lib/shared/ui/cn'
 
 type SectionTitleLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span' | 'div'
-type SectionTitleSize = 'h1' | 'h2' | 'h3' | 'h4' | 'body'
+type SectionTitleSize = 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'caption'
 
 const sizeClassMap: Record<SectionTitleSize, string> = {
   h1: 'typo-h1',
@@ -10,6 +10,8 @@ const sizeClassMap: Record<SectionTitleSize, string> = {
   h3: 'typo-h3',
   h4: 'typo-body-lg',
   body: 'typo-body',
+  small: 'typo-small',
+  caption: 'typo-caption',
 }
 
 export function SectionTitle({

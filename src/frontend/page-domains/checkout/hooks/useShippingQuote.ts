@@ -45,6 +45,7 @@ export const useShippingQuote = ({
             postalCode: formState.postalCode,
           },
           subtotal: productSubtotal,
+          itemsCount,
           signal: controller.signal,
         })
 

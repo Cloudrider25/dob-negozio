@@ -46,9 +46,9 @@ const clearExpiredLock = async (payload: Payload, productID: number) => {
 const acquireSingleLock = async ({
   payload,
   productID,
-  retries = 30,
+  retries = 80,
   delayMs = 75,
-  ttlMs = 30_000,
+  ttlMs = 45_000,
 }: {
   payload: Payload
   productID: number
