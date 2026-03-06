@@ -116,7 +116,9 @@ const blobReadWriteToken =
     ? process.env.PROD_READ_WRITE_TOKEN
     : process.env.STG_READ_WRITE_TOKEN) || ''
 const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
-const enableBlobPlugin = process.env.CI !== 'true' && hasValidBlobToken
+// Blob storage must stay enabled in CI as well, otherwise /api/media/file falls back
+// to local filesystem and image fetches fail for Blob-backed media.
+const enableBlobPlugin = hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
@@ -350,6 +352,11 @@ export default buildConfig({
           collection: 'pages',
           depth: 0,
           limit: pageKeys.length,
+          where: {
+            pageKey: {
+              in: [...pageKeys],
+            },
+          },
         })
         const existingKeys = new Set(
           existing.docs.map((doc) => (typeof doc.pageKey === 'string' ? doc.pageKey : '')),
@@ -357,17 +364,41 @@ export default buildConfig({
 
         for (const key of pageKeys) {
           if (!existingKeys.has(key)) {
-            await payload.create({
-              collection: 'pages',
-              data: {
-                pageKey: key,
-                heroTitleMode: 'fixed',
-                heroStyle: 'style1',
-              },
-              locale: 'it',
-              overrideAccess: true,
-              draft: false,
-            })
+            try {
+              await payload.create({
+                collection: 'pages',
+                data: {
+                  pageKey: key,
+                  heroTitleMode: 'fixed',
+                  heroStyle: 'style1',
+                },
+                locale: 'it',
+                overrideAccess: true,
+                draft: false,
+              })
+            } catch (createError) {
+              const isDuplicateKeyError =
+                typeof createError === 'object' &&
+                createError !== null &&
+                'data' in createError &&
+                typeof createError.data === 'object' &&
+                createError.data !== null &&
+                'errors' in createError.data &&
+                Array.isArray(createError.data.errors) &&
+                createError.data.errors.some(
+                  (error) =>
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'path' in error &&
+                    error.path === 'pageKey' &&
+                    'message' in error &&
+                    error.message === 'Value must be unique',
+                )
+
+              if (!isDuplicateKeyError) {
+                throw createError
+              }
+            }
           }
         }
       }

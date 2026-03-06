@@ -1,20 +1,20 @@
 name: Quality Gate
 
 on:
+  pull_request:
   push:
     branches:
       - dev
-      - staging
       - prod
-
-concurrency:
-  group: quality-gate-${{ github.event_name }}-${{ github.event.pull_request.head.ref || github.ref_name }}
-  cancel-in-progress: true
 
 jobs:
   static-checks:
     name: Lint + Typecheck + Int Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,8 +37,68 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Validate staging DB secrets
+        shell: bash
+        run: |
+          if [[ -z "${DATABASE_URL}" ]]; then
+            echo "::error::Missing secret STAGING_DATABASE_URL for Quality Gate."
+            exit 1
+          fi
+          if [[ -z "${PAYLOAD_SECRET}" ]]; then
+            echo "::error::Missing secret PAYLOAD_SECRET for Quality Gate."
+            exit 1
+          fi
+          if [[ -z "${STG_READ_WRITE_TOKEN}" ]]; then
+            echo "::warning::Missing secret STG_READ_WRITE_TOKEN. Blob-backed media may fail in CI."
+          fi
+
       - name: Integration tests
         run: pnpm test:int
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+
+  e2e-smoke:
+    name: E2E Smoke
+    needs: static-checks
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check required secrets
+        id: secrets-check
+        shell: bash
+        run: |
+          if [[ -n "${DATABASE_URL}" && -n "${PAYLOAD_SECRET}" ]]; then
+            echo "has_secrets=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "has_secrets=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Skip smoke when secrets are missing
+        if: steps.secrets-check.outputs.has_secrets != 'true'
+        run: |
+          echo "Skipping smoke E2E: DATABASE_URL or PAYLOAD_SECRET not configured."
+
+      - name: Install Playwright browser
+        if: steps.secrets-check.outputs.has_secrets == 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run smoke E2E
+        if: steps.secrets-check.outputs.has_secrets == 'true'
+        run: pnpm test:e2e:smoke

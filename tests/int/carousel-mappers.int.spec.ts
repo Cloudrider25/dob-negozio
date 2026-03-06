@@ -34,6 +34,8 @@ describe('carousel mappers', () => {
       badgeLeft: null,
       badgeRight: null,
       href: '/it/shop/product-one',
+      ctaAction: undefined,
+      mobileCtaLabel: null,
     })
   })
 
