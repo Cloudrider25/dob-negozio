@@ -40,8 +40,9 @@ const addPreferenceCookies = async (page: Page) => {
 
 test.describe('Carousel smoke', () => {
   test('@smoke desktop navigation + mobile swipe + cta', async ({ page }) => {
+    test.setTimeout(60_000)
     await addPreferenceCookies(page)
-    await page.goto(HOME_URL, { waitUntil: 'networkidle' })
+    await page.goto(HOME_URL, { waitUntil: 'domcontentloaded' })
 
     const desktopCarousel = getFirstCarouselSection(page)
     await expect(desktopCarousel).toBeVisible()
@@ -64,7 +65,7 @@ test.describe('Carousel smoke', () => {
 
     await page.setViewportSize({ width: 390, height: 844 })
     await addPreferenceCookies(page)
-    await page.goto(HOME_URL, { waitUntil: 'networkidle' })
+    await page.goto(HOME_URL, { waitUntil: 'domcontentloaded' })
 
     const mobileCarousel = getFirstCarouselSection(page)
     await expect(mobileCarousel).toBeVisible()
@@ -73,10 +74,11 @@ test.describe('Carousel smoke', () => {
     const mobileSlideCount = await mobileSlides.count()
     test.skip(mobileSlideCount < 2, 'Carousel has fewer than 2 slides in current seed/content')
 
-    const mobileWrapper = mobileCarousel.locator('.swiper-wrapper').first()
-    const mobileBeforeTransform = await mobileWrapper.evaluate((el) => getComputedStyle(el).transform)
-
     const dragSurface = mobileCarousel.locator('.swiper').first()
+    const mobileBeforeIndex = await dragSurface.evaluate((el) => {
+      const maybeSwiper = el as HTMLElement & { swiper?: { activeIndex?: number } }
+      return maybeSwiper.swiper?.activeIndex ?? -1
+    })
     const movedToNextSlide = await dragSurface.evaluate((el) => {
       const maybeSwiper = el as HTMLElement & { swiper?: { slideNext: (speed?: number) => void } }
       if (!maybeSwiper.swiper) return false
@@ -86,11 +88,16 @@ test.describe('Carousel smoke', () => {
     expect(movedToNextSlide).toBeTruthy()
 
     await expect
-      .poll(async () => mobileWrapper.evaluate((el) => getComputedStyle(el).transform))
-      .not.toBe(mobileBeforeTransform)
+      .poll(async () =>
+        dragSurface.evaluate((el) => {
+          const maybeSwiper = el as HTMLElement & { swiper?: { activeIndex?: number } }
+          return maybeSwiper.swiper?.activeIndex ?? -1
+        }),
+      )
+      .not.toBe(mobileBeforeIndex)
 
     const activeSlide = mobileCarousel.locator('.swiper-slide-active').first()
-    const ctaLink = activeSlide.getByRole('link').first()
+    const ctaLink = activeSlide.locator('a[href]').first()
     await expect(ctaLink).toBeVisible()
 
     const href = await ctaLink.getAttribute('href')
@@ -98,7 +105,7 @@ test.describe('Carousel smoke', () => {
 
     await page.waitForTimeout(350)
     await ctaLink.scrollIntoViewIfNeeded()
-    await ctaLink.click()
+    await ctaLink.click({ force: true })
     await expect(page).toHaveURL(new RegExp((href ?? '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   })
 })

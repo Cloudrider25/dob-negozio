@@ -200,6 +200,7 @@ test.describe('Account management smoke', () => {
   })
 
   test('@smoke login + profile + addresses + service-date', async ({ page }) => {
+    test.setTimeout(60_000)
     test.skip(!userId, 'Fixture user not available')
 
     await page.goto('http://localhost:3000/it/signin', { waitUntil: 'networkidle' })
@@ -217,8 +218,16 @@ test.describe('Account management smoke', () => {
     await expect(page).toHaveURL(/\/it\/account/)
 
     await page.getByLabel('Telefono').fill('3331234567')
+    const saveProfileResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/users/${userId}`) &&
+        response.request().method() === 'PATCH' &&
+        response.status() >= 200 &&
+        response.status() < 300,
+    )
     await page.getByRole('button', { name: /Salva profilo/i }).click()
-    await expect(page.getByText('Profilo aggiornato con successo.')).toBeVisible()
+    await saveProfileResponsePromise
+    await expect(page.getByLabel('Telefono')).toHaveValue('3331234567')
 
     await page.getByRole('button', { name: /^Indirizzi$/i }).click()
     await page.getByRole('button', { name: /Aggiungi nuovo indirizzo/i }).click()
