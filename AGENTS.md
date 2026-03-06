@@ -11,6 +11,40 @@ You are an expert Payload CMS developer. When working with Payload projects, fol
 5. **Access Control**: Understand Local API bypasses access control by default
 6. **Access Control**: Ensure roles exist when modifiyng collection or globals with access controls
 
+## Project Database Environment Policy
+
+This project has a mandatory database separation rule. Future work must preserve it.
+
+### Environment Rules
+
+1. `dev` uses local Docker Postgres only.
+2. `staging` uses the staging remote database only.
+3. `prod` uses the production remote database only.
+
+### Schema Mutation Rules
+
+1. Automatic schema push is allowed only in local development against a local database host:
+   - `localhost`
+   - `127.0.0.1`
+   - `::1`
+2. Automatic schema push must never run against staging or production databases.
+3. Automatic schema push must never be relied on in CI for shared remote databases.
+4. Staging and production schema alignment must happen only on explicit request.
+5. Shared-environment schema changes must be migration-based and traceable.
+
+### Agent Behavior
+
+When changing DB config, CI, migrations, or environment selection logic:
+
+1. preserve `dev = local DB + automatic schema push`
+2. preserve `staging = remote DB + alignment on request`
+3. preserve `prod = remote DB + alignment on request`
+4. do not introduce fallback behavior that silently points local development to staging/prod if a local DB env var is available
+
+Reference:
+
+- `Docs/reference/database-environment-policy.md`
+
 ### Code Validation
 
 - To validate typescript correctness after modifying code run `tsc --noEmit`

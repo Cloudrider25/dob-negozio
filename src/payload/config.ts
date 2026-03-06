@@ -132,6 +132,7 @@ const enableBlobPlugin = hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
+const isDevelopment = process.env.NODE_ENV === 'development'
 const isCI = process.env.CI === 'true'
 const databaseUrlCandidate = isCI
   ? pickDatabaseUrl([
@@ -139,6 +140,18 @@ const databaseUrlCandidate = isCI
       { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
       { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
       { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+    ])
+  : isDevelopment
+  ? pickDatabaseUrl([
+      { name: 'LOCAL_DATABASE_URL', value: process.env.LOCAL_DATABASE_URL },
+      { name: 'DEV_DATABASE_URL', value: process.env.DEV_DATABASE_URL },
+      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
+      { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+      { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
     ])
   : isVercelProduction
   ? pickDatabaseUrl([
@@ -166,7 +179,7 @@ export const databaseUrl = databaseUrlCandidate
   : ''
 const enableSchemaPush =
   process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true' ||
-  (process.env.NODE_ENV === 'development' && isLocalDatabaseHost(databaseUrl))
+  (isDevelopment && isLocalDatabaseHost(databaseUrl))
 const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
 const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
 const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
