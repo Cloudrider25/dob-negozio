@@ -61,7 +61,7 @@ No direct deploys from feature branches to shared environments.
 - PR required
 - at least 1 approval
 - required check:
-  - `Verify Staging Build`
+  - `Lint + Typecheck + Int Tests`
 
 ### `prod`
 
