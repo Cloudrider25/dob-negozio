@@ -24,6 +24,15 @@ type AccountI18n = {
     signUp: {
       title: string
       passwordPolicy: string
+      passwordStatusComplete: string
+      passwordStatusMissingPrefix: string
+      passwordRequirements: {
+        minLength: string
+        lowercase: string
+        uppercase: string
+        digit: string
+        special: string
+      }
       firstNamePlaceholder: string
       lastNamePlaceholder: string
       emailPlaceholder: string
@@ -36,6 +45,16 @@ type AccountI18n = {
       errors: {
         generic: string
         network: string
+      }
+      feedback: {
+        duplicateEmailTitle: string
+        duplicateEmailBody: string
+        emailInvalidTitle: string
+        passwordInvalidTitle: string
+        genericTitle: string
+        networkTitle: string
+        signInLink: string
+        resetPasswordLink: string
       }
     }
     forgotPassword: {
@@ -179,6 +198,15 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         title: 'Crea account',
         passwordPolicy:
           'La password deve avere almeno 10 caratteri e includere maiuscole, minuscole, numero e simbolo speciale.',
+        passwordStatusComplete: 'Password completa.',
+        passwordStatusMissingPrefix: 'Manca:',
+        passwordRequirements: {
+          minLength: 'almeno 10 caratteri',
+          lowercase: 'una minuscola',
+          uppercase: 'una maiuscola',
+          digit: 'un numero',
+          special: 'un simbolo speciale',
+        },
         firstNamePlaceholder: 'Nome',
         lastNamePlaceholder: 'Cognome',
         emailPlaceholder: 'Email',
@@ -191,6 +219,16 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         errors: {
           generic: 'Impossibile creare account ora. Riprova piu tardi.',
           network: 'Errore di rete durante la registrazione. Riprova.',
+        },
+        feedback: {
+          duplicateEmailTitle: 'Questa email è già registrata',
+          duplicateEmailBody: 'Puoi accedere con questo account oppure reimpostare la password se non la ricordi.',
+          emailInvalidTitle: 'Controlla il campo email',
+          passwordInvalidTitle: 'La password non è valida',
+          genericTitle: 'Registrazione non completata',
+          networkTitle: 'Errore di rete',
+          signInLink: 'Accedi',
+          resetPasswordLink: 'Reimposta password',
         },
       },
       forgotPassword: {
@@ -333,6 +371,15 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         title: 'Create Account',
         passwordPolicy:
           'Password must be at least 10 chars and include upper/lowercase, number and special symbol.',
+        passwordStatusComplete: 'Password complete.',
+        passwordStatusMissingPrefix: 'Missing:',
+        passwordRequirements: {
+          minLength: 'at least 10 characters',
+          lowercase: 'one lowercase letter',
+          uppercase: 'one uppercase letter',
+          digit: 'one number',
+          special: 'one special symbol',
+        },
         firstNamePlaceholder: 'First Name',
         lastNamePlaceholder: 'Last Name',
         emailPlaceholder: 'Email',
@@ -345,6 +392,16 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         errors: {
           generic: 'Unable to create account right now. Please contact support or try later.',
           network: 'Network error while creating your account. Please retry.',
+        },
+        feedback: {
+          duplicateEmailTitle: 'This email is already registered',
+          duplicateEmailBody: 'You can sign in with this account or reset your password if you do not remember it.',
+          emailInvalidTitle: 'Check the email field',
+          passwordInvalidTitle: 'Password is not valid',
+          genericTitle: 'Sign-up could not be completed',
+          networkTitle: 'Network error',
+          signInLink: 'Sign in',
+          resetPasswordLink: 'Reset password',
         },
       },
       forgotPassword: {
@@ -487,6 +544,15 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         title: 'Создать аккаунт',
         passwordPolicy:
           'Пароль должен содержать минимум 10 символов, включая верхний/нижний регистр, цифру и специальный символ.',
+        passwordStatusComplete: 'Пароль заполнен корректно.',
+        passwordStatusMissingPrefix: 'Не хватает:',
+        passwordRequirements: {
+          minLength: 'минимум 10 символов',
+          lowercase: 'одной строчной буквы',
+          uppercase: 'одной заглавной буквы',
+          digit: 'одной цифры',
+          special: 'одного специального символа',
+        },
         firstNamePlaceholder: 'Имя',
         lastNamePlaceholder: 'Фамилия',
         emailPlaceholder: 'Email',
@@ -499,6 +565,16 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         errors: {
           generic: 'Не удалось создать аккаунт. Повторите попытку позже.',
           network: 'Ошибка сети при регистрации. Повторите попытку.',
+        },
+        feedback: {
+          duplicateEmailTitle: 'Этот email уже зарегистрирован',
+          duplicateEmailBody: 'Вы можете войти в этот аккаунт или сбросить пароль, если не помните его.',
+          emailInvalidTitle: 'Проверьте поле email',
+          passwordInvalidTitle: 'Пароль недействителен',
+          genericTitle: 'Не удалось завершить регистрацию',
+          networkTitle: 'Ошибка сети',
+          signInLink: 'Войти',
+          resetPasswordLink: 'Сбросить пароль',
         },
       },
       forgotPassword: {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { sendConsultationLeadNotifications } from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import type { ConsultationLeadInput } from '@/lib/shared/consultation/types'
 
@@ -65,6 +66,20 @@ export async function POST(request: Request) {
         ip: getClientIP(request.headers) || undefined,
         userAgent: request.headers.get('user-agent') || undefined,
       },
+    })
+
+    await sendConsultationLeadNotifications({
+      payload,
+      firstName,
+      lastName,
+      email,
+      phone,
+      skinType: skinType || undefined,
+      concerns,
+      message: message || undefined,
+      source: source || undefined,
+      locale: locale || undefined,
+      pagePath: pagePath || undefined,
     })
 
     return NextResponse.json({ ok: true }, { status: 201 })

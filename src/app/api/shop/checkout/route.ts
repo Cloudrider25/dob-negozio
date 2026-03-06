@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createHash } from 'node:crypto'
 
+import { sendAdminNewOrderNotification } from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 import { isLocale, type Locale } from '@/lib/i18n/core'
@@ -1224,6 +1225,21 @@ export async function POST(request: Request) {
               msg: `Order confirmation email failed for order ${createdOrder.orderNumber}`,
             })
           }
+
+          await sendAdminNewOrderNotification({
+            payload,
+            orderNumber: createdOrder.orderNumber,
+            customerEmail: email,
+            customerFirstName: firstName,
+            customerLastName: lastName,
+            total,
+            cartMode,
+            productFulfillmentMode,
+            appointmentMode: hasServices ? appointmentMode : 'none',
+            appointmentRequestedDate: hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : null,
+            appointmentRequestedTime:
+              hasServices && appointmentMode === 'requested_slot' ? requestedAppointmentTime : null,
+          })
         }
 
         return NextResponse.json({
