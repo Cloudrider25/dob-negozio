@@ -54,22 +54,38 @@ jobs:
     runs-on: ubuntu-latest
     if: success() && github.event_name == 'push'
     steps:
-      - name: Check deploy hook
-        id: deploy-hook
-        shell: bash
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel production environment
         env:
-          DEPLOY_HOOK_URL: ${{ secrets.PRODUCTION_DEPLOY_HOOK_URL }}
-        run: |
-          if [[ -n "${DEPLOY_HOOK_URL}" ]]; then
-            echo "ready=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "ready=false" >> "${GITHUB_OUTPUT}"
-          fi
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
+          VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
+        run: pnpm dlx vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
 
-      - name: Trigger production deploy webhook
-        if: steps.deploy-hook.outputs.ready == 'true'
-        run: curl -fsS -X POST "${{ secrets.PRODUCTION_DEPLOY_HOOK_URL }}"
+      - name: Build Vercel production artifact
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
+          VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
+        run: pnpm dlx vercel build --prod --token="${VERCEL_TOKEN}"
 
-      - name: No deploy hook configured
-        if: steps.deploy-hook.outputs.ready != 'true'
-        run: echo "PRODUCTION_DEPLOY_HOOK_URL non configurato. Verifica completata, deploy non eseguito."
+      - name: Deploy Vercel production artifact
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
+          VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
+        run: pnpm dlx vercel deploy --prebuilt --prod --token="${VERCEL_TOKEN}"
