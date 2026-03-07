@@ -46,15 +46,13 @@
 
 .coverInner {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
   min-height: 100%;
   background: inherit;
 }
 
 .coverMedia {
-  position: relative;
+  position: absolute;
+  inset: 0 0 7.4rem;
   width: 100%;
   overflow: hidden;
   background: var(--paper);
@@ -83,12 +81,15 @@
 }
 
 .coverMeta {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
   padding: 0.8rem;
   background: var(--paper);
-  min-height: 0;
+  min-height: 7rem;
 }
 
 .coverTopRow {
@@ -147,14 +148,21 @@
   gap: 1rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
   .childrenGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-}
 
-@media (min-width: 1025px) {
   .cover {
     --catalog-card-height: clamp(29rem, 44vw, 40rem);
+  }
+
+  .coverMedia {
+    inset: 0;
+  }
+
+  .coverMeta {
+    min-height: 12rem;
+    padding: 1.15rem 24px 0.2rem;
   }
 }
