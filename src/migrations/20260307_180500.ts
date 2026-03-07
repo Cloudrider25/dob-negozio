@@ -27,7 +27,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "cover_subtitle" varchar,
       "internal_description" varchar,
       "id" serial PRIMARY KEY NOT NULL,
-      "_locale" "public"."enum__locales" NOT NULL,
+      "_locale" "public"."_locales" NOT NULL,
       "_parent_id" integer NOT NULL
     );
 
