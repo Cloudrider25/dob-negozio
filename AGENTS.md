@@ -45,6 +45,26 @@ Reference:
 
 - `Docs/reference/database-environment-policy.md`
 
+## Design System Enforcement
+
+This project has a mandatory UI consistency rule. Future work must preserve it.
+
+### Visual System Rules
+
+1. Always use project system colors via existing design tokens / CSS variables.
+2. Always use project typography tokens, shared typography utilities, or established component typography patterns.
+3. Do not introduce ad-hoc visual colors, gradients, `color-mix(...)`, or arbitrary typography sizing/styling unless the user explicitly requests an exception.
+4. Prefer existing visual primitives over custom one-off styling when a system equivalent already exists.
+
+### Agent Behavior For UI Work
+
+When modifying frontend code, styles, or admin UI:
+
+1. default to system colors and system typography
+2. avoid custom visual values unless explicitly requested
+3. if you encounter non-system colors or typography while inspecting a file, call it out and recommend rectifying it
+4. if you keep a non-system value intentionally, state why it is necessary
+
 ### Code Validation
 
 - To validate typescript correctness after modifying code run `tsc --noEmit`

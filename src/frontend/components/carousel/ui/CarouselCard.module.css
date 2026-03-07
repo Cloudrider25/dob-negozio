@@ -2,24 +2,19 @@
   --card-radius: 18px;
   --card-content-inline: 16px;
   --card-title-gap: 0.5rem;
-  --card-title-min-height: 2.4rem;
+  --card-cta-height: 2.2rem;
+  --card-cta-margin-top: 0.8rem;
   --card-price-size: clamp(1.125rem, 2.4vw, 1.35rem);
-  --card-subtitle-min-height: 2rem;
-  --card-cta-height: 2.5rem;
-  --card-cta-margin: 0.8rem 0.9rem 0.9rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  --catalog-card-height: clamp(21rem, 34vw, 40rem);
   position: relative;
   width: 100%;
-  min-height: 0;
-  height: auto;
-  z-index: 2;
+  min-height: var(--catalog-card-height);
+  max-height: var(--catalog-card-height);
+  height: var(--catalog-card-height);
   color: var(--text-secondary);
   background: var(--paper);
   border-radius: var(--card-radius);
   border: 1px solid var(--stroke);
-  box-shadow: none;
   overflow: hidden;
 }
 
@@ -28,20 +23,10 @@
 }
 
 .media {
-  position: relative;
-  border-radius: 12px 12px 0 0;
+  position: absolute;
+  inset: 0 0 7.4rem;
   overflow: hidden;
   background: var(--paper);
-  width: 100%;
-  height: auto;
-  min-height: 0;
-  margin-bottom: 0;
-}
-
-.media::before {
-  content: '';
-  display: block;
-  padding-bottom: 100%;
 }
 
 .media img {
@@ -61,55 +46,81 @@
   position: absolute;
   top: 14px;
   padding: 0.3rem 0.7rem;
-  z-index: 2;
+  z-index: 3;
   line-height: 1;
 }
 
 .badgeLeft {
   left: 14px;
-  background: color-mix(in oklab, var(--bg) 95%, white 5%);
+  background: var(--bg);
   color: var(--text-primary);
   border-radius: 4px;
 }
 
 .badgeRight {
   right: 14px;
-  background: color-mix(in oklab, var(--text-secondary) 78%, var(--paper) 22%);
+  background: var(--text-secondary);
   color: var(--bg);
   border-radius: 999px;
 }
 
-.title {
-  margin: 0;
-  min-height: calc(2 * 1.2em);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.titleRow {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--card-title-gap);
-  align-items: center;
-  padding: calc(var(--card-content-inline) - 0.15rem) var(--card-content-inline) 0;
-  min-height: var(--card-title-min-height);
-}
-
-.titleRow .price {
-  justify-self: end;
-  align-self: start;
-  font-size: var(--card-price-size);
-  line-height: 1.1;
+.footerPanel {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0;
+  min-height: 7rem;
+  padding: calc(var(--card-content-inline) - 0.15rem) var(--card-content-inline) 0.5rem;
+  background: var(--paper);
 }
 
 .titleBlock {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0;
   min-height: 0;
+}
+
+.titleRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--card-title-gap);
+  align-items: start;
+}
+
+.titleText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  min-height: 40px;
+  display: block;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+}
+
+.price {
+  font-size: var(--card-price-size);
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: none;
+}
+
+.priceBlock {
+  display: none;
+}
+
+.duration {
+  color: var(--text-secondary);
+  display: none;
 }
 
 .meta {
@@ -120,108 +131,98 @@
 }
 
 .subtitle {
-  padding: 0 var(--card-content-inline);
-  min-height: var(--card-subtitle-min-height);
+  min-height: 2.6rem;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.metaRow {
-  padding: 0 var(--card-content-inline);
-  margin-top: 0.2rem;
+  display: none;
 }
 
 .bottomBlock {
   display: flex;
   flex-direction: column;
   gap: 0;
-}
-
-.price {
-  font-weight: 600;
-  color: var(--text-primary);
+  margin-top: 0;
 }
 
 .cta {
-  margin: var(--card-cta-margin);
+  margin-top: var(--card-cta-margin-top);
+  margin-left: -10px;
+  margin-right: -10px;
   height: var(--card-cta-height);
   --btn-bg: transparent;
-  --btn-text: color-mix(in oklab, var(--text-secondary) 90%, black 10%);
-  --btn-border: color-mix(in oklab, var(--text-secondary) 70%, var(--paper) 30%);
-  --btn-hover-bg: color-mix(in oklab, var(--paper) 85%, var(--text-secondary) 15%);
+  --btn-text: var(--text-secondary);
+  --btn-border: var(--text-secondary);
+  --btn-hover-bg: var(--paper);
   --btn-hover-text: var(--text-primary);
-  --btn-hover-border: color-mix(in oklab, var(--text-secondary) 80%, var(--paper) 20%);
-  --btn-active-bg: color-mix(in oklab, var(--paper) 78%, var(--text-secondary) 22%);
+  --btn-hover-border: var(--text-secondary);
+  --btn-active-bg: var(--paper);
   --btn-active-text: var(--text-primary);
-  --btn-active-border: color-mix(in oklab, var(--text-secondary) 85%, var(--paper) 15%);
+  --btn-active-border: var(--text-secondary);
   font-size: 0.74rem;
   letter-spacing: 0.06em;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
   .card {
     --card-radius: 24px;
     --card-content-inline: 24px;
     --card-title-gap: 0.6rem;
-    --card-title-min-height: 3rem;
-    --card-price-size: clamp(1.6rem, 2vw, 2rem);
-    --card-subtitle-min-height: 2.4rem;
     --card-cta-height: 2.75rem;
-    --card-cta-margin: 0.8rem 1.2rem 1.2rem;
-    min-height: 341px;
+    --card-cta-margin-top: 0.8rem;
+    --card-price-size: clamp(1.6rem, 2vw, 2rem);
+    --catalog-card-height: clamp(29rem, 44vw, 40rem);
   }
 
-  .media::before {
-    padding-bottom: 70.62%;
+  .media {
+    inset: 0;
   }
 
   .titleRow {
-    grid-template-columns: 70% 30%;
+    grid-template-columns: 1fr auto;
   }
 
-  .subtitle {
-    display: -webkit-box;
+  .footerPanel {
+    min-height: 11rem;
+    padding: 1.15rem var(--card-content-inline) 0.6rem;
   }
 
-  .metaRow {
-    display: flex;
-  }
-}
-
-@media (max-width: 1023px) {
-  .card {
-    --card-subtitle-min-height: 0;
-    --card-cta-margin: 0.9rem 0.95rem 1rem;
-  }
-
-  .subtitle,
-  .metaRow {
-    display: none;
+  .cta {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .title {
-    min-height: 40px;
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-    display: block;
-    overflow: visible;
-    letter-spacing: 0.02em;
+    min-height: 1.2em;
+    font-size: var(--type-body-size);
+    line-height: var(--type-body-line);
+    letter-spacing: var(--type-body-track);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
-  .titleRow {
-    grid-template-columns: 1fr;
+  .subtitle {
+    min-height: 4rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   .price {
-    display: none;
+    display: inline;
   }
-}
 
-@media (min-width: 1280px) {
-  .card {
-    min-height: 350px;
+  .priceBlock {
+    justify-self: end;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.18rem;
+  }
+
+  .duration {
+    display: inline;
   }
 }

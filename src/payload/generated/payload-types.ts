@@ -72,6 +72,7 @@ export interface Config {
     'consultation-leads': ConsultationLead;
     orders: Order;
     'order-service-sessions': OrderServiceSession;
+    'service-decks': ServiceDeck;
     services: Service;
     treatments: Treatment;
     areas: Area;
@@ -120,6 +121,7 @@ export interface Config {
     'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-service-sessions': OrderServiceSessionsSelect<false> | OrderServiceSessionsSelect<true>;
+    'service-decks': ServiceDecksSelect<false> | ServiceDecksSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     treatments: TreatmentsSelect<false> | TreatmentsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
@@ -526,6 +528,7 @@ export interface Service {
   serviceType: 'single' | 'package';
   gender?: ('unisex' | 'female' | 'male') | null;
   modality?: (number | null) | ServiceModality;
+  deck?: (number | null) | ServiceDeck;
   gallery?:
     | {
         media: number | Media;
@@ -671,6 +674,24 @@ export interface ServiceModality {
   code: string;
   label: string;
   active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-decks".
+ */
+export interface ServiceDeck {
+  id: number;
+  name: string;
+  active?: boolean | null;
+  slug: string;
+  deckType: 'laser' | 'wax' | 'other';
+  sortOrder?: number | null;
+  coverTitle?: string | null;
+  coverSubtitle?: string | null;
+  coverImage?: (number | null) | Media;
+  internalDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1746,6 +1767,10 @@ export interface PayloadLockedDocument {
         value: number | OrderServiceSession;
       } | null)
     | ({
+        relationTo: 'service-decks';
+        value: number | ServiceDeck;
+      } | null)
+    | ({
         relationTo: 'services';
         value: number | Service;
       } | null)
@@ -2121,6 +2146,23 @@ export interface OrderServiceSessionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-decks_select".
+ */
+export interface ServiceDecksSelect<T extends boolean = true> {
+  name?: T;
+  active?: T;
+  slug?: T;
+  deckType?: T;
+  sortOrder?: T;
+  coverTitle?: T;
+  coverSubtitle?: T;
+  coverImage?: T;
+  internalDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "services_select".
  */
 export interface ServicesSelect<T extends boolean = true> {
@@ -2156,6 +2198,7 @@ export interface ServicesSelect<T extends boolean = true> {
   serviceType?: T;
   gender?: T;
   modality?: T;
+  deck?: T;
   gallery?:
     | T
     | {

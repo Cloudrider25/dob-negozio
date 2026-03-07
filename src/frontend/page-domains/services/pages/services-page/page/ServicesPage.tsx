@@ -97,7 +97,7 @@ export default async function ServicesPage({
       getServices({
         payload,
         locale,
-        depth: 1,
+        depth: 2,
         limit: 500,
         sort: 'price',
         where: {
@@ -115,6 +115,16 @@ export default async function ServicesPage({
           nomeVariabile: true,
           treatments: true,
           gallery: true,
+          deck: {
+            id: true,
+            name: true,
+            slug: true,
+            deckType: true,
+            sortOrder: true,
+            coverTitle: true,
+            coverSubtitle: true,
+            coverImage: true,
+          },
         },
       }),
       payload.findGlobal({
@@ -243,6 +253,20 @@ export default async function ServicesPage({
             }))
             .filter((item) => item.id.length > 0)
         : [],
+      deck:
+        service.deck && typeof service.deck === 'object'
+          ? {
+              id: String(service.deck.id),
+              name: service.deck.name || undefined,
+              slug: service.deck.slug || undefined,
+              deckType: service.deck.deckType || undefined,
+              sortOrder:
+                typeof service.deck.sortOrder === 'number' ? service.deck.sortOrder : null,
+              coverTitle: service.deck.coverTitle || undefined,
+              coverSubtitle: service.deck.coverSubtitle || undefined,
+              coverImageUrl: resolveMedia(service.deck.coverImage)?.url || undefined,
+            }
+          : undefined,
     }
   })
 
