@@ -169,6 +169,13 @@ type AccountI18n = {
       ctaLabel: string
       outro: string
     }
+    resetPassword: {
+      subject: string
+      greeting: string
+      intro: string
+      ctaLabel: string
+      outro: string
+    }
   }
 }
 
@@ -344,6 +351,13 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         ctaLabel: 'Verifica account',
         outro: 'Se non hai creato un account, ignora questa email.',
       },
+      resetPassword: {
+        subject: 'Reimposta la password del tuo account DOB Milano',
+        greeting: 'Ciao',
+        intro: 'Abbiamo ricevuto una richiesta di reset password. Usa il link qui sotto per impostare una nuova password:',
+        ctaLabel: 'Reimposta password',
+        outro: 'Se non hai richiesto il reset, puoi ignorare questa email.',
+      },
     },
   },
   en: {
@@ -517,6 +531,13 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         ctaLabel: 'Verify account',
         outro: "If you didn't create an account, just ignore this email.",
       },
+      resetPassword: {
+        subject: 'Reset your DOB Milano password',
+        greeting: 'Hi',
+        intro: 'We received a password reset request. Use the link below to set a new password:',
+        ctaLabel: 'Reset password',
+        outro: 'If you did not request a password reset, you can ignore this email.',
+      },
     },
   },
   ru: {
@@ -689,6 +710,13 @@ const accountDictionary: Record<Locale, AccountI18n> = {
         intro: 'Подтвердите аккаунт DOB Milano, перейдя по ссылке ниже:',
         ctaLabel: 'Подтвердить аккаунт',
         outro: 'Если вы не создавали аккаунт, проигнорируйте это письмо.',
+      },
+      resetPassword: {
+        subject: 'Сбросьте пароль аккаунта DOB Milano',
+        greeting: 'Здравствуйте',
+        intro: 'Мы получили запрос на сброс пароля. Перейдите по ссылке ниже, чтобы задать новый пароль:',
+        ctaLabel: 'Сбросить пароль',
+        outro: 'Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.',
       },
     },
   },
