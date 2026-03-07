@@ -1,14 +1,12 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n/core'
 import { ShopAllSection } from '@/frontend/page-domains/shared/sections/ShopAllSection'
 import { ConsulenzaSection } from '@/frontend/page-domains/shared/sections/ConsulenzaSection'
 import { SectionSwitcher } from '@/frontend/components/sections/SectionSwitcher'
-import filterStyles from '@/frontend/components/sections/SectionFilters.module.css'
-import { Button } from '@/frontend/components/ui/primitives/button'
 import type { ProductCard } from '@/frontend/page-domains/shop/pages/shop-page/sections/shop-navigator.types'
 import type { CarouselItem } from '@/frontend/components/carousel'
 import styles from './ShopSectionSwitcher.module.css'
@@ -56,6 +54,7 @@ type ClassicParams = {
 }
 
 type SectionKey = 'shop-all' | 'routine' | 'consulenza'
+type ShopSortKey = 'featured' | 'price-asc' | 'price-desc' | 'name'
 const TRANSPARENT_IMAGE_PLACEHOLDER =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
 
@@ -156,9 +155,7 @@ export function ShopSectionSwitcher({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [activeSection, setActiveSection] = useState<SectionKey>(initialSection)
-  const [showFilters, setShowFilters] = useState(false)
-  const [openFilter, setOpenFilter] = useState<string | null>(null)
-  const [orderBy, setOrderBy] = useState<'recent' | 'price-asc' | 'price-desc' | 'title'>('recent')
+  const [orderBy, setOrderBy] = useState<ShopSortKey>('featured')
   const [filters, setFilters] = useState({
     needs: new Set<string>(),
     textures: new Set<string>(),
@@ -174,7 +171,7 @@ export function ShopSectionSwitcher({
     setActiveSection(initialSection)
   }, [initialSection])
 
-  const shouldComputeShopAll = activeSection === 'shop-all' || showFilters
+  const shouldComputeShopAll = activeSection === 'shop-all'
 
   const activeFilterCount = useMemo(() => {
     return (
@@ -308,43 +305,21 @@ export function ShopSectionSwitcher({
     if (!shouldComputeShopAll) return
 
     const prune = (group: keyof typeof filters, options: Array<{ id: string }>) => {
-      if (filters[group].size === 0) return false
+      if (filters[group].size === 0) return
       const allowed = new Set(options.map((item) => item.id))
       const next = new Set(Array.from(filters[group]).filter((id) => allowed.has(id)))
-      if (next.size === filters[group].size) return false
+      if (next.size === filters[group].size) return
       setFilters((prev) => ({ ...prev, [group]: next }))
-      return true
     }
 
-    const changed =
-      prune('needs', filterOptions.needs) ||
-      prune('textures', filterOptions.textures) ||
-      prune('productAreas', filterOptions.productAreas) ||
-      prune('timingProducts', filterOptions.timingProducts) ||
-      prune('skinTypes', filterOptions.skinTypes) ||
-      prune('brands', filterOptions.brands) ||
-      prune('brandLines', filterOptions.brandLines)
-
-    if (changed) {
-      setOpenFilter(null)
-    }
+    prune('needs', filterOptions.needs)
+    prune('textures', filterOptions.textures)
+    prune('productAreas', filterOptions.productAreas)
+    prune('timingProducts', filterOptions.timingProducts)
+    prune('skinTypes', filterOptions.skinTypes)
+    prune('brands', filterOptions.brands)
+    prune('brandLines', filterOptions.brandLines)
   }, [filterOptions, filters, shouldComputeShopAll])
-
-  const filterRowRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (!openFilter) return
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as Node | null
-      if (!filterRowRef.current || !target) return
-      if (filterRowRef.current.contains(target)) return
-      setOpenFilter(null)
-    }
-    document.addEventListener('click', handleClick)
-    return () => {
-      document.removeEventListener('click', handleClick)
-    }
-  }, [openFilter])
 
   const toggleFilter = (group: keyof typeof filters, id: string) => {
     setFilters((prev) => {
@@ -420,9 +395,10 @@ export function ShopSectionSwitcher({
         return true
       })
       .sort((a, b) => {
+        if (orderBy === 'featured') return (b.createdAt ?? '').localeCompare(a.createdAt ?? '')
         if (orderBy === 'price-asc') return (a.price ?? 0) - (b.price ?? 0)
         if (orderBy === 'price-desc') return (b.price ?? 0) - (a.price ?? 0)
-        if (orderBy === 'title') return a.title.localeCompare(b.title)
+        if (orderBy === 'name') return a.title.localeCompare(b.title)
         return (b.createdAt ?? '').localeCompare(a.createdAt ?? '')
       })
   }, [shopAllProducts, filters, orderBy, queryTerm, resolvedLocale, shouldComputeShopAll])
@@ -524,139 +500,8 @@ export function ShopSectionSwitcher({
           setActiveSection(nextSection)
           updateSectionQuery(nextSection)
         }}
-        actions={[
-          ...(activeSection === 'shop-all'
-            ? [
-                {
-                  key: 'filters',
-                  label: (
-                    <>
-                      {copy.filters}
-                      {activeFilterCount > 0 && (
-                        <span className={`${filterStyles.filterCount} typo-caption-upper`}>{activeFilterCount}</span>
-                      )}
-                    </>
-                  ),
-                  active: showFilters,
-                  onClick: () => setShowFilters((prev) => !prev),
-                },
-              ]
-            : []),
-          ...(activeSection === 'shop-all' && activeFilterCount > 0
-            ? [
-                {
-                  key: 'remove-all',
-                  label: copy.removeAll,
-                  onClick: () => {
-                    setFilters({
-                      needs: new Set(),
-                      textures: new Set(),
-                      productAreas: new Set(),
-                      timingProducts: new Set(),
-                      skinTypes: new Set(),
-                      brands: new Set(),
-                      brandLines: new Set(),
-                    })
-                  },
-                },
-              ]
-            : []),
-        ]}
+        actions={[]}
       />
-
-      {activeSection === 'shop-all' && showFilters && (
-        <section className={filterStyles.filters}>
-          <div className={filterStyles.filterRow} ref={filterRowRef}>
-            {[
-              { key: 'needs', label: copy.needs, options: filterOptions.needs },
-              { key: 'textures', label: copy.texture, options: filterOptions.textures },
-              { key: 'productAreas', label: copy.productAreas, options: filterOptions.productAreas },
-              { key: 'timingProducts', label: copy.timing, options: filterOptions.timingProducts },
-              { key: 'skinTypes', label: copy.skinTypes, options: filterOptions.skinTypes },
-              { key: 'brands', label: copy.brand, options: filterOptions.brands },
-              { key: 'brandLines', label: copy.brandLine, options: filterOptions.brandLines },
-            ].map((group) => (
-              <div key={group.key} className={filterStyles.filterGroup}>
-                <Button
-                  kind="main"
-                  size="sm"
-                  interactive
-                  className={filterStyles.filterPill}
-                  onClick={() => {
-                    setOpenFilter((prev) => (prev === group.key ? null : group.key))
-                  }}
-                >
-                  {group.label}
-                </Button>
-                {openFilter === group.key && (
-                  <div className={filterStyles.dropdown}>
-                    {group.options.length === 0 && (
-                      <div className={`${filterStyles.dropdownEmpty} typo-small`}>{copy.noOptions}</div>
-                    )}
-                    {group.options.map((option) => (
-                      <Button
-                        key={option.id}
-                        kind="main"
-                        size="sm"
-                        interactive
-                        aria-pressed={filters[group.key as keyof typeof filters].has(option.id)}
-                        className={`${filterStyles.dropdownItem} ${
-                          filters[group.key as keyof typeof filters].has(option.id)
-                            ? filterStyles.dropdownItemActive
-                            : ''
-                        }`}
-                        onClick={() =>
-                          toggleFilter(group.key as keyof typeof filters, option.id)
-                        }
-                      >
-                        {option.label}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            <div className={filterStyles.filterGroup}>
-              <Button
-                kind="main"
-                size="sm"
-                interactive
-                className={filterStyles.filterPill}
-                onClick={() => {
-                  setOpenFilter((prev) => (prev === 'order' ? null : 'order'))
-                }}
-              >
-                {copy.orderBy}
-              </Button>
-              {openFilter === 'order' && (
-                <div className={filterStyles.dropdown}>
-                  {[
-                    { id: 'recent', label: copy.orderRecent },
-                    { id: 'price-asc', label: copy.orderPriceAsc },
-                    { id: 'price-desc', label: copy.orderPriceDesc },
-                    { id: 'title', label: copy.orderTitle },
-                  ].map((option) => (
-                    <Button
-                      key={option.id}
-                      kind="main"
-                      size="sm"
-                      interactive
-                      aria-pressed={orderBy === option.id}
-                      className={`${filterStyles.dropdownItem} ${
-                        orderBy === option.id ? filterStyles.dropdownItemActive : ''
-                      }`}
-                      onClick={() => setOrderBy(option.id as typeof orderBy)}
-                    >
-                      {option.label}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
 
       {activeSection === 'routine' && (
         <div className={styles.sectionBlockTop}>
@@ -677,7 +522,56 @@ export function ShopSectionSwitcher({
 
       {activeSection === 'shop-all' && (
         <div className={styles.cardsBlock}>
-          <ShopAllSection items={shopAllItems} />
+          <ShopAllSection
+            items={shopAllItems}
+            controls={{
+              sortValue: orderBy,
+              onSortChange: (next) => setOrderBy(next),
+              onClearFilters: () => {
+                setFilters({
+                  needs: new Set(),
+                  textures: new Set(),
+                  productAreas: new Set(),
+                  timingProducts: new Set(),
+                  skinTypes: new Set(),
+                  brands: new Set(),
+                  brandLines: new Set(),
+                })
+              },
+              clearFiltersLabel: copy.removeAll,
+              sortOptions: [
+                { key: 'featured', label: copy.orderRecent },
+                { key: 'price-asc', label: copy.orderPriceAsc },
+                { key: 'price-desc', label: copy.orderPriceDesc },
+                { key: 'name', label: copy.orderTitle },
+              ],
+              filterGroups: [
+                { key: 'needs', label: copy.needs, options: filterOptions.needs, selected: filters.needs },
+                { key: 'textures', label: copy.texture, options: filterOptions.textures, selected: filters.textures },
+                {
+                  key: 'productAreas',
+                  label: copy.productAreas,
+                  options: filterOptions.productAreas,
+                  selected: filters.productAreas,
+                },
+                {
+                  key: 'timingProducts',
+                  label: copy.timing,
+                  options: filterOptions.timingProducts,
+                  selected: filters.timingProducts,
+                },
+                { key: 'skinTypes', label: copy.skinTypes, options: filterOptions.skinTypes, selected: filters.skinTypes },
+                { key: 'brands', label: copy.brand, options: filterOptions.brands, selected: filters.brands },
+                {
+                  key: 'brandLines',
+                  label: copy.brandLine,
+                  options: filterOptions.brandLines,
+                  selected: filters.brandLines,
+                },
+              ],
+              onFilterToggle: (groupKey, optionId) => toggleFilter(groupKey as keyof typeof filters, optionId),
+            }}
+          />
         </div>
       )}
 

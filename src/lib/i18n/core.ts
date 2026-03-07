@@ -750,7 +750,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
     },
     shopFilters: {
       sectionNavigator: 'Shop Navigator',
-      sectionRoutine: 'Routine Builder',
+      sectionRoutine: 'Routines',
       sectionConsultation: 'Consulenza',
       sectionShopAll: 'Shop all',
       filters: 'Filtri',
@@ -921,7 +921,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
     },
     shopFilters: {
       sectionNavigator: 'Shop Navigator',
-      sectionRoutine: 'Routine Builder',
+      sectionRoutine: 'Routines',
       sectionConsultation: 'Consultation',
       sectionShopAll: 'Shop all',
       filters: 'Filters',
@@ -1092,7 +1092,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
     },
     shopFilters: {
       sectionNavigator: 'Shop Navigator',
-      sectionRoutine: 'Routine Builder',
+      sectionRoutine: 'Routines',
       sectionConsultation: 'Консультация',
       sectionShopAll: 'Shop all',
       filters: 'Фильтры',
