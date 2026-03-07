@@ -12,6 +12,17 @@ const getClientIP = (req: { headers: Headers }) =>
   req.headers.get('x-real-ip')?.trim() ||
   ''
 
+const getUserPreferredLocale = (user: unknown) =>
+  typeof user === 'object' &&
+  user &&
+  'preferences' in user &&
+  typeof user.preferences === 'object' &&
+  user.preferences &&
+  'preferredLocale' in user.preferences &&
+  typeof user.preferences.preferredLocale === 'string'
+    ? resolveLocale(user.preferences.preferredLocale)
+    : 'it'
+
 const getPreferredRequestLocale = (req: { headers: Headers; locale?: unknown }, data?: Record<string, unknown>) => {
   if (typeof req.locale === 'string') {
     return resolveLocale(req.locale)
@@ -58,35 +69,46 @@ export const Users: CollectionConfig = {
     lockTime: 15 * 60 * 1000,
     forgotPassword: {
       expiration: 1000 * 60 * 30,
+      generateEmailSubject: ({ user } = {}) => {
+        const locale = getUserPreferredLocale(user)
+        return getAccountDictionary(locale).authEmail.resetPassword.subject
+      },
+      generateEmailHTML: ({ req, token, user } = {}) => {
+        const origin =
+          req?.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+        const locale = getUserPreferredLocale(user)
+        const copy = getAccountDictionary(locale).authEmail.resetPassword
+        const url = `${origin}/${locale}/reset-password?token=${encodeURIComponent(token || '')}`
+        const firstName =
+          typeof user === 'object' &&
+          user &&
+          'firstName' in user &&
+          typeof user.firstName === 'string' &&
+          user.firstName.trim().length > 0
+            ? user.firstName.trim()
+            : ''
+        const greetingLine =
+          firstName.length > 0 ? `${copy.greeting} ${firstName},` : `${copy.greeting},`
+
+        return `
+          <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+            <p>${greetingLine}</p>
+            <p>${copy.intro}</p>
+            <p><a href="${url}">${copy.ctaLabel}</a></p>
+            <p>${copy.outro}</p>
+          </div>
+        `
+      },
     },
     verify: {
       generateEmailSubject: ({ user }) => {
-        const preferredLocale =
-          typeof user === 'object' &&
-          user &&
-          'preferences' in user &&
-          typeof user.preferences === 'object' &&
-          user.preferences &&
-          'preferredLocale' in user.preferences &&
-          typeof user.preferences.preferredLocale === 'string'
-            ? user.preferences.preferredLocale
-            : 'it'
-        return getAccountDictionary(resolveLocale(preferredLocale)).authEmail.verify.subject
+        const locale = getUserPreferredLocale(user)
+        return getAccountDictionary(locale).authEmail.verify.subject
       },
       generateEmailHTML: ({ req, token, user }) => {
         const origin =
           req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-        const preferredLocale =
-          typeof user === 'object' &&
-          user &&
-          'preferences' in user &&
-          typeof user.preferences === 'object' &&
-          user.preferences &&
-          'preferredLocale' in user.preferences &&
-          typeof user.preferences.preferredLocale === 'string'
-            ? user.preferences.preferredLocale
-            : 'it'
-        const locale = resolveLocale(preferredLocale)
+        const locale = getUserPreferredLocale(user)
         const copy = getAccountDictionary(locale).authEmail.verify
         const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}`
         const firstName =
