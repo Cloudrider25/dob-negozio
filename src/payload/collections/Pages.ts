@@ -2,6 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
 import { heroFields } from '../fields/heroFields'
+import { homeProgramFields } from '../fields/homeProgramFields'
+import { productsCarouselFields } from '../fields/productsCarouselFields'
+import { valuesSectionFields } from '../fields/valuesSectionFields'
 import { routineBuilderFields } from '../fields/routineBuilderFields'
 import { serviceNavigatorFields } from '../fields/serviceNavigatorFields'
 import { servicesCarouselFields } from '../fields/servicesCarouselFields'
@@ -14,6 +17,8 @@ import { dobProtocolCheckUpFields } from '../fields/dobProtocolCheckUpFields'
 import { privacyContentFields } from '../fields/privacyContentFields'
 import { seoFields } from '../fields/seoFields'
 import { storyHeroFields } from '../fields/storyHeroFields'
+import { storyValuesFields } from '../fields/storyValuesFields'
+import { storyTeamFields } from '../fields/storyTeamFields'
 import { storyHeroHomeLegacyFields } from '../fields/storyHeroHomeLegacyFields'
 import { storyNoteLegacyFields } from '../fields/storyNoteLegacyFields'
 
@@ -89,7 +94,7 @@ export const Pages: CollectionConfig = {
         {
           label: 'Service Carousel',
           admin: {
-            condition: (data) => data?.pageKey === 'home',
+            condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'our-story',
           },
           fields: [...servicesCarouselFields],
         },
@@ -150,215 +155,39 @@ export const Pages: CollectionConfig = {
           fields: [...storyHeroFields],
         },
         {
-          label: 'Sezione 5',
+          label: 'Home Program',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
-          fields: [
-            {
-              name: 'homeProgram',
-              type: 'relationship',
-              relationTo: 'programs',
-              admin: {
-                description: 'Seleziona il programma da mostrare in homepage.',
-              },
-            },
-          ],
+          fields: [...homeProgramFields],
         },
         {
-          label: 'Sezione 6',
+          label: 'Product Carousel',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
-          fields: [
-            {
-              name: 'productsCarousel',
-              type: 'group',
-              label: 'Product Carousel',
-              fields: [
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'limit',
-                      type: 'number',
-                      min: 1,
-                      defaultValue: 6,
-                      admin: {
-                        width: '25%',
-                      },
-                    },
-                  ],
-                },
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'needs',
-                      type: 'relationship',
-                      relationTo: 'needs',
-                      hasMany: true,
-                      admin: {
-                        width: '50%',
-                      },
-                    },
-                  ],
-                },
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'textures',
-                      type: 'relationship',
-                      relationTo: 'textures',
-                      hasMany: true,
-                      admin: {
-                        width: '50%',
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
+          fields: [...productsCarouselFields],
         },
         {
-          label: 'Sezione 7',
+          label: 'Values Section',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
-          fields: [
-            {
-              name: 'valuesSection',
-              type: 'group',
-              fields: [
-                {
-                  name: 'items',
-                  type: 'array',
-                  minRows: 1,
-                  fields: [
-                    {
-                      name: 'label',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'title',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'ctaLabel',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'ctaHref',
-                      type: 'text',
-                      localized: true,
-                    },
-                  ],
-                },
-                {
-                  name: 'media',
-                  type: 'upload',
-                  relationTo: 'media',
-                },
-              ],
-            },
-          ],
+          fields: [...valuesSectionFields],
         },
         {
-          label: 'Sezione 4',
+          label: 'Story Values',
           admin: {
             condition: (data) => data?.pageKey === 'our-story',
           },
-          fields: [
-            {
-              name: 'storyValues',
-              type: 'group',
-              fields: [
-                {
-                  name: 'items',
-                  type: 'array',
-                  minRows: 1,
-                  fields: [
-                    {
-                      name: 'label',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'title',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'description',
-                      type: 'textarea',
-                      localized: true,
-                    },
-                    {
-                      name: 'media',
-                      type: 'upload',
-                      relationTo: 'media',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
+          fields: [...storyValuesFields],
         },
         {
-          label: 'Sezione 5',
+          label: 'Story Team',
           admin: {
             condition: (data) => data?.pageKey === 'our-story',
           },
-          fields: [
-            {
-              name: 'storyTeam',
-              type: 'group',
-              fields: [
-                {
-                  name: 'title',
-                  type: 'text',
-                  localized: true,
-                },
-                {
-                  name: 'description',
-                  type: 'textarea',
-                  localized: true,
-                },
-                {
-                  name: 'items',
-                  type: 'array',
-                  minRows: 1,
-                  fields: [
-                    {
-                      name: 'name',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'role',
-                      type: 'text',
-                      localized: true,
-                    },
-                    {
-                      name: 'bio',
-                      type: 'textarea',
-                      localized: true,
-                    },
-                    {
-                      name: 'image',
-                      type: 'upload',
-                      relationTo: 'media',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
+          fields: [...storyTeamFields],
         },
       ],
     },
