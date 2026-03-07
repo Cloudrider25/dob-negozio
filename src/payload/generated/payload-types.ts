@@ -1586,46 +1586,6 @@ export interface Page {
         }[]
       | null;
   };
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyHeroHomeTitle?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyHeroHomeBody?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyHeroHomeCtaLabel?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyHeroHomeCtaHref?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyHeroHomeMedia?: (number | null) | Media;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyNoteLabel?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyNoteBody?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyNoteCtaLabel?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyNoteCtaHref?: string | null;
-  /**
-   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
-   */
-  storyNoteMedia?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -2922,16 +2882,6 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  storyHeroHomeTitle?: T;
-  storyHeroHomeBody?: T;
-  storyHeroHomeCtaLabel?: T;
-  storyHeroHomeCtaHref?: T;
-  storyHeroHomeMedia?: T;
-  storyNoteLabel?: T;
-  storyNoteBody?: T;
-  storyNoteCtaLabel?: T;
-  storyNoteCtaHref?: T;
-  storyNoteMedia?: T;
   updatedAt?: T;
   createdAt?: T;
 }

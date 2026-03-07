@@ -19,8 +19,6 @@ import { seoFields } from '../fields/seoFields'
 import { storyHeroFields } from '../fields/storyHeroFields'
 import { storyValuesFields } from '../fields/storyValuesFields'
 import { storyTeamFields } from '../fields/storyTeamFields'
-import { storyHeroHomeLegacyFields } from '../fields/storyHeroHomeLegacyFields'
-import { storyNoteLegacyFields } from '../fields/storyNoteLegacyFields'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -191,8 +189,6 @@ export const Pages: CollectionConfig = {
         },
       ],
     },
-    ...storyHeroHomeLegacyFields,
-    ...storyNoteLegacyFields,
   ],
   timestamps: true,
 }
