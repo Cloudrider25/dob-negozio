@@ -1433,6 +1433,19 @@ export interface Page {
     | 'privacy'
     | 'contact'
     | 'checkout';
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   heroTitleMode: 'fixed' | 'dynamic';
   heroStyle: 'style1' | 'style2';
   heroTitle?: string | null;
@@ -1523,21 +1536,11 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
-  storyHeroHomeTitle?: string | null;
-  storyHeroHomeBody?: string | null;
-  storyHeroHomeCtaLabel?: string | null;
-  storyHeroHomeCtaHref?: string | null;
-  storyHeroHomeMedia?: (number | null) | Media;
   storyHeroTitle?: string | null;
   storyHeroBody?: string | null;
   storyHeroCtaLabel?: string | null;
   storyHeroCtaHref?: string | null;
   storyHeroMedia?: (number | null) | Media;
-  storyNoteLabel?: string | null;
-  storyNoteBody?: string | null;
-  storyNoteCtaLabel?: string | null;
-  storyNoteCtaHref?: string | null;
-  storyNoteMedia?: (number | null) | Media;
   /**
    * Seleziona il programma da mostrare in homepage.
    */
@@ -1584,18 +1587,45 @@ export interface Page {
       | null;
   };
   /**
-   * Impostazioni SEO specifiche per questa pagina.
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
    */
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Path relativo senza locale. Esempio: /services/service/laser-viso
-     */
-    canonicalPath?: string | null;
-    noIndex?: boolean | null;
-    image?: (number | null) | Media;
-  };
+  storyHeroHomeTitle?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyHeroHomeBody?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyHeroHomeCtaLabel?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyHeroHomeCtaHref?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyHeroHomeMedia?: (number | null) | Media;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyNoteLabel?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyNoteBody?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyNoteCtaLabel?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyNoteCtaHref?: string | null;
+  /**
+   * Deprecated legacy field. Kept temporarily to avoid data loss before a dedicated migration.
+   */
+  storyNoteMedia?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -2756,6 +2786,15 @@ export interface ExclusionsSelect<T extends boolean = true> {
  */
 export interface PagesSelect<T extends boolean = true> {
   pageKey?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   heroTitleMode?: T;
   heroStyle?: T;
   heroTitle?: T;
@@ -2828,21 +2867,11 @@ export interface PagesSelect<T extends boolean = true> {
         media?: T;
       };
   privacyContent?: T;
-  storyHeroHomeTitle?: T;
-  storyHeroHomeBody?: T;
-  storyHeroHomeCtaLabel?: T;
-  storyHeroHomeCtaHref?: T;
-  storyHeroHomeMedia?: T;
   storyHeroTitle?: T;
   storyHeroBody?: T;
   storyHeroCtaLabel?: T;
   storyHeroCtaHref?: T;
   storyHeroMedia?: T;
-  storyNoteLabel?: T;
-  storyNoteBody?: T;
-  storyNoteCtaLabel?: T;
-  storyNoteCtaHref?: T;
-  storyNoteMedia?: T;
   homeProgram?: T;
   productsCarousel?:
     | T
@@ -2893,15 +2922,16 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        canonicalPath?: T;
-        noIndex?: T;
-        image?: T;
-      };
+  storyHeroHomeTitle?: T;
+  storyHeroHomeBody?: T;
+  storyHeroHomeCtaLabel?: T;
+  storyHeroHomeCtaHref?: T;
+  storyHeroHomeMedia?: T;
+  storyNoteLabel?: T;
+  storyNoteBody?: T;
+  storyNoteCtaLabel?: T;
+  storyNoteCtaHref?: T;
+  storyNoteMedia?: T;
   updatedAt?: T;
   createdAt?: T;
 }

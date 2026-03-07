@@ -65,15 +65,15 @@ export default async function OurStoryPage({
       : t.story.title
   const heroDescription = pageDoc?.heroDescription ?? t.story.lead
   const storyNoteMedia = await resolveMediaValue(
-    pageDoc?.storyNoteMedia,
-    pageDoc?.storyNoteLabel || t.story.title,
+    pageDoc?.storyHeroMedia,
+    pageDoc?.storyHeroTitle || t.story.title,
   )
-  const storyNoteTitle = pageDoc?.storyNoteLabel || 'A note from our founder'
+  const storyNoteTitle = pageDoc?.storyHeroTitle || 'A note from our founder'
   const storyNoteBody =
-    pageDoc?.storyNoteBody ||
+    pageDoc?.storyHeroBody ||
     'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'
-  const storyNoteCtaLabel = pageDoc?.storyNoteCtaLabel || 'Scopri DOB'
-  const storyNoteCtaHref = pageDoc?.storyNoteCtaHref || `/${locale}/shop`
+  const storyNoteCtaLabel = pageDoc?.storyHeroCtaLabel || 'Scopri DOB'
+  const storyNoteCtaHref = pageDoc?.storyHeroCtaHref || `/${locale}/shop`
   const storyNoteImage = {
     url: storyNoteMedia?.url || '/api/media/file/about-hero.webp',
     alt: storyNoteMedia?.alt?.trim() || storyNoteTitle,
