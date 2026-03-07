@@ -83,54 +83,58 @@ export const CarouselCard = ({
           <span className={styles.mediaFallback} aria-hidden="true" />
         )}
       </div>
-      <div className={styles.titleBlock}>
-        <div className={styles.titleRow}>
-          <SectionTitle as="h3" size="caption" uppercase className={styles.title}>
-            {item.title}
-          </SectionTitle>
-          <span className={styles.price}>{item.price || ''}</span>
+      <div className={styles.footerPanel}>
+        <div className={styles.titleBlock}>
+          <div className={styles.titleRow}>
+            <div className={styles.titleText}>
+              <SectionTitle as="h3" size="caption" uppercase className={styles.title}>
+                {item.title}
+              </SectionTitle>
+              <SectionSubtitle size="small" className={`${styles.meta} ${styles.subtitle}`}>
+                {item.subtitle || ''}
+              </SectionSubtitle>
+            </div>
+            <div className={styles.priceBlock}>
+              <span className={styles.price}>{item.price || ''}</span>
+              <span className={`${styles.duration} typo-small`}>{item.duration || ''}</span>
+            </div>
+          </div>
         </div>
-        <SectionSubtitle size="small" className={`${styles.meta} ${styles.subtitle}`}>
-          {item.subtitle || ''}
-        </SectionSubtitle>
-      </div>
-      <div className={styles.bottomBlock}>
-        <div className={`${styles.meta} ${styles.metaRow} typo-small`}>
-          <span>{item.duration || ''}</span>
+        <div className={styles.bottomBlock}>
+          {onCtaClick ? (
+            <Button
+              className={styles.cta}
+              type="button"
+              kind="card"
+              size="sm"
+              interactive
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                onCtaClick(item)
+              }}
+            >
+              {ctaText}
+            </Button>
+          ) : item.href ? (
+            <ButtonLink
+              className={styles.cta}
+              href={item.href}
+              kind="card"
+              size="sm"
+              interactive
+              onClick={(event) => {
+                event.stopPropagation()
+              }}
+            >
+              {ctaText}
+            </ButtonLink>
+          ) : (
+            <Button className={styles.cta} type="button" kind="card" size="sm" interactive disabled>
+              {ctaText}
+            </Button>
+          )}
         </div>
-        {onCtaClick ? (
-          <Button
-            className={styles.cta}
-            type="button"
-            kind="card"
-            size="sm"
-            interactive
-            onClick={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              onCtaClick(item)
-            }}
-          >
-            {ctaText}
-          </Button>
-        ) : item.href ? (
-          <ButtonLink
-            className={styles.cta}
-            href={item.href}
-            kind="card"
-            size="sm"
-            interactive
-            onClick={(event) => {
-              event.stopPropagation()
-            }}
-          >
-            {ctaText}
-          </ButtonLink>
-        ) : (
-          <Button className={styles.cta} type="button" kind="card" size="sm" interactive disabled>
-            {ctaText}
-          </Button>
-        )}
       </div>
     </article>
   )

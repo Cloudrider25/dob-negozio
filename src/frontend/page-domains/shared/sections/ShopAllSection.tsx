@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { getCarouselItemKey, CarouselCard, type CarouselItem } from '@/frontend/components/carousel'
 import { SideDrawer } from '@/frontend/components/ui/compositions/SideDrawer'
 import { Button } from '@/frontend/components/ui/primitives/button'
@@ -35,7 +35,22 @@ export type ShopAllControls = {
   clearFiltersLabel?: string
 }
 
-export function ShopAllSection({ items, controls }: { items: CarouselItem[]; controls?: ShopAllControls }) {
+export function ShopAllSection({
+  items,
+  controls,
+  countOverride,
+  renderGridItem,
+}: {
+  items: CarouselItem[]
+  controls?: ShopAllControls
+  countOverride?: number
+  renderGridItem?: (args: {
+    item: CarouselItem
+    index: number
+    defaultNode: ReactNode
+    onCtaClick?: (item: CarouselItem) => void
+  }) => ReactNode
+}) {
   const [drawerItem, setDrawerItem] = useState<CarouselItem | null>(null)
   const [controlsDrawerOpen, setControlsDrawerOpen] = useState(false)
   const [internalSortBy, setInternalSortBy] = useState<SortKey>('featured')
@@ -191,7 +206,7 @@ export function ShopAllSection({ items, controls }: { items: CarouselItem[]; con
           </div>
           <div className={styles.toolbarMeta}>
             <span className={styles.count}>
-              {sortedItems.length} {entityLabel}
+              {countOverride ?? sortedItems.length} {entityLabel}
             </span>
             <div className={styles.viewToggle} role="group" aria-label="View mode">
               <button
@@ -216,11 +231,25 @@ export function ShopAllSection({ items, controls }: { items: CarouselItem[]; con
 
         <div className={`${styles.grid} ${viewMode === 'list' ? styles.gridList : ''}`}>
           {sortedItems.map((item, index) => (
-            <CarouselCard
-              key={getCarouselItemKey(item, index)}
-              item={item}
-              onCtaClick={item.ctaAction ? handleCtaClick : undefined}
-            />
+            renderGridItem ? (
+              renderGridItem({
+                item,
+                index,
+                onCtaClick: item.ctaAction ? handleCtaClick : undefined,
+                defaultNode: (
+                  <CarouselCard
+                    item={item}
+                    onCtaClick={item.ctaAction ? handleCtaClick : undefined}
+                  />
+                ),
+              })
+            ) : (
+              <CarouselCard
+                key={getCarouselItemKey(item, index)}
+                item={item}
+                onCtaClick={item.ctaAction ? handleCtaClick : undefined}
+              />
+            )
           ))}
         </div>
       </section>

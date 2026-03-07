@@ -32,6 +32,16 @@ export interface ServiceFinal {
     packagePrice?: number;
     packageValue?: number | null;
   }>;
+  deck?: {
+    id: string;
+    name?: string;
+    slug?: string;
+    deckType?: "laser" | "wax" | "other";
+    sortOrder?: number | null;
+    coverTitle?: string;
+    coverSubtitle?: string;
+    coverImageUrl?: string;
+  };
 }
 
 // Servizio selezionato con contesto completo

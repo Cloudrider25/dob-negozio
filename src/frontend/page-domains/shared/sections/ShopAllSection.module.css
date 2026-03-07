@@ -135,7 +135,7 @@
 
 .variantPill {
   border: 1px solid var(--stroke);
-  background: color-mix(in oklab, var(--paper) 96%, var(--bg) 4%);
+  background: var(--paper);
   color: var(--text-primary);
   border-radius: 999px;
   width: 124px;
