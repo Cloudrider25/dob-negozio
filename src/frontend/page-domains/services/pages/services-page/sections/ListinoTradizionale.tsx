@@ -7,7 +7,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ShopAllSection, type ShopAllControls } from '@/frontend/page-domains/shared/sections/ShopAllSection'
 import { useNavigatorData } from '@/frontend/page-domains/services/pages/services-page/sections/navigator-data-context'
 import type { CarouselItem } from '@/frontend/components/carousel'
+import { getCarouselItemKey } from '@/frontend/components/carousel'
 import styles from '@/frontend/page-domains/services/pages/services-page/sections/ListinoTradizionale.module.css'
+import { ServiceDeckCard } from '@/frontend/page-domains/services/pages/services-page/sections/ServiceDeckCard'
 
 const FALLBACK_IMAGE = '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg'
 
@@ -37,7 +39,33 @@ type ServiceView = {
     packagePrice?: number
     packageValue?: number | null
   }>
+  deck?: {
+    id: string
+    name?: string
+    slug?: string
+    deckType?: 'laser' | 'wax' | 'other'
+    sortOrder?: number | null
+    coverTitle?: string
+    coverSubtitle?: string
+    coverImageUrl?: string
+  }
 }
+
+type DeckCarouselItem = CarouselItem & {
+  deckMeta: {
+    id: string
+    title: string
+    subtitle?: string | null
+    price?: string | null
+    imageUrl: string
+    imageAlt?: string | null
+    items: CarouselItem[]
+    sortOrder: number
+  }
+}
+
+const isDeckCarouselItem = (item: CarouselItem | DeckCarouselItem): item is DeckCarouselItem =>
+  'deckMeta' in item
 
 const parseFilterIds = (raw: string | null) =>
   new Set(
@@ -121,6 +149,7 @@ export function ListinoTradizionale() {
         areaOptions: Array.from(areasMapForService.entries()).map(([id, label]) => ({ id, label })),
         variabili: Array.isArray(service.variabili) ? service.variabili : [],
         pacchetti: Array.isArray(service.pacchetti) ? service.pacchetti : [],
+        deck: service.deck,
       }
     })
   }, [data.areas, data.goals, data.services, data.treatments])
@@ -256,9 +285,9 @@ export function ListinoTradizionale() {
     [locale],
   )
 
-  const servicesAsCards = useMemo<CarouselItem[]>(
-    () =>
-      filteredServices.map((service) => {
+  const servicesAsCards = useMemo<Array<CarouselItem | DeckCarouselItem>>(
+    () => {
+      const toCarouselItem = (service: ServiceView): CarouselItem => {
         const formattedBasePrice =
           typeof service.price === 'number' ? priceFormatter.format(service.price) : null
         const defaultServicePayload = {
@@ -333,6 +362,7 @@ export function ListinoTradizionale() {
           : variableOptions
 
         return {
+          id: service.id,
           title: service.title,
           subtitle: service.description || '',
           price: formattedBasePrice,
@@ -360,7 +390,83 @@ export function ListinoTradizionale() {
                 payload: defaultServicePayload,
               },
         }
-      }),
+      }
+
+      const singles: CarouselItem[] = []
+      const deckMap = new Map<
+        string,
+        {
+          id: string
+          title: string
+          subtitle?: string | null
+          imageUrl: string
+          imageAlt: string
+          sortOrder: number
+          items: CarouselItem[]
+          prices: number[]
+        }
+      >()
+
+      for (const service of filteredServices) {
+        const card = toCarouselItem(service)
+        const deck = service.deck
+        if (!deck?.id) {
+          singles.push(card)
+          continue
+        }
+
+        const deckTitle = deck.coverTitle || deck.name || card.title
+        const deckSubtitle = deck.coverSubtitle || null
+        const deckImageUrl = deck.coverImageUrl || service.imageUrl || FALLBACK_IMAGE
+        const sortOrder = typeof deck.sortOrder === 'number' ? deck.sortOrder : 0
+
+        if (!deckMap.has(deck.id)) {
+          deckMap.set(deck.id, {
+            id: deck.id,
+            title: deckTitle,
+            subtitle: deckSubtitle,
+            imageUrl: deckImageUrl,
+            imageAlt: deckTitle,
+            sortOrder,
+            items: [],
+            prices: [],
+          })
+        }
+
+        const entry = deckMap.get(deck.id)!
+        entry.items.push(card)
+        if (typeof service.price === 'number') entry.prices.push(service.price)
+      }
+
+      const decks: DeckCarouselItem[] = [...deckMap.values()]
+        .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title, locale))
+        .map((deck) => {
+          const minPrice = deck.prices.length > 0 ? Math.min(...deck.prices) : null
+          const formattedPrice = typeof minPrice === 'number' ? `da ${priceFormatter.format(minPrice)}` : null
+          return {
+            id: `deck:${deck.id}`,
+            title: deck.title,
+            subtitle: deck.subtitle,
+            price: formattedPrice,
+            image: {
+              url: deck.imageUrl,
+              alt: deck.imageAlt,
+            },
+            deckMeta: {
+              id: deck.id,
+              title: deck.title,
+              subtitle: deck.subtitle,
+              price: formattedPrice,
+              imageUrl: deck.imageUrl,
+              imageAlt: deck.imageAlt,
+              items: deck.items,
+              sortOrder: deck.sortOrder,
+            },
+          }
+        })
+
+      return [...decks, ...singles]
+    },
     [filteredServices, locale, priceFormatter],
   )
 
@@ -427,7 +533,30 @@ export function ListinoTradizionale() {
     >
       <div className={styles.cardsBlock}>
         {servicesAsCards.length > 0 ? (
-          <ShopAllSection items={servicesAsCards} controls={controls} />
+          <ShopAllSection
+            items={servicesAsCards}
+            controls={controls}
+            countOverride={filteredServices.length}
+            renderGridItem={({ item, index, defaultNode, onCtaClick }) => {
+              if (!isDeckCarouselItem(item)) {
+                return <div key={getCarouselItemKey(item, index)}>{defaultNode}</div>
+              }
+
+              return (
+                <ServiceDeckCard
+                  key={getCarouselItemKey(item, index)}
+                  title={item.deckMeta.title}
+                  subtitle={item.deckMeta.subtitle}
+                  price={item.deckMeta.price}
+                  count={item.deckMeta.items.length}
+                  imageUrl={item.deckMeta.imageUrl}
+                  imageAlt={item.deckMeta.imageAlt}
+                  childrenItems={item.deckMeta.items}
+                  onChildCtaClick={onCtaClick}
+                />
+              )
+            }}
+          />
         ) : (
           <div className={`${styles.empty} typo-body`}>Nessun servizio disponibile con i filtri selezionati.</div>
         )}

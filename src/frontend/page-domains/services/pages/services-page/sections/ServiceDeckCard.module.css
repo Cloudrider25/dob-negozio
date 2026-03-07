@@ -1,0 +1,160 @@
+.root {
+  position: relative;
+}
+
+.rootExpanded {
+  grid-column: 1 / -1;
+}
+
+.cover {
+  --catalog-card-height: clamp(21rem, 34vw, 40rem);
+  position: relative;
+  width: 100%;
+  min-height: var(--catalog-card-height);
+  max-height: var(--catalog-card-height);
+  height: var(--catalog-card-height);
+  border: 1px solid var(--stroke);
+  border-radius: 28px;
+  background: var(--paper);
+  color: var(--text-primary);
+  padding: 0;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.cover::before,
+.cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
+  z-index: -1;
+}
+
+.cover::before {
+  transform: translate(8px, 8px);
+  opacity: 0.48;
+}
+
+.cover::after {
+  transform: translate(16px, 16px);
+  opacity: 0.22;
+}
+
+.coverInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100%;
+  background: inherit;
+}
+
+.coverMedia {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.coverMedia::before {
+  content: '';
+  display: block;
+  padding-bottom: 100%;
+}
+
+.coverMediaImage {
+  object-fit: cover;
+}
+
+.coverPriceBadge {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 2;
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  background: var(--text-secondary);
+  color: var(--bg);
+  line-height: 1;
+}
+
+.coverMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.8rem;
+  background: var(--paper);
+  min-height: 0;
+}
+
+.coverTopRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.coverTitle {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.coverSubtitle {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.coverFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.coverCount {
+  color: var(--text-secondary);
+}
+
+.coverToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.coverToggleIcon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.rootExpanded .coverToggleIcon {
+  transform: rotate(45deg);
+}
+
+.childrenGrid {
+  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .childrenGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1025px) {
+  .cover {
+    --catalog-card-height: clamp(29rem, 44vw, 40rem);
+  }
+}

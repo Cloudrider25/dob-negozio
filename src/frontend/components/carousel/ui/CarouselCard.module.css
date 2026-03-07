@@ -4,16 +4,18 @@
   --card-title-gap: 0.5rem;
   --card-title-min-height: 2.4rem;
   --card-price-size: clamp(1.125rem, 2.4vw, 1.35rem);
-  --card-subtitle-min-height: 2rem;
+  --card-subtitle-min-height: 0;
   --card-cta-height: 2.5rem;
-  --card-cta-margin: 0.8rem 0.9rem 0.9rem;
+  --card-cta-margin: 0.9rem 0.95rem 1rem;
+  --catalog-card-height: clamp(21rem, 34vw, 40rem);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
   width: 100%;
-  min-height: 0;
-  height: auto;
+  min-height: var(--catalog-card-height);
+  max-height: var(--catalog-card-height);
+  height: var(--catalog-card-height);
   z-index: 2;
   color: var(--text-secondary);
   background: var(--paper);
@@ -29,7 +31,6 @@
 
 .media {
   position: relative;
-  border-radius: 12px 12px 0 0;
   overflow: hidden;
   background: var(--paper);
   width: 100%;
@@ -67,31 +68,29 @@
 
 .badgeLeft {
   left: 14px;
-  background: color-mix(in oklab, var(--bg) 95%, white 5%);
+  background: var(--bg);
   color: var(--text-primary);
   border-radius: 4px;
 }
 
 .badgeRight {
   right: 14px;
-  background: color-mix(in oklab, var(--text-secondary) 78%, var(--paper) 22%);
+  background: var(--text-secondary);
   color: var(--bg);
   border-radius: 999px;
 }
 
 .title {
   margin: 0;
-  min-height: calc(2 * 1.2em);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
+  min-height: 40px;
+  display: block;
+  overflow: visible;
+  letter-spacing: 0.02em;
 }
 
 .titleRow {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap: var(--card-title-gap);
   align-items: center;
   padding: calc(var(--card-content-inline) - 0.15rem) var(--card-content-inline) 0;
@@ -110,6 +109,7 @@
   flex-direction: column;
   gap: 0.4rem;
   min-height: 0;
+  background: var(--paper);
 }
 
 .meta {
@@ -123,7 +123,7 @@
   padding: 0 var(--card-content-inline);
   min-height: var(--card-subtitle-min-height);
   overflow: hidden;
-  display: -webkit-box;
+  display: none;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -132,31 +132,34 @@
 .metaRow {
   padding: 0 var(--card-content-inline);
   margin-top: 0.2rem;
+  display: none;
 }
 
 .bottomBlock {
   display: flex;
   flex-direction: column;
   gap: 0;
+  background: var(--paper);
 }
 
 .price {
   font-weight: 600;
   color: var(--text-primary);
+  display: none;
 }
 
 .cta {
   margin: var(--card-cta-margin);
   height: var(--card-cta-height);
   --btn-bg: transparent;
-  --btn-text: color-mix(in oklab, var(--text-secondary) 90%, black 10%);
-  --btn-border: color-mix(in oklab, var(--text-secondary) 70%, var(--paper) 30%);
-  --btn-hover-bg: color-mix(in oklab, var(--paper) 85%, var(--text-secondary) 15%);
+  --btn-text: var(--text-secondary);
+  --btn-border: var(--text-secondary);
+  --btn-hover-bg: var(--paper);
   --btn-hover-text: var(--text-primary);
-  --btn-hover-border: color-mix(in oklab, var(--text-secondary) 80%, var(--paper) 20%);
-  --btn-active-bg: color-mix(in oklab, var(--paper) 78%, var(--text-secondary) 22%);
+  --btn-hover-border: var(--text-secondary);
+  --btn-active-bg: var(--paper);
   --btn-active-text: var(--text-primary);
-  --btn-active-border: color-mix(in oklab, var(--text-secondary) 85%, var(--paper) 15%);
+  --btn-active-border: var(--text-secondary);
   font-size: 0.74rem;
   letter-spacing: 0.06em;
 }
@@ -171,7 +174,6 @@
     --card-subtitle-min-height: 2.4rem;
     --card-cta-height: 2.75rem;
     --card-cta-margin: 0.8rem 1.2rem 1.2rem;
-    min-height: 341px;
   }
 
   .media::before {
@@ -182,6 +184,16 @@
     grid-template-columns: 70% 30%;
   }
 
+  .title {
+    min-height: calc(2 * 1.2em);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    letter-spacing: normal;
+  }
+
   .subtitle {
     display: -webkit-box;
   }
@@ -189,39 +201,14 @@
   .metaRow {
     display: flex;
   }
-}
-
-@media (max-width: 1023px) {
-  .card {
-    --card-subtitle-min-height: 0;
-    --card-cta-margin: 0.9rem 0.95rem 1rem;
-  }
-
-  .subtitle,
-  .metaRow {
-    display: none;
-  }
-
-  .title {
-    min-height: 40px;
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-    display: block;
-    overflow: visible;
-    letter-spacing: 0.02em;
-  }
-
-  .titleRow {
-    grid-template-columns: 1fr;
-  }
 
   .price {
-    display: none;
+    display: inline;
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1025px) {
   .card {
-    min-height: 350px;
+    --catalog-card-height: clamp(29rem, 44vw, 40rem);
   }
 }

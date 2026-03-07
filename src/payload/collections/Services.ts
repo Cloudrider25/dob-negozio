@@ -428,6 +428,11 @@ export const Services: CollectionConfig = {
                   type: 'relationship',
                   relationTo: 'service-modalities',
                 },
+                {
+                  name: 'deck',
+                  type: 'relationship',
+                  relationTo: 'service-decks',
+                },
               ],
             },
           ],

@@ -36,6 +36,7 @@ import { ServiceModalities } from './collections/ServiceModalities'
 import { Badges } from './collections/Badges'
 import { Promotions } from './collections/Promotions'
 import { Programs } from './collections/Programs'
+import { ServiceDecks } from './collections/ServiceDecks'
 import { Posts } from './collections/Posts'
 import { Pages } from './collections/Pages'
 import { Orders } from './collections/Orders'
@@ -226,6 +227,7 @@ export default buildConfig({
     ConsultationLeads,
     Orders,
     OrderServiceSessions,
+    ServiceDecks,
     Services,
     Treatments,
     Areas,
