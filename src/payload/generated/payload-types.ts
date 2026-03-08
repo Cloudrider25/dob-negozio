@@ -92,6 +92,7 @@ export interface Config {
     'product-areas': ProductArea;
     'timing-products': TimingProduct;
     promotions: Promotion;
+    'promo-codes': PromoCode;
     'routine-templates': RoutineTemplate;
     'routine-template-steps': RoutineTemplateStep;
     'routine-template-step-products': RoutineTemplateStepProduct;
@@ -141,6 +142,7 @@ export interface Config {
     'product-areas': ProductAreasSelect<false> | ProductAreasSelect<true>;
     'timing-products': TimingProductsSelect<false> | TimingProductsSelect<true>;
     promotions: PromotionsSelect<false> | PromotionsSelect<true>;
+    'promo-codes': PromoCodesSelect<false> | PromoCodesSelect<true>;
     'routine-templates': RoutineTemplatesSelect<false> | RoutineTemplatesSelect<true>;
     'routine-template-steps': RoutineTemplateStepsSelect<false> | RoutineTemplateStepsSelect<true>;
     'routine-template-step-products': RoutineTemplateStepProductsSelect<false> | RoutineTemplateStepProductsSelect<true>;
@@ -237,7 +239,7 @@ export interface AccountAestheticProfile {
  */
 export interface User {
   id: number;
-  roles: ('admin' | 'editor' | 'customer')[];
+  roles: ('admin' | 'editor' | 'customer' | 'partner')[];
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
@@ -383,7 +385,22 @@ export interface Order {
   subtotal: number;
   shippingAmount: number;
   discountAmount: number;
+  commissionAmount?: number | null;
   total: number;
+  promoCode?: (number | null) | PromoCode;
+  partner?: (number | null) | User;
+  promoCodeValue?: string | null;
+  commissionStatus?: ('pending' | 'approved' | 'paid' | 'void') | null;
+  promoCodeSnapshot?: {
+    code?: string | null;
+    partnerName?: string | null;
+    discountType?: string | null;
+    discountValue?: number | null;
+    commissionType?: string | null;
+    commissionValue?: number | null;
+    appliesToProducts?: boolean | null;
+    appliesToServices?: boolean | null;
+  };
   customerEmail: string;
   customerFirstName: string;
   customerLastName: string;
@@ -423,6 +440,38 @@ export interface Order {
   appointmentConfirmedAt?: string | null;
   customer?: (number | null) | User;
   notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promo-codes".
+ */
+export interface PromoCode {
+  id: number;
+  /**
+   * Salvato sempre in uppercase per garantire unicita globale.
+   */
+  code: string;
+  active?: boolean | null;
+  internalLabel?: string | null;
+  /**
+   * Seleziona un utente con ruolo partner.
+   */
+  partner: number | User;
+  notes?: string | null;
+  discountType: 'percent' | 'amount';
+  discountValue: number;
+  commissionType: 'percent' | 'amount';
+  /**
+   * La commissione viene sempre calcolata sul netto dopo sconto.
+   */
+  commissionValue: number;
+  appliesToProducts?: boolean | null;
+  appliesToServices?: boolean | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  usageLimit?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -498,6 +547,19 @@ export interface Service {
   legacyName?: string | null;
   modalityCode?: string | null;
   slug: string;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   nomeVariabile?: string | null;
   durationMinutes?: number | null;
   price: number;
@@ -639,59 +701,6 @@ export interface Service {
   zone?: (number | null) | Zone;
   intentCode?: string | null;
   zoneCode?: string | null;
-  /**
-   * Impostazioni SEO specifiche per questa pagina.
-   */
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Path relativo senza locale. Esempio: /services/service/laser-viso
-     */
-    canonicalPath?: string | null;
-    noIndex?: boolean | null;
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "badges".
- */
-export interface Badge {
-  id: number;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-modalities".
- */
-export interface ServiceModality {
-  id: number;
-  code: string;
-  label: string;
-  active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-decks".
- */
-export interface ServiceDeck {
-  id: number;
-  name: string;
-  active?: boolean | null;
-  slug: string;
-  deckType: 'laser' | 'wax' | 'other';
-  sortOrder?: number | null;
-  coverTitle?: string | null;
-  coverSubtitle?: string | null;
-  coverImage?: (number | null) | Media;
-  internalDescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -747,6 +756,46 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges".
+ */
+export interface Badge {
+  id: number;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-modalities".
+ */
+export interface ServiceModality {
+  id: number;
+  code: string;
+  label: string;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-decks".
+ */
+export interface ServiceDeck {
+  id: number;
+  name: string;
+  active?: boolean | null;
+  slug: string;
+  deckType: 'laser' | 'wax' | 'other';
+  sortOrder?: number | null;
+  coverTitle?: string | null;
+  coverSubtitle?: string | null;
+  coverImage?: (number | null) | Media;
+  internalDescription?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -981,6 +1030,19 @@ export interface Product {
   title: string;
   active?: boolean | null;
   slug: string;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
   sku?: string | null;
   format?: string | null;
   price: number;
@@ -1084,19 +1146,6 @@ export interface Product {
     | null;
   stripeProductId?: string | null;
   stripePriceId?: string | null;
-  /**
-   * Impostazioni SEO specifiche per questa pagina.
-   */
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Path relativo senza locale. Esempio: /services/service/laser-viso
-     */
-    canonicalPath?: string | null;
-    noIndex?: boolean | null;
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1847,6 +1896,10 @@ export interface PayloadLockedDocument {
         value: number | Promotion;
       } | null)
     | ({
+        relationTo: 'promo-codes';
+        value: number | PromoCode;
+      } | null)
+    | ({
         relationTo: 'routine-templates';
         value: number | RoutineTemplate;
       } | null)
@@ -2073,7 +2126,24 @@ export interface OrdersSelect<T extends boolean = true> {
   subtotal?: T;
   shippingAmount?: T;
   discountAmount?: T;
+  commissionAmount?: T;
   total?: T;
+  promoCode?: T;
+  partner?: T;
+  promoCodeValue?: T;
+  commissionStatus?: T;
+  promoCodeSnapshot?:
+    | T
+    | {
+        code?: T;
+        partnerName?: T;
+        discountType?: T;
+        discountValue?: T;
+        commissionType?: T;
+        commissionValue?: T;
+        appliesToProducts?: T;
+        appliesToServices?: T;
+      };
   customerEmail?: T;
   customerFirstName?: T;
   customerLastName?: T;
@@ -2171,6 +2241,15 @@ export interface ServicesSelect<T extends boolean = true> {
   legacyName?: T;
   modalityCode?: T;
   slug?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   nomeVariabile?: T;
   durationMinutes?: T;
   price?: T;
@@ -2233,15 +2312,6 @@ export interface ServicesSelect<T extends boolean = true> {
   zone?: T;
   intentCode?: T;
   zoneCode?: T;
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        canonicalPath?: T;
-        noIndex?: T;
-        image?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2407,6 +2477,15 @@ export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   active?: T;
   slug?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
   sku?: T;
   format?: T;
   price?: T;
@@ -2487,15 +2566,6 @@ export interface ProductsSelect<T extends boolean = true> {
       };
   stripeProductId?: T;
   stripePriceId?: T;
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        canonicalPath?: T;
-        noIndex?: T;
-        image?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2657,6 +2727,28 @@ export interface PromotionsSelect<T extends boolean = true> {
   startsAt?: T;
   endsAt?: T;
   active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promo-codes_select".
+ */
+export interface PromoCodesSelect<T extends boolean = true> {
+  code?: T;
+  active?: T;
+  internalLabel?: T;
+  partner?: T;
+  notes?: T;
+  discountType?: T;
+  discountValue?: T;
+  commissionType?: T;
+  commissionValue?: T;
+  appliesToProducts?: T;
+  appliesToServices?: T;
+  startsAt?: T;
+  endsAt?: T;
+  usageLimit?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -480,6 +480,10 @@ export const Products: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
+        {
           label: 'Prod. Generali',
           fields: [
             {
@@ -1089,7 +1093,6 @@ export const Products: CollectionConfig = {
         },
       ],
     },
-    ...seoFields,
   ],
   timestamps: true,
 }
