@@ -537,7 +537,7 @@ export function ListinoTradizionale() {
             items={servicesAsCards}
             controls={controls}
             countOverride={filteredServices.length}
-            renderGridItem={({ item, index, defaultNode, onCtaClick }) => {
+            renderGridItem={({ item, index, defaultNode, onCtaClick, cardClassName }) => {
               if (!isDeckCarouselItem(item)) {
                 return <div key={getCarouselItemKey(item, index)}>{defaultNode}</div>
               }
@@ -553,6 +553,7 @@ export function ListinoTradizionale() {
                   imageAlt={item.deckMeta.imageAlt}
                   childrenItems={item.deckMeta.items}
                   onChildCtaClick={onCtaClick}
+                  coverClassName={cardClassName}
                 />
               )
             }}
