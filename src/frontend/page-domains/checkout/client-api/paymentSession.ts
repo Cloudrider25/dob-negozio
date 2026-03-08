@@ -14,6 +14,7 @@ export const createPaymentElementSession = async ({
   customer,
   items,
   shippingOptionID,
+  discountCode,
   productFulfillmentMode,
   serviceAppointmentMode,
   serviceRequestedDate,
@@ -23,6 +24,7 @@ export const createPaymentElementSession = async ({
   customer: CustomerSnapshot
   items: CartItem[]
   shippingOptionID: string | null
+  discountCode?: string | null
   productFulfillmentMode: 'shipping' | 'pickup' | 'none'
   serviceAppointmentMode: 'requested_slot' | 'contact_later'
   serviceRequestedDate: string
@@ -33,6 +35,7 @@ export const createPaymentElementSession = async ({
     customer,
     items,
     shippingOptionID,
+    discountCode,
     productFulfillmentMode,
     serviceAppointmentMode,
     serviceRequestedDate,
@@ -55,6 +58,9 @@ export const createPaymentElementSession = async ({
     error?: string
     orderNumber?: string
     orderId?: string | number
+    total?: number
+    discountAmount?: number
+    currency?: string
     paymentIntentClientSecret?: string | null
     stripePublishableKey?: string | null
     checkoutMode?: 'redirect' | 'payment_element'
@@ -84,6 +90,9 @@ export const createPaymentElementSession = async ({
       publishableKey: data.stripePublishableKey,
       orderNumber: data.orderNumber,
       orderId: data.orderId,
+      totalAmount: typeof data.total === 'number' ? data.total : undefined,
+      discountAmount: typeof data.discountAmount === 'number' ? data.discountAmount : undefined,
+      currency: typeof data.currency === 'string' ? data.currency : undefined,
     }
   }
 

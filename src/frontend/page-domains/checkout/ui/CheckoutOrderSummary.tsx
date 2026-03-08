@@ -12,8 +12,14 @@ type CheckoutOrderSummaryProps = {
   copy: CheckoutCopy
   subtotal: number
   totalAmount: number
+  discountAmount: number
   effectiveShippingCurrency: string
   shippingLabel: string
+  discountCodeInput: string
+  appliedDiscountCode: string
+  onDiscountCodeInputChange: (value: string) => void
+  onApplyDiscountCode: () => void
+  onRemoveDiscountCode: () => void
   recommended: RecommendedProduct[]
   recommendedLoading: boolean
   onAddRecommendedToCart: (product: RecommendedProduct) => void
@@ -25,13 +31,21 @@ export function CheckoutOrderSummary({
   copy,
   subtotal,
   totalAmount,
+  discountAmount,
   effectiveShippingCurrency,
   shippingLabel,
+  discountCodeInput,
+  appliedDiscountCode,
+  onDiscountCodeInputChange,
+  onApplyDiscountCode,
+  onRemoveDiscountCode,
   recommended,
   recommendedLoading,
   onAddRecommendedToCart,
 }: CheckoutOrderSummaryProps) {
   if (!isDesktopViewport) return null
+
+  const discountedSubtotal = Math.max(0, subtotal - discountAmount)
 
   return (
     <aside className={styles.summary}>
@@ -66,20 +80,39 @@ export function CheckoutOrderSummary({
       )}
 
       <div className={styles.codeRow}>
-        <input className={`${styles.input} typo-body`} placeholder={copy.placeholders.discountCode} />
-        <button type="button" className={cn(styles.applyButton, 'typo-body')}>
+        <input
+          className={`${styles.input} typo-body`}
+          placeholder={copy.placeholders.discountCode}
+          value={discountCodeInput}
+          onChange={(event) => onDiscountCodeInputChange(event.target.value)}
+        />
+        <button type="button" className={cn(styles.applyButton, 'typo-body')} onClick={onApplyDiscountCode}>
           {copy.actions.apply}
         </button>
       </div>
+      {appliedDiscountCode ? (
+        <div className={`${styles.summaryMeta} typo-small`}>
+          Codice applicato: {appliedDiscountCode}{' '}
+          <button type="button" className={cn(styles.applyButton, 'typo-body')} onClick={onRemoveDiscountCode}>
+            x
+          </button>
+        </div>
+      ) : null}
 
       <div className={`${styles.summaryRow} typo-body-lg`}>
         <span>{copy.summary.subtotal}</span>
-        <span>{formatPrice(subtotal)}</span>
+        <span>{formatPrice(discountedSubtotal, effectiveShippingCurrency)}</span>
       </div>
       <div className={`${styles.summaryRow} typo-body-lg`}>
         <span>{copy.summary.shipping}</span>
         <span className={`${styles.summaryMeta} typo-small`}>{shippingLabel}</span>
       </div>
+      {discountAmount > 0 ? (
+        <div className={`${styles.summaryRow} typo-body-lg`}>
+          <span>{copy.placeholders.discountCode}</span>
+          <span>- {formatPrice(discountAmount, effectiveShippingCurrency)}</span>
+        </div>
+      ) : null}
       <div className={`${styles.totalRow} typo-h3`}>
         <span>{copy.summary.total}</span>
         <span>{formatPrice(totalAmount, effectiveShippingCurrency)}</span>

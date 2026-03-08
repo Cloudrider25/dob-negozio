@@ -12,6 +12,13 @@ import {
   releaseOrderAllocation,
 } from '@/lib/server/shop/orderInventory'
 import { acquireInventoryLocks, releaseInventoryLocks } from '@/lib/server/shop/inventoryLocks'
+import {
+  calculateCommissionAmount,
+  calculateDiscountAmount,
+  distributeDiscountAcrossUnitAmounts,
+  normalizePromoCodeInput,
+  resolvePromoCode,
+} from '@/lib/server/shop/promoCodes'
 import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 import { getSendcloudShippingOptions } from '@/lib/server/sendcloud/getShippingQuote'
 import { isFreeShippingUnlocked } from '@/lib/shared/shop/shipping'
@@ -41,6 +48,7 @@ type ParsedCartItemKey =
 type CheckoutPayload = {
   locale?: string
   checkoutMode?: 'redirect' | 'embedded' | 'payment_element'
+  discountCode?: string
   productFulfillmentMode?: 'shipping' | 'pickup' | 'none'
   serviceAppointment?: {
     mode?: 'requested_slot' | 'contact_later' | 'none'
@@ -93,6 +101,7 @@ const resolveCoverImage = (product: Product) => {
 }
 
 const toStripeAmount = (value: number) => Math.round(value * 100)
+const roundCurrency = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
 
 const parseCartItemKey = (id: string, quantity: number): ParsedCartItemKey => {
   const serviceMatch = id.match(/^(\d+):(service|package):(.+)$/)
@@ -126,6 +135,7 @@ const toCartSignature = (items: ParsedCartItemKey[]) =>
 const computeCheckoutFingerprint = ({
   locale,
   email,
+  discountCode,
   productFulfillmentMode,
   shippingOptionID,
   appointmentMode,
@@ -135,6 +145,7 @@ const computeCheckoutFingerprint = ({
 }: {
   locale: string
   email: string
+  discountCode: string
   productFulfillmentMode: 'shipping' | 'pickup' | 'none'
   shippingOptionID: string
   appointmentMode: 'requested_slot' | 'contact_later' | 'none'
@@ -147,6 +158,7 @@ const computeCheckoutFingerprint = ({
   const raw = [
     locale,
     email.toLowerCase(),
+    discountCode,
     productFulfillmentMode,
     shippingOptionID,
     appointmentMode,
@@ -370,6 +382,7 @@ export async function POST(request: Request) {
       Boolean(toString(customer.city)) &&
       Boolean(toString(customer.province))
     const shippingOptionID = toString(body.shippingOptionID)
+    const discountCode = toString(body.discountCode)
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Email non valida.' }, { status: 400 })
@@ -449,6 +462,7 @@ export async function POST(request: Request) {
     const checkoutFingerprint = computeCheckoutFingerprint({
       locale,
       email,
+      discountCode: normalizePromoCodeInput(discountCode),
       productFulfillmentMode,
       shippingOptionID,
       appointmentMode,
@@ -483,16 +497,22 @@ export async function POST(request: Request) {
           id: true,
           orderNumber: true,
           paymentReference: true,
+          promoCodeValue: true,
+          discountAmount: true,
+          total: true,
+          currency: true,
         },
       })
 
       let existingOrder: (typeof existingResult.docs)[number] | undefined
+      const requestedPromoCode = normalizePromoCodeInput(discountCode)
       for (const candidate of existingResult.docs) {
         const candidateSignature = await getOrderCartSignature({
           payload,
           orderID: candidate.id,
         })
-        if (candidateSignature === requestedCartSignature) {
+        const candidatePromoCode = normalizePromoCodeInput(candidate.promoCodeValue)
+        if (candidateSignature === requestedCartSignature && candidatePromoCode === requestedPromoCode) {
           existingOrder = candidate
           break
         }
@@ -514,6 +534,13 @@ export async function POST(request: Request) {
                 ok: true,
                 orderId: existingOrder.id,
                 orderNumber: existingOrder.orderNumber,
+                total: typeof existingOrder.total === 'number' ? existingOrder.total : undefined,
+                discountAmount:
+                  typeof existingOrder.discountAmount === 'number'
+                    ? existingOrder.discountAmount
+                    : undefined,
+                currency:
+                  typeof existingOrder.currency === 'string' ? existingOrder.currency : 'EUR',
                 paymentProvider: 'stripe',
                 paymentIntentClientSecret: paymentIntent.client_secret,
                 stripePublishableKey,
@@ -644,6 +671,7 @@ export async function POST(request: Request) {
         unitPrice: number
         lineTotal: number
         stripeName: string
+        eligibleForDiscount: boolean
       }
 
       const productLineItems: ProductLineItem[] = []
@@ -817,10 +845,14 @@ export async function POST(request: Request) {
         })
       }
 
-      const productSubtotal = productLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
+      const productSubtotal = roundCurrency(
+        productLineItems.reduce((sum, item) => sum + item.lineTotal, 0),
+      )
       const productItemsCount = productLineItems.reduce((sum, item) => sum + item.quantity, 0)
-      const serviceSubtotal = serviceLineItems.reduce((sum, item) => sum + item.lineTotal, 0)
-      const subtotal = productSubtotal + serviceSubtotal
+      const serviceSubtotal = roundCurrency(
+        serviceLineItems.reduce((sum, item) => sum + item.lineTotal, 0),
+      )
+      const subtotal = roundCurrency(productSubtotal + serviceSubtotal)
       let shippingAmount = 0
       if (
         productFulfillmentMode === 'shipping' &&
@@ -837,25 +869,103 @@ export async function POST(request: Request) {
         if (shippingOptions.length > 0) {
           const selectedOption =
             shippingOptions.find((option) => option.id === shippingOptionID) || shippingOptions[0]
-          shippingAmount = selectedOption.amount
+          shippingAmount = roundCurrency(selectedOption.amount)
         }
       }
-      const discountAmount = 0
-      const total = Math.max(0, subtotal + shippingAmount - discountAmount)
+      let resolvedPromoCode: Awaited<ReturnType<typeof resolvePromoCode>> = null
+      if (discountCode) {
+        try {
+          resolvedPromoCode = await resolvePromoCode({
+            payload,
+            discountCode,
+            hasProducts,
+            hasServices,
+          })
+        } catch (promoError) {
+          return NextResponse.json(
+            {
+              error:
+                promoError instanceof Error
+                  ? promoError.message
+                  : 'Il codice sconto non è valido.',
+            },
+            { status: 409 },
+          )
+        }
+
+        if (!resolvedPromoCode) {
+          return NextResponse.json({ error: 'Il codice sconto non è valido.' }, { status: 409 })
+        }
+      }
+
+      const eligibleSubtotal = roundCurrency(
+        (resolvedPromoCode?.appliesToProducts ? productSubtotal : 0) +
+          (resolvedPromoCode?.appliesToServices ? serviceSubtotal : 0),
+      )
+      const discountAmount = resolvedPromoCode
+        ? calculateDiscountAmount({
+            amountType: resolvedPromoCode.discountType,
+            amountValue: resolvedPromoCode.discountValue,
+            eligibleSubtotal,
+          })
+        : 0
+      const eligibleNetAfterDiscount = roundCurrency(Math.max(0, eligibleSubtotal - discountAmount))
+      const commissionAmount = resolvedPromoCode
+        ? calculateCommissionAmount({
+            commissionType: resolvedPromoCode.commissionType,
+            commissionValue: resolvedPromoCode.commissionValue,
+            eligibleNetAfterDiscount,
+          })
+        : 0
+      const total = roundCurrency(Math.max(0, subtotal + shippingAmount - discountAmount))
       const checkoutLineItems: CheckoutLineItem[] = [
         ...productLineItems.map((item) => ({
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           lineTotal: item.lineTotal,
           stripeName: item.product.title || String(item.product.id),
+          eligibleForDiscount: resolvedPromoCode?.appliesToProducts === true,
         })),
         ...serviceLineItems.map((item) => ({
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           lineTotal: item.lineTotal,
           stripeName: item.title,
+          eligibleForDiscount: resolvedPromoCode?.appliesToServices === true,
         })),
       ]
+      const checkoutUnitLineItems = checkoutLineItems.flatMap((item) =>
+        Array.from({ length: item.quantity }, () => ({
+          stripeName: item.stripeName,
+          unitPrice: item.unitPrice,
+          eligibleForDiscount: item.eligibleForDiscount,
+        })),
+      )
+      const discountedUnitPrices = distributeDiscountAcrossUnitAmounts({
+        unitAmounts: checkoutUnitLineItems
+          .filter((item) => item.eligibleForDiscount)
+          .map((item) => item.unitPrice),
+        discountAmount,
+      })
+      let discountedUnitPriceIndex = 0
+      const stripeCheckoutLineItems = checkoutUnitLineItems.map((item) => {
+        if (!item.eligibleForDiscount) {
+          return {
+            quantity: 1,
+            unitPrice: item.unitPrice,
+            stripeName: item.stripeName,
+          }
+        }
+
+        const unitPrice = discountedUnitPrices[discountedUnitPriceIndex] ?? item.unitPrice
+        discountedUnitPriceIndex += 1
+
+        return {
+          quantity: 1,
+          unitPrice,
+          stripeName: item.stripeName,
+        }
+      })
 
       const createdOrder = await payload.create({
       collection: 'orders',
@@ -889,7 +999,24 @@ export async function POST(request: Request) {
         subtotal,
         shippingAmount,
         discountAmount,
+        commissionAmount,
         total,
+        promoCode: resolvedPromoCode?.promoCodeID,
+        promoCodeValue: resolvedPromoCode?.promoCodeValue,
+        partner: resolvedPromoCode?.partnerID,
+        commissionStatus: resolvedPromoCode && commissionAmount > 0 ? 'pending' : undefined,
+        promoCodeSnapshot: resolvedPromoCode
+          ? {
+              code: resolvedPromoCode.promoCodeValue,
+              partnerName: resolvedPromoCode.partnerName,
+              discountType: resolvedPromoCode.discountType,
+              discountValue: resolvedPromoCode.discountValue,
+              commissionType: resolvedPromoCode.commissionType,
+              commissionValue: resolvedPromoCode.commissionValue,
+              appliesToProducts: resolvedPromoCode.appliesToProducts,
+              appliesToServices: resolvedPromoCode.appliesToServices,
+            }
+          : undefined,
         customerEmail: email,
         customer: typeof authenticatedUser?.id === 'number' ? authenticatedUser.id : undefined,
         customerFirstName: firstName,
@@ -975,7 +1102,9 @@ export async function POST(request: Request) {
           createdServiceItemIDs.push(createdServiceItem.id)
 
           const sessionsTotal = Math.max(1, item.itemKind === 'package' ? (item.sessions ?? 1) : 1)
-          const sessionPrice = sessionsTotal > 0 ? item.lineTotal / sessionsTotal : item.lineTotal
+          const sessionPrice = roundCurrency(
+            sessionsTotal > 0 ? item.lineTotal / sessionsTotal : item.lineTotal,
+          )
           for (let sessionIndex = 1; sessionIndex <= sessionsTotal; sessionIndex += 1) {
             const createdSession = await payload.create({
               collection: 'order-service-sessions',
@@ -1053,6 +1182,8 @@ export async function POST(request: Request) {
               customerID:
                 typeof authenticatedUser?.id === 'number' ? String(authenticatedUser.id) : '',
               locale,
+              promoCode: resolvedPromoCode?.promoCodeValue || '',
+              partnerID: resolvedPromoCode ? String(resolvedPromoCode.partnerID) : '',
             },
             invoice_creation: {
               enabled: true,
@@ -1063,9 +1194,11 @@ export async function POST(request: Request) {
                 customerID:
                   typeof authenticatedUser?.id === 'number' ? String(authenticatedUser.id) : '',
                 locale,
+                promoCode: resolvedPromoCode?.promoCodeValue || '',
+                partnerID: resolvedPromoCode ? String(resolvedPromoCode.partnerID) : '',
               },
             },
-            line_items: checkoutLineItems.map((item) => ({
+            line_items: stripeCheckoutLineItems.map((item) => ({
               quantity: item.quantity,
               price_data: {
                 currency: 'eur',
@@ -1101,6 +1234,8 @@ export async function POST(request: Request) {
                 customerID:
                   typeof authenticatedUser?.id === 'number' ? String(authenticatedUser.id) : '',
                 locale,
+                promoCode: resolvedPromoCode?.promoCodeValue || '',
+                partnerID: resolvedPromoCode ? String(resolvedPromoCode.partnerID) : '',
               },
               automatic_payment_methods: {
                 enabled: true,
@@ -1125,6 +1260,7 @@ export async function POST(request: Request) {
               orderId: createdOrder.id,
               orderNumber: createdOrder.orderNumber,
               total,
+              discountAmount,
               currency: 'EUR',
               emailSent: false,
               status: 'pending',
@@ -1170,6 +1306,7 @@ export async function POST(request: Request) {
             orderId: createdOrder.id,
             orderNumber: createdOrder.orderNumber,
             total,
+            discountAmount,
             currency: 'EUR',
             emailSent: false,
             status: 'pending',
@@ -1247,6 +1384,7 @@ export async function POST(request: Request) {
           orderId: createdOrder.id,
           orderNumber: createdOrder.orderNumber,
           total,
+          discountAmount,
           currency: 'EUR',
           emailSent,
           status: process.env.SHOP_AUTO_CAPTURE !== 'false' ? 'paid' : 'pending',
