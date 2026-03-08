@@ -73,16 +73,16 @@ export const Carousel = ({
           className={styles.carousel}
           modules={[Navigation]}
           slidesPerView={single ? 1 : 3}
-          spaceBetween={single ? 16 : 48}
+          spaceBetween={single ? 16 : 24}
           centeredSlides={false}
           loop={false}
           onSwiper={setSwiper}
           navigation
           breakpoints={{
-            [CAROUSEL_BREAKPOINTS.mobile]: { slidesPerView: single ? 1 : 1.1, spaceBetween: single ? 16 : 32 },
-            [CAROUSEL_BREAKPOINTS.tablet]: { slidesPerView: single ? 1 : 2.1, spaceBetween: single ? 16 : 40 },
-            [CAROUSEL_BREAKPOINTS.desktop]: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 48 },
-            [CAROUSEL_BREAKPOINTS.wide]: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 56 },
+            [CAROUSEL_BREAKPOINTS.mobile]: { slidesPerView: single ? 1 : 1.1, spaceBetween: single ? 16 : 20 },
+            [CAROUSEL_BREAKPOINTS.tablet]: { slidesPerView: single ? 1 : 2.1, spaceBetween: single ? 16 : 24 },
+            [CAROUSEL_BREAKPOINTS.desktop]: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 24 },
+            [CAROUSEL_BREAKPOINTS.wide]: { slidesPerView: single ? 1 : 3, spaceBetween: single ? 16 : 28 },
           }}
         >
           {safeItems.map((item, index) => (

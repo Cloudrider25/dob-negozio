@@ -18,6 +18,8 @@ type ServiceDeckCardProps = {
   imageAlt?: string | null
   childrenItems: CarouselItem[]
   onChildCtaClick?: (item: CarouselItem) => void
+  coverClassName?: string
+  childCardClassName?: string
 }
 
 export function ServiceDeckCard({
@@ -29,6 +31,8 @@ export function ServiceDeckCard({
   imageAlt,
   childrenItems,
   onChildCtaClick,
+  coverClassName,
+  childCardClassName,
 }: ServiceDeckCardProps) {
   const [expanded, setExpanded] = useState(false)
 
@@ -36,7 +40,7 @@ export function ServiceDeckCard({
     <div className={`${styles.root} ${expanded ? styles.rootExpanded : ''}`}>
       <button
         type="button"
-        className={styles.cover}
+        className={`${styles.cover} ${coverClassName ?? ''}`}
         aria-expanded={expanded}
         onClick={() => setExpanded((value) => !value)}
       >
@@ -72,6 +76,7 @@ export function ServiceDeckCard({
             <CarouselCard
               key={getCarouselItemKey(item, index)}
               item={item}
+              cardClassName={childCardClassName ?? styles.childCompactMobile}
               onCtaClick={item.ctaAction ? onChildCtaClick : undefined}
             />
           ))}
