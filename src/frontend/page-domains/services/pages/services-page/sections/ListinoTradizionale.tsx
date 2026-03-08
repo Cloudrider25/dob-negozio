@@ -6,8 +6,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { ShopAllSection, type ShopAllControls } from '@/frontend/page-domains/shared/sections/ShopAllSection'
 import { useNavigatorData } from '@/frontend/page-domains/services/pages/services-page/sections/navigator-data-context'
-import type { CarouselItem } from '@/frontend/components/carousel'
-import { getCarouselItemKey } from '@/frontend/components/carousel'
+import { getCarouselItemKey } from '@/frontend/components/carousel/shared/types'
+import type { CarouselItem } from '@/frontend/components/carousel/shared/types'
 import styles from '@/frontend/page-domains/services/pages/services-page/sections/ListinoTradizionale.module.css'
 import { ServiceDeckCard } from '@/frontend/page-domains/services/pages/services-page/sections/ServiceDeckCard'
 

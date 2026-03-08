@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation'
-
 import { getDictionary, isLocale } from '@/lib/i18n/core'
 import { Hero } from '@/frontend/components/heroes/Hero'
-import { createCarouselItem, Carousel } from '@/frontend/components/carousel'
+import { Carousel } from '@/frontend/components/carousel/ui/Carousel'
+import { createCarouselItem } from '@/frontend/components/carousel/shared/mappers'
 import { ValuesSection, type ValuesSectionItem } from '@/frontend/page-domains/home/sections/ValuesSection'
 import { ProgramsSplitSection } from '@/frontend/page-domains/home/sections/ProgramsSplitSection'
 import { ProtocolSplit, type ProtocolSplitStep } from '@/frontend/components/sections/ProtocolSplit'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
-import type { CarouselItem } from '@/frontend/components/carousel'
+import type { CarouselItem } from '@/frontend/components/carousel/shared/types'
 import styles from '@/frontend/page-domains/home/page/HomePage.module.css'
 import type { HomeRouteParams } from '@/frontend/page-domains/home/internal/contracts'
 import {
