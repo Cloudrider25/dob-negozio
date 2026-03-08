@@ -35,6 +35,7 @@ import { Zones } from './collections/Zones'
 import { ServiceModalities } from './collections/ServiceModalities'
 import { Badges } from './collections/Badges'
 import { Promotions } from './collections/Promotions'
+import { PromoCodes } from './collections/PromoCodes'
 import { Programs } from './collections/Programs'
 import { ServiceDecks } from './collections/ServiceDecks'
 import { Posts } from './collections/Posts'
@@ -247,6 +248,7 @@ export default buildConfig({
     ProductAreas,
     TimingProducts,
     Promotions,
+    PromoCodes,
     RoutineTemplates,
     RoutineTemplateSteps,
     RoutineTemplateStepProducts,

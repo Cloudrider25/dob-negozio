@@ -7,6 +7,7 @@ type ServiceAppointmentMode = 'requested_slot' | 'contact_later' | 'none'
 export type CheckoutSubmitPayload = {
   checkoutMode: 'payment_element'
   locale: string
+  discountCode?: string
   customer: CustomerSnapshot
   items: Array<{ id: string; quantity: number }>
   shippingOptionID?: string
@@ -29,6 +30,7 @@ export const buildCheckoutSubmitPayload = ({
   customer,
   items,
   shippingOptionID,
+  discountCode,
   productFulfillmentMode,
   serviceAppointmentMode,
   serviceRequestedDate,
@@ -38,6 +40,7 @@ export const buildCheckoutSubmitPayload = ({
   customer: CustomerSnapshot
   items: CartItem[]
   shippingOptionID: string | null
+  discountCode?: string | null
   productFulfillmentMode: ProductFulfillmentMode
   serviceAppointmentMode: 'requested_slot' | 'contact_later'
   serviceRequestedDate: string
@@ -82,6 +85,9 @@ export const buildCheckoutSubmitPayload = ({
   return {
     checkoutMode: 'payment_element',
     locale,
+    ...(typeof discountCode === 'string' && discountCode.trim().length > 0
+      ? { discountCode: discountCode.trim() }
+      : {}),
     customer,
     items: normalizedItems,
     productFulfillmentMode: normalizedFulfillmentMode,

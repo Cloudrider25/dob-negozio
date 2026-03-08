@@ -241,6 +241,10 @@ export const Services: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
+          label: 'SEO',
+          fields: [...seoFields],
+        },
+        {
           label: 'Serv. Generali',
           fields: [
             {
@@ -688,7 +692,6 @@ export const Services: CollectionConfig = {
         },
       ],
     },
-    ...seoFields,
   ],
   timestamps: true,
 }
