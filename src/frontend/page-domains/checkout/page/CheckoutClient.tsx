@@ -57,6 +57,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   )
   const [serviceRequestedDate, setServiceRequestedDate] = useState('')
   const [serviceRequestedTime, setServiceRequestedTime] = useState('')
+  const [discountCodeInput, setDiscountCodeInput] = useState('')
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState('')
   const [items, setItems] = useState<CartItem[]>([])
   const isDesktopViewport = useDesktopViewport()
 
@@ -222,7 +224,6 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         ? shippingAmount
         : 0
   const effectiveShippingCurrency = selectedShippingOption ? selectedShippingOption.currency : shippingCurrency
-  const totalAmount = subtotal + effectiveShippingAmount
 
   const {
     paymentSession,
@@ -239,6 +240,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     formState,
     items,
     selectedShippingOptionID,
+    discountCode: appliedDiscountCode,
     productFulfillmentMode,
     serviceAppointmentMode,
     serviceRequestedDate,
@@ -255,6 +257,9 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
       checkoutResponseInvalid: copy.messages.checkoutResponseInvalid,
     },
   })
+  const displayDiscountAmount =
+    typeof paymentSession?.discountAmount === 'number' ? paymentSession.discountAmount : 0
+  const totalAmount = Math.max(0, subtotal - displayDiscountAmount + effectiveShippingAmount)
 
   const { onGoToShippingStep, onBackToInformationStep, onGoToPaymentStep, onBackToShippingStep } =
     useCheckoutStepActions({
@@ -290,6 +295,18 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     emitCartUpdated()
     const orderCode = paymentSession?.orderNumber || String(paymentSession?.orderId || '')
     router.push(`/${resolvedLocale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`)
+  }
+
+  const onApplyDiscountCode = () => {
+    const normalized = discountCodeInput.trim().toUpperCase()
+    setError(null)
+    setAppliedDiscountCode(normalized)
+  }
+
+  const onRemoveDiscountCode = () => {
+    setError(null)
+    setDiscountCodeInput('')
+    setAppliedDiscountCode('')
   }
 
 
@@ -378,8 +395,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         copy={copy}
         subtotal={subtotal}
         totalAmount={totalAmount}
+        discountAmount={displayDiscountAmount}
         effectiveShippingCurrency={effectiveShippingCurrency}
         shippingLabel={shippingLabel}
+        discountCodeInput={discountCodeInput}
+        appliedDiscountCode={appliedDiscountCode}
+        onDiscountCodeInputChange={setDiscountCodeInput}
+        onApplyDiscountCode={onApplyDiscountCode}
+        onRemoveDiscountCode={onRemoveDiscountCode}
         recommended={recommended}
         recommendedLoading={recommendedLoading}
         onAddRecommendedToCart={addRecommendedToCart}

@@ -51,6 +51,7 @@ export function ShopAllSection({
     index: number
     defaultNode: ReactNode
     onCtaClick?: (item: CarouselItem) => void
+    cardClassName?: string
   }) => ReactNode
 }) {
   const [drawerItem, setDrawerItem] = useState<CarouselItem | null>(null)
@@ -59,6 +60,12 @@ export function ShopAllSection({
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid')
   const sortBy = controls?.sortValue ?? internalSortBy
   const setSortBy = controls?.onSortChange ?? setInternalSortBy
+  const cardClassName =
+    viewMode === 'grid'
+      ? styles.compactCardMobile
+      : viewMode === 'list'
+        ? styles.desktopTwoColumnCard
+        : undefined
   const sortOptions: Array<{ key: SortKey; label: string }> = controls?.sortOptions ?? [
     { key: 'featured', label: 'featured' },
     { key: 'price-asc', label: 'price low-high' },
@@ -238,9 +245,11 @@ export function ShopAllSection({
                 item,
                 index,
                 onCtaClick: item.ctaAction ? handleCtaClick : undefined,
+                cardClassName,
                 defaultNode: (
                   <CarouselCard
                     item={item}
+                    cardClassName={cardClassName}
                     onCtaClick={item.ctaAction ? handleCtaClick : undefined}
                   />
                 ),
@@ -249,6 +258,7 @@ export function ShopAllSection({
               <CarouselCard
                 key={getCarouselItemKey(item, index)}
                 item={item}
+                cardClassName={cardClassName}
                 onCtaClick={item.ctaAction ? handleCtaClick : undefined}
               />
             )

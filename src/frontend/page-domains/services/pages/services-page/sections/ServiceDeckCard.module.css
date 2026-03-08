@@ -7,7 +7,7 @@
 }
 
 .cover {
-  --catalog-card-height: clamp(21rem, 34vw, 40rem);
+  --catalog-card-height: clamp(37rem, 34vw, 40rem);
   position: relative;
   width: 100%;
   min-height: var(--catalog-card-height);
@@ -21,6 +21,12 @@
   text-align: left;
   overflow: hidden;
   cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .childCompactMobile {
+    --catalog-card-height: clamp(21rem, 34vw, 40rem) !important;
+  }
 }
 
 .cover::before,

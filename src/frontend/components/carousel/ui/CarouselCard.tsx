@@ -43,29 +43,30 @@ export const CarouselCard = ({
 
   const resolvedCtaLabel = resolveCarouselCtaLabel(item, ctaLabel)
   const ctaText = isTouchDevice && item.mobileCtaLabel ? item.mobileCtaLabel : resolvedCtaLabel
+  const isNavigable = Boolean(item.href)
 
   const imageUrl = typeof item.image?.url === 'string' ? item.image.url.trim() : ''
   const hasImage = imageUrl.length > 0
   const singleBadge = item.badgeRight || item.tag || item.badgeLeft || null
 
   const handleNavigateToDetail = () => {
-    if (!isTouchDevice || !item.href) return
+    if (!item.href) return
     router.push(item.href)
   }
 
   return (
     <article
-      className={`${styles.card} ${isTouchDevice && item.href ? styles.cardTouchLink : ''} typo-body ${cardClassName ?? ''}`}
+      className={`${styles.card} ${isNavigable ? styles.cardTouchLink : ''} typo-body ${cardClassName ?? ''}`}
       onClick={handleNavigateToDetail}
       onKeyDown={(event) => {
-        if (!isTouchDevice || !item.href) return
+        if (!item.href) return
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
           router.push(item.href)
         }
       }}
-      role={isTouchDevice && item.href ? 'link' : undefined}
-      tabIndex={isTouchDevice && item.href ? 0 : undefined}
+      role={isNavigable ? 'link' : undefined}
+      tabIndex={isNavigable ? 0 : undefined}
     >
       <div className={`${styles.media} ${mediaClassName ?? ''}`}>
         {singleBadge ? <span className={`${styles.badgeRight} typo-caption-upper`}>{singleBadge}</span> : null}
