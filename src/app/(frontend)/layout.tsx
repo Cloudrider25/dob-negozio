@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import { Instrument_Sans } from 'next/font/google'
 import { Work_Sans } from 'next/font/google'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import '../../styles/globals.css'
 import { ThemeHydrator } from '@/frontend/components/theme/ThemeHydrator'
 import { getSeoBaseUrl } from '@/lib/frontend/seo/metadata'
@@ -72,6 +73,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         </Script>
         <ThemeHydrator />
         <main>{children}</main>
+        <SpeedInsights />
       </body>
     </html>
   )
