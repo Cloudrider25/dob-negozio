@@ -56,6 +56,7 @@ export const useCheckoutPaymentSession = ({
   formState,
   items,
   selectedShippingOptionID,
+  discountCode,
   productFulfillmentMode,
   serviceAppointmentMode,
   serviceRequestedDate,
@@ -70,6 +71,7 @@ export const useCheckoutPaymentSession = ({
   formState: CustomerSnapshot
   items: CartItem[]
   selectedShippingOptionID: string | null
+  discountCode?: string | null
   productFulfillmentMode: 'shipping' | 'pickup' | 'none'
   serviceAppointmentMode: 'requested_slot' | 'contact_later'
   serviceRequestedDate: string
@@ -98,9 +100,11 @@ export const useCheckoutPaymentSession = ({
     async ({
       silent = false,
       allowIncompleteForExpress = false,
+      overrideDiscountCode,
     }: {
       silent?: boolean
       allowIncompleteForExpress?: boolean
+      overrideDiscountCode?: string | null
     } = {}) => {
       if (inFlightRef.current || submitting || prefetching) return
       if (!allowIncompleteForExpress && !isFormComplete) {
@@ -127,6 +131,7 @@ export const useCheckoutPaymentSession = ({
           customer: formState,
           items,
           shippingOptionID: selectedShippingOptionID,
+          discountCode: overrideDiscountCode ?? discountCode,
           productFulfillmentMode,
           serviceAppointmentMode,
           serviceRequestedDate,
@@ -172,6 +177,7 @@ export const useCheckoutPaymentSession = ({
       isFormComplete,
       items,
       locale,
+      discountCode,
       messages.cartEmptyError,
       messages.checkoutFailed,
       messages.checkoutResponseInvalid,
@@ -192,7 +198,8 @@ export const useCheckoutPaymentSession = ({
   useEffect(() => {
     setExpressPrefetchTried(false)
     setExpressPrefetchError(null)
-  }, [cartFingerprint, locale])
+    setPaymentSession(null)
+  }, [cartFingerprint, locale, discountCode])
 
   useEffect(() => {
     if (activeStep === 'information') {

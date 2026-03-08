@@ -7,6 +7,9 @@ export type PaymentSession = {
   publishableKey: string
   orderNumber?: string
   orderId?: string | number
+  discountAmount?: number
+  totalAmount?: number
+  currency?: string
 }
 
 export type RecommendedProduct = {
