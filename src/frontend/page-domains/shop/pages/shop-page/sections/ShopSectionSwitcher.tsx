@@ -8,7 +8,7 @@ import { ShopAllSection } from '@/frontend/page-domains/shared/sections/ShopAllS
 import { ConsulenzaSection } from '@/frontend/page-domains/shared/sections/ConsulenzaSection'
 import { SectionSwitcher } from '@/frontend/components/sections/SectionSwitcher'
 import type { ProductCard } from '@/frontend/page-domains/shop/pages/shop-page/sections/shop-navigator.types'
-import type { CarouselItem } from '@/frontend/components/carousel'
+import type { CarouselItem } from '@/frontend/components/carousel/shared/types'
 import styles from './ShopSectionSwitcher.module.css'
 
 const RoutineBuilderSplitSection = dynamic(

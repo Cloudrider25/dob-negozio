@@ -1,7 +1,9 @@
 'use client'
 
 import { useMemo, useState, type ReactNode } from 'react'
-import { getCarouselItemKey, CarouselCard, type CarouselItem } from '@/frontend/components/carousel'
+import { CarouselCard } from '@/frontend/components/carousel/ui/CarouselCard'
+import { getCarouselItemKey } from '@/frontend/components/carousel/shared/types'
+import type { CarouselItem } from '@/frontend/components/carousel/shared/types'
 import { SideDrawer } from '@/frontend/components/ui/compositions/SideDrawer'
 import { Button } from '@/frontend/components/ui/primitives/button'
 import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/frontend/cart/storage'
