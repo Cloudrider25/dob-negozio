@@ -31,7 +31,8 @@ const getBaseUrl = (): string => {
     process.env.PAYLOAD_PUBLIC_SERVER_URL ||
     'https://dobmilano.com'
 
-  return raw.endsWith('/') ? raw.slice(0, -1) : raw
+  const normalized = raw.trim().replace(/\s+/g, '')
+  return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
 }
 
 const toPath = (locale: Locale, path: string) => `/${locale}${path}`
