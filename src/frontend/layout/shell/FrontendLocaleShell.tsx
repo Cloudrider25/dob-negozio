@@ -1,4 +1,4 @@
-import { CartDrawerLazy } from '@/frontend/components/cart'
+import { CartDrawerLazy } from '@/frontend/components/cart/ui/CartDrawerLazy'
 import { Footer } from '@/frontend/layout/footer/Footer'
 import { HeaderThemeObserver } from '@/frontend/layout/header/HeaderThemeObserver'
 import { Header } from '@/frontend/layout/header/Header'

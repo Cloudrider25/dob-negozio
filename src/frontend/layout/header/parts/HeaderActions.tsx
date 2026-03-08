@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 
-import { CartDrawerTrigger, CartDrawerIconTrigger } from '@/frontend/components/cart'
+import { CartDrawerIconTrigger } from '@/frontend/components/cart/ui/CartDrawerIconTrigger'
+import { CartDrawerTrigger } from '@/frontend/components/cart/ui/CartDrawerTrigger'
 import { SearchDrawerTrigger } from '@/frontend/layout/search/SearchDrawerTrigger'
 import { Search, ShoppingBag } from '@/frontend/components/ui/primitives/icons'
 import { cn } from '@/lib/shared/ui/cn'

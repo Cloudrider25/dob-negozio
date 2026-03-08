@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { isLocale } from '@/lib/i18n/core'
-import { CartPageClient } from '@/frontend/components/cart'
+import { CartPageClient } from '@/frontend/components/cart/ui/CartPageClient'
 import { buildSeoMetadata } from '@/lib/frontend/seo/metadata'
 
 export const generateMetadata = async ({
