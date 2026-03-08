@@ -26,13 +26,6 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - name: Pull Vercel production environment
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
-          VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
-        run: pnpm dlx vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -43,25 +36,15 @@ jobs:
         run: pnpm typecheck
 
       - name: Integration tests
-        shell: bash
-        run: |
-          set -a
-          source .vercel/.env.production.local
-          set +a
-          export VERCEL_ENV=production
-          pnpm test:int
+        run: pnpm test:int
         env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
       - name: Build
-        shell: bash
-        run: |
-          set -a
-          source .vercel/.env.production.local
-          set +a
-          export VERCEL_ENV=production
-          pnpm build
+        run: pnpm build
         env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_TELEMETRY_DISABLED: '1'
 
