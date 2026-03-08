@@ -5,7 +5,7 @@
   --card-cta-height: 2.2rem;
   --card-cta-margin-top: 0.8rem;
   --card-price-size: clamp(1.125rem, 2.4vw, 1.35rem);
-  --catalog-card-height: clamp(21rem, 34vw, 40rem);
+  --catalog-card-height: clamp(37rem, 34vw, 40rem);
   position: relative;
   width: 100%;
   min-height: var(--catalog-card-height);
@@ -24,7 +24,7 @@
 
 .media {
   position: absolute;
-  inset: 0 0 7.4rem;
+  inset: 1px 1px 7.4rem;
   overflow: hidden;
   background: var(--paper);
 }
@@ -173,7 +173,7 @@
   }
 
   .media {
-    inset: 0;
+    inset: 1px 1px 7.4rem;
   }
 
   .titleRow {
