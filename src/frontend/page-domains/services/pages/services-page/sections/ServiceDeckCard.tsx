@@ -5,7 +5,8 @@ import { useState } from 'react'
 import { PlusIcon } from '@heroicons/react/24/outline'
 
 import { CarouselCard } from '@/frontend/components/carousel/ui/CarouselCard'
-import { getCarouselItemKey, type CarouselItem } from '@/frontend/components/carousel'
+import { getCarouselItemKey } from '@/frontend/components/carousel/shared/types'
+import type { CarouselItem } from '@/frontend/components/carousel/shared/types'
 import styles from './ServiceDeckCard.module.css'
 
 type ServiceDeckCardProps = {
