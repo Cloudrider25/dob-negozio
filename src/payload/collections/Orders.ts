@@ -75,6 +75,34 @@ export const Orders: CollectionConfig = {
           data.appointmentConfirmedAt = new Date().toISOString()
         }
 
+        const nextOrderStatus =
+          typeof data.status === 'string'
+            ? data.status
+            : typeof originalDoc?.status === 'string'
+              ? originalDoc.status
+              : ''
+        const nextPaymentStatus =
+          typeof data.paymentStatus === 'string'
+            ? data.paymentStatus
+            : typeof originalDoc?.paymentStatus === 'string'
+              ? originalDoc.paymentStatus
+              : ''
+        const hasCommission =
+          typeof data.commissionAmount === 'number'
+            ? data.commissionAmount > 0
+            : typeof originalDoc?.commissionAmount === 'number'
+              ? originalDoc.commissionAmount > 0
+              : false
+
+        if (
+          hasCommission &&
+          (nextOrderStatus === 'cancelled' ||
+            nextOrderStatus === 'refunded' ||
+            nextPaymentStatus === 'refunded')
+        ) {
+          data.commissionStatus = 'void'
+        }
+
         return data
       },
     ],
@@ -376,10 +404,112 @@ export const Orders: CollectionConfig = {
                   defaultValue: 0,
                 },
                 {
+                  name: 'commissionAmount',
+                  type: 'number',
+                  min: 0,
+                  defaultValue: 0,
+                },
+                {
                   name: 'total',
                   type: 'number',
                   min: 0,
                   required: true,
+                },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'promoCode',
+                  type: 'relationship',
+                  relationTo: 'promo-codes',
+                },
+                {
+                  name: 'partner',
+                  type: 'relationship',
+                  relationTo: 'users',
+                  filterOptions: {
+                    roles: {
+                      contains: 'partner',
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'promoCodeValue',
+                  type: 'text',
+                },
+                {
+                  name: 'commissionStatus',
+                  type: 'select',
+                  options: ['pending', 'approved', 'paid', 'void'],
+                },
+              ],
+            },
+            {
+              name: 'promoCodeSnapshot',
+              type: 'group',
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'code',
+                      type: 'text',
+                    },
+                    {
+                      name: 'partnerName',
+                      type: 'text',
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'discountType',
+                      type: 'text',
+                    },
+                    {
+                      name: 'discountValue',
+                      type: 'number',
+                      min: 0,
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'commissionType',
+                      type: 'text',
+                    },
+                    {
+                      name: 'commissionValue',
+                      type: 'number',
+                      min: 0,
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'appliesToProducts',
+                      type: 'checkbox',
+                      defaultValue: false,
+                    },
+                    {
+                      name: 'appliesToServices',
+                      type: 'checkbox',
+                      defaultValue: false,
+                    },
+                  ],
                 },
               ],
             },
