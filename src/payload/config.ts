@@ -51,6 +51,7 @@ import { Anagrafiche } from './collections/Anagrafiche'
 import { AccountAestheticProfiles } from './collections/AccountAestheticProfiles'
 import { SiteSettings } from './globals/SiteSettings'
 import { InstagramSettings } from './globals/InstagramSettings'
+import { PartnerPayouts } from './globals/PartnerPayouts'
 import { siteSettingsSMTPAdapter } from '../lib/server/email/siteSettingsSMTPAdapter'
 import { seedShopTaxonomies } from '../seed/shop-seed'
 
@@ -267,7 +268,7 @@ export default buildConfig({
     ShopInventoryLocks,
     AuthAuditEvents,
   ],
-  globals: [SiteSettings, InstagramSettings],
+  globals: [SiteSettings, InstagramSettings, PartnerPayouts],
   localization: {
     locales: ['it', 'en', 'ru'],
     defaultLocale: 'it',

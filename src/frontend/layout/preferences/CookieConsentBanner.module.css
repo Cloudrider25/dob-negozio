@@ -1,0 +1,130 @@
+.banner {
+  position: fixed;
+  z-index: 90;
+  inset-inline: 0;
+  bottom: 0;
+  background: var(--paper);
+  color: var(--text-secondary);
+  border-top: 1px solid var(--stroke);
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.08);
+  padding: 1.25rem 1rem 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.title,
+.body,
+.sectionTitle {
+  margin: 0;
+}
+
+.title {
+  color: var(--text-primary);
+  padding-right: 3rem;
+}
+
+.linksRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.separator {
+  color: var(--text-muted);
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+.toggleGrid {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.toggleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toggle {
+  width: 4.4rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: var(--surface-elevated, var(--bg-secondary));
+  padding: 0.18rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.toggleActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.toggleThumb {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: var(--paper);
+  transition: transform 0.2s ease;
+}
+
+.toggleActive .toggleThumb {
+  transform: translateX(1.75rem);
+}
+
+.toggleLabel {
+  color: var(--text-secondary);
+}
+
+.actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  width: 100%;
+}
+
+@media (min-width: 760px) {
+  .banner {
+    inset-inline: auto;
+    left: 1rem;
+    bottom: 1rem;
+    width: min(34rem, calc(100vw - 2rem));
+    border: 1px solid var(--stroke);
+    border-radius: 28px;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+    padding: 1.5rem;
+  }
+}
+

@@ -1,6 +1,7 @@
 import { CartDrawerLazy } from '@/frontend/components/cart/ui/CartDrawerLazy'
 import { Footer } from '@/frontend/layout/footer/Footer'
 import { HeaderThemeObserver } from '@/frontend/layout/header/HeaderThemeObserver'
+import { CookieConsentBanner } from '@/frontend/layout/preferences/CookieConsentBanner'
 import { Header } from '@/frontend/layout/header/Header'
 import { SearchDrawerLazy } from '@/frontend/layout/search/SearchDrawerLazy'
 import type { FrontendLocaleShellProps } from '@/frontend/layout/shell/contracts'
@@ -42,6 +43,7 @@ export const FrontendLocaleShell = ({
         menuHighlights={menuHighlights}
       />
       <div className={styles.content}>{children}</div>
+      <CookieConsentBanner locale={locale} />
       <SearchDrawerLazy locale={locale} />
       <CartDrawerLazy locale={locale} />
       <Footer

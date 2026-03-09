@@ -172,10 +172,12 @@ export interface Config {
   globals: {
     'site-settings': SiteSetting;
     'instagram-settings': InstagramSetting;
+    'partner-payouts': PartnerPayout;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'instagram-settings': InstagramSettingsSelect<false> | InstagramSettingsSelect<true>;
+    'partner-payouts': PartnerPayoutsSelect<false> | PartnerPayoutsSelect<true>;
   };
   locale: 'it' | 'en' | 'ru';
   user: User & {
@@ -391,6 +393,9 @@ export interface Order {
   partner?: (number | null) | User;
   promoCodeValue?: string | null;
   commissionStatus?: ('pending' | 'approved' | 'paid' | 'void') | null;
+  commissionPaidAt?: string | null;
+  commissionPayoutReference?: string | null;
+  commissionPayoutNotes?: string | null;
   promoCodeSnapshot?: {
     code?: string | null;
     partnerName?: string | null;
@@ -2132,6 +2137,9 @@ export interface OrdersSelect<T extends boolean = true> {
   partner?: T;
   promoCodeValue?: T;
   commissionStatus?: T;
+  commissionPaidAt?: T;
+  commissionPayoutReference?: T;
+  commissionPayoutNotes?: T;
   promoCodeSnapshot?:
     | T
     | {
@@ -3344,6 +3352,15 @@ export interface InstagramSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partner-payouts".
+ */
+export interface PartnerPayout {
+  id: number;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -3400,6 +3417,15 @@ export interface InstagramSettingsSelect<T extends boolean = true> {
   accessToken?: T;
   limit?: T;
   revalidateSeconds?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partner-payouts_select".
+ */
+export interface PartnerPayoutsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
