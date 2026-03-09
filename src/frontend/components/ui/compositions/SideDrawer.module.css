@@ -29,6 +29,12 @@
   gap: 1.2rem;
 }
 
+.panelLeft {
+  right: auto;
+  left: 0;
+  transform: translateX(-110%);
+}
+
 .panelBottom {
   top: auto;
   right: 0;
@@ -59,10 +65,11 @@
 
 .header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.5fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 1rem;
   color: var(--text-secondary);
+  padding: 0.7rem;
 }
 
 .title {

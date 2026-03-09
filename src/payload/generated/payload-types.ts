@@ -172,10 +172,12 @@ export interface Config {
   globals: {
     'site-settings': SiteSetting;
     'instagram-settings': InstagramSetting;
+    'partner-payouts': PartnerPayout;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'instagram-settings': InstagramSettingsSelect<false> | InstagramSettingsSelect<true>;
+    'partner-payouts': PartnerPayoutsSelect<false> | PartnerPayoutsSelect<true>;
   };
   locale: 'it' | 'en' | 'ru';
   user: User & {
@@ -391,6 +393,9 @@ export interface Order {
   partner?: (number | null) | User;
   promoCodeValue?: string | null;
   commissionStatus?: ('pending' | 'approved' | 'paid' | 'void') | null;
+  commissionPaidAt?: string | null;
+  commissionPayoutReference?: string | null;
+  commissionPayoutNotes?: string | null;
   promoCodeSnapshot?: {
     code?: string | null;
     partnerName?: string | null;
@@ -1501,6 +1506,7 @@ export interface Page {
     | 'our-story'
     | 'dob-protocol'
     | 'privacy'
+    | 'cookie-policy'
     | 'contact'
     | 'checkout';
   /**
@@ -1655,6 +1661,34 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+  };
+  cookiePolicyPageTitle?: string | null;
+  cookiePolicyPageIntro?: string | null;
+  cookiePolicySections?:
+    | {
+        title?: string | null;
+        body?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  cookiePolicyBanner?: {
+    title?: string | null;
+    body?: string | null;
+    cookiePolicyLabel?: string | null;
+    privacyPolicyLabel?: string | null;
+    storagePreferencesLabel?: string | null;
+    advertisingLabel?: string | null;
+    advertisingDescription?: string | null;
+    personalizationLabel?: string | null;
+    personalizationDescription?: string | null;
+    analyticsLabel?: string | null;
+    analyticsDescription?: string | null;
+    essentialLabel?: string | null;
+    essentialDescription?: string | null;
+    saveLabel?: string | null;
+    acceptAllLabel?: string | null;
+    rejectOptionalLabel?: string | null;
+    closeLabel?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -2132,6 +2166,9 @@ export interface OrdersSelect<T extends boolean = true> {
   partner?: T;
   promoCodeValue?: T;
   commissionStatus?: T;
+  commissionPaidAt?: T;
+  commissionPayoutReference?: T;
+  commissionPayoutNotes?: T;
   promoCodeSnapshot?:
     | T
     | {
@@ -3017,6 +3054,36 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  cookiePolicyPageTitle?: T;
+  cookiePolicyPageIntro?: T;
+  cookiePolicySections?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  cookiePolicyBanner?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        cookiePolicyLabel?: T;
+        privacyPolicyLabel?: T;
+        storagePreferencesLabel?: T;
+        advertisingLabel?: T;
+        advertisingDescription?: T;
+        personalizationLabel?: T;
+        personalizationDescription?: T;
+        analyticsLabel?: T;
+        analyticsDescription?: T;
+        essentialLabel?: T;
+        essentialDescription?: T;
+        saveLabel?: T;
+        acceptAllLabel?: T;
+        rejectOptionalLabel?: T;
+        closeLabel?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3344,6 +3411,15 @@ export interface InstagramSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partner-payouts".
+ */
+export interface PartnerPayout {
+  id: number;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -3400,6 +3476,15 @@ export interface InstagramSettingsSelect<T extends boolean = true> {
   accessToken?: T;
   limit?: T;
   revalidateSeconds?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partner-payouts_select".
+ */
+export interface PartnerPayoutsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

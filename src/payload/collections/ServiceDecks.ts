@@ -10,19 +10,6 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '')
 
-const getPrimaryLocalizedText = (value: unknown): string => {
-  if (typeof value === 'string') return value
-  if (value && typeof value === 'object') {
-    const localized = value as Record<string, unknown>
-    if (typeof localized.it === 'string' && localized.it.trim()) return localized.it
-    const first = Object.values(localized).find(
-      (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0,
-    )
-    if (first) return first
-  }
-  return ''
-}
-
 export const ServiceDecks: CollectionConfig = {
   slug: 'service-decks',
   admin: {

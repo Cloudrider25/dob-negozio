@@ -65,3 +65,4 @@ public/media/hero_homepage_light.png
 
 # Next backup artifacts
 .next.bak-*
+.next-preclean-*

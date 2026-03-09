@@ -93,6 +93,12 @@ export const Orders: CollectionConfig = {
             : typeof originalDoc?.commissionAmount === 'number'
               ? originalDoc.commissionAmount > 0
               : false
+        const nextCommissionStatus =
+          typeof data.commissionStatus === 'string'
+            ? data.commissionStatus
+            : typeof originalDoc?.commissionStatus === 'string'
+              ? originalDoc.commissionStatus
+              : ''
 
         if (
           hasCommission &&
@@ -101,6 +107,25 @@ export const Orders: CollectionConfig = {
             nextPaymentStatus === 'refunded')
         ) {
           data.commissionStatus = 'void'
+          data.commissionPaidAt = null
+        } else if (nextCommissionStatus === 'paid') {
+          const currentPaidAt =
+            typeof data.commissionPaidAt === 'string'
+              ? data.commissionPaidAt
+              : typeof originalDoc?.commissionPaidAt === 'string'
+                ? originalDoc.commissionPaidAt
+                : ''
+
+          if (!currentPaidAt) {
+            data.commissionPaidAt = new Date().toISOString()
+          }
+        } else if (
+          typeof originalDoc?.commissionStatus === 'string' &&
+          originalDoc.commissionStatus === 'paid' &&
+          nextCommissionStatus !== 'paid' &&
+          !('commissionPaidAt' in data)
+        ) {
+          data.commissionPaidAt = null
         }
 
         return data
@@ -450,6 +475,28 @@ export const Orders: CollectionConfig = {
                   options: ['pending', 'approved', 'paid', 'void'],
                 },
               ],
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'commissionPaidAt',
+                  type: 'date',
+                  admin: {
+                    date: {
+                      pickerAppearance: 'dayAndTime',
+                    },
+                  },
+                },
+                {
+                  name: 'commissionPayoutReference',
+                  type: 'text',
+                },
+              ],
+            },
+            {
+              name: 'commissionPayoutNotes',
+              type: 'textarea',
             },
             {
               name: 'promoCodeSnapshot',

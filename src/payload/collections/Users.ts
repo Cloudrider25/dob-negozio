@@ -254,70 +254,108 @@ export const Users: CollectionConfig = {
   fields: [
     // Email added by default
     {
-      name: 'roles',
-      type: 'select',
-      hasMany: true,
-      options: ['admin', 'editor', 'customer', 'partner'],
-      defaultValue: ['customer'],
-      required: true,
-      saveToJWT: true,
-      access: {
-        create: isAdminField,
-        update: isAdminField,
-      },
-    },
-    {
-      type: 'row',
-      fields: [
+      type: 'tabs',
+      tabs: [
         {
-          name: 'firstName',
-          type: 'text',
+          label: 'General',
+          fields: [
+            {
+              name: 'roles',
+              type: 'select',
+              hasMany: true,
+              options: ['admin', 'editor', 'customer', 'partner'],
+              defaultValue: ['customer'],
+              required: true,
+              saveToJWT: true,
+              access: {
+                create: isAdminField,
+                update: isAdminField,
+              },
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'firstName',
+                  type: 'text',
+                },
+                {
+                  name: 'lastName',
+                  type: 'text',
+                },
+              ],
+            },
+            {
+              name: 'phone',
+              type: 'text',
+            },
+          ],
         },
         {
-          name: 'lastName',
-          type: 'text',
-        },
-      ],
-    },
-    {
-      name: 'phone',
-      type: 'text',
-    },
-    {
-      name: 'addresses',
-      type: 'array',
-      labels: {
-        singular: 'Indirizzo',
-        plural: 'Indirizzi',
-      },
-      fields: [
-        { name: 'firstName', type: 'text' },
-        { name: 'lastName', type: 'text' },
-        { name: 'company', type: 'text' },
-        { name: 'streetAddress', type: 'text' },
-        { name: 'apartment', type: 'text' },
-        { name: 'city', type: 'text' },
-        { name: 'country', type: 'text' },
-        { name: 'province', type: 'text' },
-        { name: 'postalCode', type: 'text' },
-        { name: 'phone', type: 'text' },
-        { name: 'isDefault', type: 'checkbox', defaultValue: false },
-      ],
-    },
-    {
-      name: 'preferences',
-      type: 'group',
-      fields: [
-        {
-          name: 'marketingOptIn',
-          type: 'checkbox',
-          defaultValue: false,
+          label: 'Addresses',
+          fields: [
+            {
+              name: 'addresses',
+              type: 'array',
+              labels: {
+                singular: 'Indirizzo',
+                plural: 'Indirizzi',
+              },
+              fields: [
+                { name: 'firstName', type: 'text' },
+                { name: 'lastName', type: 'text' },
+                { name: 'company', type: 'text' },
+                { name: 'streetAddress', type: 'text' },
+                { name: 'apartment', type: 'text' },
+                { name: 'city', type: 'text' },
+                { name: 'country', type: 'text' },
+                { name: 'province', type: 'text' },
+                { name: 'postalCode', type: 'text' },
+                { name: 'phone', type: 'text' },
+                { name: 'isDefault', type: 'checkbox', defaultValue: false },
+              ],
+            },
+          ],
         },
         {
-          name: 'preferredLocale',
-          type: 'select',
-          defaultValue: 'it',
-          options: ['it', 'en', 'ru'],
+          label: 'Preferences',
+          fields: [
+            {
+              name: 'preferences',
+              type: 'group',
+              fields: [
+                {
+                  name: 'marketingOptIn',
+                  type: 'checkbox',
+                  defaultValue: false,
+                },
+                {
+                  name: 'preferredLocale',
+                  type: 'select',
+                  defaultValue: 'it',
+                  options: ['it', 'en', 'ru'],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Partner',
+          admin: {
+            condition: (data) =>
+              Array.isArray(data?.roles) && data.roles.some((role: unknown) => role === 'partner'),
+          },
+          fields: [
+            {
+              name: 'partnerCommissionDashboard',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '/admin/components/PartnerCommissionDashboard',
+                },
+              },
+            },
+          ],
         },
       ],
     },
