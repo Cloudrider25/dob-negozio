@@ -1,0 +1,39 @@
+name: Promotion Guard
+
+on:
+  pull_request:
+
+jobs:
+  validate-promotion-pr:
+    name: Validate Promotion PR Target
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check promotion branch target
+        shell: bash
+        env:
+          PR_BASE: ${{ github.base_ref }}
+          PR_HEAD: ${{ github.head_ref }}
+        run: |
+          echo "Base: ${PR_BASE}"
+          echo "Head: ${PR_HEAD}"
+
+          if [[ "${PR_HEAD}" == promote/dev-to-staging-* ]]; then
+            if [[ "${PR_BASE}" != "staging" ]]; then
+              echo "::error::Branches promote/dev-to-staging-* must target staging, not ${PR_BASE}."
+              exit 1
+            fi
+          fi
+
+          if [[ "${PR_HEAD}" == promote/staging-to-prod-* ]]; then
+            if [[ "${PR_BASE}" != "prod" ]]; then
+              echo "::error::Branches promote/staging-to-prod-* must target prod, not ${PR_BASE}."
+              exit 1
+            fi
+          fi
+
+          if [[ "${PR_BASE}" == "dev" && "${PR_HEAD}" == promote/* ]]; then
+            echo "::error::Promotion branches must not target dev."
+            exit 1
+          fi
+
+          echo "Promotion PR target is valid."

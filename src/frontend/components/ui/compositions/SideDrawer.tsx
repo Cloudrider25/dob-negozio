@@ -14,7 +14,7 @@ type SideDrawerProps = {
   headerCenter?: ReactNode
   children: ReactNode
   panelClassName?: string
-  placement?: 'right' | 'bottom'
+  placement?: 'right' | 'left' | 'bottom'
 }
 
 export function SideDrawer({
@@ -40,7 +40,12 @@ export function SideDrawer({
     <div className={cn(styles.root, open && styles.open)}>
       <div className={styles.backdrop} aria-hidden={!open} onClick={onClose} />
       <aside
-        className={cn(styles.panel, placement === 'bottom' && styles.panelBottom, panelClassName)}
+        className={cn(
+          styles.panel,
+          placement === 'left' && styles.panelLeft,
+          placement === 'bottom' && styles.panelBottom,
+          panelClassName,
+        )}
         aria-label={ariaLabel}
       >
         <div className={`${styles.header} typo-caption-upper`}>

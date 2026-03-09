@@ -25,6 +25,9 @@ Questo documento ora descrive sia il blueprint sia lo stato reale di avanzamento
   - `partner`
   - `commissionAmount`
   - `commissionStatus`
+  - `commissionPaidAt`
+  - `commissionPayoutReference`
+  - `commissionPayoutNotes`
   - `promoCodeSnapshot`
 - implementata validazione promo code nel checkout backend
 - implementato calcolo sconto su scope prodotti / servizi
@@ -39,6 +42,9 @@ Questo documento ora descrive sia il blueprint sia lo stato reale di avanzamento
   - totale coerente con spedizione e sconto
 - corretto il riuso degli ordini / payment intent includendo anche il promo code
 - normalizzati gli importi monetari a 2 decimali nel checkout
+- implementata dashboard payout partner nel documento `users` con ruolo `partner`
+- implementata overview sidebar `Marketing > Partner Payouts`
+- implementato aggiornamento bulk commissioni `pending -> paid` da admin
 
 ### Verificato
 
@@ -50,14 +56,24 @@ Questo documento ora descrive sia il blueprint sia lo stato reale di avanzamento
   - aggiornamento totale con spedizione
 - persistenza ordine locale:
   - nuovo ordine test salvato correttamente con promo fields valorizzati
+- admin partner:
+  - dashboard partner disponibile nel tab `Partner` di `/admin/collections/users/:id`
+  - overview globale disponibile da sidebar in `Marketing > Partner Payouts`
+- migration tracciata:
+  - `20260308_200500` aggiunta al repo
+- schema shared environments:
+  - migration applicata esplicitamente su `staging`
+  - migration applicata esplicitamente sul DB `prod` reale
+- promozione:
+  - `dev -> staging` completata
+  - `staging -> prod` completata
+- CI / release:
+  - corretto il workflow `Deploy Production` per usare il DB `prod` reale nel job di verify
+  - PR stabile `#46` verde e mergiata su `prod`
 
 ### Ancora da fare
 
-- generare una migration tracciata pulita per schema `promo-codes` + nuovi campi `orders`
-- applicare esplicitamente la migration su `staging`
-- promuovere poi su `prod`
 - verificare end-to-end refund / cancel con annullamento commissione su caso reale
-- implementare reporting / payout partner in admin
 - eventualmente aggiungere quote live lato checkout prima della creazione sessione Stripe
 
 ## Scelte fissate

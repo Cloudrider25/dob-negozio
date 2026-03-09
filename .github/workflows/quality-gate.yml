@@ -12,9 +12,9 @@ jobs:
     name: Lint + Typecheck + Int Tests
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-      STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,6 +31,36 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Resolve target environment
+        shell: bash
+        run: |
+          if [[ "${GITHUB_BASE_REF}" == "prod" || "${GITHUB_REF_NAME}" == "prod" ]]; then
+            echo "APP_ENV=production" >> "${GITHUB_ENV}"
+            echo "VERCEL_ENV=production" >> "${GITHUB_ENV}"
+            echo "VERCEL_PULL_ENV=production" >> "${GITHUB_ENV}"
+          else
+            echo "APP_ENV=staging" >> "${GITHUB_ENV}"
+            echo "VERCEL_ENV=preview" >> "${GITHUB_ENV}"
+            echo "VERCEL_PULL_ENV=preview" >> "${GITHUB_ENV}"
+          fi
+
+      - name: Export target database environment
+        shell: bash
+        run: |
+          if [[ "${APP_ENV}" == "production" ]]; then
+            if [[ -z "${PRODUCTION_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret PRODUCTION_DATABASE_URL for production quality gate."
+              exit 1
+            fi
+            echo "PROD_POSTGRES_URL=${PRODUCTION_DATABASE_URL}" >> "${GITHUB_ENV}"
+          else
+            if [[ -z "${STAGING_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret STAGING_DATABASE_URL for staging quality gate."
+              exit 1
+            fi
+            echo "STG_POSTGRES_URL=${STAGING_DATABASE_URL}" >> "${GITHUB_ENV}"
+          fi
+
       - name: Lint
         run: pnpm lint
 
@@ -40,16 +70,20 @@ jobs:
       - name: Validate staging DB secrets
         shell: bash
         run: |
-          if [[ -z "${DATABASE_URL}" ]]; then
-            echo "::error::Missing secret STAGING_DATABASE_URL for Quality Gate."
-            exit 1
-          fi
           if [[ -z "${PAYLOAD_SECRET}" ]]; then
             echo "::error::Missing secret PAYLOAD_SECRET for Quality Gate."
             exit 1
           fi
-          if [[ -z "${STG_READ_WRITE_TOKEN}" ]]; then
-            echo "::warning::Missing secret STG_READ_WRITE_TOKEN. Blob-backed media may fail in CI."
+          if [[ "${APP_ENV}" == "production" ]]; then
+            if [[ -z "${PROD_POSTGRES_URL}" ]]; then
+              echo "::error::Missing production database URL after Vercel environment pull."
+              exit 1
+            fi
+          else
+            if [[ -z "${STG_POSTGRES_URL}" ]]; then
+              echo "::error::Missing staging database URL after Vercel environment pull."
+              exit 1
+            fi
           fi
 
       - name: Integration tests
@@ -60,9 +94,9 @@ jobs:
     needs: static-checks
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-      STG_READ_WRITE_TOKEN: ${{ secrets.STG_READ_WRITE_TOKEN }}
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - name: Checkout
@@ -80,11 +114,41 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Resolve target environment
+        shell: bash
+        run: |
+          if [[ "${GITHUB_BASE_REF}" == "prod" || "${GITHUB_REF_NAME}" == "prod" ]]; then
+            echo "APP_ENV=production" >> "${GITHUB_ENV}"
+            echo "VERCEL_ENV=production" >> "${GITHUB_ENV}"
+            echo "VERCEL_PULL_ENV=production" >> "${GITHUB_ENV}"
+          else
+            echo "APP_ENV=staging" >> "${GITHUB_ENV}"
+            echo "VERCEL_ENV=preview" >> "${GITHUB_ENV}"
+            echo "VERCEL_PULL_ENV=preview" >> "${GITHUB_ENV}"
+          fi
+
+      - name: Export target database environment
+        shell: bash
+        run: |
+          if [[ "${APP_ENV}" == "production" ]]; then
+            if [[ -z "${PRODUCTION_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret PRODUCTION_DATABASE_URL for production quality gate."
+              exit 1
+            fi
+            echo "PROD_POSTGRES_URL=${PRODUCTION_DATABASE_URL}" >> "${GITHUB_ENV}"
+          else
+            if [[ -z "${STAGING_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret STAGING_DATABASE_URL for staging quality gate."
+              exit 1
+            fi
+            echo "STG_POSTGRES_URL=${STAGING_DATABASE_URL}" >> "${GITHUB_ENV}"
+          fi
+
       - name: Check required secrets
         id: secrets-check
         shell: bash
         run: |
-          if [[ -n "${DATABASE_URL}" && -n "${PAYLOAD_SECRET}" ]]; then
+          if [[ -n "${PAYLOAD_SECRET}" ]]; then
             echo "has_secrets=true" >> "${GITHUB_OUTPUT}"
           else
             echo "has_secrets=false" >> "${GITHUB_OUTPUT}"
@@ -93,7 +157,7 @@ jobs:
       - name: Skip smoke when secrets are missing
         if: steps.secrets-check.outputs.has_secrets != 'true'
         run: |
-          echo "Skipping smoke E2E: DATABASE_URL or PAYLOAD_SECRET not configured."
+          echo "Skipping smoke E2E: PAYLOAD_SECRET not configured."
 
       - name: Install Playwright browser
         if: steps.secrets-check.outputs.has_secrets == 'true'

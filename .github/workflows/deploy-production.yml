@@ -13,6 +13,11 @@ jobs:
   verify:
     name: Verify Production Build
     runs-on: ubuntu-latest
+    env:
+      APP_ENV: production
+      VERCEL_ENV: production
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,6 +34,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Export production database environment
+        shell: bash
+        run: |
+          if [[ -z "${PAYLOAD_SECRET}" ]]; then
+            echo "::error::Missing secret PAYLOAD_SECRET for production verification."
+            exit 1
+          fi
+          if [[ -z "${PRODUCTION_DATABASE_URL}" ]]; then
+            echo "::error::Missing secret PRODUCTION_DATABASE_URL for production verification."
+            exit 1
+          fi
+          echo "PROD_POSTGRES_URL=${PRODUCTION_DATABASE_URL}" >> "${GITHUB_ENV}"
+
       - name: Lint
         run: pnpm lint
 
@@ -37,15 +55,10 @@ jobs:
 
       - name: Integration tests
         run: pnpm test:int
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
       - name: Build
         run: pnpm build
         env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_TELEMETRY_DISABLED: '1'
 
   deploy:
