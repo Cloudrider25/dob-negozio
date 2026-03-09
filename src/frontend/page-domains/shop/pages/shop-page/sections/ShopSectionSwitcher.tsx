@@ -173,18 +173,6 @@ export function ShopSectionSwitcher({
 
   const shouldComputeShopAll = activeSection === 'shop-all'
 
-  const activeFilterCount = useMemo(() => {
-    return (
-      filters.needs.size +
-      filters.textures.size +
-      filters.productAreas.size +
-      filters.timingProducts.size +
-      filters.skinTypes.size +
-      filters.brands.size +
-      filters.brandLines.size
-    )
-  }, [filters])
-
   const pills = useMemo(
     () => [
       { key: 'routine', label: copy.sectionRoutine },

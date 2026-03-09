@@ -10,6 +10,11 @@ jobs:
   verify:
     name: Verify Staging Build
     runs-on: ubuntu-latest
+    env:
+      APP_ENV: staging
+      VERCEL_ENV: preview
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,6 +31,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Export staging database environment
+        shell: bash
+        run: |
+          if [[ -z "${PAYLOAD_SECRET}" ]]; then
+            echo "::error::Missing secret PAYLOAD_SECRET for staging verification."
+            exit 1
+          fi
+          if [[ -z "${STAGING_DATABASE_URL}" ]]; then
+            echo "::error::Missing secret STAGING_DATABASE_URL for staging verification."
+            exit 1
+          fi
+          echo "STG_POSTGRES_URL=${STAGING_DATABASE_URL}" >> "${GITHUB_ENV}"
+
       - name: Lint
         run: pnpm lint
 
@@ -34,15 +52,10 @@ jobs:
 
       - name: Integration tests
         run: pnpm test:int
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
       - name: Build
         run: pnpm build
         env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_TELEMETRY_DISABLED: '1'
 
   deploy:

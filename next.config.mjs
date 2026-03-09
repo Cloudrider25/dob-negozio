@@ -43,6 +43,24 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...(config.watchOptions || {}),
+        ignored: [
+          '**/.git/**',
+          '**/.next/**',
+          '**/node_modules/**',
+          '**/Docs/**',
+          '**/media/**',
+          '**/playwright-report/**',
+          '**/test-results/**',
+        ],
+      }
+    }
+
+    return config
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

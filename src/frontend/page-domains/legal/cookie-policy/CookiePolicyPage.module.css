@@ -1,0 +1,41 @@
+.page {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 900px;
+  padding: 4rem 1.5rem;
+}
+
+.title,
+.subtitle,
+.sectionTitle,
+.sectionBody {
+  margin: 0;
+}
+
+.subtitle,
+.sectionBody {
+  color: var(--text-secondary);
+}
+
+.subtitle {
+  margin-top: 1rem;
+  max-width: 54rem;
+}
+
+.sections {
+  margin-top: 2rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.section {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--stroke);
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+}
+

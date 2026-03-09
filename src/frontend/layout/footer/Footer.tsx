@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { CookiePreferencesControl } from '@/frontend/layout/preferences/CookiePreferencesControl'
 import { PreferencesFooterControl } from '@/frontend/layout/preferences/PreferencesFooterControl'
 import { ThemeToggle } from '@/frontend/components/theme/ThemeToggle'
 import type { FooterProps } from '@/frontend/layout/footer/contracts'
@@ -123,6 +124,9 @@ export const Footer = ({
             <Link href={`/${locale}/privacy`} className={`${styles.columnLink} typo-small`}>
               Privacy
             </Link>
+            <Link href={`/${locale}/cookie-policy`} className={`${styles.columnLink} typo-small`}>
+              Cookie Policy
+            </Link>
             <span className={`${styles.columnMuted} typo-small`}>Terms (placeholder)</span>
             <span className={`${styles.columnMuted} typo-small`}>Accessibility (placeholder)</span>
             <span className={`${styles.columnMuted} typo-small`}>FAQ (placeholder)</span>
@@ -144,7 +148,7 @@ export const Footer = ({
             WhatsApp: {whatsappDisplay}
           </a>
           <p className={`${styles.supportText} typo-small`}>{addressDisplay}</p>
-          <p className={`${styles.supportMuted} typo-small`}>Preferenze cookie (placeholder)</p>
+          <CookiePreferencesControl locale={locale} className={`${styles.supportLink} typo-small`} />
         </section>
       </div>
 
