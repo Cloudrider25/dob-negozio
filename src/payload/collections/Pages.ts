@@ -64,11 +64,11 @@ export const Pages: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: 'Pages Seo',
+          label: 'SEO',
           fields: [...seoFields],
         },
         {
-          label: 'Shared Hero Banner',
+          label: 'Hero Banner',
           admin: {
             condition: (data) =>
               data?.pageKey === 'home' ||
@@ -79,63 +79,63 @@ export const Pages: CollectionConfig = {
           fields: [...heroFields],
         },
         {
-          label: 'Shop Routine Builder',
+          label: 'Routine Builder',
           admin: {
             condition: (data) => data?.pageKey === 'shop',
           },
           fields: [...routineBuilderFields],
         },
         {
-          label: 'Services Service Navigator',
+          label: 'Service Navigator',
           admin: {
             condition: (data) => data?.pageKey === 'services',
           },
           fields: [...serviceNavigatorFields],
         },
         {
-          label: 'Shared Service Carousel',
+          label: 'Service Carousel',
           admin: {
             condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'our-story',
           },
           fields: [...servicesCarouselFields],
         },
         {
-          label: 'Checkout Content',
+          label: 'Checkout',
           admin: {
             condition: (data) => data?.pageKey === 'checkout',
           },
           fields: [...checkoutFields],
         },
         {
-          label: 'Home Protocol Split',
+          label: 'Protocol Split',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
           fields: [...protocolSplitFields],
         },
         {
-          label: 'Dob Protocol Diagnosi',
+          label: 'Diagnosi',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
           fields: [...dobProtocolDiagnosiFields],
         },
         {
-          label: 'Dob Protocol Trattamenti',
+          label: 'Trattamenti',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
           fields: [...dobProtocolTrattamentiFields],
         },
         {
-          label: 'Dob Protocol Routine',
+          label: 'Routine',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
           fields: [...dobProtocolRoutineFields],
         },
         {
-          label: 'Dob Protocol Check Up',
+          label: 'Check up',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
@@ -149,7 +149,7 @@ export const Pages: CollectionConfig = {
           fields: [...privacyContentFields],
         },
         {
-          label: 'Shared Story Hero',
+          label: 'Story Hero',
           admin: {
             condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'our-story',
           },
@@ -163,28 +163,28 @@ export const Pages: CollectionConfig = {
           fields: [...homeProgramFields],
         },
         {
-          label: 'Home Product Carousel',
+          label: 'Product Carousel',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
           fields: [...productsCarouselFields],
         },
         {
-          label: 'Home Values Section',
+          label: 'Values Section',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
           fields: [...valuesSectionFields],
         },
         {
-          label: 'Our Story Values',
+          label: 'Story Values',
           admin: {
             condition: (data) => data?.pageKey === 'our-story',
           },
           fields: [...storyValuesFields],
         },
         {
-          label: 'Our Story Team',
+          label: 'Story Team',
           admin: {
             condition: (data) => data?.pageKey === 'our-story',
           },
