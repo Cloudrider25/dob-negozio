@@ -97,6 +97,10 @@
   gap: 0.6rem;
 }
 
+.discountCodeError {
+  color: var(--ui-accent);
+}
+
 .input {
   border-radius: 10px;
   border: 1px solid var(--stroke);
@@ -228,6 +232,7 @@
 @media (min-width: 1025px) {
   .summaryDesktop {
     display: flex;
+    margin-top: 7rem;
   }
 
   .summaryMobile {
@@ -263,15 +268,5 @@
     font-size: inherit;
   }
 
-  .summaryQtyBadge {
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
-    border-radius: 10px;
-    border-width: 2px;
-    background: var(--bg-2);
-    color: var(--bg);
-    font-size: clamp(0.68rem, 0.55vw, 0.78rem);
-  }
+
 }

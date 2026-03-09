@@ -17,6 +17,7 @@ type CheckoutSummaryPanelProps = {
   shippingLabel: string
   discountCodeInput: string
   appliedDiscountCode: string
+  discountCodeError: string | null
   onDiscountCodeInputChange: (value: string) => void
   onApplyDiscountCode: () => void
   onRemoveDiscountCode: () => void
@@ -36,6 +37,7 @@ export function CheckoutSummaryPanel({
   shippingLabel,
   discountCodeInput,
   appliedDiscountCode,
+  discountCodeError,
   onDiscountCodeInputChange,
   onApplyDiscountCode,
   onRemoveDiscountCode,
@@ -93,6 +95,9 @@ export function CheckoutSummaryPanel({
           {copy.actions.apply}
         </button>
       </div>
+      {discountCodeError ? (
+        <div className={cn(styles.discountCodeError, 'typo-small')}>{discountCodeError}</div>
+      ) : null}
       {appliedDiscountCode ? (
         <div className={`${styles.summaryMeta} typo-small`}>
           Codice applicato: {appliedDiscountCode}{' '}

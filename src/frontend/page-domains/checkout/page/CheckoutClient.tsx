@@ -60,6 +60,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   const [serviceRequestedTime, setServiceRequestedTime] = useState('')
   const [discountCodeInput, setDiscountCodeInput] = useState('')
   const [appliedDiscountCode, setAppliedDiscountCode] = useState('')
+  const [discountCodeError, setDiscountCodeError] = useState<string | null>(null)
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false)
   const [items, setItems] = useState<CartItem[]>([])
   const isDesktopViewport = useDesktopViewport()
@@ -305,16 +306,42 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     router.push(`/${resolvedLocale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`)
   }
 
-  const onApplyDiscountCode = () => {
+  const onApplyDiscountCode = async () => {
     const normalized = discountCodeInput.trim().toUpperCase()
     setError(null)
-    setAppliedDiscountCode(normalized)
+    setDiscountCodeError(null)
+
+    if (!normalized) {
+      setAppliedDiscountCode('')
+      return
+    }
+
+    const session = await createPaymentSession({
+      silent: false,
+      overrideDiscountCode: normalized,
+    })
+
+    if (session) {
+      setAppliedDiscountCode(normalized)
+      setDiscountCodeInput(normalized)
+      return
+    }
+
+    setAppliedDiscountCode('')
+    setDiscountCodeError('Codice non valido')
+    setError(null)
   }
 
   const onRemoveDiscountCode = () => {
     setError(null)
+    setDiscountCodeError(null)
     setDiscountCodeInput('')
     setAppliedDiscountCode('')
+  }
+
+  const onDiscountCodeInputChange = (value: string) => {
+    setDiscountCodeError(null)
+    setDiscountCodeInput(value)
   }
 
 
@@ -361,7 +388,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                       shippingLabel={shippingLabel}
                       discountCodeInput={discountCodeInput}
                       appliedDiscountCode={appliedDiscountCode}
-                      onDiscountCodeInputChange={setDiscountCodeInput}
+                      discountCodeError={discountCodeError}
+                      onDiscountCodeInputChange={onDiscountCodeInputChange}
                       onApplyDiscountCode={onApplyDiscountCode}
                       onRemoveDiscountCode={onRemoveDiscountCode}
                       recommended={recommended}
@@ -463,7 +491,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         shippingLabel={shippingLabel}
         discountCodeInput={discountCodeInput}
         appliedDiscountCode={appliedDiscountCode}
-        onDiscountCodeInputChange={setDiscountCodeInput}
+        discountCodeError={discountCodeError}
+        onDiscountCodeInputChange={onDiscountCodeInputChange}
         onApplyDiscountCode={onApplyDiscountCode}
         onRemoveDiscountCode={onRemoveDiscountCode}
         recommended={recommended}

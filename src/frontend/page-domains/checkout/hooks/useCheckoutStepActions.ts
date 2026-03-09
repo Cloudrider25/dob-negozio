@@ -23,7 +23,7 @@ export const useCheckoutStepActions = ({
   itemsCount: number
   submitting: boolean
   paymentSession: unknown
-  createPaymentSession: () => Promise<void>
+  createPaymentSession: () => Promise<unknown>
   setError: (message: string | null) => void
   completeRequiredFieldsMessage: string
   cartEmptyErrorMessage: string
