@@ -14,7 +14,6 @@ type InformationStepProps = {
   copy: CheckoutCopy
   formState: CustomerSnapshot
   setFormState: Dispatch<SetStateAction<CustomerSnapshot>>
-  requiresShippingAddress: boolean
   isFormComplete: boolean
   submitting: boolean
   paymentSession: PaymentSession | null
@@ -34,7 +33,6 @@ export function InformationStep({
   copy,
   formState,
   setFormState,
-  requiresShippingAddress,
   isFormComplete,
   submitting,
   paymentSession,

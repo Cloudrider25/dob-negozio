@@ -432,7 +432,6 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             copy={copy}
             formState={formState}
             setFormState={setFormState}
-            requiresShippingAddress={requiresShippingAddress}
             isFormComplete={isInformationComplete}
             submitting={submitting}
             paymentSession={paymentSession}
