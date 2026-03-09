@@ -13,6 +13,8 @@ jobs:
     env:
       APP_ENV: staging
       VERCEL_ENV: preview
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,27 +31,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pull Vercel preview environment
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
-          VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
-        run: pnpm dlx vercel pull --yes --environment=preview --token="${VERCEL_TOKEN}"
-
-      - name: Export Vercel preview environment
+      - name: Export staging database environment
         shell: bash
         run: |
-          if [[ ! -f .vercel/.env.preview.local ]]; then
-            echo "::error::Missing .vercel/.env.preview.local after vercel pull."
+          if [[ -z "${PAYLOAD_SECRET}" ]]; then
+            echo "::error::Missing secret PAYLOAD_SECRET for staging verification."
             exit 1
           fi
-          grep -v '^[#[:space:]]' .vercel/.env.preview.local >> "${GITHUB_ENV}"
-          db_line="$(grep -E '^(STG_POSTGRES_URL|STG_DATABASE_URL|DATABASE_URL|POSTGRES_URL)=' .vercel/.env.preview.local | head -n 1 || true)"
-          if [[ -z "${db_line}" ]]; then
-            echo "::error::Preview environment does not expose any staging database URL."
+          if [[ -z "${STAGING_DATABASE_URL}" ]]; then
+            echo "::error::Missing secret STAGING_DATABASE_URL for staging verification."
             exit 1
           fi
-          echo "STG_POSTGRES_URL=${db_line#*=}" >> "${GITHUB_ENV}"
+          echo "STG_POSTGRES_URL=${STAGING_DATABASE_URL}" >> "${GITHUB_ENV}"
 
       - name: Lint
         run: pnpm lint
@@ -59,13 +52,10 @@ jobs:
 
       - name: Integration tests
         run: pnpm test:int
-        env:
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
       - name: Build
         run: pnpm build
         env:
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_TELEMETRY_DISABLED: '1'
 
   deploy:
