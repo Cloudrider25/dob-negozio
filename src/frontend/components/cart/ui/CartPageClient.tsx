@@ -1,215 +1,155 @@
 'use client'
 
+import { useMemo, useState } from 'react'
+
 import { MediaThumb } from '@/frontend/components/shared/MediaThumb'
-import { Button } from '@/frontend/components/ui/primitives/button'
 import { ButtonLink } from '@/frontend/components/ui/primitives/button-link'
-import { Minus, Plus, Trash } from '@/frontend/components/ui/primitives/icons'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n/core'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
+import {
+  FREE_SHIPPING_THRESHOLD_EUR,
+  getRemainingForFreeShipping,
+  isFreeShippingUnlocked,
+} from '@/lib/shared/shop/shipping'
+import { cn } from '@/lib/shared/ui/cn'
 import { useCartState } from '../hooks/useCartState'
 import { formatCartPrice } from '../shared/format'
-import { countItemsWithoutPrice } from '../shared/normalize'
+import { isServiceLikeCartItem } from '../shared/itemKind'
 import styles from './CartPageClient.module.css'
 
 export function CartPageClient({ locale }: { locale: string }) {
   const resolvedLocale = isLocale(locale) ? locale : defaultLocale
-  const copy = getJourneyDictionary(resolvedLocale).cartPage
-  const { items, subtotal, incrementItem, decrementItem, removeItem } = useCartState()
-  const itemsWithoutPrice = countItemsWithoutPrice(items)
+  const dictionary = getJourneyDictionary(resolvedLocale)
+  const copy = dictionary.cartPage
+  const drawerCopy = dictionary.cartDrawer
+  const { items, itemCount, subtotal, incrementItem, decrementItem } = useCartState()
+  const [discountCode, setDiscountCode] = useState('')
+  const productSubtotal = useMemo(
+    () =>
+      items.reduce(
+        (sum, item) => (isServiceLikeCartItem(item) ? sum : sum + (item.price ?? 0) * item.quantity),
+        0,
+      ),
+    [items],
+  )
+  const hasProducts = useMemo(() => items.some((item) => !isServiceLikeCartItem(item)), [items])
+  const freeShippingUnlocked = isFreeShippingUnlocked(productSubtotal)
+  const remainingForFreeShipping = getRemainingForFreeShipping(productSubtotal)
+  const freeShippingProgress = Math.min(
+    100,
+    Math.max(0, (productSubtotal / FREE_SHIPPING_THRESHOLD_EUR) * 100),
+  )
+  const freeShippingNote = freeShippingUnlocked
+    ? 'Free standard shipping unlocked'
+    : `${formatCartPrice(remainingForFreeShipping, resolvedLocale)} away from free standard shipping`
 
   return (
-    <div className={styles.page}>
-      <div className={`${styles.breadcrumbsRow} typo-small`}>
-        <div className={`${styles.breadcrumbs} typo-small-upper`}>
-          <span>{copy.home}</span>
-          <span>›</span>
-          <span>{copy.cart}</span>
-        </div>
-        <ButtonLink
-          href={`/${locale}/shop`}
-          kind="main"
-          size="sm"
-          className={styles.backToShop}
-        >
-          {copy.returnToShopping}
-        </ButtonLink>
-      </div>
+    <section className={styles.page}>
+      <div className={styles.shell}>
+        <header className={styles.header}>
+          <h1 className={cn(styles.itemsCount, 'typo-h2')}>
+            {itemCount} {drawerCopy.itemsLabel}
+          </h1>
+          {hasProducts ? (
+            <>
+              <p className={cn(styles.shippingNote, 'typo-body-lg')}>{freeShippingNote}</p>
+              <div className={styles.progress}>
+                <div className={styles.progressFill} style={{ width: `${freeShippingProgress}%` }} />
+              </div>
+            </>
+          ) : null}
+        </header>
 
-      <section className={styles.tableSection}>
-        <div className={`${styles.tableHead} typo-small-upper`}>
-          <span>{copy.product}</span>
-          <span>{copy.price}</span>
-          <span>{copy.quantity}</span>
-          <span>{copy.subtotal}</span>
-          <span />
-        </div>
-
-        <div className={styles.rows}>
-          {items.length === 0 && (
-            <div className={`${styles.empty} typo-body`}>{copy.empty}</div>
-          )}
-          {items.map((item) => {
-            const rowSubtotal = (item.price ?? 0) * item.quantity
-            return (
-              <div
-                key={item.id}
-                className={styles.row}
-              >
-                <div className={styles.productCell}>
+        <div className={styles.list}>
+          {items.length === 0 ? (
+            <div className={cn(styles.empty, 'typo-body')}>{copy.empty}</div>
+          ) : (
+            items.map((item) => {
+              const rowSubtotal = (item.price ?? 0) * item.quantity
+              return (
+                <article key={item.id} className={styles.item}>
                   <MediaThumb
                     src={normalizeThumbnailSrc(item.coverImage)}
                     alt={item.title}
-                    sizes="112px"
+                    sizes="84px"
                     className={styles.thumb}
                     imageClassName={styles.thumbImage}
                     fallback={<div className={styles.thumbFallback} />}
                     unoptimized={isRemoteThumbnailSrc(item.coverImage)}
                   />
-                  <div>
-                    <h2 className={`${styles.productTitle} typo-body`}>{item.title}</h2>
-                    {item.brand && <div className={`${styles.productBrand} typo-caption`}>{item.brand}</div>}
-                  </div>
-                </div>
-                <div className={styles.metaRow}>
-                  <div className={styles.metaGroup}>
-                    <span className={`${styles.metaLabel} typo-caption-upper`}>{copy.price}</span>
-                    <span className={`${styles.metaValue} typo-small`}>
-                      {typeof item.price === 'number' ? formatCartPrice(item.price, resolvedLocale, item.currency) : '—'}
-                    </span>
-                  </div>
-                  <div className={styles.metaGroup}>
-                    <span className={`${styles.metaLabel} typo-caption-upper`}>{copy.quantity}</span>
-                    <div className={styles.qtyRow}>
-                    <button
-                      type="button"
-                      onClick={() => decrementItem(item.id)}
-                      className={styles.qtyButton}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <div className={`${styles.qtyValue} typo-small`}>
-                      {item.quantity}
+                  <div className={styles.itemBody}>
+                    <div className={styles.itemHead}>
+                      <div className={styles.itemText}>
+                        <h2 className={cn(styles.itemTitle, 'typo-body-lg')}>{item.title}</h2>
+                        {(item.format || item.brand) ? (
+                          <p className={cn(styles.itemMeta, 'typo-body')}>
+                            {item.format || item.brand}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className={cn(styles.itemPrice, 'typo-body-lg')}>
+                        {typeof item.price === 'number'
+                          ? formatCartPrice(rowSubtotal, resolvedLocale, item.currency)
+                          : '—'}
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => incrementItem(item.id)}
-                      className={styles.qtyButton}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  </div>
-                  <div className={styles.metaGroup}>
-                    <span className={`${styles.metaLabel} typo-caption-upper`}>{copy.subtotal}</span>
-                    <span className={`${styles.metaValue} typo-small`}>
-                      {typeof item.price === 'number' ? formatCartPrice(rowSubtotal, resolvedLocale, item.currency) : '—'}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeItem(item.id)}
-                  className={styles.removeButton}
-                >
-                  <Trash className={styles.removeIcon} />
-                </button>
-              </div>
-            )
-          })}
-        </div>
-      </section>
 
-      <section className={styles.contentGrid}>
-        <div className={styles.leftCol}>
-          <div className={`${styles.sectionTitle} typo-h3`}>
-            {copy.completeOrder}
-          </div>
-          <div className={`${styles.steps} typo-caption-upper`}>
-            {[
-              copy.steps.login,
-              copy.steps.addresses,
-              copy.steps.shipping,
-              copy.steps.payment,
-              copy.steps.confirmation,
-            ].map((step, index) => (
-              <div key={step} className={styles.step}>
-                <div
-                  className={`${styles.stepDot} ${index === 0 ? styles.stepDotActive : ''}`}
-                />
-                <span>{step}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className={styles.card}>
-            <h3 className={`${styles.cardTitle} typo-h3`}>
-              {copy.guestBox.title}
-            </h3>
-            <p className={`${styles.cardBody} typo-small`}>
-              {copy.guestBox.description}
-            </p>
-            <div className={`${styles.cardMuted} typo-small`}>{copy.guestBox.selectOption}</div>
-            <div className={styles.guestOptions}>
-              {[copy.guestBox.guest, copy.guestBox.login, copy.guestBox.register].map((label) => (
-                <label
-                  key={label}
-                  className={`${styles.guestOption} typo-small`}
-                >
-                  <input type="radio" name="checkout" className="accent-black" />
-                  <span>{label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+                    <div className={styles.qtyControl}>
+                      <button
+                        type="button"
+                        className={styles.qtyButton}
+                        onClick={() => decrementItem(item.id)}
+                        aria-label={copy.quantity}
+                      >
+                        −
+                      </button>
+                      <span className={cn(styles.qtyValue, 'typo-body')}>{item.quantity}</span>
+                      <button
+                        type="button"
+                        className={styles.qtyButton}
+                        onClick={() => incrementItem(item.id)}
+                        aria-label={copy.quantity}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              )
+            })
+          )}
         </div>
 
-        <div className={styles.rightCol}>
-          <div className={styles.card}>
-            <h3 className={`${styles.cardTitle} typo-h3`}>{copy.discount.title}</h3>
-            <p className={`${styles.cardMuted} typo-small`}>
-              {copy.discount.description}
-            </p>
+        <section className={styles.summary}>
+          <h2 className={cn(styles.summaryTitle, 'typo-h3')}>{copy.summary.title}</h2>
+          <div className={styles.discountBox}>
+            <label htmlFor="cart-discount" className={cn(styles.discountLabel, 'typo-small-upper')}>
+              {copy.discount.title}
+            </label>
             <div className={styles.discountRow}>
               <input
-                className={`${styles.discountInput} typo-small`}
+                id="cart-discount"
+                name="discountCode"
+                className={cn(styles.discountInput, 'typo-body')}
                 placeholder={copy.discount.placeholder}
+                value={discountCode}
+                onChange={(event) => setDiscountCode(event.target.value)}
               />
-              <Button type="button" kind="main" size="sm">
-                {copy.discount.apply}
-              </Button>
             </div>
           </div>
 
-          <div className={styles.card}>
-            <h3 className={`${styles.cardTitle} typo-h3`}>{copy.summary.title}</h3>
-            <div className={`${styles.summaryRow} typo-small`}>
-              <span>{copy.subtotal}</span>
-              <span>{formatCartPrice(subtotal, resolvedLocale)}</span>
-            </div>
-            {itemsWithoutPrice > 0 ? (
-              <div className={`${styles.cardMuted} typo-caption`}>{copy.summary.pricePendingNotice}</div>
-            ) : null}
-            <div className={`${styles.cardMuted} typo-caption`}>{copy.summary.taxesIncluded}</div>
-            <div className={`${styles.summaryRow} typo-small`}>
-              <span>{copy.summary.shipping}</span>
-              <span>{formatCartPrice(0, resolvedLocale)}</span>
-            </div>
-            <div className={`${styles.cardMuted} typo-caption`}>{copy.summary.country}</div>
-            <div className={`${styles.summaryRow} ${styles.summaryTotal} typo-body`}>
-              <span>{copy.summary.total}</span>
-              <span>{formatCartPrice(subtotal, resolvedLocale)}</span>
-            </div>
-            <ButtonLink
-              href={`/${locale}/checkout`}
-              kind="main"
-              size="md"
-              className={styles.checkoutLink}
-            >
-              {copy.checkoutCta}
-            </ButtonLink>
+          <div className={cn(styles.summaryRow, 'typo-body-lg')}>
+            <span>{copy.subtotal}</span>
+            <span>{formatCartPrice(subtotal, resolvedLocale)}</span>
           </div>
-        </div>
-      </section>
-    </div>
+          <p className={cn(styles.summaryNote, 'typo-body')}>
+            {drawerCopy.summaryNote}
+          </p>
+          <ButtonLink href={`/${locale}/checkout`} kind="main" size="md" className={styles.checkoutLink}>
+            {copy.checkoutCta}
+          </ButtonLink>
+        </section>
+      </div>
+    </section>
   )
 }

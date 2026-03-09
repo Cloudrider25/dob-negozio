@@ -14,6 +14,7 @@ type PaymentElementFormProps = {
   paymentSession: PaymentSession
   customer: CustomerSnapshot
   copy: CheckoutCopy
+  backLabel: string
   onBack: () => void
   onError: (message: string) => void
   onSuccess: (paymentIntentId?: string) => void
@@ -24,6 +25,7 @@ export function PaymentElementForm({
   paymentSession,
   customer,
   copy,
+  backLabel,
   onBack,
   onError,
   onSuccess,
@@ -175,7 +177,7 @@ export function PaymentElementForm({
           disabled={confirming}
         >
           <span className={cn(styles.returnIcon, 'typo-body-lg')}>‹</span>
-          {copy.actions.returnToShipping}
+          {backLabel}
         </button>
         <Button kind="main" size="md" type="button" onClick={handlePay} disabled={confirming}>
           {confirming ? copy.actions.processing : copy.actions.payNow}

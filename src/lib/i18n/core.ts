@@ -433,6 +433,7 @@ type JourneyCopy = {
       cart: string
       information: string
       shipping: string
+      appointment: string
       payment: string
     }
     expressCheckout: string
@@ -453,9 +454,12 @@ type JourneyCopy = {
     actions: {
       returnToCart: string
       goToShipping: string
+      goToAppointment: string
       returnToInformation: string
+      continueToAppointment: string
       continueToPayment: string
       returnToShipping: string
+      returnToAppointment: string
       payNow: string
       processing: string
       apply: string
@@ -605,6 +609,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
         cart: 'Cart',
         information: 'Information',
         shipping: 'Shipping',
+        appointment: 'Appointment',
         payment: 'Payment',
       },
       expressCheckout: 'Express checkout',
@@ -625,9 +630,12 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       actions: {
         returnToCart: 'Torna al carrello',
         goToShipping: 'Vai alla spedizione',
+        goToAppointment: "Vai all'appuntamento",
         returnToInformation: 'Torna alle informazioni',
+        continueToAppointment: "Continua all'appuntamento",
         continueToPayment: 'Continua al pagamento',
         returnToShipping: 'Torna alla spedizione',
+        returnToAppointment: "Torna all'appuntamento",
         payNow: 'Paga ora',
         processing: 'Elaborazione...',
         apply: 'Applica',
@@ -776,6 +784,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
         cart: 'Cart',
         information: 'Information',
         shipping: 'Shipping',
+        appointment: 'Appointment',
         payment: 'Payment',
       },
       expressCheckout: 'Express checkout',
@@ -796,9 +805,12 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       actions: {
         returnToCart: 'Return to cart',
         goToShipping: 'Go to shipping',
+        goToAppointment: 'Go to appointment',
         returnToInformation: 'Return to information',
+        continueToAppointment: 'Continue to appointment',
         continueToPayment: 'Continue to payment',
         returnToShipping: 'Return to shipping',
+        returnToAppointment: 'Return to appointment',
         payNow: 'Pay now',
         processing: 'Processing...',
         apply: 'Apply',
@@ -947,6 +959,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
         cart: 'Cart',
         information: 'Information',
         shipping: 'Shipping',
+        appointment: 'Appointment',
         payment: 'Payment',
       },
       expressCheckout: 'Express checkout',
@@ -967,9 +980,12 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       actions: {
         returnToCart: 'Вернуться в корзину',
         goToShipping: 'К доставке',
+        goToAppointment: 'К записи',
         returnToInformation: 'Вернуться к данным',
+        continueToAppointment: 'Перейти к записи',
         continueToPayment: 'Перейти к оплате',
         returnToShipping: 'Вернуться к доставке',
+        returnToAppointment: 'Вернуться к записи',
         payNow: 'Оплатить',
         processing: 'Обработка...',
         apply: 'Применить',

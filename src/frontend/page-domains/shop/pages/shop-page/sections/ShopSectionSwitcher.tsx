@@ -409,6 +409,10 @@ export function ShopSectionSwitcher({
         product.brand && typeof product.brand === 'object' && 'name' in product.brand
           ? String((product.brand as { name?: unknown }).name ?? '')
           : null
+      const directFormat =
+        typeof (product as { format?: unknown }).format === 'string'
+          ? ((product as { format?: string }).format ?? undefined)
+          : undefined
       const imageUrl = media?.url || TRANSPARENT_IMAGE_PLACEHOLDER
       const imageAlt = media?.alt || product.title
       const ctaPriceLabel = typeof product.price === 'number' ? priceFormatter.format(product.price) : ''
@@ -446,6 +450,7 @@ export function ShopSectionSwitcher({
                   price: option.price,
                   currency: 'EUR',
                   brand: brandLabel || undefined,
+                  format: option.format || undefined,
                   coverImage: option.coverImage?.url ?? product.coverImage?.url ?? null,
                 },
               })),
@@ -459,6 +464,7 @@ export function ShopSectionSwitcher({
                 price: product.price,
                 currency: 'EUR',
                 brand: brandLabel || undefined,
+                format: directFormat,
                 coverImage: product.coverImage?.url ?? null,
               },
             } as const)

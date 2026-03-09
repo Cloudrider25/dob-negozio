@@ -4,6 +4,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import type { StripeElementsOptions, Stripe } from '@stripe/stripe-js'
 
 import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.css'
+import { Select } from '@/frontend/components/ui/primitives/input'
 import { cn } from '@/lib/shared/ui/cn'
 import type { CheckoutCopy, CustomerSnapshot, PaymentSession } from '@/frontend/page-domains/checkout/shared/contracts'
 import { ExpressCheckoutQuickForm } from '@/frontend/page-domains/checkout/ui/payment/ExpressCheckoutQuickForm'
@@ -13,6 +14,7 @@ type InformationStepProps = {
   copy: CheckoutCopy
   formState: CustomerSnapshot
   setFormState: Dispatch<SetStateAction<CustomerSnapshot>>
+  isFormComplete: boolean
   submitting: boolean
   paymentSession: PaymentSession | null
   stripePromise: Promise<Stripe | null> | null
@@ -23,6 +25,7 @@ type InformationStepProps = {
   onExpressError: (message: string) => void
   onExpressSuccess: (paymentIntentId?: string) => void
   onGoToShippingStep: () => void
+  nextStepLabel: string
 }
 
 export function InformationStep({
@@ -30,6 +33,7 @@ export function InformationStep({
   copy,
   formState,
   setFormState,
+  isFormComplete,
   submitting,
   paymentSession,
   stripePromise,
@@ -40,6 +44,7 @@ export function InformationStep({
   onExpressError,
   onExpressSuccess,
   onGoToShippingStep,
+  nextStepLabel,
 }: InformationStepProps) {
   return (
     <>
@@ -88,9 +93,14 @@ export function InformationStep({
         <div className={cn(styles.labelRow, 'typo-small')}>
           <span>{copy.shippingAddress}</span>
         </div>
-        <select className={cn(styles.select, 'typo-body')} defaultValue={copy.country}>
+        <Select
+          id="checkout-country"
+          name="country"
+          className={cn(styles.select, 'typo-body')}
+          defaultValue={copy.country}
+        >
           <option value={copy.country}>{copy.country}</option>
-        </select>
+        </Select>
         <div className={styles.splitRow}>
           <input
             className={cn(styles.input, 'typo-body')}
@@ -147,10 +157,10 @@ export function InformationStep({
         <button
           className={cn(styles.continueButton, 'typo-small-upper')}
           type="button"
-          disabled={submitting}
+          disabled={submitting || !isFormComplete}
           onClick={onGoToShippingStep}
         >
-          {copy.actions.goToShipping}
+          {nextStepLabel}
         </button>
       </div>
     </>

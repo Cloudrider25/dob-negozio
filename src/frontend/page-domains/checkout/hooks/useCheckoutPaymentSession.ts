@@ -66,7 +66,7 @@ export const useCheckoutPaymentSession = ({
   setError,
   messages,
 }: {
-  activeStep: 'information' | 'shipping' | 'payment'
+  activeStep: 'information' | 'shipping' | 'appointment' | 'payment'
   locale: string
   formState: CustomerSnapshot
   items: CartItem[]
@@ -105,15 +105,15 @@ export const useCheckoutPaymentSession = ({
       silent?: boolean
       allowIncompleteForExpress?: boolean
       overrideDiscountCode?: string | null
-    } = {}) => {
-      if (inFlightRef.current || submitting || prefetching) return
+    } = {}): Promise<PaymentSession | null> => {
+      if (inFlightRef.current || submitting || prefetching) return null
       if (!allowIncompleteForExpress && !isFormComplete) {
         if (!silent) setError(messages.completeRequiredFields)
-        return
+        return null
       }
       if (items.length === 0) {
         if (!silent) setError(messages.cartEmptyError)
-        return
+        return null
       }
 
       inFlightRef.current = true
@@ -140,6 +140,7 @@ export const useCheckoutPaymentSession = ({
 
         setPaymentSession(session)
         setExpressPrefetchError(null)
+        return session
       } catch (err) {
         let message = messages.checkoutFailed
 
@@ -163,6 +164,7 @@ export const useCheckoutPaymentSession = ({
 
         if (silent) setExpressPrefetchError(message)
         if (!silent) setError(message)
+        return null
       } finally {
         if (silent) {
           setPrefetching(false)
