@@ -147,15 +147,6 @@
     border-left: 1px solid var(--admin-sidebar-border);
   }
 
-  /* Custom accordion behavior: show only one group content at a time */
-  .nav-group .nav-group__content {
-    display: none;
-  }
-
-  .nav-group.dob-nav-group-open .nav-group__content {
-    display: block;
-  }
-
   .nav-group__content .nav__link {
     background: transparent;
     color: var(--admin-sidebar-text-muted);
