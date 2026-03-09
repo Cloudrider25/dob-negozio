@@ -26,6 +26,7 @@ type InformationStepProps = {
   onExpressError: (message: string) => void
   onExpressSuccess: (paymentIntentId?: string) => void
   onGoToShippingStep: () => void
+  nextStepLabel: string
 }
 
 export function InformationStep({
@@ -45,10 +46,11 @@ export function InformationStep({
   onExpressError,
   onExpressSuccess,
   onGoToShippingStep,
+  nextStepLabel,
 }: InformationStepProps) {
   return (
     <>
-      {!requiresShippingAddress && paymentSession && stripePromise && stripeOptions ? (
+      {paymentSession && stripePromise && stripeOptions ? (
         <Elements stripe={stripePromise} options={stripeOptions}>
           <ExpressCheckoutQuickForm
             locale={locale}
@@ -58,9 +60,9 @@ export function InformationStep({
             onSuccess={onExpressSuccess}
           />
         </Elements>
-      ) : !requiresShippingAddress && submitting ? (
+      ) : submitting ? (
         <div className={cn(styles.paymentLoading, 'typo-body')}>{copy.messages.loadingPaymentElement}</div>
-      ) : !requiresShippingAddress && expressPrefetchTried && expressPrefetchError ? (
+      ) : expressPrefetchTried && expressPrefetchError ? (
         <div className={cn(styles.paymentLoadingError, 'typo-body')}>
           {expressPrefetchError}
           <div className={styles.actionsRow}>
@@ -73,9 +75,9 @@ export function InformationStep({
             </button>
           </div>
         </div>
-      ) : !requiresShippingAddress ? (
+      ) : (
         <div className={cn(styles.paymentLoading, 'typo-body')}>{copy.messages.loadingPaymentElement}</div>
-      ) : null}
+      )}
 
       <div className={styles.fieldGroup}>
         <div className={cn(styles.labelRow, 'typo-small')}>
@@ -160,7 +162,7 @@ export function InformationStep({
           disabled={submitting || !isFormComplete}
           onClick={onGoToShippingStep}
         >
-          {copy.actions.goToShipping}
+          {nextStepLabel}
         </button>
       </div>
     </>

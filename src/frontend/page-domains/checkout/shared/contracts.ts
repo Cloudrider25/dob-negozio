@@ -42,7 +42,7 @@ export type ShippingOption = {
   deliveryEstimate: string
 }
 
-export type CheckoutStep = 'information' | 'shipping' | 'payment'
+export type CheckoutStep = 'information' | 'shipping' | 'appointment' | 'payment'
 
 export type CheckoutCopy = ReturnType<typeof getJourneyDictionary>['checkout']
 

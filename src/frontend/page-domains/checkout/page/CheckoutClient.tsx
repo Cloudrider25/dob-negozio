@@ -22,6 +22,7 @@ import { formatPrice } from '../shared/format'
 import { CheckoutFooterLinks } from '../ui/CheckoutFooterLinks'
 import { CheckoutSummaryPanel } from '../ui/CheckoutSummaryPanel'
 import { CheckoutStepHeader } from '../ui/CheckoutStepHeader'
+import { AppointmentStep } from '../ui/steps/AppointmentStep'
 import { InformationStep } from '../ui/steps/InformationStep'
 import { PaymentStep } from '../ui/steps/PaymentStep'
 import { ShippingStep } from '../ui/steps/ShippingStep'
@@ -67,7 +68,13 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
 
   useEffect(() => {
     const forcedStep = searchParams?.get('e2eStep')
-    if (forcedStep !== 'information' && forcedStep !== 'shipping' && forcedStep !== 'payment') return
+    if (
+      forcedStep !== 'information' &&
+      forcedStep !== 'shipping' &&
+      forcedStep !== 'appointment' &&
+      forcedStep !== 'payment'
+    )
+      return
     setActiveStep(forcedStep)
   }, [searchParams])
 
@@ -174,13 +181,12 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     return serviceRequestedDate.trim().length > 0 && serviceRequestedTime.trim().length > 0
   }, [hasServices, serviceAppointmentMode, serviceRequestedDate, serviceRequestedTime])
 
-  const isFormComplete = useMemo(() => {
-    return (
-      isContactComplete &&
-      (!requiresShippingAddress || isShippingAddressComplete) &&
-      isServiceAppointmentComplete
-    )
-  }, [isContactComplete, isShippingAddressComplete, requiresShippingAddress, isServiceAppointmentComplete])
+  const isInformationComplete = useMemo(() => {
+    return isContactComplete && (!requiresShippingAddress || isShippingAddressComplete)
+  }, [isContactComplete, isShippingAddressComplete, requiresShippingAddress])
+  const isCheckoutReady = useMemo(() => {
+    return isInformationComplete && isServiceAppointmentComplete
+  }, [isInformationComplete, isServiceAppointmentComplete])
 
   const {
     shippingAmount,
@@ -249,7 +255,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     serviceAppointmentMode,
     serviceRequestedDate,
     serviceRequestedTime,
-    isFormComplete,
+    isFormComplete: isCheckoutReady,
     cartFingerprint,
     setError,
     messages: {
@@ -274,7 +280,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     useCheckoutStepActions({
       activeStep,
       setActiveStep,
-      isFormComplete,
+      isInformationComplete,
       itemsCount: items.length,
       submitting,
       paymentSession,
@@ -282,7 +288,20 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
       setError,
       completeRequiredFieldsMessage: copy.messages.completeRequiredFields,
       cartEmptyErrorMessage: copy.messages.cartEmptyError,
+      hasProducts,
+      hasServices,
     })
+
+  const informationNextLabel = hasProducts ? copy.actions.goToShipping : copy.actions.goToAppointment
+  const shippingNextLabel = hasServices
+    ? copy.actions.continueToAppointment
+    : copy.actions.continueToPayment
+  const appointmentBackLabel = hasProducts
+    ? copy.actions.returnToShipping
+    : copy.actions.returnToInformation
+  const paymentBackLabel = hasServices
+    ? copy.actions.returnToAppointment
+    : copy.actions.returnToShipping
 
   const onPaymentComplete = async (paymentIntentId?: string) => {
     if (paymentSession?.orderId && paymentIntentId) {
@@ -351,6 +370,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         <CheckoutStepHeader
           activeStep={activeStep}
           copy={copy}
+          hasProducts={hasProducts}
+          hasServices={hasServices}
           mobileSummary={
             !isDesktopViewport ? (
               <>
@@ -412,7 +433,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             formState={formState}
             setFormState={setFormState}
             requiresShippingAddress={requiresShippingAddress}
-            isFormComplete={isFormComplete}
+            isFormComplete={isInformationComplete}
             submitting={submitting}
             paymentSession={paymentSession}
             stripePromise={stripePromise}
@@ -423,13 +444,13 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             onExpressError={(message) => setError(message || null)}
             onExpressSuccess={onPaymentComplete}
             onGoToShippingStep={onGoToShippingStep}
+            nextStepLabel={informationNextLabel}
           />
         ) : activeStep === 'shipping' ? (
           <ShippingStep
             copy={copy}
             formState={formState}
             hasProducts={hasProducts}
-            hasServices={hasServices}
             requiresShippingAddress={requiresShippingAddress}
             shippingAddressLabel={shippingAddressLabel}
             shippingLoading={shippingLoading}
@@ -438,17 +459,26 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             setSelectedShippingOptionID={setSelectedShippingOptionID}
             productFulfillmentMode={productFulfillmentMode}
             setProductFulfillmentMode={setProductFulfillmentMode}
+            shippingNoticeBlocks={shippingNoticeBlocks}
+            submitting={submitting}
+            onBackToInformationStep={onBackToInformationStep}
+            onGoToNextStep={onGoToPaymentStep}
+            nextStepLabel={shippingNextLabel}
+          />
+        ) : activeStep === 'appointment' ? (
+          <AppointmentStep
+            copy={copy}
             serviceAppointmentMode={serviceAppointmentMode}
             setServiceAppointmentMode={setServiceAppointmentMode}
             serviceRequestedDate={serviceRequestedDate}
             setServiceRequestedDate={setServiceRequestedDate}
             serviceRequestedTime={serviceRequestedTime}
             setServiceRequestedTime={setServiceRequestedTime}
-            shippingNoticeBlocks={shippingNoticeBlocks}
-            isFormComplete={isFormComplete}
+            isAppointmentComplete={isServiceAppointmentComplete}
             submitting={submitting}
-            onBackToInformationStep={onBackToInformationStep}
+            onBack={onBackToShippingStep}
             onGoToPaymentStep={onGoToPaymentStep}
+            backLabel={appointmentBackLabel}
           />
         ) : (
           <PaymentStep
@@ -471,7 +501,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             submitting={submitting}
             error={error}
             onBackToInformationStep={onBackToInformationStep}
-            onBackToShippingStep={onBackToShippingStep}
+            onBackToPreviousStep={onBackToShippingStep}
+            backLabel={paymentBackLabel}
             onPaymentError={(message) => setError(message || null)}
             onPaymentComplete={onPaymentComplete}
           />

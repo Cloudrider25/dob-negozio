@@ -7,10 +7,25 @@ import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.
 type CheckoutStepHeaderProps = {
   activeStep: CheckoutStep
   copy: CheckoutCopy
+  hasProducts: boolean
+  hasServices: boolean
   mobileSummary?: ReactNode
 }
 
-export function CheckoutStepHeader({ activeStep, copy, mobileSummary }: CheckoutStepHeaderProps) {
+export function CheckoutStepHeader({
+  activeStep,
+  copy,
+  hasProducts,
+  hasServices,
+  mobileSummary,
+}: CheckoutStepHeaderProps) {
+  const steps = [
+    { key: 'information', label: copy.stepper.information },
+    ...(hasProducts ? [{ key: 'shipping' as const, label: copy.stepper.shipping }] : []),
+    ...(hasServices ? [{ key: 'appointment' as const, label: copy.stepper.appointment }] : []),
+    { key: 'payment' as const, label: copy.stepper.payment },
+  ]
+
   return (
     <div className={styles.brand}>
       <div className={styles.brandLockup}>
@@ -37,29 +52,23 @@ export function CheckoutStepHeader({ activeStep, copy, mobileSummary }: Checkout
       {mobileSummary}
       <div className={cn(styles.steps, 'typo-caption-upper')}>
         <span className={styles.stepItem}>{copy.stepper.cart}</span>
-        <span className={styles.stepSeparator}>›</span>
-        <span
-          className={cn(
-            styles.stepItem,
-            activeStep === 'information' ? styles.stepItemActive : styles.stepItemDone,
-          )}
-        >
-          {copy.stepper.information}
-        </span>
-        <span className={styles.stepSeparator}>›</span>
-        <span
-          className={cn(
-            styles.stepItem,
-            activeStep === 'shipping' && styles.stepItemActive,
-            activeStep === 'payment' && styles.stepItemDone,
-          )}
-        >
-          {copy.stepper.shipping}
-        </span>
-        <span className={styles.stepSeparator}>›</span>
-        <span className={cn(styles.stepItem, activeStep === 'payment' && styles.stepItemActive)}>
-          {copy.stepper.payment}
-        </span>
+        {steps.map((step, index) => {
+          const activeIndex = steps.findIndex((entry) => entry.key === activeStep)
+          const stepIndex = index
+          const stateClass =
+            activeStep === step.key
+              ? styles.stepItemActive
+              : stepIndex < activeIndex
+                ? styles.stepItemDone
+                : undefined
+
+          return (
+            <span key={step.key} className={styles.stepCluster}>
+              <span className={styles.stepSeparator}>›</span>
+              <span className={cn(styles.stepItem, stateClass)}>{step.label}</span>
+            </span>
+          )
+        })}
       </div>
     </div>
   )

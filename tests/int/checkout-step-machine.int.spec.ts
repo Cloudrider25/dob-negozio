@@ -8,9 +8,11 @@ describe('checkout step machine', () => {
       currentStep: 'information',
       intent: 'next_from_information',
       context: {
-        isFormComplete: false,
+        isInformationComplete: false,
         itemsCount: 1,
         submitting: false,
+        hasProducts: true,
+        hasServices: false,
       },
     })
 
@@ -20,31 +22,52 @@ describe('checkout step machine', () => {
     })
   })
 
-  it('moves information -> shipping when form and cart are valid', () => {
-    const result = resolveCheckoutStepTransition({
+  it('routes information to the correct next step based on cart type', () => {
+    const productOnly = resolveCheckoutStepTransition({
       currentStep: 'information',
       intent: 'next_from_information',
       context: {
-        isFormComplete: true,
+        isInformationComplete: true,
         itemsCount: 1,
         submitting: false,
+        hasProducts: true,
+        hasServices: false,
       },
     })
 
-    expect(result).toEqual({
+    expect(productOnly).toEqual({
       nextStep: 'shipping',
+      error: null,
+    })
+
+    const serviceOnly = resolveCheckoutStepTransition({
+      currentStep: 'information',
+      intent: 'next_from_information',
+      context: {
+        isInformationComplete: true,
+        itemsCount: 1,
+        submitting: false,
+        hasProducts: false,
+        hasServices: true,
+      },
+    })
+
+    expect(serviceOnly).toEqual({
+      nextStep: 'appointment',
       error: null,
     })
   })
 
-  it('blocks shipping -> payment when cart is empty or submit is in progress', () => {
+  it('blocks shipping -> next when cart is empty or submit is in progress', () => {
     const emptyCart = resolveCheckoutStepTransition({
       currentStep: 'shipping',
       intent: 'next_from_shipping',
       context: {
-        isFormComplete: true,
+        isInformationComplete: true,
         itemsCount: 0,
         submitting: false,
+        hasProducts: true,
+        hasServices: false,
       },
     })
 
@@ -57,9 +80,11 @@ describe('checkout step machine', () => {
       currentStep: 'shipping',
       intent: 'next_from_shipping',
       context: {
-        isFormComplete: true,
+        isInformationComplete: true,
         itemsCount: 2,
         submitting: true,
+        hasProducts: true,
+        hasServices: false,
       },
     })
 
@@ -74,9 +99,11 @@ describe('checkout step machine', () => {
       currentStep: 'shipping',
       intent: 'back_to_information',
       context: {
-        isFormComplete: true,
+        isInformationComplete: true,
         itemsCount: 2,
         submitting: false,
+        hasProducts: true,
+        hasServices: false,
       },
     })
 
@@ -85,18 +112,56 @@ describe('checkout step machine', () => {
       error: null,
     })
 
-    const backToShipping = resolveCheckoutStepTransition({
+    const backToAppointment = resolveCheckoutStepTransition({
       currentStep: 'payment',
-      intent: 'back_to_shipping',
+      intent: 'back_from_payment',
       context: {
-        isFormComplete: true,
+        isInformationComplete: true,
         itemsCount: 2,
         submitting: false,
+        hasProducts: false,
+        hasServices: true,
       },
     })
 
-    expect(backToShipping).toEqual({
-      nextStep: 'shipping',
+    expect(backToAppointment).toEqual({
+      nextStep: 'appointment',
+      error: null,
+    })
+  })
+
+  it('routes shipping to appointment for mixed carts and appointment to payment', () => {
+    const mixedNext = resolveCheckoutStepTransition({
+      currentStep: 'shipping',
+      intent: 'next_from_shipping',
+      context: {
+        isInformationComplete: true,
+        itemsCount: 2,
+        submitting: false,
+        hasProducts: true,
+        hasServices: true,
+      },
+    })
+
+    expect(mixedNext).toEqual({
+      nextStep: 'appointment',
+      error: null,
+    })
+
+    const appointmentNext = resolveCheckoutStepTransition({
+      currentStep: 'appointment',
+      intent: 'next_from_appointment',
+      context: {
+        isInformationComplete: true,
+        itemsCount: 1,
+        submitting: false,
+        hasProducts: false,
+        hasServices: true,
+      },
+    })
+
+    expect(appointmentNext).toEqual({
+      nextStep: 'payment',
       error: null,
     })
   })

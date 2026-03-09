@@ -66,7 +66,7 @@ export const useCheckoutPaymentSession = ({
   setError,
   messages,
 }: {
-  activeStep: 'information' | 'shipping' | 'payment'
+  activeStep: 'information' | 'shipping' | 'appointment' | 'payment'
   locale: string
   formState: CustomerSnapshot
   items: CartItem[]
