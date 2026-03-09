@@ -32,7 +32,8 @@ type PaymentStepProps = {
   submitting: boolean
   error: string | null
   onBackToInformationStep: () => void
-  onBackToShippingStep: () => void
+  onBackToPreviousStep: () => void
+  backLabel: string
   onPaymentError: (message: string) => void
   onPaymentComplete: (paymentIntentId?: string) => void
 }
@@ -57,7 +58,8 @@ export function PaymentStep({
   submitting,
   error,
   onBackToInformationStep,
-  onBackToShippingStep,
+  onBackToPreviousStep,
+  backLabel,
   onPaymentError,
   onPaymentComplete,
 }: PaymentStepProps) {
@@ -65,8 +67,12 @@ export function PaymentStep({
     <>
       <section className={styles.shippingSummaryCard}>
         <div className={styles.shippingSummaryRow}>
-          <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>{copy.contact}</span>
-          <span className={cn(styles.shippingSummaryValue, 'typo-body')}>{formState.email || '—'}</span>
+          <div className={styles.shippingSummaryContent}>
+            <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>{copy.contact}</span>
+            <span className={cn(styles.shippingSummaryValue, 'typo-body')}>
+              {formState.email || '—'}
+            </span>
+          </div>
           <button
             type="button"
             className={cn(styles.changeLink, 'typo-body')}
@@ -75,58 +81,72 @@ export function PaymentStep({
             {copy.actions.change}
           </button>
         </div>
-        <div className={styles.shippingSummaryDivider} />
-        <div className={styles.shippingSummaryRow}>
-          <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>{copy.shippingAddress}</span>
-          <span className={cn(styles.shippingSummaryValue, 'typo-body')}>
-            {requiresShippingAddress
-              ? shippingAddressLabel || '—'
-              : hasProducts
-                ? 'Ritiro in negozio'
-                : 'Non richiesta'}
-          </span>
-          <button
-            type="button"
-            className={cn(styles.changeLink, 'typo-body')}
-            onClick={onBackToInformationStep}
-          >
-            {copy.actions.change}
-          </button>
-        </div>
-        <div className={styles.shippingSummaryDivider} />
-        <div className={styles.shippingSummaryRow}>
-          <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>
-            {copy.sections.shippingMethod}
-          </span>
-          <span className={cn(styles.shippingSummaryValue, 'typo-body')}>
-            {selectedShippingOption && productFulfillmentMode === 'shipping'
-              ? `${selectedShippingOption.name} · ${formatPrice(selectedShippingOption.amount, selectedShippingOption.currency)}`
-              : shippingLabel}
-          </span>
-          <button
-            type="button"
-            className={cn(styles.changeLink, 'typo-body')}
-            onClick={onBackToShippingStep}
-          >
-            {copy.actions.change}
-          </button>
-        </div>
+        {hasProducts ? (
+          <>
+            <div className={styles.shippingSummaryDivider} />
+            <div className={styles.shippingSummaryRow}>
+              <div className={styles.shippingSummaryContent}>
+                <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>
+                  {copy.shippingAddress}
+                </span>
+                <span className={cn(styles.shippingSummaryValue, 'typo-body')}>
+                  {requiresShippingAddress ? shippingAddressLabel || '—' : 'Ritiro in negozio'}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={cn(styles.changeLink, 'typo-body')}
+                onClick={onBackToInformationStep}
+              >
+                {copy.actions.change}
+              </button>
+            </div>
+          </>
+        ) : null}
+        {hasProducts ? (
+          <>
+            <div className={styles.shippingSummaryDivider} />
+            <div className={styles.shippingSummaryRow}>
+              <div className={styles.shippingSummaryContent}>
+                <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>
+                  {copy.sections.shippingMethod}
+                </span>
+                <span className={cn(styles.shippingSummaryValue, 'typo-body')}>
+                  {selectedShippingOption && productFulfillmentMode === 'shipping'
+                    ? `${selectedShippingOption.name} · ${formatPrice(selectedShippingOption.amount, selectedShippingOption.currency)}`
+                    : shippingLabel}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={cn(styles.changeLink, 'typo-body')}
+                onClick={onBackToPreviousStep}
+              >
+                {copy.actions.change}
+              </button>
+            </div>
+          </>
+        ) : null}
         {hasServices ? (
           <>
             <div className={styles.shippingSummaryDivider} />
             <div className={styles.shippingSummaryRow}>
-              <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>Appuntamento servizi</span>
-              <span className={cn(styles.shippingSummaryValue, 'typo-body')}>
-                {serviceAppointmentMode === 'contact_later'
-                  ? 'Vi contatto dopo'
-                  : serviceRequestedDate && serviceRequestedTime
-                    ? `${serviceRequestedDate} · ${serviceRequestedTime}`
-                    : 'Da definire'}
-              </span>
+              <div className={styles.shippingSummaryContent}>
+                <span className={cn(styles.shippingSummaryLabel, 'typo-small')}>
+                  Appuntamento servizi
+                </span>
+                <span className={cn(styles.shippingSummaryValue, 'typo-body')}>
+                  {serviceAppointmentMode === 'contact_later'
+                    ? 'Vi contatto dopo'
+                    : serviceRequestedDate && serviceRequestedTime
+                      ? `${serviceRequestedDate} · ${serviceRequestedTime}`
+                      : 'Da definire'}
+                </span>
+              </div>
               <button
                 type="button"
                 className={cn(styles.changeLink, 'typo-body')}
-                onClick={onBackToShippingStep}
+                onClick={onBackToPreviousStep}
               >
                 {copy.actions.change}
               </button>
@@ -137,7 +157,9 @@ export function PaymentStep({
 
       <section className={styles.paymentSection}>
         <h2 className={cn(styles.paymentTitle, 'typo-h3')}>{copy.sections.payment}</h2>
-        <p className={cn(styles.paymentDescription, 'typo-body')}>{copy.messages.secureTransactions}</p>
+        <p className={cn(styles.paymentDescription, 'typo-body')}>
+          {copy.messages.secureTransactions}
+        </p>
         {!paymentSession && submitting ? (
           <div className={cn(styles.paymentLoading, 'typo-body')}>
             {copy.messages.loadingPaymentElement}
@@ -150,7 +172,8 @@ export function PaymentStep({
               paymentSession={paymentSession}
               customer={formState}
               copy={copy}
-              onBack={onBackToShippingStep}
+              backLabel={backLabel}
+              onBack={onBackToPreviousStep}
               onError={(message) => onPaymentError(message || '')}
               onSuccess={onPaymentComplete}
             />

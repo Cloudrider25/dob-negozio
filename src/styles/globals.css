@@ -127,6 +127,7 @@ body.checkout-site main {
     background: transparent;
     border-radius: 0;
     overflow: visible;
+    width: auto;
   }
 
   section[data-hero="true"] {

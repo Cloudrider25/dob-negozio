@@ -405,6 +405,7 @@ export default async function ProductDetailPage({ params }: { params: ProductDet
                 price: product.price ?? undefined,
                 currency: 'EUR',
                 brand: resolveBrandLabel(product.brand, locale),
+                format: product.format || undefined,
                 coverImage: cartCoverImage,
               }}
               locale={locale}

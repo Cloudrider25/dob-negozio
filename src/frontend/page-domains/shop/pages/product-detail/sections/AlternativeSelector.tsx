@@ -35,6 +35,7 @@ export function AlternativeSelector({
     price?: number | null
     currency?: string | null
     brand?: string | null
+    format?: string | null
     coverImage?: string | null
   }
   locale: string
@@ -57,6 +58,7 @@ export function AlternativeSelector({
     price: selected?.price ?? baseProduct.price ?? undefined,
     currency: selected?.currency ?? baseProduct.currency ?? undefined,
     brand: selected?.brand ?? baseProduct.brand ?? undefined,
+    format: selected?.format || baseProduct.format || undefined,
     coverImage: selected?.coverImage ?? baseProduct.coverImage ?? null,
   }
 
