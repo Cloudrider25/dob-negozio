@@ -26,6 +26,7 @@ export async function GET(_req: NextRequest) {
     `- ${baseUrl}/it/services`,
     `- ${baseUrl}/it/journal`,
     `- ${baseUrl}/it/privacy`,
+    `- ${baseUrl}/it/cookie-policy`,
     `- ${baseUrl}/it/terms`,
     '',
     '## AI Crawling Policy',

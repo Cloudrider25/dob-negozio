@@ -15,6 +15,8 @@ import { dobProtocolTrattamentiFields } from '../fields/dobProtocolTrattamentiFi
 import { dobProtocolRoutineFields } from '../fields/dobProtocolRoutineFields'
 import { dobProtocolCheckUpFields } from '../fields/dobProtocolCheckUpFields'
 import { privacyContentFields } from '../fields/privacyContentFields'
+import { cookiePolicyContentFields } from '../fields/cookiePolicyContentFields'
+import { cookiePolicyBannerFields } from '../fields/cookiePolicyBannerFields'
 import { seoFields } from '../fields/seoFields'
 import { storyHeroFields } from '../fields/storyHeroFields'
 import { storyValuesFields } from '../fields/storyValuesFields'
@@ -50,6 +52,7 @@ export const Pages: CollectionConfig = {
         { label: 'Our Story', value: 'our-story' },
         { label: 'DOB Protocol', value: 'dob-protocol' },
         { label: 'Privacy', value: 'privacy' },
+        { label: 'Cookie Policy', value: 'cookie-policy' },
         { label: 'Contact', value: 'contact' },
         { label: 'Checkout', value: 'checkout' },
       ],
@@ -61,11 +64,11 @@ export const Pages: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: 'SEO',
+          label: 'Pages Seo',
           fields: [...seoFields],
         },
         {
-          label: 'Hero Banner',
+          label: 'Shared Hero Banner',
           admin: {
             condition: (data) =>
               data?.pageKey === 'home' ||
@@ -76,63 +79,63 @@ export const Pages: CollectionConfig = {
           fields: [...heroFields],
         },
         {
-          label: 'Routine Builder',
+          label: 'Shop Routine Builder',
           admin: {
             condition: (data) => data?.pageKey === 'shop',
           },
           fields: [...routineBuilderFields],
         },
         {
-          label: 'Service Navigator',
+          label: 'Services Service Navigator',
           admin: {
             condition: (data) => data?.pageKey === 'services',
           },
           fields: [...serviceNavigatorFields],
         },
         {
-          label: 'Service Carousel',
+          label: 'Shared Service Carousel',
           admin: {
             condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'our-story',
           },
           fields: [...servicesCarouselFields],
         },
         {
-          label: 'Checkout',
+          label: 'Checkout Content',
           admin: {
             condition: (data) => data?.pageKey === 'checkout',
           },
           fields: [...checkoutFields],
         },
         {
-          label: 'Protocol Split',
+          label: 'Home Protocol Split',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
           fields: [...protocolSplitFields],
         },
         {
-          label: 'Diagnosi',
+          label: 'Dob Protocol Diagnosi',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
           fields: [...dobProtocolDiagnosiFields],
         },
         {
-          label: 'Trattamenti',
+          label: 'Dob Protocol Trattamenti',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
           fields: [...dobProtocolTrattamentiFields],
         },
         {
-          label: 'Routine',
+          label: 'Dob Protocol Routine',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
           fields: [...dobProtocolRoutineFields],
         },
         {
-          label: 'Check up',
+          label: 'Dob Protocol Check Up',
           admin: {
             condition: (data) => data?.pageKey === 'dob-protocol',
           },
@@ -146,7 +149,7 @@ export const Pages: CollectionConfig = {
           fields: [...privacyContentFields],
         },
         {
-          label: 'Story Hero',
+          label: 'Shared Story Hero',
           admin: {
             condition: (data) => data?.pageKey === 'home' || data?.pageKey === 'our-story',
           },
@@ -160,32 +163,46 @@ export const Pages: CollectionConfig = {
           fields: [...homeProgramFields],
         },
         {
-          label: 'Product Carousel',
+          label: 'Home Product Carousel',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
           fields: [...productsCarouselFields],
         },
         {
-          label: 'Values Section',
+          label: 'Home Values Section',
           admin: {
             condition: (data) => data?.pageKey === 'home',
           },
           fields: [...valuesSectionFields],
         },
         {
-          label: 'Story Values',
+          label: 'Our Story Values',
           admin: {
             condition: (data) => data?.pageKey === 'our-story',
           },
           fields: [...storyValuesFields],
         },
         {
-          label: 'Story Team',
+          label: 'Our Story Team',
           admin: {
             condition: (data) => data?.pageKey === 'our-story',
           },
           fields: [...storyTeamFields],
+        },
+        {
+          label: 'Cookie Policy Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'cookie-policy',
+          },
+          fields: [...cookiePolicyContentFields],
+        },
+        {
+          label: 'Cookie Policy Banner',
+          admin: {
+            condition: (data) => data?.pageKey === 'cookie-policy',
+          },
+          fields: [...cookiePolicyBannerFields],
         },
       ],
     },

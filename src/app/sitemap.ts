@@ -19,6 +19,7 @@ const localizedPaths = [
   '/dob-protocol',
   '/contact',
   '/privacy',
+  '/cookie-policy',
   '/terms',
   '/shipping',
   '/refund',

@@ -1,0 +1,170 @@
+.panel {
+  padding: 0;
+  gap: 0;
+  background: var(--paper);
+  border-left: 1px solid var(--stroke);
+}
+
+.drawerTitle {
+  color: var(--text-primary);
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  gap: 0;
+}
+
+.topBlock {
+  display: grid;
+  gap: 0.95rem;
+  padding: 1.25rem 1rem 1.15rem;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.kicker,
+.intro,
+.preferenceDescription {
+  margin: 0;
+}
+
+.kicker {
+  color: var(--text-primary);
+}
+
+.intro,
+.preferenceDescription {
+  color: var(--text-secondary);
+}
+
+.linksRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.separator {
+  color: var(--text-muted);
+}
+
+.preferenceList {
+  display: grid;
+}
+
+.preferenceCard {
+  border-bottom: 1px solid var(--stroke);
+  padding: 1.15rem 1rem 1.25rem;
+  background: var(--paper);
+}
+
+.preferenceHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+.preferenceCopy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.preferenceTitle {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.toggle {
+  width: 4.1rem;
+  height: 2.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: var(--surface-elevated, var(--bg-secondary));
+  padding: 0.18rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.toggleActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.toggleDisabled {
+  cursor: not-allowed;
+}
+
+.toggleThumb {
+  width: 1.95rem;
+  height: 1.95rem;
+  border-radius: 999px;
+  background: var(--paper);
+  transition: transform 0.2s ease;
+}
+
+.toggleActive .toggleThumb {
+  transform: translateX(1.5rem);
+}
+
+.footer {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 1rem 1.1rem;
+  border-top: 1px solid var(--stroke);
+  background: var(--paper);
+  box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.04);
+}
+
+.footerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+.secondaryAction {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  padding: 0;
+  cursor: pointer;
+}
+
+.saveButton {
+  width: 100%;
+}
+
+@media (min-width: 760px) {
+  .panel {
+    width: min(50vw, 43rem);
+    max-width: calc(100vw - 2rem);
+  }
+
+  .topBlock,
+  .preferenceCard,
+  .footer {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .topBlock {
+    padding-top: 1.45rem;
+    padding-bottom: 1.3rem;
+  }
+}
