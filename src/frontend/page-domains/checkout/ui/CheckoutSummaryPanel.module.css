@@ -1,0 +1,272 @@
+.summary {
+  background: var(--bg2);
+  max-width: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.summaryDesktop {
+  display: none;
+  border-left: 1px solid var(--stroke);
+  border-radius: 0;
+  padding: clamp(2.2rem, 3vw, 3.1rem) clamp(2rem, 3.3vw, 3.3rem) clamp(1.4rem, 2vw, 2.2rem);
+  justify-self: start;
+}
+
+.summaryMobile {
+  border-top: 1px solid var(--stroke);
+  padding: 1rem;
+  background: transparent;
+}
+
+.summaryItem {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 0.95rem;
+  align-items: center;
+}
+
+.summaryThumb {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  overflow: visible !important;
+  background: var(--paper);
+  border: 1px solid var(--stroke);
+  box-shadow: 0 4px 14px rgba(17, 17, 17, 0.08);
+  padding: 0.35rem;
+}
+
+.summaryThumbImage {
+  object-fit: contain;
+  padding: 5px;
+  border-radius: 12px;
+}
+
+.summaryQtyBadge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  color: var(  --text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 3px solid var(--bg-2);
+  padding: 0;
+  overflow: visible;
+  line-height: 1;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryTitle {
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.summaryMeta {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.35;
+}
+
+.summaryPrice {
+  color: var(--text-primary);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.codeRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+}
+
+.discountCodeError {
+  color: var(--ui-accent);
+}
+
+.input {
+  border-radius: 10px;
+  border: 1px solid var(--stroke);
+  padding: 0.8rem 0.9rem;
+  background: var( --text-primary);
+  color: var(--text-inverse);
+}
+
+.input::placeholder {
+  color: var(--text-inverse);
+  opacity: 1;
+}
+
+.applyButton {
+  border-radius: 10px;
+  border: 1px solid var(--stroke);
+  padding: 0.7rem 1rem;
+  background: var(--paper);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.applyButton:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  color: var(--text-primary);
+}
+
+.summaryRecoTitle {
+  margin: 1.2rem 0 0.2rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.summaryRecoList {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.summaryRecoItem {
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: var(--paper);
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.summaryRecoThumb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.summaryRecoThumbImage {
+  object-fit: contain;
+}
+
+.summaryRecoContent {
+  min-width: 0;
+}
+
+.summaryRecoName {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.summaryRecoMetaRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.summaryRecoFormat {
+  margin: 0.2rem 0 0;
+  color: var(--text-secondary);
+}
+
+.summaryRecoPrice {
+  margin: 0.2rem 0 0;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.summaryRecoAction {
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.summaryRecoAction:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+  border-radius: 6px;
+}
+
+.summaryTaxNote {
+  margin: -0.35rem 0 0.2rem;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 1025px) {
+  .summaryDesktop {
+    display: flex;
+    margin-top: 7rem;
+  }
+
+  .summaryMobile {
+    display: none;
+  }
+
+  .summaryItem {
+    grid-template-columns: 56px 1fr auto;
+    gap: 0.8rem;
+  }
+
+  .summaryThumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: var(--pearl-1);
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .summaryTitle {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .summaryRecoName {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .summaryMeta {
+    font-size: inherit;
+  }
+
+
+}

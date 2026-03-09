@@ -4,10 +4,10 @@ import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media-core/th
 import type { CartItem } from '@/lib/frontend/cart/storage'
 import type { CheckoutCopy, RecommendedProduct } from '@/frontend/page-domains/checkout/shared/contracts'
 import { formatPrice } from '@/frontend/page-domains/checkout/shared/format'
-import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.css'
+import styles from './CheckoutSummaryPanel.module.css'
 
-type CheckoutOrderSummaryProps = {
-  isDesktopViewport: boolean
+type CheckoutSummaryPanelProps = {
+  variant: 'desktop' | 'mobile'
   items: CartItem[]
   copy: CheckoutCopy
   subtotal: number
@@ -17,6 +17,7 @@ type CheckoutOrderSummaryProps = {
   shippingLabel: string
   discountCodeInput: string
   appliedDiscountCode: string
+  discountCodeError: string | null
   onDiscountCodeInputChange: (value: string) => void
   onApplyDiscountCode: () => void
   onRemoveDiscountCode: () => void
@@ -25,8 +26,8 @@ type CheckoutOrderSummaryProps = {
   onAddRecommendedToCart: (product: RecommendedProduct) => void
 }
 
-export function CheckoutOrderSummary({
-  isDesktopViewport,
+export function CheckoutSummaryPanel({
+  variant,
   items,
   copy,
   subtotal,
@@ -36,19 +37,23 @@ export function CheckoutOrderSummary({
   shippingLabel,
   discountCodeInput,
   appliedDiscountCode,
+  discountCodeError,
   onDiscountCodeInputChange,
   onApplyDiscountCode,
   onRemoveDiscountCode,
   recommended,
   recommendedLoading,
   onAddRecommendedToCart,
-}: CheckoutOrderSummaryProps) {
-  if (!isDesktopViewport) return null
-
+}: CheckoutSummaryPanelProps) {
   const discountedSubtotal = Math.max(0, subtotal - discountAmount)
 
   return (
-    <aside className={styles.summary}>
+    <aside
+      className={cn(
+        styles.summary,
+        variant === 'desktop' ? styles.summaryDesktop : styles.summaryMobile,
+      )}
+    >
       {items.length === 0 ? (
         <div className={`${styles.summaryMeta} typo-small`}>{copy.messages.cartEmpty}</div>
       ) : (
@@ -66,8 +71,8 @@ export function CheckoutOrderSummary({
             </MediaThumb>
             <div>
               <p className={`${styles.summaryTitle} typo-body-lg`}>{item.title}</p>
-              <div className={`${styles.summaryMeta} typo-small`}>
-                {item.brand || copy.messages.defaultProductLabel}
+              <div className={`${styles.summaryMeta} typo-body`}>
+                {item.format || item.brand || copy.messages.defaultProductLabel}
               </div>
             </div>
             <div className={`${styles.summaryPrice} typo-body-lg`}>
@@ -90,6 +95,9 @@ export function CheckoutOrderSummary({
           {copy.actions.apply}
         </button>
       </div>
+      {discountCodeError ? (
+        <div className={cn(styles.discountCodeError, 'typo-small')}>{discountCodeError}</div>
+      ) : null}
       {appliedDiscountCode ? (
         <div className={`${styles.summaryMeta} typo-small`}>
           Codice applicato: {appliedDiscountCode}{' '}
@@ -138,13 +146,17 @@ export function CheckoutOrderSummary({
               />
               <div className={styles.summaryRecoContent}>
                 <p className={`${styles.summaryRecoName} typo-body-lg`}>{product.title}</p>
-                {product.format ? (
-                  <p className={`${styles.summaryRecoFormat} typo-body`}>{product.format}</p>
-                ) : null}
-                {typeof product.price === 'number' ? (
-                  <p className={`${styles.summaryRecoPrice} typo-body`}>
-                    {formatPrice(product.price, product.currency)}
-                  </p>
+                {product.format || typeof product.price === 'number' ? (
+                  <div className={styles.summaryRecoMetaRow}>
+                    {product.format ? (
+                      <p className={`${styles.summaryRecoFormat} typo-body`}>{product.format}</p>
+                    ) : <span />}
+                    {typeof product.price === 'number' ? (
+                      <p className={`${styles.summaryRecoPrice} typo-body`}>
+                        {formatPrice(product.price, product.currency)}
+                      </p>
+                    ) : null}
+                  </div>
                 ) : null}
               </div>
               <button

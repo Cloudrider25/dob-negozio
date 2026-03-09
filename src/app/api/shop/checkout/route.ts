@@ -1393,12 +1393,30 @@ export async function POST(request: Request) {
       } catch (error) {
         for (const [productId, previousAllocated] of rollbackAllocated.entries()) {
           try {
+            const rollbackProduct = await payload.findByID({
+              collection: 'products',
+              id: productId,
+              overrideAccess: true,
+              locale,
+              depth: 0,
+              select: {
+                title: true,
+                slug: true,
+                price: true,
+                badgeSource: true,
+              },
+            })
+
             await payload.update({
               collection: 'products',
               id: productId,
               overrideAccess: true,
               locale,
               data: {
+                title: rollbackProduct.title,
+                slug: rollbackProduct.slug,
+                price: rollbackProduct.price,
+                badgeSource: rollbackProduct.badgeSource || 'brand',
                 allocatedStock: previousAllocated,
               },
             })

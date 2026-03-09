@@ -127,6 +127,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         price: typeof recommended.price === 'number' ? recommended.price : undefined,
         currency: recommended.currency || 'EUR',
         brand: recommended.brandName || recommended.lineName || undefined,
+        format: recommended.format || undefined,
         coverImage: normalizeThumbnailSrc(recommended.coverImage),
         quantity: 1,
       })
@@ -197,7 +198,9 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
                 />
                 <div>
                   <h2 className={`${styles.itemTitle} typo-small-upper`}>{item.title}</h2>
-                  {item.brand && <div className={`${styles.itemMeta} typo-caption`}>{item.brand}</div>}
+                  {(item.format || item.brand) ? (
+                    <div className={`${styles.itemMeta} typo-caption`}>{item.format || item.brand}</div>
+                  ) : null}
                   <div className={styles.qtyRow}>
                     <button
                       type="button"

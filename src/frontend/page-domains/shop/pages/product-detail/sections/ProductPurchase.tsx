@@ -11,6 +11,7 @@ type ProductPurchaseProduct = {
   price?: number
   currency?: string
   brand?: string
+  format?: string
   coverImage?: string | null
 }
 
@@ -47,6 +48,7 @@ export function ProductPurchase({
         price: product.price,
         currency: product.currency,
         brand: product.brand,
+        format: product.format,
         coverImage: product.coverImage ?? null,
         quantity: 1,
       })

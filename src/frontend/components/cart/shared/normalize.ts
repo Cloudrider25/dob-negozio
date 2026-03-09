@@ -33,6 +33,7 @@ export const normalizeCartItem = (item: CartItem): CartItem | null => {
     price: normalizePrice(item.price),
     currency: normalizeCurrency(item.currency),
     brand: normalizeText(item.brand) || undefined,
+    format: normalizeText(item.format) || undefined,
     coverImage: normalizeThumbnailSrc(item.coverImage),
     quantity: normalizeQuantity(item.quantity),
   }
@@ -59,6 +60,7 @@ export const normalizeCartItems = (items: CartItem[]): CartItem[] => {
       currency: item.currency || existing.currency,
       coverImage: item.coverImage || existing.coverImage,
       brand: item.brand || existing.brand,
+      format: item.format || existing.format,
       slug: item.slug || existing.slug,
     })
   }

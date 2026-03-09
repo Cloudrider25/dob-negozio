@@ -8,7 +8,7 @@ import { resolveCheckoutStepTransition } from '@/frontend/page-domains/checkout/
 export const useCheckoutStepActions = ({
   activeStep,
   setActiveStep,
-  isFormComplete,
+  isInformationComplete,
   itemsCount,
   submitting,
   paymentSession,
@@ -16,26 +16,32 @@ export const useCheckoutStepActions = ({
   setError,
   completeRequiredFieldsMessage,
   cartEmptyErrorMessage,
+  hasProducts,
+  hasServices,
 }: {
   activeStep: CheckoutStep
   setActiveStep: (next: CheckoutStep) => void
-  isFormComplete: boolean
+  isInformationComplete: boolean
   itemsCount: number
   submitting: boolean
   paymentSession: unknown
-  createPaymentSession: () => Promise<void>
+  createPaymentSession: () => Promise<unknown>
   setError: (message: string | null) => void
   completeRequiredFieldsMessage: string
   cartEmptyErrorMessage: string
+  hasProducts: boolean
+  hasServices: boolean
 }) => {
   const onGoToShippingStep = useCallback(() => {
     const result = resolveCheckoutStepTransition({
       currentStep: activeStep,
       intent: 'next_from_information',
       context: {
-        isFormComplete,
+        isInformationComplete,
         itemsCount,
         submitting,
+        hasProducts,
+        hasServices,
       },
     })
 
@@ -54,7 +60,9 @@ export const useCheckoutStepActions = ({
     activeStep,
     cartEmptyErrorMessage,
     completeRequiredFieldsMessage,
-    isFormComplete,
+    hasProducts,
+    hasServices,
+    isInformationComplete,
     itemsCount,
     setActiveStep,
     setError,
@@ -66,23 +74,35 @@ export const useCheckoutStepActions = ({
       currentStep: activeStep,
       intent: 'back_to_information',
       context: {
-        isFormComplete,
+        isInformationComplete,
         itemsCount,
         submitting,
+        hasProducts,
+        hasServices,
       },
     })
 
     setActiveStep(result.nextStep)
-  }, [activeStep, isFormComplete, itemsCount, setActiveStep, submitting])
+  }, [
+    activeStep,
+    hasProducts,
+    hasServices,
+    isInformationComplete,
+    itemsCount,
+    setActiveStep,
+    submitting,
+  ])
 
   const onGoToPaymentStep = useCallback(() => {
     const result = resolveCheckoutStepTransition({
       currentStep: activeStep,
-      intent: 'next_from_shipping',
+      intent: activeStep === 'appointment' ? 'next_from_appointment' : 'next_from_shipping',
       context: {
-        isFormComplete,
+        isInformationComplete,
         itemsCount,
         submitting,
+        hasProducts,
+        hasServices,
       },
     })
 
@@ -91,19 +111,19 @@ export const useCheckoutStepActions = ({
       return
     }
 
-    if (result.nextStep !== 'payment') return
-
     setError(null)
     setActiveStep(result.nextStep)
 
-    if (!paymentSession) {
+    if (result.nextStep === 'payment' && !paymentSession) {
       void createPaymentSession()
     }
   }, [
     activeStep,
     cartEmptyErrorMessage,
     createPaymentSession,
-    isFormComplete,
+    hasProducts,
+    hasServices,
+    isInformationComplete,
     itemsCount,
     paymentSession,
     setActiveStep,
@@ -114,16 +134,26 @@ export const useCheckoutStepActions = ({
   const onBackToShippingStep = useCallback(() => {
     const result = resolveCheckoutStepTransition({
       currentStep: activeStep,
-      intent: 'back_to_shipping',
+      intent: activeStep === 'payment' ? 'back_from_payment' : 'back_from_appointment',
       context: {
-        isFormComplete,
+        isInformationComplete,
         itemsCount,
         submitting,
+        hasProducts,
+        hasServices,
       },
     })
 
     setActiveStep(result.nextStep)
-  }, [activeStep, isFormComplete, itemsCount, setActiveStep, submitting])
+  }, [
+    activeStep,
+    hasProducts,
+    hasServices,
+    isInformationComplete,
+    itemsCount,
+    setActiveStep,
+    submitting,
+  ])
 
   return {
     onGoToShippingStep,
