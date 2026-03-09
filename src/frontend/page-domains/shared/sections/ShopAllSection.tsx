@@ -144,6 +144,7 @@ export function ShopAllSection({
     price?: number
     currency?: string
     brand?: string
+    format?: string
     coverImage?: string | null
   }) => {
     if (typeof window === 'undefined') return
@@ -155,6 +156,7 @@ export function ShopAllSection({
       if (typeof payload.price === 'number') existing.price = payload.price
       if (!existing.slug && payload.slug) existing.slug = payload.slug
       if (!existing.brand && payload.brand) existing.brand = payload.brand
+      if (!existing.format && payload.format) existing.format = payload.format
       if (!existing.coverImage && payload.coverImage) existing.coverImage = payload.coverImage
     } else {
       next.push({
@@ -164,6 +166,7 @@ export function ShopAllSection({
         price: payload.price,
         currency: payload.currency,
         brand: payload.brand,
+        format: payload.format,
         coverImage: payload.coverImage ?? null,
         quantity: 1,
       })

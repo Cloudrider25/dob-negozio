@@ -7,6 +7,7 @@ export type CartItem = {
   price?: number
   currency?: string
   brand?: string
+  format?: string
   coverImage?: string | null
   quantity: number
 }
@@ -59,6 +60,7 @@ export const parseCartItems = (raw: string | null): CartItem[] => {
         price: typeof item.price === 'number' && Number.isFinite(item.price) ? item.price : undefined,
         currency: typeof item.currency === 'string' ? item.currency : undefined,
         brand: typeof item.brand === 'string' ? item.brand : undefined,
+        format: typeof item.format === 'string' ? item.format : undefined,
         coverImage: readLegacyCoverImage(item),
         quantity,
       })

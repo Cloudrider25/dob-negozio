@@ -46,9 +46,75 @@
   align-items: center;
 }
 
+.brandLockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.brandMark {
+  display: inline-flex;
+  height: 38px;
+  width: 32px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+}
+
 .brandTitle {
   margin: 0;
   color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.mobileSummaryToggle {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--stroke);
+  background: transparent;
+  color: var(--text-primary);
+  padding: 0.95rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobileSummaryToggle:focus-visible {
+  outline: var(--checkout-focus-outline);
+  outline-offset: var(--checkout-focus-offset);
+}
+
+.mobileSummaryToggleLeading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.mobileSummaryChevron {
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.mobileSummaryChevronOpen {
+  transform: rotate(180deg);
+}
+
+.mobileSummaryTotal {
+  white-space: nowrap;
+}
+
+.mobileSummaryPanel {
+  width: 100%;
 }
 
 .steps {
@@ -434,189 +500,6 @@
   border-radius: 4px;
 }
 
-.summary {
-  display: none;
-  background: var(--bg);
-  border-left: 1px solid var(--stroke);
-  border-radius: 0;
-  padding: clamp(2.2rem, 3vw, 3.1rem) clamp(2rem, 3.3vw, 3.3rem) clamp(1.4rem, 2vw, 2.2rem);
-  max-width: none;
-  width: 100%;
-  justify-self: start;
-  flex-direction: column;
-  gap: 1.2rem;
-}
-
-.summaryItem {
-  display: grid;
-  grid-template-columns: 56px 1fr auto;
-  gap: 0.8rem;
-  align-items: center;
-}
-
-.summaryThumb {
-  position: relative;
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  overflow: visible !important;
-  background: var(--pearl-1);
-}
-
-.summaryThumbImage {
-  object-fit: contain;
-}
-
-.summaryQtyBadge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  z-index: 2;
-  min-width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  background: var(--panel);
-  color: var(--text-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  border: 2px solid var(--bg);
-  padding: 0 0.3rem;
-  overflow: visible;
-  line-height: 1;
-  font-size: clamp(0.68rem, 0.55vw, 0.78rem);
-  letter-spacing: 0.01em;
-  font-variant-numeric: tabular-nums;
-}
-
-.summaryTitle {
-  color: var(--text-primary);
-  margin: 0;
-  font-weight: 600;
-}
-
-.summaryMeta {
-  color: var(--text-secondary);
-}
-
-.summaryPrice {
-  color: var(--text-primary);
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-.codeRow {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.6rem;
-}
-
-.applyButton {
-  border-radius: 10px;
-  border: 1px solid var(--stroke);
-  padding: 0.7rem 1rem;
-  background: var(--paper);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.applyButton:focus-visible {
-  outline: var(--checkout-focus-outline);
-  outline-offset: var(--checkout-focus-offset);
-}
-
-.totalRow {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.summaryRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  color: var(--text-primary);
-}
-
-.summaryRecoTitle {
-  margin: 1.2rem 0 0.2rem;
-  text-align: center;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.summaryRecoList {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.summaryRecoItem {
-  border: 1px solid var(--stroke);
-  border-radius: 14px;
-  padding: 0.9rem;
-  background: var(--paper);
-  display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) auto;
-  gap: 0.9rem;
-  align-items: center;
-}
-
-.summaryRecoThumb {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--paper);
-}
-
-.summaryRecoThumbImage {
-  object-fit: contain;
-}
-
-.summaryRecoContent {
-  min-width: 0;
-}
-
-.summaryRecoName {
-  margin: 0;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.summaryRecoFormat {
-  margin: 0.2rem 0 0;
-  color: var(--text-secondary);
-}
-
-.summaryRecoPrice {
-  margin: 0.2rem 0 0;
-  color: var(--text-secondary);
-}
-
-.summaryRecoAction {
-  border: 0;
-  background: transparent;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.summaryRecoAction:focus-visible {
-  outline: var(--checkout-focus-outline);
-  outline-offset: var(--checkout-focus-offset);
-  border-radius: 6px;
-}
-
-.summaryTaxNote {
-  margin: -0.35rem 0 0.2rem;
-  color: var(--text-secondary);
-}
-
 @media (min-width: 1025px) {
   .page {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -635,8 +518,9 @@
     gap: 0.8rem;
   }
 
-  .summary {
-    display: flex;
+  .mobileSummaryToggle,
+  .mobileSummaryPanel {
+    display: none;
   }
 }
 

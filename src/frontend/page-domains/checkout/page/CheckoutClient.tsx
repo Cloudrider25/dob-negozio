@@ -19,7 +19,7 @@ import {
 } from '../shared/contracts'
 import { formatPrice } from '../shared/format'
 import { CheckoutFooterLinks } from '../ui/CheckoutFooterLinks'
-import { CheckoutOrderSummary } from '../ui/CheckoutOrderSummary'
+import { CheckoutSummaryPanel } from '../ui/CheckoutSummaryPanel'
 import { CheckoutStepHeader } from '../ui/CheckoutStepHeader'
 import { InformationStep } from '../ui/steps/InformationStep'
 import { PaymentStep } from '../ui/steps/PaymentStep'
@@ -59,6 +59,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   const [serviceRequestedTime, setServiceRequestedTime] = useState('')
   const [discountCodeInput, setDiscountCodeInput] = useState('')
   const [appliedDiscountCode, setAppliedDiscountCode] = useState('')
+  const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false)
   const [items, setItems] = useState<CartItem[]>([])
   const isDesktopViewport = useDesktopViewport()
 
@@ -127,6 +128,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         price: typeof product.price === 'number' ? product.price : undefined,
         currency: product.currency || 'EUR',
         brand: product.brandName || product.lineName || undefined,
+        format: product.format || undefined,
         coverImage: product.coverImage || null,
         quantity: 1,
       })
@@ -260,6 +262,11 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   const displayDiscountAmount =
     typeof paymentSession?.discountAmount === 'number' ? paymentSession.discountAmount : 0
   const totalAmount = Math.max(0, subtotal - displayDiscountAmount + effectiveShippingAmount)
+  const mobileSummaryLabel = resolvedLocale === 'it' ? 'Riepilogo ordine' : 'Order summary'
+
+  useEffect(() => {
+    if (isDesktopViewport) setMobileSummaryOpen(false)
+  }, [isDesktopViewport])
 
   const { onGoToShippingStep, onBackToInformationStep, onGoToPaymentStep, onBackToShippingStep } =
     useCheckoutStepActions({
@@ -313,7 +320,61 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   return (
     <div className={styles.page}>
       <section className={styles.form}>
-        <CheckoutStepHeader activeStep={activeStep} copy={copy} />
+        <CheckoutStepHeader
+          activeStep={activeStep}
+          copy={copy}
+          mobileSummary={
+            !isDesktopViewport ? (
+              <>
+                <button
+                  type="button"
+                  className={styles.mobileSummaryToggle}
+                  onClick={() => setMobileSummaryOpen((current) => !current)}
+                  aria-expanded={mobileSummaryOpen}
+                  aria-controls="checkout-mobile-summary"
+                >
+                  <span className={cn(styles.mobileSummaryToggleLeading, 'typo-body-lg')}>
+                    <span>{mobileSummaryLabel}</span>
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        styles.mobileSummaryChevron,
+                        mobileSummaryOpen && styles.mobileSummaryChevronOpen,
+                      )}
+                    >
+                      ˅
+                    </span>
+                  </span>
+                  <span className={cn(styles.mobileSummaryTotal, 'typo-body-lg')}>
+                    {formatPrice(totalAmount, effectiveShippingCurrency)}
+                  </span>
+                </button>
+                {mobileSummaryOpen ? (
+                  <div id="checkout-mobile-summary" className={styles.mobileSummaryPanel}>
+                    <CheckoutSummaryPanel
+                      variant="mobile"
+                      items={items}
+                      copy={copy}
+                      subtotal={subtotal}
+                      totalAmount={totalAmount}
+                      discountAmount={displayDiscountAmount}
+                      effectiveShippingCurrency={effectiveShippingCurrency}
+                      shippingLabel={shippingLabel}
+                      discountCodeInput={discountCodeInput}
+                      appliedDiscountCode={appliedDiscountCode}
+                      onDiscountCodeInputChange={setDiscountCodeInput}
+                      onApplyDiscountCode={onApplyDiscountCode}
+                      onRemoveDiscountCode={onRemoveDiscountCode}
+                      recommended={recommended}
+                      recommendedLoading={recommendedLoading}
+                      onAddRecommendedToCart={addRecommendedToCart}
+                    />
+                  </div>
+                ) : null}
+              </>
+            ) : null
+          }
+        />
 
         {error ? <div className={cn(styles.notice, 'typo-small')}>{error}</div> : null}
 
@@ -389,8 +450,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         <CheckoutFooterLinks locale={resolvedLocale} copy={copy} />
       </section>
 
-      <CheckoutOrderSummary
-        isDesktopViewport={isDesktopViewport}
+      <CheckoutSummaryPanel
+        variant="desktop"
         items={items}
         copy={copy}
         subtotal={subtotal}

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+import Image from 'next/image'
 import { cn } from '@/lib/shared/ui/cn'
 import type { CheckoutCopy, CheckoutStep } from '@/frontend/page-domains/checkout/shared/contracts'
 import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.css'
@@ -5,12 +7,26 @@ import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.
 type CheckoutStepHeaderProps = {
   activeStep: CheckoutStep
   copy: CheckoutCopy
+  mobileSummary?: ReactNode
 }
 
-export function CheckoutStepHeader({ activeStep, copy }: CheckoutStepHeaderProps) {
+export function CheckoutStepHeader({ activeStep, copy, mobileSummary }: CheckoutStepHeaderProps) {
   return (
     <div className={styles.brand}>
-      <p className={cn(styles.brandTitle, 'dob-font', 'typo-display-upper')}>dob</p>
+      <div className={styles.brandLockup}>
+        <span className={styles.brandMark}>
+          <Image
+            className={styles.logo}
+            src="/brand/logo-black.png"
+            alt=""
+            width={54}
+            height={54}
+            priority
+          />
+        </span>
+        <p className={cn(styles.brandTitle, 'dob-font', 'typo-display-upper')}>DOB</p>
+      </div>
+      {mobileSummary}
       <div className={cn(styles.steps, 'typo-caption-upper')}>
         <span className={styles.stepItem}>{copy.stepper.cart}</span>
         <span className={styles.stepSeparator}>›</span>
