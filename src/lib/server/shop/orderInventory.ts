@@ -102,6 +102,10 @@ const adjustProductInventory = async ({
     locale,
     depth: 0,
     select: {
+      title: true,
+      slug: true,
+      price: true,
+      badgeSource: true,
       stock: true,
       allocatedStock: true,
       deliveries: true,
@@ -123,6 +127,10 @@ const adjustProductInventory = async ({
     overrideAccess: true,
     locale,
     data: {
+      title: product.title,
+      slug: product.slug,
+      price: product.price,
+      badgeSource: product.badgeSource || 'brand',
       deliveries: nextDeliveries,
       allocatedStock: nextAllocated,
     },

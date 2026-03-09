@@ -4,6 +4,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import type { StripeElementsOptions, Stripe } from '@stripe/stripe-js'
 
 import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.css'
+import { Select } from '@/frontend/components/ui/primitives/input'
 import { cn } from '@/lib/shared/ui/cn'
 import type { CheckoutCopy, CustomerSnapshot, PaymentSession } from '@/frontend/page-domains/checkout/shared/contracts'
 import { ExpressCheckoutQuickForm } from '@/frontend/page-domains/checkout/ui/payment/ExpressCheckoutQuickForm'
@@ -13,6 +14,8 @@ type InformationStepProps = {
   copy: CheckoutCopy
   formState: CustomerSnapshot
   setFormState: Dispatch<SetStateAction<CustomerSnapshot>>
+  requiresShippingAddress: boolean
+  isFormComplete: boolean
   submitting: boolean
   paymentSession: PaymentSession | null
   stripePromise: Promise<Stripe | null> | null
@@ -30,6 +33,8 @@ export function InformationStep({
   copy,
   formState,
   setFormState,
+  requiresShippingAddress,
+  isFormComplete,
   submitting,
   paymentSession,
   stripePromise,
@@ -43,7 +48,7 @@ export function InformationStep({
 }: InformationStepProps) {
   return (
     <>
-      {paymentSession && stripePromise && stripeOptions ? (
+      {!requiresShippingAddress && paymentSession && stripePromise && stripeOptions ? (
         <Elements stripe={stripePromise} options={stripeOptions}>
           <ExpressCheckoutQuickForm
             locale={locale}
@@ -53,9 +58,9 @@ export function InformationStep({
             onSuccess={onExpressSuccess}
           />
         </Elements>
-      ) : submitting ? (
+      ) : !requiresShippingAddress && submitting ? (
         <div className={cn(styles.paymentLoading, 'typo-body')}>{copy.messages.loadingPaymentElement}</div>
-      ) : expressPrefetchTried && expressPrefetchError ? (
+      ) : !requiresShippingAddress && expressPrefetchTried && expressPrefetchError ? (
         <div className={cn(styles.paymentLoadingError, 'typo-body')}>
           {expressPrefetchError}
           <div className={styles.actionsRow}>
@@ -68,9 +73,9 @@ export function InformationStep({
             </button>
           </div>
         </div>
-      ) : (
+      ) : !requiresShippingAddress ? (
         <div className={cn(styles.paymentLoading, 'typo-body')}>{copy.messages.loadingPaymentElement}</div>
-      )}
+      ) : null}
 
       <div className={styles.fieldGroup}>
         <div className={cn(styles.labelRow, 'typo-small')}>
@@ -88,9 +93,14 @@ export function InformationStep({
         <div className={cn(styles.labelRow, 'typo-small')}>
           <span>{copy.shippingAddress}</span>
         </div>
-        <select className={cn(styles.select, 'typo-body')} defaultValue={copy.country}>
+        <Select
+          id="checkout-country"
+          name="country"
+          className={cn(styles.select, 'typo-body')}
+          defaultValue={copy.country}
+        >
           <option value={copy.country}>{copy.country}</option>
-        </select>
+        </Select>
         <div className={styles.splitRow}>
           <input
             className={cn(styles.input, 'typo-body')}
@@ -147,7 +157,7 @@ export function InformationStep({
         <button
           className={cn(styles.continueButton, 'typo-small-upper')}
           type="button"
-          disabled={submitting}
+          disabled={submitting || !isFormComplete}
           onClick={onGoToShippingStep}
         >
           {copy.actions.goToShipping}

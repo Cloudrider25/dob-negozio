@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { isLocale, type Locale } from '@/lib/i18n/core'
-import { normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
+import { resolveMedia } from '@/lib/frontend/media/resolve'
 import type { Product } from '@/payload/generated/payload-types'
 
 const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -32,13 +32,14 @@ const readLocalized = (value: unknown, locale: Locale) => {
   return ''
 }
 
-const mediaUrl = (value: unknown) => {
-  return normalizeThumbnailSrc(value) || ''
-}
-
-const firstGalleryMedia = (value: unknown): unknown => {
-  if (!Array.isArray(value) || value.length === 0) return null
-  return value[0]
+const resolveRecommendationMedia = (coverImage: unknown, gallery: unknown, fallbackAlt: string) => {
+  const cover = resolveMedia(coverImage, fallbackAlt)
+  if (cover?.url) return cover.url
+  if (Array.isArray(gallery) && gallery.length > 0) {
+    const firstGalleryImage = resolveMedia(gallery[0], fallbackAlt)
+    if (firstGalleryImage?.url) return firstGalleryImage.url
+  }
+  return ''
 }
 
 export async function GET(request: Request) {
@@ -124,7 +125,7 @@ export async function GET(request: Request) {
       price: typeof doc.price === 'number' ? doc.price : null,
       currency: 'EUR',
       format: asString(doc.format),
-      coverImage: mediaUrl(doc.coverImage) || mediaUrl(firstGalleryMedia(doc.images)),
+      coverImage: resolveRecommendationMedia(doc.coverImage, doc.images, doc.title || ''),
       lineName,
       brandName,
     }

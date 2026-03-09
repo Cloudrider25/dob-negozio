@@ -16,8 +16,16 @@ export function CheckoutStepHeader({ activeStep, copy, mobileSummary }: Checkout
       <div className={styles.brandLockup}>
         <span className={styles.brandMark}>
           <Image
-            className={styles.logo}
+            className={styles.logoDark}
             src="/brand/logo-black.png"
+            alt=""
+            width={54}
+            height={54}
+            priority
+          />
+          <Image
+            className={styles.logoLight}
+            src="/brand/logo-white.png"
             alt=""
             width={54}
             height={54}

@@ -30,6 +30,7 @@ type ShippingStepProps = {
   serviceRequestedTime: string
   setServiceRequestedTime: Dispatch<SetStateAction<string>>
   shippingNoticeBlocks: string[]
+  isFormComplete: boolean
   submitting: boolean
   onBackToInformationStep: () => void
   onGoToPaymentStep: () => void
@@ -55,6 +56,7 @@ export function ShippingStep({
   serviceRequestedTime,
   setServiceRequestedTime,
   shippingNoticeBlocks,
+  isFormComplete,
   submitting,
   onBackToInformationStep,
   onGoToPaymentStep,
@@ -245,7 +247,13 @@ export function ShippingStep({
           <span className={cn(styles.returnIcon, 'typo-body-lg')}>‹</span>
           {copy.actions.returnToInformation}
         </button>
-        <Button kind="main" size="md" type="button" disabled={submitting} onClick={onGoToPaymentStep}>
+        <Button
+          kind="main"
+          size="md"
+          type="button"
+          disabled={submitting || !isFormComplete}
+          onClick={onGoToPaymentStep}
+        >
           {copy.actions.continueToPayment}
         </Button>
       </div>

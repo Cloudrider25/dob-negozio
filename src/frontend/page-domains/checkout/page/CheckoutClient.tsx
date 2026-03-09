@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { ChevronDownIcon } from '@heroicons/react/24/outline'
 
 import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.css'
 import { cn } from '@/lib/shared/ui/cn'
@@ -333,17 +334,15 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                   aria-expanded={mobileSummaryOpen}
                   aria-controls="checkout-mobile-summary"
                 >
-                  <span className={cn(styles.mobileSummaryToggleLeading, 'typo-body-lg')}>
+                  <span className={cn(styles.mobileSummaryToggleLeading, 'typo-caption-upper')}>
                     <span>{mobileSummaryLabel}</span>
-                    <span
+                    <ChevronDownIcon
                       aria-hidden="true"
                       className={cn(
                         styles.mobileSummaryChevron,
                         mobileSummaryOpen && styles.mobileSummaryChevronOpen,
                       )}
-                    >
-                      ˅
-                    </span>
+                    />
                   </span>
                   <span className={cn(styles.mobileSummaryTotal, 'typo-body-lg')}>
                     {formatPrice(totalAmount, effectiveShippingCurrency)}
@@ -384,6 +383,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             copy={copy}
             formState={formState}
             setFormState={setFormState}
+            requiresShippingAddress={requiresShippingAddress}
+            isFormComplete={isFormComplete}
             submitting={submitting}
             paymentSession={paymentSession}
             stripePromise={stripePromise}
@@ -416,6 +417,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
             serviceRequestedTime={serviceRequestedTime}
             setServiceRequestedTime={setServiceRequestedTime}
             shippingNoticeBlocks={shippingNoticeBlocks}
+            isFormComplete={isFormComplete}
             submitting={submitting}
             onBackToInformationStep={onBackToInformationStep}
             onGoToPaymentStep={onGoToPaymentStep}

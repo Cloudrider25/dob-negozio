@@ -10,7 +10,7 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 0 0.75rem;
+  padding: 0;
   background: var(--paper);
   min-height: 100dvh;
 }
@@ -27,11 +27,12 @@
 .billingElementBox {
   border: 1px solid var(--stroke);
   background: var(--paper);
+  margin: 0 1rem
 }
 
 .form {
   background: var(--paper);
-  padding: 1rem;
+  padding: 0;
   max-width: none;
   width: 100%;
   justify-self: stretch;
@@ -50,20 +51,30 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  padding: 1rem 0
 }
 
 .brandMark {
+  position: relative;
   display: inline-flex;
-  height: 38px;
-  width: 32px;
+  height: 44px;
+  width: 38px;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.logo {
-  width: 32px;
-  height: 32px;
+.logoLight {
+  width: 38px;
+  height: 38px;
+}
+
+.logoDark {
+  position: absolute;
+  inset: 0;
+  width: 38px;
+  height: 38px;
+  opacity: 0;
 }
 
 .brandTitle {
@@ -73,14 +84,26 @@
   letter-spacing: 0.04em;
 }
 
+:global(body[data-theme='light']) .logoLight,
+:global(html[data-theme='light']) .logoLight,
+:global(body.light) .logoLight {
+  opacity: 0;
+}
+
+:global(body[data-theme='light']) .logoDark,
+:global(html[data-theme='light']) .logoDark,
+:global(body.light) .logoDark {
+  opacity: 1;
+}
+
 .mobileSummaryToggle {
   width: 100%;
   border: 0;
   border-top: 1px solid var(--stroke);
   border-bottom: 1px solid var(--stroke);
-  background: transparent;
+  background: var(--bg-2);
   color: var(--text-primary);
-  padding: 0.95rem 0;
+  padding: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -97,11 +120,15 @@
 .mobileSummaryToggleLeading {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.45rem;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .mobileSummaryChevron {
-  line-height: 1;
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--text-primary);
   transition: transform 160ms ease;
 }
 
@@ -172,6 +199,7 @@
 .fieldGroup {
   display: grid;
   gap: 0.6rem;
+  margin:0 1rem
 }
 
 .labelRow {
@@ -191,6 +219,10 @@
   color: var(--text-primary);
 }
 
+.select {
+  padding-right: 2.4rem;
+}
+
 .splitRow {
   display: grid;
   grid-template-columns: 1fr;
@@ -204,7 +236,7 @@
 }
 
 .actionsRow {
-  margin-top: 1.6rem;
+  margin: 1.6rem 1rem 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -249,18 +281,29 @@
 
 .continueButton {
   border-radius: 10px;
-  border: 0;
+  border: 1px solid var(--text-primary);
   padding: 0.85rem 1.4rem;
-  background: var(--panel);
-  color: var(--text-inverse);
+  background: var(--text-primary);
+  color: var(--bg);
   font-weight: 600;
   cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
 }
 
 .continueButton:disabled {
-  opacity: 0.7;
-  cursor: wait;
+  background: var(--bg-2);
+  color: var(--text-muted);
+  border: 1px solid var(--stroke);
+  opacity: 0.82;
+  cursor: not-allowed;
+  box-shadow: none;
 }
+
+
 
 .continueButton:focus-visible {
   outline: var(--checkout-focus-outline);
@@ -274,10 +317,14 @@
 
 .shippingSummaryRow {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.35rem;
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.8rem;
+  align-items: start;
   padding: 0.4rem 0;
+}
+
+.shippingSummaryRow > * {
+  min-width: 0;
 }
 
 .shippingSummaryLabel {
@@ -286,6 +333,9 @@
 
 .shippingSummaryValue {
   color: var(--text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .shippingSummaryDivider {
@@ -300,6 +350,12 @@
   text-underline-offset: 3px;
   color: var(--text-secondary);
   cursor: pointer;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  letter-spacing: var(--type-small-track);
 }
 
 .changeLink:focus-visible {
@@ -314,7 +370,7 @@
 }
 
 .shippingMethodTitle {
-  margin: 0;
+  margin: 0 1rem;
   color: var(--text-primary);
 }
 
@@ -387,12 +443,12 @@
 }
 
 .paymentTitle {
-  margin: 0;
+  margin: 0 1rem;
   color: var(--text-primary);
 }
 
 .paymentDescription {
-  margin: 0;
+  margin: 0 1rem;
   color: var(--text-secondary);
 }
 
@@ -418,7 +474,7 @@
   width: 100%;
   border: 0;
   border-top: 1px solid var(--stroke);
-  background: var(--paper);
+  background: transparent;
   padding: 1rem 1.1rem;
   display: flex;
   align-items: center;
@@ -426,10 +482,14 @@
   text-align: left;
   color: var(--text-primary);
   cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 }
 
 .paymentMethodRowActive {
-  background: var(--pearl-1);
+  background: var(--text-primary);
+  color: var(--bg);
 }
 
 .paymentMethodRow:focus-visible {
@@ -441,7 +501,7 @@
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 1px solid var(--stroke);
+  border: 1px solid currentColor;
   position: relative;
   flex-shrink: 0;
 }
@@ -451,7 +511,7 @@
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: var(--text-secondary);
+  background: currentColor;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -464,13 +524,15 @@
 }
 
 .billingTitle {
-  margin: 0;
+  margin: 0 1rem;
   color: var(--text-primary);
 }
 
 .billingChoiceCard {
   border-radius: var(--checkout-card-radius);
   overflow: hidden;
+  border: 1px solid var(--stroke);
+  background: var(--paper);
 }
 
 .billingElementBox {

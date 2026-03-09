@@ -133,6 +133,7 @@
 .dob-font.typo-display,
 .dob-font.typo-display-upper {
   font-family: 'DOB Display', 'Times New Roman', serif;
+  font-size: 44px;
   letter-spacing: var(--dob-letter-spacing);
 }
 
