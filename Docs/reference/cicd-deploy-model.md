@@ -14,6 +14,12 @@
 
 No direct deploys from feature branches to shared environments.
 
+Promotion PRs are guarded by workflow:
+
+- `promote/dev-to-staging-*` must target `staging`
+- `promote/staging-to-prod-*` must target `prod`
+- promotion branches must never target `dev`
+
 ## Deploy model
 
 ### Staging
@@ -25,6 +31,9 @@ No direct deploys from feature branches to shared environments.
   - typecheck
   - integration tests
   - build
+- runtime env source:
+  - `vercel pull --environment=preview`
+  - staging DB alias exported as `STG_POSTGRES_URL`
 - deploy job:
   - uses `STAGING_DEPLOY_HOOK_URL`
 
@@ -39,6 +48,9 @@ No direct deploys from feature branches to shared environments.
   - typecheck
   - integration tests
   - build
+- runtime env source:
+  - `vercel pull --environment=production`
+  - production DB alias exported as `PROD_POSTGRES_URL`
 - deploy job:
   - uses Vercel CLI
   - `vercel pull --environment=production`
@@ -48,11 +60,9 @@ No direct deploys from feature branches to shared environments.
 ## Required GitHub secrets
 
 - `PAYLOAD_SECRET`
-- `STAGING_DATABASE_URL`
-- `STAGING_DEPLOY_HOOK_URL`
-- `PRODUCTION_DATABASE_URL`
 - `VERCEL_TOKEN`
 - `STG_READ_WRITE_TOKEN`
+- `STAGING_DEPLOY_HOOK_URL`
 
 ## Protection rules
 

@@ -124,6 +124,19 @@ const isLocalDatabaseHost = (value: string): boolean => {
   }
 }
 
+const pickLocalDatabaseUrl = (
+  candidates: Array<{ name: string; value: string | undefined }>,
+): { name: string; value: string } | null => {
+  const candidate = pickDatabaseUrl(candidates)
+
+  if (!candidate) return null
+  if (!isLocalDatabaseHost(candidate.value)) return null
+
+  return candidate
+}
+
+type DatabaseTargetEnv = 'local' | 'staging' | 'production'
+
 const blobReadWriteToken =
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
@@ -134,52 +147,71 @@ const hasValidBlobToken = /^vercel_blob_rw_[^_]+_.+/.test(blobReadWriteToken)
 const enableBlobPlugin = hasValidBlobToken
 // Prefer Vercel Postgres runtime URL for `pg` pool (Payload uses `pg`, not Prisma).
 // Use NON_POOLING only as a fallback (or for one-off scripts/migrations).
+const appEnv = process.env.APP_ENV?.trim().toLowerCase()
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
+const isVercelPreview = process.env.VERCEL_ENV === 'preview'
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isCI = process.env.CI === 'true'
-const databaseUrlCandidate = isCI
-  ? pickDatabaseUrl([
-      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
-      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
-      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
-    ])
-  : isDevelopment
-  ? pickDatabaseUrl([
-      { name: 'LOCAL_DATABASE_URL', value: process.env.LOCAL_DATABASE_URL },
-      { name: 'DEV_DATABASE_URL', value: process.env.DEV_DATABASE_URL },
-      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
-      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
-      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
-      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
-      { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
-      { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
-    ])
-  : isVercelProduction
-  ? pickDatabaseUrl([
-      { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
-      { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
-      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
-      { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
-      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
-      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
-    ])
-  : pickDatabaseUrl([
-      { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
-      { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
-      { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
-      { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
-      { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
-      { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
-      { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
-    ])
+const databaseTargetEnv: DatabaseTargetEnv =
+  appEnv === 'production' || appEnv === 'prod'
+    ? 'production'
+    : appEnv === 'staging'
+      ? 'staging'
+      : isVercelProduction
+        ? 'production'
+        : isVercelPreview || isCI
+          ? 'staging'
+          : 'local'
+const databaseUrlCandidate =
+  databaseTargetEnv === 'local'
+    ? pickLocalDatabaseUrl([
+        { name: 'LOCAL_DATABASE_URL', value: process.env.LOCAL_DATABASE_URL },
+        { name: 'DEV_DATABASE_URL', value: process.env.DEV_DATABASE_URL },
+        { name: 'DATABASE_URL', value: process.env.DATABASE_URL },
+        { name: 'POSTGRES_URL', value: process.env.POSTGRES_URL },
+        { name: 'POSTGRES_URL_NON_POOLING', value: process.env.POSTGRES_URL_NON_POOLING },
+        { name: 'POSTGRES_PRISMA_URL', value: process.env.POSTGRES_PRISMA_URL },
+      ])
+    : databaseTargetEnv === 'production'
+      ? pickDatabaseUrl([
+          { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
+          { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
+          { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
+        ])
+      : pickDatabaseUrl([
+          { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
+          { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+          { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
+        ])
 
 const databaseUrlSource = databaseUrlCandidate?.name ?? 'none'
 export const databaseUrl = databaseUrlCandidate
   ? normalizePrismaSslCompat(databaseUrlCandidate.value)
   : ''
+if (databaseTargetEnv === 'local' && !databaseUrlCandidate) {
+  throw new Error(
+    'Local execution requires a valid local database URL (LOCAL_DATABASE_URL, DEV_DATABASE_URL, DATABASE_URL, POSTGRES_URL, POSTGRES_URL_NON_POOLING, or POSTGRES_PRISMA_URL pointing to localhost/127.0.0.1/::1). Refusing to fall back to staging or production.',
+  )
+}
+
+if (databaseTargetEnv === 'staging' && !databaseUrlCandidate) {
+  throw new Error(
+    'Staging execution requires STG_POSTGRES_URL, STG_DATABASE_URL, or STG_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
+  )
+}
+
+if (databaseTargetEnv === 'production' && !databaseUrlCandidate) {
+  throw new Error(
+    'Production execution requires PROD_POSTGRES_URL, PROD_DATABASE_URL, or PROD_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
+  )
+}
+
+if (databaseTargetEnv !== 'local' && isLocalDatabaseHost(databaseUrl)) {
+  throw new Error(
+    `Refusing to boot ${databaseTargetEnv} against a local database host. Check APP_ENV / VERCEL_ENV and the matching ${databaseTargetEnv === 'production' ? 'PROD_*' : 'STG_*'} database variables.`,
+  )
+}
+
 const enableSchemaPush =
   process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true' ||
   (isDevelopment && isLocalDatabaseHost(databaseUrl))
@@ -361,7 +393,7 @@ export default buildConfig({
     try {
       if (databaseMeta) {
         payload.logger.info(
-          `[db] source=${databaseUrlSource} host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
+          `[db] target=${databaseTargetEnv} source=${databaseUrlSource} host=${databaseMeta.host} database=${databaseMeta.database} user=${databaseMeta.user}`,
         )
         payload.logger.info(
           `[db] pool max=${dbPoolMax} min=${dbPoolMin} connectTimeoutMs=${dbPoolConnectTimeout} idleTimeoutMs=${dbPoolIdleTimeout}`,
@@ -380,6 +412,7 @@ export default buildConfig({
           'our-story',
           'dob-protocol',
           'privacy',
+          'cookie-policy',
           'contact',
           'checkout',
         ] as const

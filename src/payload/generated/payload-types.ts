@@ -1506,6 +1506,7 @@ export interface Page {
     | 'our-story'
     | 'dob-protocol'
     | 'privacy'
+    | 'cookie-policy'
     | 'contact'
     | 'checkout';
   /**
@@ -1660,6 +1661,34 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+  };
+  cookiePolicyPageTitle?: string | null;
+  cookiePolicyPageIntro?: string | null;
+  cookiePolicySections?:
+    | {
+        title?: string | null;
+        body?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  cookiePolicyBanner?: {
+    title?: string | null;
+    body?: string | null;
+    cookiePolicyLabel?: string | null;
+    privacyPolicyLabel?: string | null;
+    storagePreferencesLabel?: string | null;
+    advertisingLabel?: string | null;
+    advertisingDescription?: string | null;
+    personalizationLabel?: string | null;
+    personalizationDescription?: string | null;
+    analyticsLabel?: string | null;
+    analyticsDescription?: string | null;
+    essentialLabel?: string | null;
+    essentialDescription?: string | null;
+    saveLabel?: string | null;
+    acceptAllLabel?: string | null;
+    rejectOptionalLabel?: string | null;
+    closeLabel?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -3024,6 +3053,36 @@ export interface PagesSelect<T extends boolean = true> {
               image?: T;
               id?: T;
             };
+      };
+  cookiePolicyPageTitle?: T;
+  cookiePolicyPageIntro?: T;
+  cookiePolicySections?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  cookiePolicyBanner?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        cookiePolicyLabel?: T;
+        privacyPolicyLabel?: T;
+        storagePreferencesLabel?: T;
+        advertisingLabel?: T;
+        advertisingDescription?: T;
+        personalizationLabel?: T;
+        personalizationDescription?: T;
+        analyticsLabel?: T;
+        analyticsDescription?: T;
+        essentialLabel?: T;
+        essentialDescription?: T;
+        saveLabel?: T;
+        acceptAllLabel?: T;
+        rejectOptionalLabel?: T;
+        closeLabel?: T;
       };
   updatedAt?: T;
   createdAt?: T;

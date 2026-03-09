@@ -30,7 +30,8 @@ Env resolution order in local development:
 4. `POSTGRES_URL`
 5. `POSTGRES_URL_NON_POOLING`
 6. `POSTGRES_PRISMA_URL`
-7. staging fallbacks only if none of the above are valid
+
+Local execution must reject staging / production fallbacks even if those env vars are present.
 
 ### Staging
 
@@ -39,10 +40,17 @@ Env resolution order in local development:
 - Schema alignment must happen only on explicit request.
 - Alignment must be done through tracked migrations or explicit operational commands, never as a side effect of app boot or CI test initialization.
 
-Typical env vars:
+Accepted runtime env vars:
 
 - `STG_DATABASE_URL`
 - `STG_POSTGRES_URL`
+- `STG_PRISMA_DATABASE_URL`
+
+Staging execution must reject:
+
+- `LOCAL_DATABASE_URL`
+- `DEV_DATABASE_URL`
+- generic-only fallback behavior via `DATABASE_URL` / `POSTGRES_URL`
 
 ### Production
 
@@ -51,10 +59,17 @@ Typical env vars:
 - Schema alignment must happen only on explicit request.
 - Production alignment must be controlled, traceable, and migration-based.
 
-Typical env vars:
+Accepted runtime env vars:
 
 - `PROD_DATABASE_URL`
 - `PROD_POSTGRES_URL`
+- `PROD_PRISMA_DATABASE_URL`
+
+Production execution must reject:
+
+- local database URLs
+- staging-only env vars
+- generic-only fallback behavior via `DATABASE_URL` / `POSTGRES_URL`
 
 ## Runtime Behavior
 
@@ -63,6 +78,8 @@ The runtime config enforces:
 - local automatic schema push only for local development databases
 - no automatic schema push in CI
 - no automatic schema push on staging/prod remote databases
+- explicit environment targeting via `APP_ENV` / `VERCEL_ENV`
+- hard failure when the selected environment does not have its own matching database URL
 
 Override is possible only via:
 
@@ -103,3 +120,19 @@ When schema changes are needed:
 4. promote to production on request
 
 Do not rely on application boot to reconcile shared database schema.
+
+### Safe migration commands
+
+Use the dedicated scripts instead of ad-hoc env exports:
+
+```bash
+pnpm migrate:local
+pnpm migrate:staging
+pnpm migrate:prod
+```
+
+- `migrate:local` reads `.env` and refuses non-local hosts
+- `migrate:staging` reads `.vercel/.env.preview.local`
+- `migrate:prod` reads `.vercel/.env.production.local`
+
+For staging / production, Vercel environment files are the source of truth.

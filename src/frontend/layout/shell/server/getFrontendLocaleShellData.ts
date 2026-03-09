@@ -2,6 +2,7 @@ import { cookies, headers } from 'next/headers'
 import { unstable_cache } from 'next/cache'
 
 import { buildContactLinks } from '@/lib/frontend/contact/links'
+import { getCookiePolicyConfig } from '@/lib/frontend/legal/cookie-policy'
 import { getDictionary, type Locale } from '@/lib/i18n/core'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
@@ -122,6 +123,7 @@ export const getFrontendLocaleShellData = async (
 
   const t = getDictionary(locale)
   const { siteSettings, latestProducts, latestServices } = await getShellPublicDataSafe(locale)
+  const cookiePolicyConfig = await getCookiePolicyConfig(locale)
 
   const latestProduct = latestProducts.docs[0]
   const latestService = latestServices.docs[0]
@@ -185,5 +187,6 @@ export const getFrontendLocaleShellData = async (
     phoneDisplay,
     whatsappDisplay,
     addressDisplay,
+    cookieBannerContent: cookiePolicyConfig.banner,
   }
 }

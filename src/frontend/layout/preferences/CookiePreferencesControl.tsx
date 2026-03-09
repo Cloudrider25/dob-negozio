@@ -1,6 +1,6 @@
 'use client'
 
-import { COOKIE_CONSENT_EVENT } from '@/lib/frontend/preferences/cookie-consent'
+import { COOKIE_CONSENT_DRAWER_EVENT } from '@/lib/frontend/preferences/cookie-consent'
 
 type CookiePreferencesControlProps = {
   locale: string
@@ -24,11 +24,10 @@ export const CookiePreferencesControl = ({
       type="button"
       className={className}
       onClick={() => {
-        window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT))
+        window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_DRAWER_EVENT))
       }}
     >
       {label}
     </button>
   )
 }
-

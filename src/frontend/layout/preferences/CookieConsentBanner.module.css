@@ -53,7 +53,17 @@
   color: var(--text-muted);
 }
 
-.sectionTitle {
+.sectionTitleButton {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  width: fit-content;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.sectionTitleButton {
   color: var(--text-primary);
   text-decoration: underline;
 }
@@ -127,4 +137,3 @@
     padding: 1.5rem;
   }
 }
-

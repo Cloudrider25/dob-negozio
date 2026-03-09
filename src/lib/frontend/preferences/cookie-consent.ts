@@ -12,6 +12,7 @@ export const COOKIE_CONSENT_COOKIE_KEYS = {
 } as const
 
 export const COOKIE_CONSENT_EVENT = 'dob:open-cookie-consent'
+export const COOKIE_CONSENT_DRAWER_EVENT = 'dob:open-cookie-preferences'
 
 export const DEFAULT_COOKIE_CONSENT: CookieConsentPreferences = {
   analytics: false,
@@ -20,6 +21,17 @@ export const DEFAULT_COOKIE_CONSENT: CookieConsentPreferences = {
 }
 
 export const oneYearSeconds = 60 * 60 * 24 * 365
+
+const readCookieValue = (name: string) => {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))
+  return match ? decodeURIComponent(match[1]) : null
+}
+
+const setCookie = (name: string, value: string) => {
+  if (typeof document === 'undefined') return
+  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${oneYearSeconds}; SameSite=Lax`
+}
 
 export const parseBooleanFlag = (value?: string | null): boolean | null => {
   if (value === '1') return true
@@ -41,3 +53,60 @@ export const parseCookieConsent = (value: {
 }
 
 export const serializeCookieConsentFlag = (value: boolean) => (value ? '1' : '0')
+
+export const persistCookieConsent = (next: CookieConsentPreferences) => {
+  if (typeof window === 'undefined') return
+
+  setCookie(COOKIE_CONSENT_COOKIE_KEYS.confirmed, '1')
+  setCookie(COOKIE_CONSENT_COOKIE_KEYS.analytics, serializeCookieConsentFlag(next.analytics))
+  setCookie(
+    COOKIE_CONSENT_COOKIE_KEYS.personalization,
+    serializeCookieConsentFlag(next.personalization),
+  )
+  setCookie(COOKIE_CONSENT_COOKIE_KEYS.advertising, serializeCookieConsentFlag(next.advertising))
+
+  window.localStorage.setItem(COOKIE_CONSENT_COOKIE_KEYS.confirmed, '1')
+  window.localStorage.setItem(
+    COOKIE_CONSENT_COOKIE_KEYS.analytics,
+    serializeCookieConsentFlag(next.analytics),
+  )
+  window.localStorage.setItem(
+    COOKIE_CONSENT_COOKIE_KEYS.personalization,
+    serializeCookieConsentFlag(next.personalization),
+  )
+  window.localStorage.setItem(
+    COOKIE_CONSENT_COOKIE_KEYS.advertising,
+    serializeCookieConsentFlag(next.advertising),
+  )
+}
+
+export const readStoredCookieConsent = (): {
+  confirmed: boolean
+  values: CookieConsentPreferences
+} => {
+  if (typeof window === 'undefined') {
+    return {
+      confirmed: false,
+      values: DEFAULT_COOKIE_CONSENT,
+    }
+  }
+
+  const confirmed =
+    readCookieValue(COOKIE_CONSENT_COOKIE_KEYS.confirmed) === '1' ||
+    window.localStorage.getItem(COOKIE_CONSENT_COOKIE_KEYS.confirmed) === '1'
+
+  return {
+    confirmed,
+    values: parseCookieConsent({
+      analytics:
+        readCookieValue(COOKIE_CONSENT_COOKIE_KEYS.analytics) ||
+        window.localStorage.getItem(COOKIE_CONSENT_COOKIE_KEYS.analytics),
+      personalization:
+        readCookieValue(COOKIE_CONSENT_COOKIE_KEYS.personalization) ||
+        window.localStorage.getItem(COOKIE_CONSENT_COOKIE_KEYS.personalization),
+      advertising:
+        readCookieValue(COOKIE_CONSENT_COOKIE_KEYS.advertising) ||
+        window.localStorage.getItem(COOKIE_CONSENT_COOKIE_KEYS.advertising),
+    }),
+  }
+}
