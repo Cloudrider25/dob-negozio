@@ -33,12 +33,15 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 0;
+    min-width: 0;
   }
 
   .ui-split-column {
     background: var(--bg);
     border-radius: 12px;
     min-height: 0;
+    min-width: 0;
+    width: 100%;
   }
 
   .ui-split-mobile-first {

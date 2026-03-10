@@ -1536,9 +1536,17 @@ export interface Page {
    */
   routineBuilderStep1Title?: string | null;
   /**
+   * Descrizione Step 1.
+   */
+  routineBuilderStep1Description?: string | null;
+  /**
    * Titolo Step 2.
    */
   routineBuilderStep2Title?: string | null;
+  /**
+   * Descrizione Step 2.
+   */
+  routineBuilderStep2Description?: string | null;
   serviceNavigator?: {
     /**
      * Titolo step 0 del Service Navigator.
@@ -2938,7 +2946,9 @@ export interface PagesSelect<T extends boolean = true> {
   heroDescription?: T;
   heroMedia?: T;
   routineBuilderStep1Title?: T;
+  routineBuilderStep1Description?: T;
   routineBuilderStep2Title?: T;
+  routineBuilderStep2Description?: T;
   serviceNavigator?:
     | T
     | {
