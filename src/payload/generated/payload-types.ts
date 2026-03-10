@@ -706,6 +706,10 @@ export interface Service {
   zone?: (number | null) | Zone;
   intentCode?: string | null;
   zoneCode?: string | null;
+  /**
+   * Seleziona un programma che contenga questo servizio in uno step di tipo servizio. Salva prima il servizio per vedere le opzioni disponibili.
+   */
+  relatedProgram?: (number | null) | Program;
   updatedAt: string;
   createdAt: string;
 }
@@ -2349,6 +2353,7 @@ export interface ServicesSelect<T extends boolean = true> {
   zone?: T;
   intentCode?: T;
   zoneCode?: T;
+  relatedProgram?: T;
   updatedAt?: T;
   createdAt?: T;
 }
