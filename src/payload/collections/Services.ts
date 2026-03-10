@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Where } from 'payload'
 
 import { isAdmin } from '../access/isAdmin'
 import { seoFields } from '../fields/seoFields'
@@ -191,6 +191,37 @@ export const Services: CollectionConfig = {
         }
 
         data.modalityCode = modalityCode
+
+        const relatedProgramSource =
+          'relatedProgram' in data ? data.relatedProgram : originalDoc?.relatedProgram
+        const relatedProgramId = getRelationId(relatedProgramSource)
+        const currentServiceId = getRelationId(originalDoc?.id) || getRelationId((data as { id?: unknown })?.id)
+
+        if (relatedProgramId && currentServiceId) {
+          const program = await req.payload.findByID({
+            collection: 'programs',
+            id: String(relatedProgramId),
+            depth: 0,
+            overrideAccess: false,
+            req,
+          })
+
+          const programSteps = Array.isArray(program?.steps) ? program.steps : []
+          const containsService = programSteps.some((step) => {
+            if (!step || typeof step !== 'object') return false
+            const record = step as Record<string, unknown>
+            return (
+              record.stepType === 'service' &&
+              String(getRelationId(record.stepService) ?? '') === String(currentServiceId)
+            )
+          })
+
+          if (!containsService) {
+            throw new Error(
+              'Il programma selezionato deve contenere questo servizio in uno step di tipo servizio.',
+            )
+          }
+        }
 
         return data
       },
@@ -687,6 +718,33 @@ export const Services: CollectionConfig = {
                 { name: 'intentCode', type: 'text' },
                 { name: 'zoneCode', type: 'text' },
               ],
+            },
+          ],
+        },
+        {
+          label: 'Service Reveal',
+          fields: [
+            {
+              name: 'relatedProgram',
+              label: 'Programma collegato',
+              type: 'relationship',
+              relationTo: 'programs',
+              filterOptions: ({ data }) => {
+                const serviceId = getRelationId((data as { id?: unknown } | undefined)?.id)
+                if (!serviceId) return false
+
+                const where: Where = {
+                  and: [
+                    { 'steps.stepType': { equals: 'service' } },
+                    { 'steps.stepService': { equals: String(serviceId) } },
+                  ],
+                }
+                return where
+              },
+              admin: {
+                description:
+                  'Seleziona un programma che contenga questo servizio in uno step di tipo servizio. Salva prima il servizio per vedere le opzioni disponibili.',
+              },
             },
           ],
         },

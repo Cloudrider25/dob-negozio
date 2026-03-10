@@ -123,7 +123,9 @@ export default async function ShopPage({
   const heroDescription = pageDoc?.heroDescription ?? t.shop.lead ?? null
   const heroStyle = pageDoc?.heroStyle === 'style2' ? 'style2' : 'style1'
   const routineStep1Title = pageDoc?.routineBuilderStep1Title ?? null
+  const routineStep1Description = pageDoc?.routineBuilderStep1Description ?? null
   const routineStep2Title = pageDoc?.routineBuilderStep2Title ?? null
+  const routineStep2Description = pageDoc?.routineBuilderStep2Description ?? null
 
   const shouldLoadRoutineData = section === 'routine'
   const {
@@ -549,7 +551,9 @@ export default async function ShopPage({
         contactLinks={contactLinks}
         locale={locale}
         routineStep1Title={routineStep1Title}
+        routineStep1Description={routineStep1Description}
         routineStep2Title={routineStep2Title}
+        routineStep2Description={routineStep2Description}
       />
     </div>
   )

@@ -3,14 +3,13 @@
   --checkout-card-padding: 1rem 1.2rem;
   --checkout-focus-outline: 2px solid var(--text-secondary);
   --checkout-focus-offset: 2px;
-
+  margin: 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
   width: 100%;
   max-width: none;
-  margin: 0;
-  padding: 0;
+  padding: 0 1.5rem;
   background: var(--paper);
   min-height: 100dvh;
 }
@@ -27,7 +26,7 @@
 .billingElementBox {
   border: 1px solid var(--stroke);
   background: var(--paper);
-  margin: 0 1rem
+  margin: 0;
 }
 
 .form {
@@ -97,7 +96,7 @@
 }
 
 .mobileSummaryToggle {
-  width: 100%;
+  width: stretch;
   border: 0;
   border-top: 1px solid var(--stroke);
   border-bottom: 1px solid var(--stroke);
@@ -110,6 +109,8 @@
   gap: 1rem;
   text-align: left;
   cursor: pointer;
+  overflow: visible;
+  margin: 0 -1.5rem;
 }
 
 .mobileSummaryToggle:focus-visible {
@@ -192,7 +193,7 @@
 }
 
 .expressUnavailableNote {
-  margin: 0 1rem;
+  margin: 0;
   color: var(--text-secondary);
 }
 
@@ -313,6 +314,7 @@
 .shippingSummaryCard {
   border-radius: var(--checkout-card-radius);
   padding: 0.9rem 1rem;
+  height: fit-content;
 }
 
 .shippingSummaryRow {
@@ -376,7 +378,7 @@
 }
 
 .shippingMethodTitle {
-  margin: 0 1rem;
+  margin: 0 ;
   color: var(--text-primary);
 }
 
@@ -449,12 +451,12 @@
 }
 
 .paymentTitle {
-  margin: 0 1rem;
+  margin: 0;
   color: var(--text-primary);
 }
 
 .paymentDescription {
-  margin: 0 1rem;
+  margin: 0;
   color: var(--text-secondary);
 }
 
@@ -530,7 +532,7 @@
 }
 
 .billingTitle {
-  margin: 0 1rem;
+  margin: 0;
   color: var(--text-primary);
 }
 

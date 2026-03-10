@@ -383,11 +383,18 @@
   width: 100%;
 }
 
+.insideColumn {
+  min-height: 0;
+  height: auto;
+  overflow: visible;
+  margin-top: 0.9rem;
+}
+
 .insideMedia {
   position: relative;
-  border-radius: 18px;
+  border-radius: 12px;
   overflow: hidden;
-  min-height: 640px;
+  min-height: 360px;
   background: var(--sand);
 }
 
@@ -395,43 +402,62 @@
   object-fit: cover;
 }
 
+.insideZoomLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .insidePlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(140deg, var(--sand), var(--paper));
-}
-
-.insideButton {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  border-radius: 999px;
-  background: var(--obsidian);
-  color: var(--pearl-1);
-  border: 0;
-  padding: 0.5rem 1.1rem;
-  cursor: pointer;
+  background: var(--sand);
 }
 
 .insideContent {
   background: var(--bg);
-  border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  padding: 2.2rem 3.2rem 2.2rem 2.4rem;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  padding: 1.25rem 1rem;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
   position: relative;
-  min-height: 640px;
-  justify-content: flex-end;
-  align-items: flex-end;
+  height: 100%;
+  max-height: 100%;
+  min-height: 565px;
+  justify-content: flex-start;
   text-align: left;
+  overflow: visible;
 }
 
 .insideLabel {
-  position: static;
-  writing-mode: horizontal-tb;
+  position: absolute;
+  left: 0.5rem;
+  top: 1rem;
+  writing-mode: vertical-rl;
   color: var(--text-secondary);
+  z-index: 2;
+}
+
+.insideLabelMobile {
+  display: block;
+  color: var(--text-primary);
+  top: 0%;
+  transform: translateY(4%);
+  font-size: 1.2rem;
+  line-height: 1;
+  letter-spacing: var(--type-h2-track);
+  background: var(--paper);
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  padding: 1rem 0.95rem;
+}
+
+.insideLabelDesktop {
+  display: none;
 }
 
 .insideLead {
@@ -453,19 +479,22 @@
   padding-left: 1.2rem;
 }
 
-.insideBlock {
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  padding-top: 1rem;
+.insideRich :global(ol) {
+  list-style: decimal;
+  list-style-position: outside;
 }
 
-.insideBlock h3 {
-  margin: 0 0 0.4rem;
-  color: var(--text-primary);
+.insideRich :global(ul) {
+  list-style: disc;
+  list-style-position: outside;
 }
 
-.insideBlock p {
-  margin: 0;
-  color: var(--text-secondary);
+.insideRich :global(li) {
+  margin: 0 0 0.45rem;
+}
+
+.insideContentExpanded {
+  padding-left: 1rem;
 }
 
 .insideNote {
@@ -480,14 +509,14 @@
 
 .faqCopy {
   background: var(--bg);
-  border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  padding: 2.2rem 2.4rem;
+  border-radius: 0 0 12px 12px;
+  border: 1px solid var(--stroke);
+  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 1.2rem;
-  min-height: 640px;
-
+  min-height: 0;
 }
 
 .faqTitle {
@@ -502,11 +531,10 @@
 
 .faqMedia {
   position: relative;
-  border-radius: 18px;
+  border-radius: 12px 12px 0 0;
   overflow: hidden;
-  min-height: 640px;
+  min-height: 360px;
   background: var(--sand);
-
 }
 
 .faqImage {
@@ -516,7 +544,7 @@
 .faqPlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(140deg, var(--sand), var(--paper));
+  background: var(--sand);
 }
 
 .treatmentSection {
@@ -731,7 +759,7 @@
 
 .videoWrap {
   width: 100%;
-  height: 60vh;
+  height: 62vh;
   position: relative;
   background: var(--sand);
   overflow: hidden;
@@ -742,6 +770,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 90ms linear;
 }
 
 .videoPlaceholder {
@@ -760,7 +789,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--text-secondary);
 }
 
 @media (min-width: 1025px) {
@@ -779,9 +808,52 @@
 
   .insideLabel {
     position: absolute;
-    left: 1rem;
+    left: 0.5rem;
     top: 2.2rem;
     writing-mode: vertical-rl;
+  }
+
+  .insideLabelMobile {
+    display: none;
+  }
+
+  .insideLabelDesktop {
+    display: block;
+  }
+
+  .insideContent {
+    border-radius: 18px;
+    padding: 2.2rem 3.2rem 2.2rem calc(2.4rem + 54px);
+    justify-content: flex-end;
+    padding-left: calc(8.4rem + 54px);
+    min-height: 720px;
+  }
+
+  .insideContentExpanded {
+    padding-left: calc((8.4rem + 54px) - 5vw);
+  }
+
+  .insideColumn {
+    height: 720px;
+    overflow: hidden;
+    margin-top: 0;
+  }
+
+  .insideMedia {
+    border-radius: 18px;
+    min-height: 720px;
+  }
+
+  .faqCopy {
+    border-radius: 18px;
+    padding: 2.2rem 2.4rem;
+    min-height: 720px;
+    margin-top: 0;
+  }
+
+  .faqMedia {
+    border-radius: 18px;
+    min-height: 720px;
   }
 
   .treatmentMedia {

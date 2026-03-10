@@ -332,7 +332,11 @@ export default async function ServicesPage({
         <ServicesSectionSwitcher currentView={initialViewMode} />
         {initialViewMode === 'navigator' ? (
           <div className={styles.navigatorSection}>
-            <ServiceBuilderSplitSection data={navigatorData} step0Config={navigatorStep0Config} />
+            <ServiceBuilderSplitSection
+              data={navigatorData}
+              locale={locale}
+              step0Config={navigatorStep0Config}
+            />
           </div>
         ) : null}
         {initialViewMode === 'consulenza' ? (

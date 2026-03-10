@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
+import { SideDrawer } from '@/frontend/components/ui/compositions/SideDrawer'
 import { Button } from '@/frontend/components/ui/primitives/button'
 import { StateCircleButton } from '@/frontend/components/ui/primitives/StateCircleButton'
+import drawerStyles from '@/frontend/page-domains/shared/sections/ShopAllSection.module.css'
 import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/frontend/cart/storage'
 import { formatServicePrice } from '@/lib/frontend/services/format'
 import styles from '@/frontend/page-domains/services/pages/service-detail/page/ServiceDetailPage.module.css'
@@ -46,6 +48,19 @@ export function ServiceChooseOptions({
   const [selectedId, setSelectedId] = useState(options[0]?.id ?? '')
   const [isPackagesOpen, setIsPackagesOpen] = useState(false)
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null)
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const media = window.matchMedia('(min-width: 1025px)')
+    const syncViewport = () => setIsDesktop(media.matches)
+
+    syncViewport()
+    media.addEventListener('change', syncViewport)
+
+    return () => media.removeEventListener('change', syncViewport)
+  }, [])
 
   const selectedOption = useMemo(
     () => options.find((option) => option.id === selectedId) ?? options[0] ?? null,
@@ -79,6 +94,7 @@ export function ServiceChooseOptions({
     () => filteredPackages.find((item) => item.id === selectedPackageId) ?? null,
     [filteredPackages, selectedPackageId],
   )
+  const useBottomDrawer = !isDesktop
 
   useEffect(() => {
     if (!selectedPackageId) return
@@ -141,25 +157,27 @@ export function ServiceChooseOptions({
 
   return (
     <>
-      <div className={styles.relatedList}>
-        {options.map((option) => (
-          <StateCircleButton
-            key={option.id}
-            baseClassName={styles.relatedItem}
-            selected={option.id === selectedId}
-            selectedClassName={styles.relatedItemActive}
-            typographyClassName="typo-caption-upper"
-            type="button"
-            aria-pressed={option.id === selectedId}
-            onClick={() => {
-              setSelectedId(option.id)
-              setSelectedPackageId(null)
-            }}
-          >
-            {option.durationMinutes ? `${option.name} (${option.durationMinutes} min)` : option.name}
-          </StateCircleButton>
-        ))}
-      </div>
+      {options.length > 1 ? (
+        <div className={styles.relatedList}>
+          {options.map((option) => (
+            <StateCircleButton
+              key={option.id}
+              baseClassName={styles.relatedItem}
+              selected={option.id === selectedId}
+              selectedClassName={styles.relatedItemActive}
+              typographyClassName="typo-caption-upper"
+              type="button"
+              aria-pressed={option.id === selectedId}
+              onClick={() => {
+                setSelectedId(option.id)
+                setSelectedPackageId(null)
+              }}
+            >
+              {option.durationMinutes ? `${option.name} (${option.durationMinutes} min)` : option.name}
+            </StateCircleButton>
+          ))}
+        </div>
+      ) : null}
       {filteredPackages.length > 0 ? (
         <div className={styles.packagesBlock}>
           <button
@@ -176,7 +194,7 @@ export function ServiceChooseOptions({
           >
             {packagesToggleLabel}
           </button>
-          {isPackagesOpen && !selectedPackage ? (
+          {!useBottomDrawer && isPackagesOpen && !selectedPackage ? (
             <div className={styles.packagesList}>
               {filteredPackages.map((item) => (
                 <div key={item.id} className={styles.packageItem}>
@@ -207,6 +225,47 @@ export function ServiceChooseOptions({
             </div>
           ) : null}
         </div>
+      ) : null}
+      {useBottomDrawer ? (
+        <SideDrawer
+          open={isPackagesOpen && !selectedPackage}
+          onClose={() => setIsPackagesOpen(false)}
+          ariaLabel="Pacchetti servizio"
+          title="Pacchetti"
+          placement="bottom"
+          panelClassName={drawerStyles.optionsDrawerPanel}
+        >
+          <div className={drawerStyles.optionsDrawerBody}>
+            <div className={styles.packagesList}>
+              {filteredPackages.map((item) => (
+                <div key={item.id} className={styles.packageItem}>
+                  <button
+                    type="button"
+                    className={`${styles.packageItemButton} ${
+                      item.id === selectedPackageId ? styles.packageItemButtonActive : ''
+                    }`}
+                    onClick={() => {
+                      setSelectedPackageId(item.id)
+                      setIsPackagesOpen(false)
+                    }}
+                    aria-pressed={item.id === selectedPackageId}
+                  >
+                    <div className={`${styles.packageName} typo-caption-upper`}>{item.name}</div>
+                    <div className={`${styles.packageMeta} typo-small`}>
+                      {[
+                        item.sessions ? `${item.sessions} sedute` : null,
+                        formatPrice(item.packagePrice),
+                        item.packageValue ? `valore ${formatPrice(item.packageValue)}` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </SideDrawer>
       ) : null}
       <Button
         className={`${styles.buyButton} typo-caption-upper`}
