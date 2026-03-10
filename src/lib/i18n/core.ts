@@ -121,6 +121,12 @@ export const dictionary = {
       title: 'Services',
       lead: 'Listino servizi e trattamenti avanzati.',
       note: 'Prenotazioni via WhatsApp o telefono.',
+      detail: {
+        includedLeadWithService: 'Scopri cosa include {{service}}.',
+        includedLead: 'Scopri cosa include questo trattamento.',
+        faqSubtitleWithService: 'Scopri di più su {{service}}.',
+        faqSubtitle: 'Scopri di più su questo trattamento.',
+      },
     },
     cart: {
       title: 'Carrello',
@@ -259,6 +265,12 @@ export const dictionary = {
       title: 'Services',
       lead: 'Service list and advanced treatments.',
       note: 'Bookings via WhatsApp or phone.',
+      detail: {
+        includedLeadWithService: 'Discover what is included in {{service}}.',
+        includedLead: 'Discover what is included in this treatment.',
+        faqSubtitleWithService: 'Discover more about {{service}}.',
+        faqSubtitle: 'Discover more about this treatment.',
+      },
     },
     cart: {
       title: 'Cart',
@@ -397,6 +409,12 @@ export const dictionary = {
       title: 'Services',
       lead: 'Список услуг и передовые процедуры.',
       note: 'Запись через WhatsApp или по телефону.',
+      detail: {
+        includedLeadWithService: 'Узнайте, что входит в {{service}}.',
+        includedLead: 'Узнайте, что входит в эту процедуру.',
+        faqSubtitleWithService: 'Узнайте больше о {{service}}.',
+        faqSubtitle: 'Узнайте больше об этой процедуре.',
+      },
     },
     cart: {
       title: 'Корзина',

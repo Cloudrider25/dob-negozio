@@ -198,8 +198,8 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
     includedContent?.type === 'text'
       ? includedContent.value
       : service.name
-        ? `Scopri cosa include ${service.name}.`
-        : ''
+        ? t.services.detail.includedLeadWithService.replace('{{service}}', service.name)
+        : t.services.detail.includedLead
 
   const faqMedia = await resolveMediaFromId(payload, service.faqMedia)
   const faqResolved = faqMedia ? resolveMedia(faqMedia, service.name || t.services.title) : null
@@ -207,6 +207,10 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
   const videoUpload = await resolveMediaFromId(payload, service.videoUpload)
   const videoMedia = videoUpload
     ? resolveMedia(videoUpload, service.name || t.services.title)
+    : null
+  const videoPoster = await resolveMediaFromId(payload, service.videoPoster)
+  const videoPosterMedia = videoPoster
+    ? resolveMedia(videoPoster, service.name || t.services.title)
     : null
 
   const videoEmbed =
@@ -335,7 +339,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
             <div className={styles.divider} />
 
             <div className={styles.relatedBlock}>
-              <LabelText variant="section">Scegli</LabelText>
+              {chooseOptions.length > 1 ? <LabelText variant="section">Scegli</LabelText> : null}
               <ServiceChooseOptions
                 serviceId={String(service.id)}
                 serviceSlug={service.slug || undefined}
@@ -477,7 +481,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
           {videoMedia ? (
             <InlineVideo
               src={videoMedia.url}
-              poster={imageUrl || undefined}
+              poster={videoPosterMedia?.url || imageUrl || undefined}
               label="Service video"
             />
           ) : videoEmbed ? (
@@ -490,10 +494,10 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
             />
           ) : (
             <div className={styles.videoPlaceholder}>
-              {imageUrl && (
+              {(videoPosterMedia?.url || imageUrl) && (
                 <Image
-                  src={imageUrl}
-                  alt={imageAlt}
+                  src={videoPosterMedia?.url || imageUrl || ''}
+                  alt={videoPosterMedia?.alt || imageAlt}
                   fill
                   className={styles.videoPoster}
                   loading="lazy"
@@ -515,11 +519,16 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
         includedLeadText={includedLeadText}
         classNames={{
           section: styles.insideSection,
+          rightColumn: styles.insideColumn,
           media: styles.insideMedia,
           image: styles.insideImage,
+          zoomLayer: styles.insideZoomLayer,
           placeholder: styles.insidePlaceholder,
           content: styles.insideContent,
+          contentExpanded: styles.insideContentExpanded,
           label: styles.insideLabel,
+          labelMobile: styles.insideLabelMobile,
+          labelDesktop: styles.insideLabelDesktop,
           lead: styles.insideLead,
           rich: styles.insideRich,
         }}
@@ -528,7 +537,12 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
       <DetailFaqSection
         ariaLabel="FAQ"
         title={service.faqTitle || 'FAQ'}
-        subtitle={service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
+        subtitle={
+          service.faqSubtitle ||
+          (service.name
+            ? t.services.detail.faqSubtitleWithService.replace('{{service}}', service.name)
+            : t.services.detail.faqSubtitle)
+        }
         items={
           Array.isArray(service.faqItems)
             ? service.faqItems
@@ -556,6 +570,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
               }
             : null
         }
+        mobileOrder="right-first"
         classNames={{
           section: styles.faqSection,
           copy: styles.faqCopy,
