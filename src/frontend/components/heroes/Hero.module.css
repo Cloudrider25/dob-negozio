@@ -7,7 +7,8 @@
   position: relative;
   display: grid;
   width: 100%;
-  height: 72vw;
+  height: 70vh;
+  height: 70dvh;
   padding: 7rem 1rem 2rem;
   color: var(--pearl-2);
   overflow: hidden;
@@ -46,6 +47,9 @@
   letter-spacing: 0.14em;
   line-height: 1.15;
   white-space: normal;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .style1 .content > * + * {
@@ -153,7 +157,7 @@
 .content {
   position: relative;
   z-index: 3;
-  max-width: 720px;
+  max-width: 100%;
   animation: heroReveal 0.8s ease both;
 }
 
@@ -208,13 +212,6 @@
   transform: scale(1.22);
 }
 
-@media screen and (max-width: 640px) {
-  .hero {
-    height: 70vh;
-    height: 70dvh;
-  }
-}
-
 @keyframes heroReveal {
   from {
     opacity: 0;
@@ -227,35 +224,17 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .content {
-    animation: none;
-  }
-
-  .media {
-    transition: none;
-  }
-}
-
-@media screen and (min-width: 641px) {
-  .ctaRow {
-    gap: 1rem;
-  }
-
+@media screen and (min-width: 1025px) {
   .hero {
-    height: 56.25vw;
-  }
-}
-
-@media screen and (min-width: 760px) {
-  .hero {
+    --hero-panel-padding: 32px;
+    --hero-panel-gap: 0;
     height: calc(80vh - 5rem);
     max-height: calc(90vh - 4.5vw);
+    padding: 12rem 8vw 6rem;
   }
 
-  .heroCta {
-    height: 2.5rem;
-    padding-inline: 1.5rem;
+  .content {
+    max-width: 720px;
   }
 
   .description {
@@ -263,8 +242,17 @@
     line-height: 1.6;
   }
 
+  .ctaRow {
+    gap: 1rem;
+  }
+
   .content .ctaRow {
     margin-top: 2rem;
+  }
+
+  .heroCta {
+    height: 2.5rem;
+    padding-inline: 1.5rem;
   }
 
   .style3 {
@@ -273,14 +261,6 @@
 
   .style3 .content {
     padding: clamp(1.5rem, 2vw, 2.25rem);
-  }
-}
-
-@media screen and (min-width: 901px) {
-  .hero {
-    --hero-panel-padding: 32px;
-    --hero-panel-gap: 0;
-    padding: 12rem 8vw 6rem;
   }
 
   .style1 .content {
@@ -299,6 +279,5 @@
     font-size: clamp(1.15rem, 0.85rem + 1vw, 1.9rem);
     letter-spacing: 0.22em;
     line-height: 1.05;
-    white-space: nowrap;
   }
 }

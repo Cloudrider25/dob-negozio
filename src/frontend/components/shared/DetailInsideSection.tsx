@@ -157,6 +157,12 @@ export function DetailInsideSection({
                     {includedLeadText}
                   </p>
                 ) : null}
+                {!includedIngredientsItems.length && includedDescriptionHtml ? (
+                  <div
+                    className={[classNames.rich, 'typo-body'].filter(Boolean).join(' ')}
+                    dangerouslySetInnerHTML={{ __html: includedDescriptionHtml }}
+                  />
+                ) : null}
                 {includedIngredientsLabel ? (
                   <p className={[classNames.ingredientsLabel, 'typo-body'].filter(Boolean).join(' ')}>
                     {includedIngredientsLabel}

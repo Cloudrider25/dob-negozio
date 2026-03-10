@@ -7,8 +7,7 @@ import { getDictionary, isLocale } from '@/lib/i18n/core'
 import styles from '@/frontend/page-domains/services/pages/service-detail/page/ServiceDetailPage.module.css'
 import { Carousel } from '@/frontend/components/carousel/ui/Carousel'
 import { createCarouselItem } from '@/frontend/components/carousel/shared/mappers'
-import { DetailTreatmentReveal } from '@/frontend/components/shared/DetailTreatmentReveal'
-import type { Treatment } from '@/payload/generated/payload-types'
+import type { Program, Treatment } from '@/payload/generated/payload-types'
 import type { CarouselItem } from '@/frontend/components/carousel/shared/types'
 import { SectionSubtitle } from '@/frontend/components/ui/primitives/section-subtitle'
 import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
@@ -22,6 +21,7 @@ import { InlineVideo } from '@/frontend/components/shared/InlineVideo'
 import { DetailFaqSection } from '@/frontend/components/shared/DetailFaqSection'
 import { DetailInsideSection } from '@/frontend/components/shared/DetailInsideSection'
 import { DetailAccordion } from '@/frontend/components/shared/DetailAccordion'
+import { ProgramsSplitSection } from '@/frontend/page-domains/home/sections/ProgramsSplitSection'
 import type { ServiceDetailRouteParams } from '../internal/types'
 import {
   escapeHtml,
@@ -30,12 +30,10 @@ import {
   formatServiceType,
   normalizeBullets,
   renderRichText,
-  resolveFirstMedia,
   resolveGalleryCover,
   resolveGalleryItems,
   resolveMediaFromId,
   resolveRelationLabel,
-  resolveRelId,
   resolveTreatmentLabel,
 } from '../internal/helpers'
 import { resolveMedia } from '@/lib/frontend/media/resolve'
@@ -86,44 +84,57 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
     return null
   }
 
+  const resolveProgramFromValue = async (value: unknown): Promise<Program | null> => {
+    if (!value) return null
+    if (typeof value === 'object') return value as Program
+    if (typeof value === 'string' || typeof value === 'number') {
+      return payload.findByID({
+        collection: 'programs',
+        id: String(value),
+        locale,
+        depth: 1,
+        overrideAccess: false,
+      }) as Promise<Program>
+    }
+    return null
+  }
+
+  const resolveProgramId = (value: unknown) => {
+    if (!value) return null
+    if (typeof value === 'string' || typeof value === 'number') return String(value)
+    if (typeof value === 'object' && 'id' in value) {
+      const idValue = (value as { id?: string | number }).id
+      return idValue ? String(idValue) : null
+    }
+    return null
+  }
+
+  const resolveMediaValue = async (value: unknown, fallbackAlt = '') => {
+    const mediaDoc = await resolveMediaFromId(payload, value)
+    return mediaDoc ? resolveMedia(mediaDoc, fallbackAlt) : null
+  }
+
+  const resolveGallerySecondary = async (gallery: unknown, fallbackAlt: string) => {
+    const items = await resolveGalleryItems(payload, gallery, fallbackAlt)
+    const secondary = items.find((item) => !item.isCover) ?? items[1] ?? items[0]
+    return secondary ? secondary.media : null
+  }
+
+  const resolveProductMedia = async (product: unknown, fallbackAlt: string) => {
+    if (!product || typeof product !== 'object') return null
+    const record = product as { coverImage?: unknown; images?: unknown[] }
+    const gallery = Array.isArray(record.images) ? record.images : []
+    const mediaDoc = await resolveMediaFromId(payload, record.coverImage || gallery[0])
+    return mediaDoc ? resolveMedia(mediaDoc, fallbackAlt) : null
+  }
+
   const treatmentsList = Array.isArray(service.treatments) ? service.treatments : []
   const primaryTreatmentValue = treatmentsList[0]
   const parentTreatment = await resolveTreatmentFromValue(primaryTreatmentValue)
-  const parentTitle =
-    parentTreatment && typeof parentTreatment.boxName === 'string' ? parentTreatment.boxName : null
-  const parentDescription =
-    parentTreatment && typeof parentTreatment.description === 'string'
-      ? parentTreatment.description
-      : null
-  const parentTagline =
-    parentTreatment && typeof parentTreatment.boxTagline === 'string'
-      ? parentTreatment.boxTagline
-      : null
-
-  const primaryMediaCandidates = [
-    parentTreatment && 'heroImage' in parentTreatment ? parentTreatment.heroImage : null,
-    parentTreatment && 'cardMedia' in parentTreatment ? parentTreatment.cardMedia : null,
-  ]
-
-  const primaryMedia = await resolveFirstMedia(payload, primaryMediaCandidates)
-  const parentImageUrl =
-    primaryMedia && typeof primaryMedia.url === 'string' ? primaryMedia.url : null
-  const parentImageAlt =
-    primaryMedia && typeof primaryMedia.alt === 'string'
-      ? primaryMedia.alt
-      : parentTitle || service.name || t.services.title
-
-  const treatmentHref =
-    parentTreatment && typeof parentTreatment === 'object' && 'slug' in parentTreatment
-      ? `/${locale}/services/treatment/${String((parentTreatment as { slug?: string }).slug)}`
-      : undefined
+  const relatedProgram = await resolveProgramFromValue(service.relatedProgram)
 
   const categoryLabel = resolveTreatmentLabel(parentTreatment)
   const badgeLabel = resolveTreatmentLabel(service.badge)
-
-  const intentId = resolveRelId(service.intent)
-  const zoneId = resolveRelId(service.zone)
-  const genderValue = typeof service.gender === 'string' ? service.gender : null
 
   const chooseOptions = [
     {
@@ -198,8 +209,8 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
     includedContent?.type === 'text'
       ? includedContent.value
       : service.name
-        ? `Scopri cosa include ${service.name}.`
-        : ''
+        ? t.services.detail.includedLeadWithService.replace('{{service}}', service.name)
+        : t.services.detail.includedLead
 
   const faqMedia = await resolveMediaFromId(payload, service.faqMedia)
   const faqResolved = faqMedia ? resolveMedia(faqMedia, service.name || t.services.title) : null
@@ -207,6 +218,10 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
   const videoUpload = await resolveMediaFromId(payload, service.videoUpload)
   const videoMedia = videoUpload
     ? resolveMedia(videoUpload, service.name || t.services.title)
+    : null
+  const videoPoster = await resolveMediaFromId(payload, service.videoPoster)
+  const videoPosterMedia = videoPoster
+    ? resolveMedia(videoPoster, service.name || t.services.title)
     : null
 
   const videoEmbed =
@@ -220,50 +235,83 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
     ? { url: imageUrl, alt: imageAlt }
     : { url: '/api/media/file/493b3205c13b5f67b36cf794c2222583-1.jpg', alt: t.services.title }
 
-  let alternativeServiceItems: CarouselItem[] = []
-  if (intentId && zoneId && genderValue) {
-    const altResult = await payload.find({
-      collection: 'services',
-      locale,
-      overrideAccess: false,
-      depth: 1,
-      limit: 10,
-      where: {
-        and: [
-          { id: { not_equals: String(service.id) } },
-          { active: { equals: true } },
-          { intent: { equals: intentId } },
-          { zone: { equals: zoneId } },
-          { gender: { equals: genderValue } },
-        ],
-      },
-    })
+  const relatedProgramSteps =
+    relatedProgram && Array.isArray(relatedProgram.steps)
+      ? await Promise.all(
+          relatedProgram.steps.map(async (step) => {
+            const stepServiceId =
+              step.stepType === 'service' ? resolveProgramId(step.stepService) : null
+            const stepProductId =
+              step.stepType === 'product' ? resolveProgramId(step.stepProduct) : null
+            const stepService =
+              stepServiceId
+                ? await payload.findByID({
+                    collection: 'services',
+                    id: stepServiceId,
+                    locale,
+                    depth: 1,
+                    overrideAccess: false,
+                  })
+                : null
+            const stepProduct =
+              stepProductId
+                ? await payload.findByID({
+                    collection: 'products',
+                    id: stepProductId,
+                    locale,
+                    depth: 1,
+                    overrideAccess: false,
+                  })
+                : null
 
-    alternativeServiceItems = (
-      await Promise.all(
-        altResult.docs.map(async (doc) => {
-          const media = await resolveGalleryCover(payload, doc.gallery, doc.name || t.services.title)
-          if (!doc.name || !doc.slug) return null
-          return createCarouselItem({
-            id: doc.id,
-            slug: doc.slug || undefined,
-            title: doc.name,
-            subtitle: doc.description || undefined,
-            price: formatPrice(locale, doc.price) || null,
-            duration: formatDuration(doc.durationMinutes) || null,
-            image: {
-              url: media?.url || fallbackImage.url,
-              alt: media?.alt || doc.name,
-            },
-            tag: formatServiceType(doc.serviceType),
-            badgeLeft: resolveRelationLabel(doc.intent),
-            badgeRight: resolveRelationLabel(doc.badge),
-            href: `/${locale}/services/service/${doc.slug}`,
-          })
-        }),
-      )
-    ).filter((item): item is CarouselItem => Boolean(item))
-  }
+            const fallbackTitle = stepService?.name || stepProduct?.title || ''
+            const fallbackSubtitle = stepService?.description || stepProduct?.description || ''
+            const heroMedia =
+              (await resolveMediaValue(step.stepHeroMedia, fallbackTitle)) ||
+              (stepService
+                ? await resolveGalleryCover(payload, stepService.gallery, fallbackTitle)
+                : await resolveProductMedia(stepProduct, fallbackTitle)) ||
+              null
+            const detailMedia =
+              (await resolveMediaValue(step.stepDetailMedia, fallbackTitle)) ||
+              (stepService
+                ? await resolveGallerySecondary(stepService.gallery, fallbackTitle)
+                : stepProduct && Array.isArray(stepProduct.images)
+                  ? await resolveMediaValue(stepProduct.images[1], fallbackTitle)
+                  : null) ||
+              heroMedia ||
+              null
+
+            return {
+              id: step.id || `${fallbackTitle}-${Math.random()}`,
+              title: step.stepTitle || fallbackTitle,
+              subtitle: step.stepSubtitle || fallbackSubtitle,
+              badge: step.stepBadge || null,
+              heroMedia,
+              detailMedia,
+            }
+          }),
+        )
+      : []
+
+  const relatedProgramData = relatedProgram
+    ? {
+        title: relatedProgram.title || undefined,
+        description: relatedProgram.description || undefined,
+        price:
+          typeof relatedProgram.price === 'number' && !Number.isNaN(relatedProgram.price)
+            ? new Intl.NumberFormat(locale, {
+                style: 'currency',
+                currency: relatedProgram.currency || 'EUR',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(relatedProgram.price)
+            : undefined,
+        slug: relatedProgram.slug || undefined,
+        heroMedia: await resolveMediaValue(relatedProgram.heroMedia, relatedProgram.title || ''),
+        steps: relatedProgramSteps,
+      }
+    : null
 
   const serviceItems: CarouselItem[] = servicesResult.docs
     .map((doc) => {
@@ -335,7 +383,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
             <div className={styles.divider} />
 
             <div className={styles.relatedBlock}>
-              <LabelText variant="section">Scegli</LabelText>
+              {chooseOptions.length > 1 ? <LabelText variant="section">Scegli</LabelText> : null}
               <ServiceChooseOptions
                 serviceId={String(service.id)}
                 serviceSlug={service.slug || undefined}
@@ -477,7 +525,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
           {videoMedia ? (
             <InlineVideo
               src={videoMedia.url}
-              poster={imageUrl || undefined}
+              poster={videoPosterMedia?.url || imageUrl || undefined}
               label="Service video"
             />
           ) : videoEmbed ? (
@@ -490,10 +538,10 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
             />
           ) : (
             <div className={styles.videoPlaceholder}>
-              {imageUrl && (
+              {(videoPosterMedia?.url || imageUrl) && (
                 <Image
-                  src={imageUrl}
-                  alt={imageAlt}
+                  src={videoPosterMedia?.url || imageUrl || ''}
+                  alt={videoPosterMedia?.alt || imageAlt}
                   fill
                   className={styles.videoPoster}
                   loading="lazy"
@@ -515,11 +563,16 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
         includedLeadText={includedLeadText}
         classNames={{
           section: styles.insideSection,
+          rightColumn: styles.insideColumn,
           media: styles.insideMedia,
           image: styles.insideImage,
+          zoomLayer: styles.insideZoomLayer,
           placeholder: styles.insidePlaceholder,
           content: styles.insideContent,
+          contentExpanded: styles.insideContentExpanded,
           label: styles.insideLabel,
+          labelMobile: styles.insideLabelMobile,
+          labelDesktop: styles.insideLabelDesktop,
           lead: styles.insideLead,
           rich: styles.insideRich,
         }}
@@ -528,7 +581,12 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
       <DetailFaqSection
         ariaLabel="FAQ"
         title={service.faqTitle || 'FAQ'}
-        subtitle={service.faqSubtitle || `Scopri di più su ${service.name || 'questo trattamento'}.`}
+        subtitle={
+          service.faqSubtitle ||
+          (service.name
+            ? t.services.detail.faqSubtitleWithService.replace('{{service}}', service.name)
+            : t.services.detail.faqSubtitle)
+        }
         items={
           Array.isArray(service.faqItems)
             ? service.faqItems
@@ -556,6 +614,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
               }
             : null
         }
+        mobileOrder="right-first"
         classNames={{
           section: styles.faqSection,
           copy: styles.faqCopy,
@@ -567,44 +626,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
         }}
       />
 
-      <DetailTreatmentReveal
-        primary={{
-          title: parentTitle || service.name || 'Protocol overview',
-          body: (
-            <SectionSubtitle className={styles.treatmentText}>
-              {parentTagline || parentDescription || ''}
-            </SectionSubtitle>
-          ),
-          imageUrl: parentImageUrl,
-          imageAlt: parentImageAlt || undefined,
-          rail: ['Click here', 'Trattamenti alternativi'],
-          href: treatmentHref,
-        }}
-        secondary={{
-          title: 'Trattamenti Alternativi',
-          body: null,
-          rail: ['Click here', 'Trattamenti alternativi'],
-          href: treatmentHref,
-          mediaBody: (
-            <div className={styles.treatmentCarousel}>
-              {alternativeServiceItems.length > 0 ? (
-                <Carousel
-                  items={alternativeServiceItems}
-                  single
-                  cardClassName={styles.altCarouselCard}
-                  mediaClassName={styles.altCarouselMedia}
-                  ariaLabel="Alternative services carousel"
-                  emptyLabel="Nessun servizio disponibile."
-                />
-              ) : (
-                <SectionSubtitle className={styles.treatmentText}>
-                  Il servizio scelto è unico nel suo genere e non ha alternative.
-                </SectionSubtitle>
-              )}
-            </div>
-          ),
-        }}
-      />
+      {relatedProgramData ? <ProgramsSplitSection program={relatedProgramData} locale={locale} /> : null}
 
       <section aria-label="Altri servizi">
         <Carousel
