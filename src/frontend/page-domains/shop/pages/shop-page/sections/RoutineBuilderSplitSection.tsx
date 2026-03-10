@@ -2,11 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import styles from './RoutineBuilderSplitSection.module.css'
 import { MediaThumb } from '@/frontend/components/shared/MediaThumb'
 import { SplitSection } from '@/frontend/components/ui/compositions/SplitSection'
 import { StateCircleButton } from '@/frontend/components/ui/primitives/StateCircleButton'
+import { Button } from '@/frontend/components/ui/primitives/button'
+import { ChevronLeft, ChevronRight } from '@/frontend/components/ui/primitives/icons'
 import { Swiper, SwiperSlide, type UISwiperInstance } from '@/frontend/components/ui/primitives/swiper'
+import type { CartItem } from '@/lib/frontend/cart/storage'
+import { emitCartUpdated, writeCart } from '@/lib/frontend/cart/storage'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
 
 type ProductAreaItem = {
@@ -56,6 +61,10 @@ type RoutineTemplateItem = {
     products: Array<{
       id: string
       title: string
+      slug?: string
+      price?: number
+      currency?: string
+      brand?: string
       coverImage?: { url: string; alt?: string | null } | null
       images?: Array<{ url: string; alt?: string | null }>
     }>
@@ -82,6 +91,10 @@ type RoutineStepRuleItem = {
 type FilterProduct = {
   id: string
   title?: string
+  slug?: string
+  price?: number
+  currency?: string
+  brand?: unknown
   needs: Array<{ id: string; label: string }>
   productAreas: Array<{ id: string; label: string }>
   timingProducts: Array<{ id: string; label: string }>
@@ -116,7 +129,10 @@ export function RoutineBuilderSplitSection({
   routineSteps,
   routineStepRules,
   routineStep1Title,
+  routineStep1Description,
   routineStep2Title,
+  routineStep2Description,
+  locale,
   shopAllProducts,
 }: {
   productAreas: ProductAreaItem[]
@@ -127,9 +143,13 @@ export function RoutineBuilderSplitSection({
   routineSteps: RoutineStepItem[]
   routineStepRules: RoutineStepRuleItem[]
   routineStep1Title?: string | null
+  routineStep1Description?: string | null
   routineStep2Title?: string | null
+  routineStep2Description?: string | null
+  locale: string
   shopAllProducts: FilterProduct[]
 }) {
+  const router = useRouter()
   const orderedAreas = useMemo(() => {
     const areas = [...productAreas]
     areas.sort((a, b) => {
@@ -152,13 +172,15 @@ export function RoutineBuilderSplitSection({
   )
   const [activeSkinTypeId, setActiveSkinTypeId] = useState<string | null>(null)
   const [activeNeedId, setActiveNeedId] = useState<string | null>(null)
-  const [selectedNeedId, setSelectedNeedId] = useState<string | null>(null)
-  const [selectedSkinTypes, setSelectedSkinTypes] = useState<Set<string>>(new Set())
   const [selectedBrandId, setSelectedBrandId] = useState<string>('multibrand')
   const [routineMode, setRoutineMode] = useState<'preset' | 'custom'>('preset')
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
+  const [isRoutineDetailsOpen, setIsRoutineDetailsOpen] = useState(false)
   const leftSwiperRef = useRef<UISwiperInstance | null>(null)
   const rightSwiperRef = useRef<UISwiperInstance | null>(null)
+  const timingOptionsSwiperRef = useRef<UISwiperInstance | null>(null)
+  const skinTypeOptionsSwiperRef = useRef<UISwiperInstance | null>(null)
+  const needOptionsSwiperRef = useRef<UISwiperInstance | null>(null)
   const selectedArea = orderedAreas.find((area) => area.id === selectedAreaId) ?? orderedAreas[0]
   const activeArea = orderedAreas.find((area) => area.id === activeAreaId) ?? selectedArea
   const activeTiming =
@@ -177,19 +199,19 @@ export function RoutineBuilderSplitSection({
   )
 
   const filteredNeedIds = useMemo(() => {
-    if (!selectedArea?.id || !activeTiming?.id || selectedSkinTypes.size === 0) return []
+    if (!selectedArea?.id || !activeTiming?.id || !activeSkinType?.id) return []
     const ids = new Set<string>()
     for (const product of shopAllProducts) {
       const matchesArea = product.productAreas.some((area) => area.id === selectedArea.id)
       if (!matchesArea) continue
       const matchesTiming = product.timingProducts.some((timing) => timing.id === activeTiming.id)
       if (!matchesTiming) continue
-      const matchesSkin = product.skinTypes.some((skin) => selectedSkinTypes.has(skin.id))
+      const matchesSkin = product.skinTypes.some((skin) => skin.id === activeSkinType.id)
       if (!matchesSkin) continue
       for (const need of product.needs) ids.add(need.id)
     }
     return Array.from(ids)
-  }, [activeTiming?.id, selectedArea?.id, selectedSkinTypes, shopAllProducts])
+  }, [activeSkinType?.id, activeTiming?.id, selectedArea?.id, shopAllProducts])
 
   const needsForSelection = useMemo(() => {
     const map = new Map(routineNeeds.map((need) => [need.id, need]))
@@ -202,15 +224,15 @@ export function RoutineBuilderSplitSection({
   const needMedia = needsForSelection.find((need) => need.id === activeNeed?.id && need.media?.url)
 
   const filteredTemplates = useMemo(() => {
-    if (!selectedArea?.id || !activeTiming?.id || !selectedNeedId) return []
+    if (!selectedArea?.id || !activeTiming?.id || !activeNeed?.id) return []
     return routineTemplates.filter((template) => {
       if (template.productArea?.id && template.productArea.id !== selectedArea.id) return false
       if (template.timing.id !== activeTiming.id) return false
-      if (template.need.id !== selectedNeedId) return false
+      if (template.need.id !== activeNeed.id) return false
       if (selectedBrandId === 'multibrand') return template.isMultibrand
       return template.brand?.id === selectedBrandId
     })
-  }, [activeTiming?.id, routineTemplates, selectedArea?.id, selectedBrandId, selectedNeedId])
+  }, [activeNeed?.id, activeTiming?.id, routineTemplates, selectedArea?.id, selectedBrandId])
 
   const selectedTemplate =
     filteredTemplates.find((template) => template.id === selectedTemplateId) ?? filteredTemplates[0]
@@ -228,10 +250,10 @@ export function RoutineBuilderSplitSection({
     }
     const warningSteps = new Set<string>()
     const forbiddenBySkin = new Set<string>()
-    if (selectedSkinTypes.size > 0) {
+    if (activeSkinType?.id) {
       for (const rule of routineStepRules) {
         if (!rule.skinTypeId) continue
-        if (!selectedSkinTypes.has(rule.skinTypeId)) continue
+        if (rule.skinTypeId !== activeSkinType.id) continue
         if (rule.ruleType === 'forbid') forbiddenBySkin.add(rule.routineStepId)
         if (rule.ruleType === 'warn') warningSteps.add(rule.routineStepId)
       }
@@ -245,18 +267,20 @@ export function RoutineBuilderSplitSection({
         return { ...step, required, warn: warningSteps.has(step.id) }
       })
       .sort((a, b) => (a.stepOrder ?? 0) - (b.stepOrder ?? 0))
-  }, [activeTiming?.id, routineStepRules, routineSteps, selectedArea?.id, selectedSkinTypes])
+  }, [activeSkinType?.id, activeTiming?.id, routineStepRules, routineSteps, selectedArea?.id])
 
   const customProductsByStep = useMemo(() => {
-    if (!selectedArea?.id || !activeTiming?.id || !selectedNeedId) return new Map<string, FilterProduct[]>()
+    if (!selectedArea?.id || !activeTiming?.id || !activeNeed?.id) return new Map<string, FilterProduct[]>()
     const base = shopAllProducts.filter((product) => {
       const matchesArea = product.productAreas.some((area) => area.id === selectedArea.id)
       if (!matchesArea) return false
       const matchesTiming = product.timingProducts.some((timing) => timing.id === activeTiming.id)
       if (!matchesTiming) return false
-      const matchesSkin = product.skinTypes.some((skin) => selectedSkinTypes.has(skin.id))
+      const matchesSkin = activeSkinType
+        ? product.skinTypes.some((skin) => skin.id === activeSkinType.id)
+        : false
       if (!matchesSkin) return false
-      const matchesNeed = product.needs.some((need) => need.id === selectedNeedId)
+      const matchesNeed = product.needs.some((need) => need.id === activeNeed.id)
       return matchesNeed
     })
 
@@ -271,7 +295,7 @@ export function RoutineBuilderSplitSection({
       map.set(step.id, items)
     }
     return map
-  }, [activeTiming?.id, customSteps, selectedArea?.id, selectedNeedId, selectedSkinTypes, shopAllProducts])
+  }, [activeNeed?.id, activeSkinType?.id, activeTiming?.id, customSteps, selectedArea?.id, shopAllProducts])
 
   const presetSteps = useMemo(() => {
     if (!selectedTemplate) return []
@@ -288,6 +312,66 @@ export function RoutineBuilderSplitSection({
       }
     })
   }, [customSteps, selectedTemplate])
+
+  const visiblePresetSteps = useMemo(
+    () => presetSteps.filter((step) => step.products.length > 0),
+    [presetSteps],
+  )
+
+  const visibleCustomSteps = useMemo(
+    () => customSteps.filter((step) => (customProductsByStep.get(step.id)?.length ?? 0) > 0),
+    [customProductsByStep, customSteps],
+  )
+
+  const routineCheckoutProducts = useMemo(() => {
+    if (routineMode === 'preset') {
+      return visiblePresetSteps.flatMap((step) =>
+        step.products.slice(0, 1).map((product) => ({
+          id: product.id,
+          title: product.title,
+          slug: product.slug,
+          price: product.price,
+          currency: product.currency ?? 'EUR',
+          brand: product.brand,
+          coverImage: product.coverImage?.url ?? product.images?.[0]?.url ?? null,
+        })),
+      )
+    }
+
+    return visibleCustomSteps.flatMap((step) =>
+      (customProductsByStep.get(step.id) ?? []).map((product) => ({
+        id: product.id,
+        title: product.title ?? '',
+        slug: product.slug,
+        price: product.price,
+        currency: product.currency ?? 'EUR',
+        brand:
+          product.brand && typeof product.brand === 'object' && 'name' in product.brand
+            ? String((product.brand as { name?: unknown }).name ?? '')
+            : undefined,
+        coverImage: product.coverImage?.url ?? product.images?.[0]?.url ?? null,
+      })),
+    )
+  }, [customProductsByStep, routineMode, visibleCustomSteps, visiblePresetSteps])
+
+  const routineCheckoutTotal = useMemo(
+    () =>
+      routineCheckoutProducts.reduce(
+        (sum, product) => sum + (typeof product.price === 'number' ? product.price : 0),
+        0,
+      ),
+    [routineCheckoutProducts],
+  )
+
+  const routineCheckoutLabel = useMemo(
+    () =>
+      new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'it-IT', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+      }).format(routineCheckoutTotal),
+    [locale, routineCheckoutTotal],
+  )
 
   const availableBrands = useMemo(() => {
     const map = new Map<string, { id: string; label: string }>()
@@ -343,7 +427,6 @@ export function RoutineBuilderSplitSection({
   useEffect(() => {
     if (!activeNeedId && needsForSelection.length > 0) {
       setActiveNeedId(needsForSelection[0].id)
-      setSelectedNeedId(needsForSelection[0].id)
     }
   }, [activeNeedId, needsForSelection])
 
@@ -354,10 +437,26 @@ export function RoutineBuilderSplitSection({
   }, [filteredTemplates, selectedTemplateId])
 
   useEffect(() => {
-    if (selectedSkinTypes.size === 0 && skinTypesForArea.length > 0) {
-      setSelectedSkinTypes(new Set())
-    }
-  }, [selectedSkinTypes.size, skinTypesForArea.length])
+    setIsRoutineDetailsOpen(false)
+  }, [activeNeed?.id, activeSkinType?.id, activeTiming?.id, routineMode, selectedArea?.id, selectedBrandId, selectedTemplateId])
+
+  useEffect(() => {
+    if (!activeTiming?.id) return
+    const index = routineTimings.findIndex((timing) => timing.id === activeTiming.id)
+    if (index >= 0) timingOptionsSwiperRef.current?.slideTo(index, 0)
+  }, [activeTiming?.id, routineTimings])
+
+  useEffect(() => {
+    if (!activeSkinType?.id) return
+    const index = skinTypesForArea.findIndex((skin) => skin.id === activeSkinType.id)
+    if (index >= 0) skinTypeOptionsSwiperRef.current?.slideTo(index, 0)
+  }, [activeSkinType?.id, skinTypesForArea])
+
+  useEffect(() => {
+    if (!activeNeed?.id) return
+    const index = needsForSelection.findIndex((need) => need.id === activeNeed.id)
+    if (index >= 0) needOptionsSwiperRef.current?.slideTo(index, 0)
+  }, [activeNeed?.id, needsForSelection])
 
   const goBackToAreas = () => {
     if (leftSwiperRef.current) leftSwiperRef.current.slideTo(0)
@@ -374,12 +473,38 @@ export function RoutineBuilderSplitSection({
     if (rightSwiperRef.current) rightSwiperRef.current.slideTo(4)
   }
 
+  const handleRoutineCheckout = () => {
+    if (typeof window === 'undefined' || routineCheckoutProducts.length === 0) return
+
+    const next = routineCheckoutProducts.reduce<CartItem[]>((items, product) => {
+      if (!product.id || !product.title) return items
+      if (items.some((item) => item.id === product.id)) return items
+      items.push({
+          id: product.id,
+          title: product.title,
+          slug: product.slug,
+          price: product.price,
+          currency: product.currency,
+          brand: product.brand,
+          coverImage: product.coverImage,
+          quantity: 1,
+      })
+      return items
+    }, [])
+
+    writeCart(next)
+    emitCartUpdated()
+    router.push(`/${locale}/checkout`)
+  }
+
   return (
     <SplitSection
       aria-label="Routine Builder"
+      className={styles.splitSection}
       style={{ ['--routine-slide-duration' as string]: '1000ms' }}
+      mobileOrder="right-first"
       leftClassName={styles.panel}
-      rightClassName={`${styles.panel} ${styles.panelMedia}`}
+      rightClassName={`${styles.panel} ${styles.panelMedia} ${isRoutineDetailsOpen ? styles.panelMediaExpanded : ''}`}
       left={
         <div className={styles.panelContent}>
           <Swiper
@@ -402,7 +527,8 @@ export function RoutineBuilderSplitSection({
                   key={`${activeArea?.id}-desc`}
                   className={`${styles.bodyText} typo-body ${styles.slideInRight}`}
                 >
-                  {activeArea?.description ||
+                  {routineStep1Description ||
+                    activeArea?.description ||
                     'Seleziona il timing ideale per te: mattina, sera o entrambi. Così possiamo personalizzare i passaggi in base al momento della giornata.'}
                 </p>
                 <div className={`${styles.circleList} ${getCircleSizeClass(orderedAreas.length)}`}>
@@ -413,13 +539,26 @@ export function RoutineBuilderSplitSection({
                       typographyClassName="typo-small"
                       active={area.id === activeAreaId}
                       dimmed={Boolean(activeAreaId && area.id !== activeAreaId)}
-                      onClick={() => goToNeeds(area.id)}
+                      selected={selectedAreaId === area.id}
+                      onClick={() => {
+                        setSelectedAreaId(area.id)
+                        setActiveAreaId(area.id)
+                      }}
                       onMouseEnter={() => setActiveAreaId(area.id)}
                       onMouseLeave={() => setActiveAreaId(selectedAreaId)}
                     >
                       {area.label}
                     </StateCircleButton>
                   ))}
+                </div>
+                <div className={`${styles.stepActions} ${styles.stepActionsSingle}`}>
+                  <button
+                    type="button"
+                    className={`${styles.nextButton} typo-small-upper`}
+                    onClick={() => goToNeeds(selectedAreaId || orderedAreas[0]?.id || '')}
+                  >
+                    Continua
+                  </button>
                 </div>
               </div>
             </SwiperSlide>
@@ -429,29 +568,70 @@ export function RoutineBuilderSplitSection({
                   {routineStep2Title || 'Quando vuoi usare la routine?'}
                 </p>
                 <p key={`${activeTiming?.id}-desc`} className={`${styles.bodyText} typo-body ${styles.slideInRight}`}>
-                  {activeTiming?.description ||
+                  {routineStep2Description ||
+                    activeTiming?.description ||
                     'Seleziona il timing ideale per te: mattina, sera o entrambi. Così possiamo personalizzare i passaggi in base al momento della giornata.'}
                 </p>
-                <div className={`${styles.circleList} ${getCircleSizeClass(routineTimings.length)}`}>
-                  {routineTimings.length > 0 ? (
-                    routineTimings.map((timing) => (
-                      <StateCircleButton
-                        key={timing.id}
-                        baseClassName={styles.circleItem}
-                        typographyClassName="typo-small"
-                        active={timing.id === activeTimingId}
-                        dimmed={Boolean(activeTimingId && timing.id !== activeTimingId)}
-                        onMouseEnter={() => setActiveTimingId(timing.id)}
-                        onFocus={() => setActiveTimingId(timing.id)}
-                        onClick={() => goToSkinTypes(timing.id)}
-                      >
-                        {timing.label}
-                      </StateCircleButton>
-                    ))
-                  ) : (
-                    <div className={styles.mediaPlaceholder} />
-                  )}
-                </div>
+                {routineTimings.length > 0 ? (
+                  <div className={styles.block}>
+                    <div className={styles.optionSliderHeader}>
+                      <p className={`${styles.blockLabel} typo-caption-upper`}>Timing</p>
+                      <div className={styles.optionSliderNav}>
+                        <button
+                          type="button"
+                          className={styles.optionSliderChevron}
+                          aria-label="Timing precedente"
+                          onClick={() => timingOptionsSwiperRef.current?.slidePrev()}
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.optionSliderChevron}
+                          aria-label="Timing successivo"
+                          onClick={() => timingOptionsSwiperRef.current?.slideNext()}
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </div>
+                    </div>
+                    <Swiper
+                      className={styles.optionSlider}
+                      slidesPerView="auto"
+                      spaceBetween={12}
+                      onSlideChange={(swiper) => {
+                        const timing = routineTimings[swiper.activeIndex]
+                        if (timing) setActiveTimingId(timing.id)
+                      }}
+                      onSwiper={(swiper) => {
+                        timingOptionsSwiperRef.current = swiper
+                      }}
+                    >
+                      {routineTimings.map((timing, index) => {
+                        const isActive = timing.id === activeTimingId
+
+                        return (
+                          <SwiperSlide key={timing.id} className={styles.optionSlide}>
+                            <button
+                              type="button"
+                              className={`${styles.optionCard} ${isActive ? styles.optionCardActive : ''}`}
+                              onClick={() => timingOptionsSwiperRef.current?.slideTo(index)}
+                              onMouseEnter={() => setActiveTimingId(timing.id)}
+                              onFocus={() => setActiveTimingId(timing.id)}
+                            >
+                              <p className={`${styles.optionCardLabel} typo-body`}>{timing.label}</p>
+                              {timing.description ? (
+                                <p className={`${styles.optionCardBody} typo-body`}>{timing.description}</p>
+                              ) : null}
+                            </button>
+                          </SwiperSlide>
+                        )
+                      })}
+                    </Swiper>
+                  </div>
+                ) : (
+                  <div className={styles.mediaPlaceholder} />
+                )}
                 <div className={styles.stepActions}>
                   <button type="button" className={`${styles.backButton} typo-small-upper`} onClick={goBackToAreas}>
                     Torna indietro
@@ -459,7 +639,11 @@ export function RoutineBuilderSplitSection({
                   <button
                     type="button"
                     className={`${styles.nextButton} typo-small-upper`}
-                    onClick={() => goToSkinTypes(activeTimingId || routineTimings[0]?.id || '')}
+                    onClick={() => {
+                      const activeTiming =
+                        routineTimings[timingOptionsSwiperRef.current?.activeIndex ?? 0] ?? routineTimings[0]
+                      goToSkinTypes(activeTiming?.id || '')
+                    }}
                   >
                     Prosegui
                   </button>
@@ -473,38 +657,66 @@ export function RoutineBuilderSplitSection({
                   {activeSkinType?.description ||
                     'Seleziona il tipo di pelle per personalizzare ulteriormente la routine.'}
                 </p>
-                <div className={`${styles.circleList} ${getCircleSizeClass(skinTypesForArea.length)}`}>
-                  {skinTypesForArea.length > 0 ? (
-                    skinTypesForArea.map((skin) => (
-                      <StateCircleButton
-                        key={skin.id}
-                        baseClassName={styles.circleItem}
-                        typographyClassName="typo-small"
-                        active={skin.id === activeSkinType?.id}
-                        dimmed={Boolean(activeSkinType?.id && skin.id !== activeSkinType?.id)}
-                        selected={selectedSkinTypes.has(skin.id)}
-                        onMouseEnter={() => setActiveSkinTypeId(skin.id)}
-                        onFocus={() => setActiveSkinTypeId(skin.id)}
-                        onClick={() => {
-                          setActiveSkinTypeId(skin.id)
-                          setSelectedSkinTypes((prev) => {
-                            const next = new Set(prev)
-                            if (next.has(skin.id)) {
-                              next.delete(skin.id)
-                            } else {
-                              next.add(skin.id)
-                            }
-                            return next
-                          })
-                        }}
-                      >
-                        {skin.label}
-                      </StateCircleButton>
-                    ))
-                  ) : (
-                    <div className={styles.mediaPlaceholder} />
-                  )}
-                </div>
+                {skinTypesForArea.length > 0 ? (
+                  <div className={styles.block}>
+                    <div className={styles.optionSliderHeader}>
+                      <p className={`${styles.blockLabel} typo-caption-upper`}>Tipo di pelle</p>
+                      <div className={styles.optionSliderNav}>
+                        <button
+                          type="button"
+                          className={styles.optionSliderChevron}
+                          aria-label="Tipo di pelle precedente"
+                          onClick={() => skinTypeOptionsSwiperRef.current?.slidePrev()}
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.optionSliderChevron}
+                          aria-label="Tipo di pelle successivo"
+                          onClick={() => skinTypeOptionsSwiperRef.current?.slideNext()}
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </div>
+                    </div>
+                    <Swiper
+                      className={styles.optionSlider}
+                      slidesPerView="auto"
+                      spaceBetween={12}
+                      onSlideChange={(swiper) => {
+                        const skin = skinTypesForArea[swiper.activeIndex]
+                        if (skin) setActiveSkinTypeId(skin.id)
+                      }}
+                      onSwiper={(swiper) => {
+                        skinTypeOptionsSwiperRef.current = swiper
+                      }}
+                    >
+                      {skinTypesForArea.map((skin, index) => {
+                        const isActive = skin.id === activeSkinType?.id
+
+                        return (
+                          <SwiperSlide key={skin.id} className={styles.optionSlide}>
+                            <button
+                              type="button"
+                              className={`${styles.optionCard} ${isActive ? styles.optionCardActive : ''}`}
+                              onClick={() => skinTypeOptionsSwiperRef.current?.slideTo(index)}
+                              onMouseEnter={() => setActiveSkinTypeId(skin.id)}
+                              onFocus={() => setActiveSkinTypeId(skin.id)}
+                            >
+                              <p className={`${styles.optionCardLabel} typo-body`}>{skin.label}</p>
+                              {skin.description ? (
+                                <p className={`${styles.optionCardBody} typo-body`}>{skin.description}</p>
+                              ) : null}
+                            </button>
+                          </SwiperSlide>
+                        )
+                      })}
+                    </Swiper>
+                  </div>
+                ) : (
+                  <div className={styles.mediaPlaceholder} />
+                )}
                 <div className={styles.stepActions}>
                   <button type="button" className={`${styles.backButton} typo-small-upper`} onClick={goBackToTimings}>
                     Torna indietro
@@ -512,7 +724,7 @@ export function RoutineBuilderSplitSection({
                   <button
                     type="button"
                     className={`${styles.nextButton} typo-small-upper`}
-                    disabled={selectedSkinTypes.size === 0}
+                    disabled={!activeSkinType}
                     onClick={goToNeedsStep}
                   >
                     Prosegui
@@ -527,30 +739,66 @@ export function RoutineBuilderSplitSection({
                   {activeNeed?.description ||
                     'Seleziona le esigenze principali per completare la routine.'}
                 </p>
-                <div className={`${styles.circleList} ${getCircleSizeClass(needsForSelection.length)}`}>
-                  {needsForSelection.length > 0 ? (
-                    needsForSelection.map((need) => (
-                      <StateCircleButton
-                        key={need.id}
-                        baseClassName={styles.circleItem}
-                        typographyClassName="typo-small"
-                        active={need.id === activeNeed?.id}
-                        dimmed={Boolean(activeNeed?.id && need.id !== activeNeed?.id)}
-                        selected={selectedNeedId === need.id}
-                        onMouseEnter={() => setActiveNeedId(need.id)}
-                        onFocus={() => setActiveNeedId(need.id)}
-                        onClick={() => {
-                          setActiveNeedId(need.id)
-                          setSelectedNeedId(need.id)
-                        }}
-                      >
-                        {need.label}
-                      </StateCircleButton>
-                    ))
-                  ) : (
-                    <div className={styles.mediaPlaceholder} />
-                  )}
-                </div>
+                {needsForSelection.length > 0 ? (
+                  <div className={styles.block}>
+                    <div className={styles.optionSliderHeader}>
+                      <p className={`${styles.blockLabel} typo-caption-upper`}>Esigenza</p>
+                      <div className={styles.optionSliderNav}>
+                        <button
+                          type="button"
+                          className={styles.optionSliderChevron}
+                          aria-label="Esigenza precedente"
+                          onClick={() => needOptionsSwiperRef.current?.slidePrev()}
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.optionSliderChevron}
+                          aria-label="Esigenza successiva"
+                          onClick={() => needOptionsSwiperRef.current?.slideNext()}
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </div>
+                    </div>
+                    <Swiper
+                      className={styles.optionSlider}
+                      slidesPerView="auto"
+                      spaceBetween={12}
+                      onSlideChange={(swiper) => {
+                        const need = needsForSelection[swiper.activeIndex]
+                        if (need) setActiveNeedId(need.id)
+                      }}
+                      onSwiper={(swiper) => {
+                        needOptionsSwiperRef.current = swiper
+                      }}
+                    >
+                      {needsForSelection.map((need, index) => {
+                        const isActive = need.id === activeNeed?.id
+
+                        return (
+                          <SwiperSlide key={need.id} className={styles.optionSlide}>
+                            <button
+                              type="button"
+                              className={`${styles.optionCard} ${isActive ? styles.optionCardActive : ''}`}
+                              onClick={() => needOptionsSwiperRef.current?.slideTo(index)}
+                              onMouseEnter={() => setActiveNeedId(need.id)}
+                              onFocus={() => setActiveNeedId(need.id)}
+                            >
+                              <p className={`${styles.optionCardLabel} typo-body`}>{need.label}</p>
+                              {need.description ? (
+                                <p className={`${styles.optionCardBody} typo-body`}>{need.description}</p>
+                              ) : null}
+                            </button>
+                          </SwiperSlide>
+                        )
+                      })}
+                    </Swiper>
+                  </div>
+                ) : (
+                  <div className={styles.mediaPlaceholder} />
+                )}
                 <div className={styles.stepActions}>
                   <button type="button" className={`${styles.backButton} typo-small-upper`} onClick={goBackToSkinTypes}>
                     Torna indietro
@@ -558,8 +806,12 @@ export function RoutineBuilderSplitSection({
                   <button
                     type="button"
                     className={`${styles.nextButton} typo-small-upper`}
-                    disabled={!selectedNeedId}
-                    onClick={goToRoutinesStep}
+                    disabled={!activeNeed}
+                    onClick={() => {
+                      const need = needsForSelection[needOptionsSwiperRef.current?.activeIndex ?? 0] ?? needsForSelection[0]
+                      if (need) setActiveNeedId(need.id)
+                      goToRoutinesStep()
+                    }}
                   >
                     Prosegui
                   </button>
@@ -638,9 +890,9 @@ export function RoutineBuilderSplitSection({
         </div>
       }
       right={
-        <div className={styles.panelContentMedia}>
+        <div className={`${styles.panelContentMedia} ${isRoutineDetailsOpen ? styles.panelContentMediaExpanded : ''}`}>
           <Swiper
-            className={styles.mediaSwiper}
+            className={`${styles.mediaSwiper} ${isRoutineDetailsOpen ? styles.mediaSwiperExpanded : ''}`}
             slidesPerView={1}
             spaceBetween={0}
             allowTouchMove={false}
@@ -733,19 +985,16 @@ export function RoutineBuilderSplitSection({
                         </span>
                       </>
                     ) : null}
-                    {selectedSkinTypes.size > 0 ? (
+                    {activeSkinType?.label ? (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
                         <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
                           <span className={`${styles.routineBreadcrumbStep} typo-caption-upper`}>Tipo di pelle</span>
-                          {skinTypesForArea
-                            .filter((skin) => selectedSkinTypes.has(skin.id))
-                            .map((skin) => skin.label)
-                            .join(' · ')}
+                          {activeSkinType.label}
                         </span>
                       </>
                     ) : null}
-                    {selectedNeedId ? (
+                    {activeNeed?.label ? (
                       <>
                         <span className={styles.routineBreadcrumbSeparator} />
                         <span className={`${styles.routineBreadcrumbNode} typo-small-upper`}>
@@ -782,21 +1031,37 @@ export function RoutineBuilderSplitSection({
                     ) : null}
                   </div>
                 </div>
-                <div className={styles.routineMediaList}>
+                <button
+                  type="button"
+                  className={styles.routineAccordionTrigger}
+                  aria-expanded={isRoutineDetailsOpen}
+                  aria-controls="routine-media-list"
+                  onClick={() => setIsRoutineDetailsOpen((open) => !open)}
+                >
+                  <span className={`${styles.routineAccordionLabel} typo-small-upper`}>Scopri la tua routine</span>
+                  <span className={`${styles.routineAccordionIcon} typo-small-upper`}>
+                    {isRoutineDetailsOpen ? 'Chiudi' : 'Apri'}
+                  </span>
+                </button>
+                <div
+                  id="routine-media-list"
+                  className={styles.routineMediaList}
+                  hidden={!isRoutineDetailsOpen}
+                >
                   {routineMode === 'preset' && selectedTemplate ? (
-                    presetSteps.map((step) => (
-                      <div key={step.id} className={styles.routineStepGroup}>
-                        <p className={`${styles.routineStepTitle} typo-small-upper`}>
-                          {step.label}
-                          {step.slug === 'esfoliante' && step.required === false ? ' (facoltativo)' : ''}
-                        </p>
-                        <div className={styles.routineStepBlock}>
-                          {step.products.length > 0 ? (
+                    visiblePresetSteps.length > 0 ? (
+                      visiblePresetSteps.map((step) => (
+                        <div key={step.id} className={styles.routineStepGroup}>
+                          <p className={`${styles.routineStepTitle} typo-small-upper`}>
+                            {step.label}
+                            {step.slug === 'esfoliante' && step.required === false ? ' (facoltativo)' : ''}
+                          </p>
+                          <div className={styles.routineStepBlock}>
                             <div className={styles.routineThumbs}>
                               {step.products.slice(0, 1).map((product) => {
                                 const media = product.coverImage ?? product.images?.[0]
                                 return (
-                                    <div key={product.id} className={styles.routineProductRow}>
+                                  <div key={product.id} className={styles.routineProductRow}>
                                     <MediaThumb
                                       src={normalizeThumbnailSrc(media?.url)}
                                       alt={media?.alt || product.title}
@@ -811,15 +1076,17 @@ export function RoutineBuilderSplitSection({
                                 )
                               })}
                             </div>
-                          ) : (
-                            <p className={`${styles.bodyText} typo-body`}>Nessun prodotto assegnato per questo step.</p>
-                          )}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      ))
+                    ) : (
+                      <p className={`${styles.bodyText} typo-body`}>
+                        Nessun prodotto assegnato agli step di questa routine.
+                      </p>
+                    )
                   ) : routineMode === 'custom' ? (
-                    customSteps.length > 0 ? (
-                      customSteps.map((step) => (
+                    visibleCustomSteps.length > 0 ? (
+                      visibleCustomSteps.map((step) => (
                         <div key={step.id} className={styles.routineStepGroup}>
                           <p className={`${styles.routineStepTitle} typo-small-upper`}>
                             {step.label}
@@ -827,31 +1094,25 @@ export function RoutineBuilderSplitSection({
                             {step.warn ? ' · attenzione' : ''}
                           </p>
                           <div className={styles.routineStepBlock}>
-                            {customProductsByStep.get(step.id)?.length ? (
-                              <div className={styles.routineThumbs}>
-                                {customProductsByStep.get(step.id)?.map((product) => {
-                                  const media = product.coverImage ?? product.images?.[0]
-                                  return (
-                                    <div key={product.id} className={styles.routineProductRow}>
-                                      <MediaThumb
-                                        src={normalizeThumbnailSrc(media?.url)}
-                                        alt={media?.alt || product.title || ''}
-                                        sizes="48px"
-                                        className={styles.routineThumb}
-                                        imageClassName={styles.routineThumbImage}
-                                        fallback={<div className={styles.routineThumbFallback} />}
-                                        unoptimized={isRemoteThumbnailSrc(media?.url)}
-                                      />
-                                      <p className={`${styles.routineProductTitle} typo-small`}>{product.title ?? ''}</p>
-                                    </div>
-                                  )
-                                })}
-                              </div>
-                            ) : (
-                              <p className={`${styles.bodyText} typo-body`}>
-                                Nessun prodotto disponibile per questo step.
-                              </p>
-                            )}
+                            <div className={styles.routineThumbs}>
+                              {customProductsByStep.get(step.id)?.map((product) => {
+                                const media = product.coverImage ?? product.images?.[0]
+                                return (
+                                  <div key={product.id} className={styles.routineProductRow}>
+                                    <MediaThumb
+                                      src={normalizeThumbnailSrc(media?.url)}
+                                      alt={media?.alt || product.title || ''}
+                                      sizes="48px"
+                                      className={styles.routineThumb}
+                                      imageClassName={styles.routineThumbImage}
+                                      fallback={<div className={styles.routineThumbFallback} />}
+                                      unoptimized={isRemoteThumbnailSrc(media?.url)}
+                                    />
+                                    <p className={`${styles.routineProductTitle} typo-small`}>{product.title ?? ''}</p>
+                                  </div>
+                                )
+                              })}
+                            </div>
                           </div>
                         </div>
                       ))
@@ -865,6 +1126,20 @@ export function RoutineBuilderSplitSection({
                       Seleziona una routine prestabilita per vedere i passaggi e i prodotti consigliati.
                     </p>
                   )}
+                  {routineCheckoutProducts.length > 0 ? (
+                    <div className={styles.routineCheckoutCta}>
+                      <Button
+                        type="button"
+                        kind="main"
+                        size="md"
+                        interactive
+                        className={styles.routineCheckoutButton}
+                        onClick={handleRoutineCheckout}
+                      >
+                        {`Acquista routine · ${routineCheckoutLabel}`}
+                      </Button>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </SwiperSlide>
