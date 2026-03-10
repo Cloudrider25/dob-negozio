@@ -73,7 +73,9 @@ export function ShopSectionSwitcher({
   contactLinks,
   locale,
   routineStep1Title,
+  routineStep1Description,
   routineStep2Title,
+  routineStep2Description,
 }: {
   initialSection?: SectionKey
   classicParams: ClassicParams
@@ -147,7 +149,9 @@ export function ShopSectionSwitcher({
   contactLinks: ContactLinks
   locale: string
   routineStep1Title?: string | null
+  routineStep1Description?: string | null
   routineStep2Title?: string | null
+  routineStep2Description?: string | null
 }) {
   const resolvedLocale = isLocale(locale) ? locale : defaultLocale
   const copy = getJourneyDictionary(resolvedLocale).shopFilters
@@ -508,7 +512,10 @@ export function ShopSectionSwitcher({
             routineSteps={routineSteps}
             routineStepRules={routineStepRules}
             routineStep1Title={routineStep1Title}
+            routineStep1Description={routineStep1Description}
             routineStep2Title={routineStep2Title}
+            routineStep2Description={routineStep2Description}
+            locale={resolvedLocale}
             shopAllProducts={shopAllProducts}
           />
         </div>

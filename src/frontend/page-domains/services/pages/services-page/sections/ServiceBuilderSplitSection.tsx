@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Image from 'next/image'
 
 import type { NavigatorData } from '@/frontend/page-domains/services/pages/services-page/sections/navigator-data-context'
 import { SectionSubtitle } from '@/frontend/components/ui/primitives/section-subtitle'
 import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
 import { Button } from '@/frontend/components/ui/primitives/button'
+import { ButtonLink } from '@/frontend/components/ui/primitives/button-link'
 import { StateCircleButton } from '@/frontend/components/ui/primitives/StateCircleButton'
 import { SplitSection } from '@/frontend/components/ui/compositions/SplitSection'
 import { Swiper, SwiperSlide, type UISwiperInstance } from '@/frontend/components/ui/primitives/swiper'
@@ -15,6 +15,7 @@ import styles from './ServiceBuilderSplitSection.module.css'
 
 type ServiceBuilderSplitSectionProps = {
   data: NavigatorData
+  locale: string
   step0Config?: {
     heading?: string | null
     description?: string | null
@@ -32,7 +33,7 @@ const formatPrice = (price?: number) => {
   })
 }
 
-export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilderSplitSectionProps) {
+export function ServiceBuilderSplitSection({ data, locale, step0Config }: ServiceBuilderSplitSectionProps) {
   const orderedAreas = useMemo(() => {
     const list = [...data.areas]
     list.sort((a, b) => {
@@ -47,41 +48,49 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
   const defaultAreaId = orderedAreas[0]?.id ?? null
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(defaultAreaId)
   const [activeAreaId, setActiveAreaId] = useState<string | null>(defaultAreaId)
+  const [committedAreaId, setCommittedAreaId] = useState<string | null>(null)
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null)
+  const [committedGoalId, setCommittedGoalId] = useState<string | null>(null)
   const [selectedTreatmentId, setSelectedTreatmentId] = useState<string | null>(null)
+  const [committedTreatmentId, setCommittedTreatmentId] = useState<string | null>(null)
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null)
 
   const leftSwiperRef = useRef<UISwiperInstance | null>(null)
   const rightSwiperRef = useRef<UISwiperInstance | null>(null)
+  const goalOptionsSwiperRef = useRef<UISwiperInstance | null>(null)
+  const treatmentOptionsSwiperRef = useRef<UISwiperInstance | null>(null)
+  const serviceOptionsSwiperRef = useRef<UISwiperInstance | null>(null)
 
   const selectedArea =
     orderedAreas.find((area) => area.id === selectedAreaId) ?? orderedAreas[0] ?? null
   const activeArea =
     orderedAreas.find((area) => area.id === activeAreaId) ?? selectedArea ?? null
+  const committedArea =
+    orderedAreas.find((area) => area.id === committedAreaId) ?? null
 
   const goalsForArea = useMemo(() => {
-    if (!selectedArea?.id) return []
-    return data.goals.filter((goal) => goal.areaId === selectedArea.id)
-  }, [data.goals, selectedArea?.id])
+    if (!committedArea?.id) return []
+    return data.goals.filter((goal) => goal.areaId === committedArea.id)
+  }, [data.goals, committedArea?.id])
 
   const selectedGoal =
     goalsForArea.find((goal) => goal.id === selectedGoalId) ?? goalsForArea[0] ?? null
 
   const treatmentsForSelection = useMemo(() => {
-    if (!selectedArea?.id) return []
+    if (!committedArea?.id) return []
+    if (!committedGoalId) return []
     const goalIdsForArea = new Set(goalsForArea.map((goal) => goal.id))
     if (goalsForArea.length > 0) {
       return data.treatments.filter((treatment) => {
         const refs = treatment.referenceIds || []
         const matchesAreaContext =
-          refs.includes(selectedArea.id) || refs.some((referenceId) => goalIdsForArea.has(referenceId))
+          refs.includes(committedArea.id) || refs.some((referenceId) => goalIdsForArea.has(referenceId))
         if (!matchesAreaContext) return false
-        if (!selectedGoal?.id) return true
-        return refs.includes(selectedGoal.id)
+        return refs.includes(committedGoalId)
       })
     }
-    return data.treatments.filter((treatment) => treatment.referenceIds.includes(selectedArea.id))
-  }, [data.treatments, goalsForArea, selectedArea?.id, selectedGoal?.id])
+    return data.treatments.filter((treatment) => treatment.referenceIds.includes(committedArea.id))
+  }, [data.treatments, goalsForArea, committedArea?.id, committedGoalId])
 
   const selectedTreatment =
     treatmentsForSelection.find((treatment) => treatment.id === selectedTreatmentId) ??
@@ -89,9 +98,9 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
     null
 
   const servicesForTreatment = useMemo(() => {
-    if (!selectedTreatment?.id) return []
-    return data.services.filter((service) => service.treatmentIds.includes(selectedTreatment.id))
-  }, [data.services, selectedTreatment?.id])
+    if (!committedTreatmentId) return []
+    return data.services.filter((service) => service.treatmentIds.includes(committedTreatmentId))
+  }, [data.services, committedTreatmentId])
 
   const activeService =
     servicesForTreatment.find((service) => service.id === activeServiceId) ??
@@ -99,13 +108,16 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
     null
 
   useEffect(() => {
-    if (!selectedArea?.id) return
+    if (!committedArea?.id) {
+      setSelectedGoalId(null)
+      return
+    }
     if (goalsForArea.length > 0) {
       setSelectedGoalId(goalsForArea[0]?.id ?? null)
     } else {
       setSelectedGoalId(null)
     }
-  }, [selectedArea?.id, goalsForArea])
+  }, [committedArea?.id, goalsForArea])
 
   useEffect(() => {
     if (treatmentsForSelection.length === 0) {
@@ -129,14 +141,81 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
     })
   }, [servicesForTreatment])
 
+  useEffect(() => {
+    if (!selectedGoal?.id) return
+    const index = goalsForArea.findIndex((goal) => goal.id === selectedGoal.id)
+    if (index >= 0) goalOptionsSwiperRef.current?.slideTo(index, 0)
+  }, [goalsForArea, selectedGoal?.id])
+
+  useEffect(() => {
+    if (!selectedTreatment?.id) return
+    const index = treatmentsForSelection.findIndex((treatment) => treatment.id === selectedTreatment.id)
+    if (index >= 0) treatmentOptionsSwiperRef.current?.slideTo(index, 0)
+  }, [treatmentsForSelection, selectedTreatment?.id])
+
+  useEffect(() => {
+    if (!activeService?.id) return
+    const index = servicesForTreatment.findIndex((service) => service.id === activeService.id)
+    if (index >= 0) serviceOptionsSwiperRef.current?.slideTo(index, 0)
+  }, [servicesForTreatment, activeService?.id])
+
   const goToStep = (step: number) => {
     leftSwiperRef.current?.slideTo(step)
     rightSwiperRef.current?.slideTo(step)
   }
 
+  const renderSummaryRow = ({
+    showArea = false,
+    showGoal = false,
+    showTreatment = false,
+  }: {
+    showArea?: boolean
+    showGoal?: boolean
+    showTreatment?: boolean
+  }) => (
+    <div className={styles.summaryRow}>
+      {showArea && selectedArea?.label ? (
+        <span className={`${styles.summaryPill} typo-caption-upper`}>Area: {selectedArea.label}</span>
+      ) : null}
+      {showGoal && selectedGoal?.label ? (
+        <span className={`${styles.summaryPill} typo-caption-upper`}>Obiettivo: {selectedGoal.label}</span>
+      ) : null}
+      {showTreatment && selectedTreatment?.label ? (
+        <span className={`${styles.summaryPill} typo-caption-upper`}>Trattamento: {selectedTreatment.label}</span>
+      ) : null}
+    </div>
+  )
+
   const handleAreaSelect = (areaId: string) => {
     setSelectedAreaId(areaId)
     setActiveAreaId(areaId)
+    setCommittedGoalId(null)
+    setCommittedTreatmentId(null)
+    setSelectedGoalId(null)
+    setSelectedTreatmentId(null)
+    setActiveServiceId(null)
+  }
+
+  const handleProceedFromArea = () => {
+    if (!selectedAreaId) return
+    setCommittedAreaId(selectedAreaId)
+    goToStep(2)
+  }
+
+  const handleProceedFromGoal = () => {
+    if (!selectedGoalId) return
+    setCommittedGoalId(selectedGoalId)
+    setCommittedTreatmentId(null)
+    setSelectedTreatmentId(null)
+    setActiveServiceId(null)
+    goToStep(3)
+  }
+
+  const handleProceedFromTreatment = () => {
+    if (!selectedTreatmentId) return
+    setCommittedTreatmentId(selectedTreatmentId)
+    setActiveServiceId(null)
+    goToStep(4)
   }
 
   return (
@@ -202,9 +281,9 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
                   ))}
                 </div>
                 <div className={styles.stepActions}>
-                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(0)}>
+                  <button type="button" className={`${styles.backLink} typo-small`} onClick={() => goToStep(0)}>
                     Torna indietro
-                  </Button>
+                  </button>
                   <Button
                     kind="main"
                     size="sm"
@@ -212,7 +291,7 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
                     type="button"
                     className={styles.navButton}
                     disabled={!selectedAreaId}
-                    onClick={() => goToStep(2)}
+                    onClick={handleProceedFromArea}
                   >
                     Prosegui
                   </Button>
@@ -232,23 +311,42 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
                 {goalsForArea.length > 0 ? (
                   <div className={styles.block}>
                     <p className={`${styles.blockLabel} typo-caption-upper`}>Obiettivo</p>
-                    <div className={styles.pillList}>
+                    <Swiper
+                      key={`goal-slider-${selectedArea?.id || 'none'}`}
+                      className={styles.optionSlider}
+                      nested
+                      slidesPerView={'auto'}
+                      spaceBetween={12}
+                      onSwiper={(swiper) => {
+                        goalOptionsSwiperRef.current = swiper
+                      }}
+                      onSlideChange={(swiper) => {
+                        const goal = goalsForArea[swiper.activeIndex]
+                        if (goal) setSelectedGoalId(goal.id)
+                      }}
+                    >
                       {goalsForArea.map((goal) => (
-                        <Button
-                          kind="main"
-                          size="sm"
-                          interactive
-                          key={goal.id}
-                          type="button"
-                          className={`${styles.pillItem} ${
-                            selectedGoal?.id === goal.id ? styles.pillItemActive : ''
-                          }`}
-                          onClick={() => setSelectedGoalId(goal.id)}
-                        >
-                          {goal.label}
-                        </Button>
+                        <SwiperSlide key={goal.id} className={styles.optionSlide}>
+                          <button
+                            type="button"
+                            aria-pressed={selectedGoal?.id === goal.id}
+                            className={`${styles.optionCard} ${
+                              selectedGoal?.id === goal.id ? styles.optionCardActive : ''
+                            }`}
+                            onClick={() => setSelectedGoalId(goal.id)}
+                          >
+                            <SectionSubtitle className={styles.optionCardLabel}>
+                              {goal.cardTitle || goal.label}
+                            </SectionSubtitle>
+                            {goal.cardDescription || goal.description ? (
+                              <SectionSubtitle className={styles.optionCardBody}>
+                                {goal.cardDescription || goal.description}
+                              </SectionSubtitle>
+                            ) : null}
+                          </button>
+                        </SwiperSlide>
                       ))}
-                    </div>
+                    </Swiper>
                   </div>
                 ) : (
                   <SectionSubtitle className={styles.emptyState}>
@@ -257,16 +355,17 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
                 )}
 
                 <div className={styles.stepActions}>
-                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(1)}>
+                  <button type="button" className={`${styles.backLink} typo-small`} onClick={() => goToStep(1)}>
                     Torna indietro
-                  </Button>
+                  </button>
                   <Button
                     kind="main"
                     size="sm"
                     interactive
                     type="button"
                     className={styles.navButton}
-                    onClick={() => goToStep(3)}
+                    disabled={!selectedGoalId}
+                    onClick={handleProceedFromGoal}
                   >
                     Prosegui
                   </Button>
@@ -286,29 +385,48 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
 
                 <div className={styles.block}>
                   <p className={`${styles.blockLabel} typo-caption-upper`}>Trattamento</p>
-                  <div className={styles.pillList}>
+                  <Swiper
+                    key={`treatment-slider-${selectedArea?.id || 'none'}-${selectedGoal?.id || 'none'}`}
+                    className={styles.optionSlider}
+                    nested
+                    slidesPerView={'auto'}
+                    spaceBetween={12}
+                    onSwiper={(swiper) => {
+                      treatmentOptionsSwiperRef.current = swiper
+                    }}
+                    onSlideChange={(swiper) => {
+                      const treatment = treatmentsForSelection[swiper.activeIndex]
+                      if (treatment) setSelectedTreatmentId(treatment.id)
+                    }}
+                  >
                     {treatmentsForSelection.map((treatment) => (
-                      <Button
-                        kind="main"
-                        size="sm"
-                        interactive
-                        key={treatment.id}
-                        type="button"
-                        className={`${styles.pillItem} ${
-                          selectedTreatment?.id === treatment.id ? styles.pillItemActive : ''
-                        }`}
-                        onClick={() => setSelectedTreatmentId(treatment.id)}
-                      >
-                        {treatment.label}
-                      </Button>
+                      <SwiperSlide key={treatment.id} className={styles.optionSlide}>
+                        <button
+                          type="button"
+                          aria-pressed={selectedTreatment?.id === treatment.id}
+                          className={`${styles.optionCard} ${
+                            selectedTreatment?.id === treatment.id ? styles.optionCardActive : ''
+                          }`}
+                          onClick={() => setSelectedTreatmentId(treatment.id)}
+                        >
+                          <SectionSubtitle className={styles.optionCardLabel}>
+                            {treatment.cardTitle || treatment.label}
+                          </SectionSubtitle>
+                          {treatment.cardDescription || treatment.description ? (
+                            <SectionSubtitle className={styles.optionCardBody}>
+                              {treatment.cardDescription || treatment.description}
+                            </SectionSubtitle>
+                          ) : null}
+                        </button>
+                      </SwiperSlide>
                     ))}
-                  </div>
+                  </Swiper>
                 </div>
 
                 <div className={styles.stepActions}>
-                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(2)}>
+                  <button type="button" className={`${styles.backLink} typo-small`} onClick={() => goToStep(2)}>
                     Torna indietro
-                  </Button>
+                  </button>
                   <Button
                     kind="main"
                     size="sm"
@@ -316,7 +434,7 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
                     type="button"
                     className={styles.navButton}
                     disabled={!selectedTreatment}
-                    onClick={() => goToStep(4)}
+                    onClick={handleProceedFromTreatment}
                   >
                     Prosegui
                   </Button>
@@ -334,34 +452,63 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
                     ? `Seleziona un servizio per ${selectedTreatment.label.toLowerCase()}.`
                     : 'Seleziona prima un trattamento.'}
                 </SectionSubtitle>
-                <div className={styles.serviceList}>
+                <Swiper
+                  key={`service-slider-${selectedTreatment?.id || 'none'}`}
+                  className={styles.optionSlider}
+                  nested
+                  slidesPerView={'auto'}
+                  spaceBetween={12}
+                  onSwiper={(swiper) => {
+                    serviceOptionsSwiperRef.current = swiper
+                  }}
+                  onSlideChange={(swiper) => {
+                    const service = servicesForTreatment[swiper.activeIndex]
+                    if (service) setActiveServiceId(service.id)
+                  }}
+                >
                   {servicesForTreatment.length > 0 ? (
                     servicesForTreatment.map((service) => (
-                      <button
-                        key={service.id}
-                        type="button"
-                        className={`${styles.serviceCard} ${
-                          activeService?.id === service.id ? styles.serviceCardActive : ''
-                        }`}
-                        onClick={() => setActiveServiceId(service.id)}
-                      >
-                        <SectionSubtitle className={styles.serviceTitle}>{service.title}</SectionSubtitle>
-                        <p className={`${styles.serviceMeta} typo-small`}>
-                          {service.durationMin > 0 ? `${service.durationMin} min` : 'Durata su richiesta'}
-                          {service.price ? ` · ${formatPrice(service.price)}` : ''}
-                        </p>
-                      </button>
+                      <SwiperSlide key={service.id} className={styles.optionSlide}>
+                        <button
+                          type="button"
+                          aria-pressed={activeService?.id === service.id}
+                          className={`${styles.optionCard} ${
+                            activeService?.id === service.id ? styles.optionCardActive : ''
+                          }`}
+                          onClick={() => setActiveServiceId(service.id)}
+                        >
+                          <SectionSubtitle className={styles.optionCardLabel}>{service.title}</SectionSubtitle>
+                          <p className={`${styles.optionCardMeta} typo-small`}>
+                            {service.durationMin > 0 ? `${service.durationMin} min` : 'Durata su richiesta'}
+                            {service.price ? ` · ${formatPrice(service.price)}` : ''}
+                          </p>
+                          {service.description ? (
+                            <SectionSubtitle className={styles.optionCardBody}>{service.description}</SectionSubtitle>
+                          ) : null}
+                        </button>
+                      </SwiperSlide>
                     ))
                   ) : (
                     <SectionSubtitle className={styles.emptyState}>
                       Nessun servizio disponibile per la selezione corrente.
                     </SectionSubtitle>
                   )}
-                </div>
+                </Swiper>
                 <div className={styles.stepActions}>
-                  <Button kind="main" size="sm" interactive type="button" className={styles.navButton} onClick={() => goToStep(3)}>
+                  <button type="button" className={`${styles.backLink} typo-small`} onClick={() => goToStep(3)}>
                     Torna indietro
-                  </Button>
+                  </button>
+                  {activeService?.slug ? (
+                    <ButtonLink
+                      href={`/${locale}/services/service/${activeService.slug}`}
+                      kind="main"
+                      size="sm"
+                      interactive
+                      className={styles.navButton}
+                    >
+                      Dettagli
+                    </ButtonLink>
+                  ) : null}
                 </div>
               </div>
             </SwiperSlide>
@@ -382,14 +529,11 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
           >
             <SwiperSlide className={styles.mediaSlide}>
               {step0Config?.mediaUrl ? (
-                <Image
+                <div
                   className={styles.mediaImage}
-                  src={step0Config.mediaUrl}
-                  alt={step0Config.mediaAlt || step0Config.heading || 'Inizia il percorso'}
-                  width={1600}
-                  height={1200}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  loading="lazy"
+                  role="img"
+                  aria-label={step0Config.mediaAlt || step0Config.heading || 'Inizia il percorso'}
+                  style={{ backgroundImage: `url(${step0Config.mediaUrl})` }}
                 />
               ) : (
                 <div className={`${styles.mediaPlaceholder} typo-small-upper`}>
@@ -400,16 +544,15 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
 
             <SwiperSlide className={styles.mediaSlide}>
               {activeArea?.imageUrl ? (
-                <Image
-                  key={`${activeArea.id}-media`}
-                  className={styles.mediaImage}
-                  src={activeArea.imageUrl}
-                  alt={activeArea.label}
-                  width={1600}
-                  height={1200}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  loading="lazy"
-                />
+                <div className={styles.summaryPanel}>
+                  <div
+                    key={`${activeArea.id}-media`}
+                    className={styles.mediaImage}
+                    role="img"
+                    aria-label={activeArea.label}
+                    style={{ backgroundImage: `url(${activeArea.imageUrl})` }}
+                  />
+                </div>
               ) : (
                 <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima area</div>
               )}
@@ -417,16 +560,16 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
 
             <SwiperSlide className={styles.mediaSlide}>
               {selectedGoal?.imageUrl ? (
-                <Image
-                  key={`${selectedGoal?.id || 'goal'}-media`}
-                  className={styles.mediaImage}
-                  src={selectedGoal?.imageUrl || ''}
-                  alt={selectedGoal?.label || 'Anteprima obiettivo'}
-                  width={1600}
-                  height={1200}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  loading="lazy"
-                />
+                <div className={styles.summaryPanel}>
+                  <div
+                    key={`${selectedGoal?.id || 'goal'}-media`}
+                    className={styles.mediaImage}
+                    role="img"
+                    aria-label={selectedGoal?.label || 'Anteprima obiettivo'}
+                    style={{ backgroundImage: `url(${selectedGoal?.imageUrl})` }}
+                  />
+                  {renderSummaryRow({ showArea: true })}
+                </div>
               ) : (
                 <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima obiettivo</div>
               )}
@@ -434,16 +577,16 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
 
             <SwiperSlide className={styles.mediaSlide}>
               {selectedTreatment?.imageUrl ? (
-                <Image
-                  key={`${selectedTreatment?.id || 'treatment'}-media`}
-                  className={styles.mediaImage}
-                  src={selectedTreatment?.imageUrl || ''}
-                  alt={selectedTreatment?.label || 'Anteprima trattamento'}
-                  width={1600}
-                  height={1200}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  loading="lazy"
-                />
+                <div className={styles.summaryPanel}>
+                  <div
+                    key={`${selectedTreatment?.id || 'treatment'}-media`}
+                    className={styles.mediaImage}
+                    role="img"
+                    aria-label={selectedTreatment?.label || 'Anteprima trattamento'}
+                    style={{ backgroundImage: `url(${selectedTreatment?.imageUrl})` }}
+                  />
+                  {renderSummaryRow({ showArea: true, showGoal: true })}
+                </div>
               ) : (
                 <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima trattamento</div>
               )}
@@ -451,46 +594,19 @@ export function ServiceBuilderSplitSection({ data, step0Config }: ServiceBuilder
 
             <SwiperSlide className={styles.mediaSlide}>
               <div className={styles.summaryPanel}>
-                <div className={styles.summaryRow}>
-                  {selectedArea?.label ? <span className={`${styles.summaryPill} typo-caption-upper`}>Area: {selectedArea.label}</span> : null}
-                  {selectedGoal?.label ? <span className={`${styles.summaryPill} typo-caption-upper`}>Obiettivo: {selectedGoal.label}</span> : null}
-                  {selectedTreatment?.label ? (
-                    <span className={`${styles.summaryPill} typo-caption-upper`}>Trattamento: {selectedTreatment.label}</span>
-                  ) : null}
-                </div>
+                {renderSummaryRow({ showArea: true, showGoal: true, showTreatment: true })}
 
                 {activeService?.imageUrl ? (
-                  <Image
+                  <div
                     className={styles.serviceImage}
-                    src={activeService.imageUrl}
-                    alt={activeService.title}
-                    width={1280}
-                    height={720}
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    loading="lazy"
+                    role="img"
+                    aria-label={activeService.title}
+                    style={{ backgroundImage: `url(${activeService.imageUrl})` }}
                   />
                 ) : (
                   <div className={`${styles.mediaPlaceholder} typo-small-upper`}>Anteprima servizio</div>
                 )}
 
-                {activeService ? (
-                  <div className={styles.serviceInfo}>
-                    <SectionSubtitle size="body-lg" className={styles.serviceInfoTitle}>
-                      {activeService.title}
-                    </SectionSubtitle>
-                    <p className={`${styles.serviceInfoMeta} typo-small`}>
-                      {activeService.durationMin > 0
-                        ? `${activeService.durationMin} min`
-                        : 'Durata su richiesta'}
-                      {activeService.price ? ` · ${formatPrice(activeService.price)}` : ''}
-                    </p>
-                    {activeService.description ? (
-                      <SectionSubtitle className={styles.serviceInfoDescription}>
-                        {activeService.description}
-                      </SectionSubtitle>
-                    ) : null}
-                  </div>
-                ) : null}
               </div>
             </SwiperSlide>
           </Swiper>
