@@ -153,6 +153,7 @@
 .summaryRecoList {
   display: grid;
   gap: 0.85rem;
+  margin: 0 -1.5rem;
 }
 
 .summaryRecoItem {
