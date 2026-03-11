@@ -445,6 +445,7 @@ export default buildConfig({
         const pageKeys = [
           'home',
           'services',
+          'programs',
           'shop',
           'journal',
           'location',
