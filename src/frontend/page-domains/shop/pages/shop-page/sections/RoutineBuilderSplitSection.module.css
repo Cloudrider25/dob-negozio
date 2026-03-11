@@ -60,7 +60,7 @@
 }
 
 .mediaSwiper :global(.swiper-slide) {
-  background: #000;
+  background: var(--panel);
 }
 
 .mediaSlide {
@@ -305,10 +305,10 @@
 .optionCard {
   width: 100%;
   height: 10rem;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   border-radius: 18px;
   padding: 1rem;
-  background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
+  background: var(--bg);
   text-align: left;
   display: grid;
   gap: 0.5rem;
@@ -318,8 +318,8 @@
 
 .optionCard:hover,
 .optionCardActive {
-  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  border-color: var(--text-primary);
+  background: var(--paper);
 }
 
 .optionCardLabel {
