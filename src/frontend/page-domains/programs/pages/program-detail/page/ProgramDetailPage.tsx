@@ -205,10 +205,7 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
               subtitle: step.stepSubtitle || fallbackSubtitle,
               badge: step.stepBadge || null,
               rawPrice: service?.price ?? product?.price ?? null,
-              price: formatPrice(
-                service?.price ?? product?.price ?? null,
-                program.currency || 'EUR',
-              ),
+              price: formatPrice(service?.price ?? product?.price ?? null, 'EUR'),
               detailHref,
               heroMedia,
               detailMedia,
@@ -221,13 +218,12 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
     if (typeof step.rawPrice !== 'number' || Number.isNaN(step.rawPrice)) return sum
     return sum + step.rawPrice
   }, 0)
-  const stepsTotalPrice =
-    stepsTotalRaw > 0 ? formatPrice(stepsTotalRaw, program.currency || 'EUR') : undefined
+  const stepsTotalPrice = stepsTotalRaw > 0 ? formatPrice(stepsTotalRaw, 'EUR') : undefined
 
   const programData = {
     title: program.title || undefined,
     description: program.description || undefined,
-    price: formatProgramPrice(program.price, program.currency) || undefined,
+    price: formatProgramPrice(program.price, 'EUR') || undefined,
     slug: program.slug || undefined,
     heroMedia: await resolveMediaValue(program.heroMedia, program.title || t.hero.title),
     steps,

@@ -989,12 +989,34 @@ export interface Zone {
  */
 export interface Program {
   id: number;
-  title: string;
   slug?: string | null;
-  price?: number | null;
-  currency?: ('EUR' | 'USD') | null;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
+  active?: boolean | null;
+  title: string;
   description?: string | null;
   heroMedia?: (number | null) | Media;
+  /**
+   * Calcolato automaticamente dagli step del programma al salvataggio.
+   */
+  basePrice?: number | null;
+  discountType?: ('percent' | 'amount') | null;
+  discountValue?: number | null;
+  /**
+   * Calcolato automaticamente da somma elementi meno sconto al salvataggio.
+   */
+  price?: number | null;
   steps?:
     | {
         stepType: 'manual' | 'service' | 'product';
@@ -1014,19 +1036,6 @@ export interface Program {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Impostazioni SEO specifiche per questa pagina.
-   */
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Path relativo senza locale. Esempio: /services/service/laser-viso
-     */
-    canonicalPath?: string | null;
-    noIndex?: boolean | null;
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1445,6 +1454,7 @@ export interface Page {
   pageKey:
     | 'home'
     | 'services'
+    | 'programs'
     | 'shop'
     | 'journal'
     | 'location'
@@ -2354,12 +2364,24 @@ export interface ServicesSelect<T extends boolean = true> {
  * via the `definition` "programs_select".
  */
 export interface ProgramsSelect<T extends boolean = true> {
-  title?: T;
   slug?: T;
-  price?: T;
-  currency?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
+  active?: T;
+  title?: T;
   description?: T;
   heroMedia?: T;
+  basePrice?: T;
+  discountType?: T;
+  discountValue?: T;
+  price?: T;
   steps?:
     | T
     | {
@@ -2372,15 +2394,6 @@ export interface ProgramsSelect<T extends boolean = true> {
         stepSubtitle?: T;
         stepBadge?: T;
         id?: T;
-      };
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        canonicalPath?: T;
-        noIndex?: T;
-        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;

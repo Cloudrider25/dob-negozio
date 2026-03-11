@@ -301,7 +301,7 @@ export default async function HomePage({
     ? {
         title: programDoc.title || undefined,
         description: programDoc.description || undefined,
-        price: formatProgramPrice(locale, programDoc.price, programDoc.currency) || undefined,
+        price: formatProgramPrice(locale, programDoc.price, 'EUR') || undefined,
         slug: programDoc.slug || undefined,
         heroMedia: await resolveMediaValue(payload, programDoc.heroMedia, programDoc.title || ''),
         steps: programSteps,

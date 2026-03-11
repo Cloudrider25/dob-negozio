@@ -23,6 +23,9 @@ export const HeaderNavigation = ({ locale, t }: HeaderNavigationProps) => {
         <Link href={`/${locale}/our-story`} className={cn(styles.desktopNavLink, 'typo-small-upper')}>
           About
         </Link>
+        <Link href={`/${locale}/programs`} className={cn(styles.desktopNavLink, 'typo-small-upper')}>
+          {t.nav.programs}
+        </Link>
         <Link href={`/${locale}/services`} className={cn(styles.desktopNavLink, 'typo-small-upper')}>
           {t.nav.services}
         </Link>

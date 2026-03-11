@@ -145,14 +145,17 @@ export const HeaderMenuOverlay = ({
             <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={accountHref} {...closeMenuLinkProps}>
               {accountHref.includes('/signin') ? 'Sign in' : 'Account'}
             </MenuLink>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/our-story`} {...closeMenuLinkProps}>
+              About
+            </MenuLink>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/programs`} {...closeMenuLinkProps}>
+              {t.nav.programs}
+            </MenuLink>
             <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/services`} {...closeMenuLinkProps}>
               {t.nav.services}
             </MenuLink>
             <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/shop`} {...closeMenuLinkProps}>
               {t.nav.shop}
-            </MenuLink>
-            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/our-story`} {...closeMenuLinkProps}>
-              About
             </MenuLink>
             <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/dob-protocol`} {...closeMenuLinkProps}>
               {t.nav.protocol}

@@ -88,11 +88,14 @@ export const Footer = ({
             <Link href={`/${locale}/our-story`} className={`${styles.columnLink} typo-small`}>
               About
             </Link>
-            <Link href={`/${locale}/dob-protocol`} className={`${styles.columnLink} typo-small`}>
-              DOB Protocol
+            <Link href={`/${locale}/programs`} className={`${styles.columnLink} typo-small`}>
+              Programs
             </Link>
             <Link href={`/${locale}/services`} className={`${styles.columnLink} typo-small`}>
               Services
+            </Link>
+            <Link href={`/${locale}/dob-protocol`} className={`${styles.columnLink} typo-small`}>
+              DOB Protocol
             </Link>
             <Link href={`/${locale}/journal`} className={`${styles.columnLink} typo-small`}>
               Journal
