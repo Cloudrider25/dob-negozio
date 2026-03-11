@@ -31,6 +31,7 @@ export type ProductCard = {
   title: string
   description?: string
   slug?: string
+  format?: string
   price?: number
   currency?: string
   brand?: string
