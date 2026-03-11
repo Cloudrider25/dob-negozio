@@ -5,10 +5,10 @@
 }
 
 .panel {
-  min-height: 46vh;
-  height: 46vh;
+  min-height: 48vh;
+  height: 48vh;
   border-radius: 22px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 68%, transparent);
+  border: 1px solid var(--stroke);
   background: var(--bg);
   overflow: hidden;
 }
@@ -118,10 +118,10 @@
 .optionCard {
   width: 100%;
   min-height: 12rem;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   border-radius: 18px;
   padding: 1rem;
-  background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
+  background: var(--bg);
   text-align: left;
   display: grid;
   gap: 0.5rem;
@@ -131,8 +131,8 @@
 
 .optionCard:hover,
 .optionCardActive {
-  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  border-color: var(--text-primary);
+  background: var(--paper);
 }
 
 .optionCardLabel {
@@ -212,7 +212,7 @@
 }
 
 .summaryPill {
-  border: 1px solid color-mix(in srgb, var(--stroke) 66%, transparent);
+  border: 1px solid var(--stroke);
   border-radius: 999px;
   padding: 0.32rem 0.7rem;
 }
@@ -231,7 +231,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed color-mix(in srgb, var(--stroke) 55%, transparent);
+  border: 1px dashed var(--stroke);
   border-radius: 14px;
 }
 
