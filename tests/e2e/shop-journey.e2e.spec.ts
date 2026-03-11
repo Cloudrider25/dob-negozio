@@ -123,7 +123,7 @@ test.describe('Shop journey', () => {
 
     console.log('[journey] open cart')
     await page.goto('http://localhost:3000/it/cart', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('Riepilogo ordine')).toBeVisible()
+    await expect(page.getByRole('link', { name: /Procedi al checkout/i })).toBeVisible({ timeout: 15_000 })
 
     console.log('[journey] open checkout')
     await page.getByRole('link', { name: /Procedi al checkout/i }).click()

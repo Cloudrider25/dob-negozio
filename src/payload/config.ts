@@ -1,10 +1,12 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { attachDatabasePool } from '@vercel/functions'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import pgDependency from 'pg'
 
 import { Users } from './collections/Users'
 import { AuthAuditEvents } from './collections/AuthAuditEvents'
@@ -63,9 +65,21 @@ const isPlaceholderToken = (value: string): boolean => {
   return normalized === 'host' || normalized === 'user' || normalized === 'password' || normalized === 'database'
 }
 
+const normalizeEnvValue = (value: string | undefined): string => {
+  const trimmed = value?.trim() ?? ''
+
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim()
+  }
+
+  return trimmed
+}
+
 const isUsableDatabaseUrl = (value: string | undefined): value is string => {
-  if (!value) return false
-  const trimmed = value.trim()
+  const trimmed = normalizeEnvValue(value)
   if (!trimmed) return false
 
   try {
@@ -89,7 +103,7 @@ const pickDatabaseUrl = (
 ): { name: string; value: string } | null => {
   for (const candidate of candidates) {
     if (isUsableDatabaseUrl(candidate.value)) {
-      return { name: candidate.name, value: candidate.value.trim() }
+      return { name: candidate.name, value: normalizeEnvValue(candidate.value) }
     }
   }
 
@@ -137,6 +151,22 @@ const pickLocalDatabaseUrl = (
 
 type DatabaseTargetEnv = 'local' | 'staging' | 'production'
 
+const createRuntimePgDependency = () => {
+  if (process.env.VERCEL !== '1') return pgDependency
+
+  class VercelManagedPool extends pgDependency.Pool {
+    constructor(config?: ConstructorParameters<typeof pgDependency.Pool>[0]) {
+      super(config)
+      attachDatabasePool(this)
+    }
+  }
+
+  return {
+    ...pgDependency,
+    Pool: VercelManagedPool,
+  }
+}
+
 const blobReadWriteToken =
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
@@ -150,6 +180,7 @@ const enableBlobPlugin = hasValidBlobToken
 const appEnv = process.env.APP_ENV?.trim().toLowerCase()
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
 const isVercelPreview = process.env.VERCEL_ENV === 'preview'
+const isVercelRuntime = process.env.VERCEL === '1'
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isCI = process.env.CI === 'true'
 const databaseTargetEnv: DatabaseTargetEnv =
@@ -176,11 +207,13 @@ const databaseUrlCandidate =
       ? pickDatabaseUrl([
           { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
           { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
+          { name: 'PRODUCTION_DATABASE_URL', value: process.env.PRODUCTION_DATABASE_URL },
           { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
         ])
       : pickDatabaseUrl([
           { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
           { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+          { name: 'STAGING_DATABASE_URL', value: process.env.STAGING_DATABASE_URL },
           { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
         ])
 
@@ -196,13 +229,13 @@ if (databaseTargetEnv === 'local' && !databaseUrlCandidate) {
 
 if (databaseTargetEnv === 'staging' && !databaseUrlCandidate) {
   throw new Error(
-    'Staging execution requires STG_POSTGRES_URL, STG_DATABASE_URL, or STG_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
+    'Staging execution requires STG_POSTGRES_URL, STG_DATABASE_URL, STAGING_DATABASE_URL, or STG_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
   )
 }
 
 if (databaseTargetEnv === 'production' && !databaseUrlCandidate) {
   throw new Error(
-    'Production execution requires PROD_POSTGRES_URL, PROD_DATABASE_URL, or PROD_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
+    'Production execution requires PROD_POSTGRES_URL, PROD_DATABASE_URL, PRODUCTION_DATABASE_URL, or PROD_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
   )
 }
 
@@ -215,10 +248,15 @@ if (databaseTargetEnv !== 'local' && isLocalDatabaseHost(databaseUrl)) {
 const enableSchemaPush =
   process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true' ||
   (isDevelopment && isLocalDatabaseHost(databaseUrl))
+const runtimePgDependency = createRuntimePgDependency()
 const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
-const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
+const dbPoolMinInput = Number(
+  process.env.PAYLOAD_DB_POOL_MIN || (isVercelRuntime && databaseTargetEnv !== 'local' ? '1' : '0'),
+)
 const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
-const dbPoolIdleTimeoutInput = Number(process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || '30000')
+const dbPoolIdleTimeoutInput = Number(
+  process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || (isVercelRuntime && databaseTargetEnv !== 'local' ? '5000' : '30000'),
+)
 const dbPoolMax = Number.isFinite(dbPoolMaxInput) && dbPoolMaxInput > 0 ? Math.floor(dbPoolMaxInput) : 4
 const dbPoolMin = Number.isFinite(dbPoolMinInput) && dbPoolMinInput >= 0 ? Math.floor(dbPoolMinInput) : 0
 const dbPoolConnectTimeout =
@@ -313,6 +351,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'generated/payload-types.ts'),
   },
   db: postgresAdapter({
+    pg: runtimePgDependency,
     pool: {
       connectionString: databaseUrl,
       // Tunable pool sizing: previous hard-coded max=2 caused admin lock/save timeouts under load.

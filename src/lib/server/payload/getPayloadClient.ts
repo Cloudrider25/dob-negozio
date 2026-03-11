@@ -2,8 +2,8 @@ import { getPayload, type Payload } from 'payload'
 
 import configPromise from '@/payload/config'
 
-const MAX_RETRIES = 3
-const BASE_RETRY_DELAY_MS = 300
+const MAX_RETRIES = 6
+const BASE_RETRY_DELAY_MS = 500
 
 let payloadClientPromise: Promise<Payload> | null = null
 
@@ -19,7 +19,7 @@ const createPayloadClient = async () => {
     } catch (error) {
       lastError = toError(error)
       if (attempt < MAX_RETRIES) {
-        await wait(BASE_RETRY_DELAY_MS * attempt)
+        await wait(BASE_RETRY_DELAY_MS * 2 ** (attempt - 1))
       }
     }
   }
