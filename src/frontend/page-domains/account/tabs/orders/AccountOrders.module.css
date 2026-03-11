@@ -55,7 +55,7 @@
   overflow: hidden;
   border: 1px solid var(--stroke);
   border-right: 1px solid var(--stroke);
-  background: color-mix(in srgb, var(--paper) 78%, var(--bg) 22%);
+  background: var(--paper);
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -118,12 +118,12 @@
 }
 
 .packageGroupRow {
-  background: color-mix(in srgb, var(--bg) 92%, var(--text-secondary) 8%);
+  background: var(--paper);
   cursor: pointer;
 }
 
 .packageSessionRow {
-  background: color-mix(in srgb, var(--bg) 96%, var(--text-secondary) 4%);
+  background: var(--bg);
   cursor: pointer;
 }
 
