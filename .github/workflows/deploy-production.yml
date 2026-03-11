@@ -9,6 +9,9 @@ on:
       - prod
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   verify:
     name: Verify Production Build
@@ -20,16 +23,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: pnpm
-
-      - name: Enable Corepack pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.28.0 --activate
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -82,16 +85,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Enable Corepack pnpm
+      - name: Check Vercel token
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          corepack enable
-          corepack prepare pnpm@10.28.0 --activate
+          if [[ -z "${VERCEL_TOKEN}" ]]; then
+            echo "::error::Missing secret VERCEL_TOKEN for production deploy."
+            exit 1
+          fi
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
