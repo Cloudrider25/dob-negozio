@@ -295,7 +295,7 @@ export function RoutineBuilderSplitSection({
       map.set(step.id, items)
     }
     return map
-  }, [activeNeed?.id, activeSkinType?.id, activeTiming?.id, customSteps, selectedArea?.id, shopAllProducts])
+  }, [activeNeed?.id, activeSkinType, activeTiming?.id, customSteps, selectedArea?.id, shopAllProducts])
 
   const presetSteps = useMemo(() => {
     if (!selectedTemplate) return []
