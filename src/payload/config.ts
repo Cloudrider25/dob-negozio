@@ -65,9 +65,21 @@ const isPlaceholderToken = (value: string): boolean => {
   return normalized === 'host' || normalized === 'user' || normalized === 'password' || normalized === 'database'
 }
 
+const normalizeEnvValue = (value: string | undefined): string => {
+  const trimmed = value?.trim() ?? ''
+
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim()
+  }
+
+  return trimmed
+}
+
 const isUsableDatabaseUrl = (value: string | undefined): value is string => {
-  if (!value) return false
-  const trimmed = value.trim()
+  const trimmed = normalizeEnvValue(value)
   if (!trimmed) return false
 
   try {
@@ -91,7 +103,7 @@ const pickDatabaseUrl = (
 ): { name: string; value: string } | null => {
   for (const candidate of candidates) {
     if (isUsableDatabaseUrl(candidate.value)) {
-      return { name: candidate.name, value: candidate.value.trim() }
+      return { name: candidate.name, value: normalizeEnvValue(candidate.value) }
     }
   }
 
