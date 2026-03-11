@@ -50,13 +50,23 @@ jobs:
             echo "::error::Missing .vercel/.env.production.local after vercel pull."
             exit 1
           fi
-          grep -v '^[#[:space:]]' .vercel/.env.production.local >> "${GITHUB_ENV}"
-          db_line="$(grep -E '^(PROD_POSTGRES_URL|PROD_DATABASE_URL|PRODUCTION_DATABASE_URL|DATABASE_URL|POSTGRES_URL)=' .vercel/.env.production.local | awk -F= 'NF > 1 && $2 != \"\" { print; exit }' || true)"
-          if [[ -z "${db_line}" ]]; then
-            echo "::error::Production environment does not expose any production database URL."
-            exit 1
-          fi
-          echo "PROD_POSTGRES_URL=${db_line#*=}" >> "${GITHUB_ENV}"
+          ENV_FILE=".vercel/.env.production.local" DB_KEY="PROD_POSTGRES_URL" GITHUB_ENV="${GITHUB_ENV}" node --input-type=module <<'EOF'
+          import fs from 'node:fs'
+          import dotenv from 'dotenv'
+
+          const parsed = dotenv.parse(fs.readFileSync(process.env.ENV_FILE))
+          const candidates = ['PROD_POSTGRES_URL', 'PROD_DATABASE_URL', 'PRODUCTION_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
+          const lines = Object.entries(parsed).map(([key, value]) => `${key}=${value}`)
+          const selected = candidates.map((key) => parsed[key]?.trim()).find(Boolean)
+
+          if (!selected) {
+            console.error('::error::Production environment does not expose any production database URL.')
+            process.exit(1)
+          }
+
+          lines.push(`PROD_POSTGRES_URL=${selected}`)
+          fs.appendFileSync(process.env.GITHUB_ENV, `${lines.join('\n')}\n`)
+          EOF
 
       - name: Lint
         run: pnpm lint

@@ -57,11 +57,9 @@ jobs:
         run: |
           if [[ "${VERCEL_PULL_ENV}" == "production" ]]; then
             env_file=".vercel/.env.production.local"
-            db_pattern='^(PROD_POSTGRES_URL|PROD_DATABASE_URL|PRODUCTION_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="PROD_POSTGRES_URL"
           else
             env_file=".vercel/.env.preview.local"
-            db_pattern='^(STG_POSTGRES_URL|STG_DATABASE_URL|STAGING_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="STG_POSTGRES_URL"
           fi
 
@@ -70,13 +68,31 @@ jobs:
             exit 1
           fi
 
-          grep -v '^[#[:space:]]' "${env_file}" >> "${GITHUB_ENV}"
-          db_line="$(grep -E "${db_pattern}" "${env_file}" | awk -F= 'NF > 1 && $2 != \"\" { print; exit }' || true)"
-          if [[ -z "${db_line}" ]]; then
-            echo "::error::Pulled Vercel environment does not expose a compatible database URL."
-            exit 1
-          fi
-          echo "${db_key}=${db_line#*=}" >> "${GITHUB_ENV}"
+          ENV_FILE="${env_file}" DB_KEY="${db_key}" GITHUB_ENV="${GITHUB_ENV}" node --input-type=module <<'EOF'
+          import fs from 'node:fs'
+          import dotenv from 'dotenv'
+
+          const envFile = process.env.ENV_FILE
+          const dbKey = process.env.DB_KEY
+          const githubEnv = process.env.GITHUB_ENV
+
+          const parsed = dotenv.parse(fs.readFileSync(envFile))
+          const candidates =
+            dbKey === 'PROD_POSTGRES_URL'
+              ? ['PROD_POSTGRES_URL', 'PROD_DATABASE_URL', 'PRODUCTION_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
+              : ['STG_POSTGRES_URL', 'STG_DATABASE_URL', 'STAGING_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
+
+          const lines = Object.entries(parsed).map(([key, value]) => `${key}=${value}`)
+          const selected = candidates.map((key) => parsed[key]?.trim()).find(Boolean)
+
+          if (!selected) {
+            console.error('::error::Pulled Vercel environment does not expose a compatible database URL.')
+            process.exit(1)
+          }
+
+          lines.push(`${dbKey}=${selected}`)
+          fs.appendFileSync(githubEnv, `${lines.join('\n')}\n`)
+          EOF
 
       - name: Lint
         run: pnpm lint
@@ -154,11 +170,9 @@ jobs:
         run: |
           if [[ "${VERCEL_PULL_ENV}" == "production" ]]; then
             env_file=".vercel/.env.production.local"
-            db_pattern='^(PROD_POSTGRES_URL|PROD_DATABASE_URL|PRODUCTION_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="PROD_POSTGRES_URL"
           else
             env_file=".vercel/.env.preview.local"
-            db_pattern='^(STG_POSTGRES_URL|STG_DATABASE_URL|STAGING_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="STG_POSTGRES_URL"
           fi
 
@@ -167,13 +181,31 @@ jobs:
             exit 1
           fi
 
-          grep -v '^[#[:space:]]' "${env_file}" >> "${GITHUB_ENV}"
-          db_line="$(grep -E "${db_pattern}" "${env_file}" | awk -F= 'NF > 1 && $2 != \"\" { print; exit }' || true)"
-          if [[ -z "${db_line}" ]]; then
-            echo "::error::Pulled Vercel environment does not expose a compatible database URL."
-            exit 1
-          fi
-          echo "${db_key}=${db_line#*=}" >> "${GITHUB_ENV}"
+          ENV_FILE="${env_file}" DB_KEY="${db_key}" GITHUB_ENV="${GITHUB_ENV}" node --input-type=module <<'EOF'
+          import fs from 'node:fs'
+          import dotenv from 'dotenv'
+
+          const envFile = process.env.ENV_FILE
+          const dbKey = process.env.DB_KEY
+          const githubEnv = process.env.GITHUB_ENV
+
+          const parsed = dotenv.parse(fs.readFileSync(envFile))
+          const candidates =
+            dbKey === 'PROD_POSTGRES_URL'
+              ? ['PROD_POSTGRES_URL', 'PROD_DATABASE_URL', 'PRODUCTION_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
+              : ['STG_POSTGRES_URL', 'STG_DATABASE_URL', 'STAGING_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
+
+          const lines = Object.entries(parsed).map(([key, value]) => `${key}=${value}`)
+          const selected = candidates.map((key) => parsed[key]?.trim()).find(Boolean)
+
+          if (!selected) {
+            console.error('::error::Pulled Vercel environment does not expose a compatible database URL.')
+            process.exit(1)
+          }
+
+          lines.push(`${dbKey}=${selected}`)
+          fs.appendFileSync(githubEnv, `${lines.join('\n')}\n`)
+          EOF
 
       - name: Check required secrets
         id: secrets-check
