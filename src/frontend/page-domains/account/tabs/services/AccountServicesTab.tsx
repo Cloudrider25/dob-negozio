@@ -95,7 +95,11 @@ export default function AccountServicesTab({
                   <div className={servicesStyles.accountSummaryServiceMeta}>
                     <p className={`${styles.orderNumber} typo-body-lg`}>{row.serviceTitle}</p>
                     <p className={`${styles.orderMeta} typo-caption`}>
-                      {row.itemKind === 'package' ? row.sessionLabel : 'Servizio singolo'}
+                      {row.itemKind === 'package'
+                        ? row.sessionLabel
+                        : row.itemKind === 'program'
+                          ? 'Programma'
+                          : 'Servizio singolo'}
                     </p>
                   </div>
                   <div className={servicesStyles.accountSummaryServicePillWrap}>

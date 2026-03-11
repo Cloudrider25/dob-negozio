@@ -7,7 +7,7 @@ export const RoutineStepRules: CollectionConfig = {
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['routineStep', 'ruleType', 'timing', 'objective', 'skinType'],
-    group: 'Routine Engine',
+    group: 'Sistema',
   },
   access: {
     read: () => true,

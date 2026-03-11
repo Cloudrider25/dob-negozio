@@ -6,6 +6,7 @@ import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n/core'
 import { SplitSection } from '@/frontend/components/ui/compositions/SplitSection'
 import { ButtonLink } from '@/frontend/components/ui/primitives/button-link'
+import { ProgramPurchaseButton } from '@/frontend/page-domains/programs/pages/program-detail/sections/ProgramPurchaseButton'
 import styles from '@/frontend/page-domains/programs/pages/program-detail/page/ProgramDetailPage.module.css'
 
 type PageParams = Promise<{ locale: string; slug: string }>
@@ -205,10 +206,7 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
               subtitle: step.stepSubtitle || fallbackSubtitle,
               badge: step.stepBadge || null,
               rawPrice: service?.price ?? product?.price ?? null,
-              price: formatPrice(
-                service?.price ?? product?.price ?? null,
-                program.currency || 'EUR',
-              ),
+              price: formatPrice(service?.price ?? product?.price ?? null, 'EUR'),
               detailHref,
               heroMedia,
               detailMedia,
@@ -221,13 +219,14 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
     if (typeof step.rawPrice !== 'number' || Number.isNaN(step.rawPrice)) return sum
     return sum + step.rawPrice
   }, 0)
-  const stepsTotalPrice =
-    stepsTotalRaw > 0 ? formatPrice(stepsTotalRaw, program.currency || 'EUR') : undefined
+  const stepsTotalPrice = stepsTotalRaw > 0 ? formatPrice(stepsTotalRaw, 'EUR') : undefined
 
   const programData = {
+    id: String(program.id),
     title: program.title || undefined,
     description: program.description || undefined,
-    price: formatProgramPrice(program.price, program.currency) || undefined,
+    rawPrice: typeof program.price === 'number' ? program.price : undefined,
+    price: formatProgramPrice(program.price, 'EUR') || undefined,
     slug: program.slug || undefined,
     heroMedia: await resolveMediaValue(program.heroMedia, program.title || t.hero.title),
     steps,
@@ -235,8 +234,6 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
   }
 
   const programHref = programData.slug ? `/${locale}/programs/${programData.slug}` : null
-  const bookingHref = `/${locale}/services?view=consulenza`
-
   return (
     <div className={`frontend-page ${styles.page}`}>
       <section className={styles.hero}>
@@ -257,14 +254,17 @@ export default async function ProgramDetailPage({ params }: { params: PageParams
                 <span className={styles.heroPriceDeposit}>
                   {copy.programFullPrice} {programData.price}
                 </span>
-                <ButtonLink
+                <ProgramPurchaseButton
                   className={`${styles.heroPriceBookingCta} typo-caption-upper`}
-                  href={bookingHref}
-                  kind="main"
-                  size="sm"
-                >
-                  {copy.book} {programData.title}
-                </ButtonLink>
+                  program={{
+                    id: programData.id,
+                    title: programData.title || copy.book,
+                    slug: programData.slug,
+                    price: programData.rawPrice,
+                    coverImage: programData.heroMedia?.url || null,
+                  }}
+                  buttonLabel={`${copy.book} ${programData.title || ''}`.trim()}
+                />
               </span>
             ) : null}
           </p>

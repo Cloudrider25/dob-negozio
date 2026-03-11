@@ -11,7 +11,7 @@ type Row = {
   orderNumber: string
   createdAt: string
   serviceTitle: string
-  itemKind: 'service' | 'package'
+  itemKind: 'service' | 'package' | 'program'
   variantLabel: string
   quantity: number
   lineTotal: number | null
@@ -77,7 +77,12 @@ export default function AnagServicesPurchasesList() {
             orderNumber: asString(order?.orderNumber) || `#${asId(doc.order)}`,
             createdAt: asString(order?.createdAt),
             serviceTitle: asString(doc.serviceTitle) || 'Servizio',
-            itemKind: asString(doc.itemKind) === 'package' ? 'package' : 'service',
+            itemKind:
+              asString(doc.itemKind) === 'package'
+                ? 'package'
+                : asString(doc.itemKind) === 'program'
+                  ? 'program'
+                  : 'service',
             variantLabel: asString(doc.variantLabel),
             quantity: asNumber(doc.quantity) ?? 1,
             lineTotal: asNumber(doc.lineTotal),
@@ -139,7 +144,11 @@ export default function AnagServicesPurchasesList() {
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 600, color: 'var(--theme-text)' }}>{row.serviceTitle}</div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--theme-elevation-650)' }}>
-                  {row.itemKind === 'package' ? 'Pacchetto' : 'Servizio'}
+                  {row.itemKind === 'package'
+                    ? 'Pacchetto'
+                    : row.itemKind === 'program'
+                      ? 'Programma'
+                      : 'Servizio'}
                   {row.variantLabel ? ` · ${row.variantLabel}` : ''}
                   {` · ${row.orderNumber}`}
                   {row.createdAt ? ` · ${new Date(row.createdAt).toLocaleDateString('it-IT')}` : ''}
@@ -159,4 +168,3 @@ export default function AnagServicesPurchasesList() {
     </div>
   )
 }
-

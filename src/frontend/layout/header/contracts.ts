@@ -11,6 +11,7 @@ export type HeaderTranslations = {
   brand: string
   nav: {
     story: string
+    programs: string
     protocol: string
     journal: string
     location: string

@@ -208,13 +208,17 @@
   gap: 0.45rem;
   padding: 0.75rem;
   border-radius: 16px;
-  background: var(--panel);
+  border: 1px solid var(--stroke);
+  background: var(--paper);
+  color: var(--text-primary);
 }
 
 .summaryPill {
   border: 1px solid var(--stroke);
   border-radius: 999px;
   padding: 0.32rem 0.7rem;
+  background: var(--bg);
+  color: inherit;
 }
 
 .serviceImage {

@@ -46,6 +46,7 @@ export const Pages: CollectionConfig = {
       options: [
         { label: 'Home', value: 'home' },
         { label: 'Services', value: 'services' },
+        { label: 'Programs', value: 'programs' },
         { label: 'Shop', value: 'shop' },
         { label: 'Journal', value: 'journal' },
         { label: 'Location', value: 'location' },
@@ -74,7 +75,8 @@ export const Pages: CollectionConfig = {
               data?.pageKey === 'home' ||
               data?.pageKey === 'our-story' ||
               data?.pageKey === 'shop' ||
-              data?.pageKey === 'services',
+              data?.pageKey === 'services' ||
+              data?.pageKey === 'programs',
           },
           fields: [...heroFields],
         },

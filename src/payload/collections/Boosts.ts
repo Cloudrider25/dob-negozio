@@ -7,7 +7,7 @@ export const Boosts: CollectionConfig = {
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['score', 'objective', 'skinType', 'timing', 'routineStep', 'product'],
-    group: 'Routine Engine',
+    group: 'Sistema',
   },
   access: {
     read: () => true,

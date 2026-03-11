@@ -301,7 +301,7 @@ export default async function ServiceDetailPage({ params }: { params: ServiceDet
           typeof relatedProgram.price === 'number' && !Number.isNaN(relatedProgram.price)
             ? new Intl.NumberFormat(locale, {
                 style: 'currency',
-                currency: relatedProgram.currency || 'EUR',
+                currency: 'EUR',
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               }).format(relatedProgram.price)
