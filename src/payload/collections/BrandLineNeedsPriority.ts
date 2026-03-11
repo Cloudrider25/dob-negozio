@@ -7,7 +7,7 @@ export const BrandLineNeedsPriority: CollectionConfig = {
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['brandLine', 'need', 'score'],
-    group: 'Routine Engine',
+    group: 'Sistema',
   },
   access: {
     read: () => true,

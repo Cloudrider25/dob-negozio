@@ -72,16 +72,18 @@ export interface Config {
     'consultation-leads': ConsultationLead;
     orders: Order;
     'order-service-sessions': OrderServiceSession;
-    'service-decks': ServiceDeck;
     services: Service;
+    programs: Program;
+    'service-decks': ServiceDeck;
     treatments: Treatment;
-    areas: Area;
     objectives: Objective;
     intents: Intent;
-    zones: Zone;
     'service-modalities': ServiceModality;
-    programs: Program;
+    zones: Zone;
+    areas: Area;
     products: Product;
+    promotions: Promotion;
+    'promo-codes': PromoCode;
     brands: Brand;
     'brand-lines': BrandLine;
     badges: Badge;
@@ -91,24 +93,22 @@ export interface Config {
     'skin-types': SkinType;
     'product-areas': ProductArea;
     'timing-products': TimingProduct;
-    promotions: Promotion;
-    'promo-codes': PromoCode;
     'routine-templates': RoutineTemplate;
     'routine-template-steps': RoutineTemplateStep;
-    'routine-template-step-products': RoutineTemplateStepProduct;
-    'routine-steps': RoutineStep;
-    'routine-step-rules': RoutineStepRule;
-    'brand-line-needs-priority': BrandLineNeedsPriority;
-    boosts: Boost;
     exclusions: Exclusion;
     pages: Page;
     posts: Post;
     media: Media;
     users: User;
+    'shop-inventory-locks': ShopInventoryLock;
+    'routine-template-step-products': RoutineTemplateStepProduct;
+    'routine-steps': RoutineStep;
+    'routine-step-rules': RoutineStepRule;
+    'brand-line-needs-priority': BrandLineNeedsPriority;
+    boosts: Boost;
     'order-items': OrderItem;
     'order-service-items': OrderServiceItem;
     'shop-webhook-events': ShopWebhookEvent;
-    'shop-inventory-locks': ShopInventoryLock;
     'auth-audit-events': AuthAuditEvent;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -122,16 +122,18 @@ export interface Config {
     'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-service-sessions': OrderServiceSessionsSelect<false> | OrderServiceSessionsSelect<true>;
-    'service-decks': ServiceDecksSelect<false> | ServiceDecksSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    programs: ProgramsSelect<false> | ProgramsSelect<true>;
+    'service-decks': ServiceDecksSelect<false> | ServiceDecksSelect<true>;
     treatments: TreatmentsSelect<false> | TreatmentsSelect<true>;
-    areas: AreasSelect<false> | AreasSelect<true>;
     objectives: ObjectivesSelect<false> | ObjectivesSelect<true>;
     intents: IntentsSelect<false> | IntentsSelect<true>;
-    zones: ZonesSelect<false> | ZonesSelect<true>;
     'service-modalities': ServiceModalitiesSelect<false> | ServiceModalitiesSelect<true>;
-    programs: ProgramsSelect<false> | ProgramsSelect<true>;
+    zones: ZonesSelect<false> | ZonesSelect<true>;
+    areas: AreasSelect<false> | AreasSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    promotions: PromotionsSelect<false> | PromotionsSelect<true>;
+    'promo-codes': PromoCodesSelect<false> | PromoCodesSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
     'brand-lines': BrandLinesSelect<false> | BrandLinesSelect<true>;
     badges: BadgesSelect<false> | BadgesSelect<true>;
@@ -141,24 +143,22 @@ export interface Config {
     'skin-types': SkinTypesSelect<false> | SkinTypesSelect<true>;
     'product-areas': ProductAreasSelect<false> | ProductAreasSelect<true>;
     'timing-products': TimingProductsSelect<false> | TimingProductsSelect<true>;
-    promotions: PromotionsSelect<false> | PromotionsSelect<true>;
-    'promo-codes': PromoCodesSelect<false> | PromoCodesSelect<true>;
     'routine-templates': RoutineTemplatesSelect<false> | RoutineTemplatesSelect<true>;
     'routine-template-steps': RoutineTemplateStepsSelect<false> | RoutineTemplateStepsSelect<true>;
-    'routine-template-step-products': RoutineTemplateStepProductsSelect<false> | RoutineTemplateStepProductsSelect<true>;
-    'routine-steps': RoutineStepsSelect<false> | RoutineStepsSelect<true>;
-    'routine-step-rules': RoutineStepRulesSelect<false> | RoutineStepRulesSelect<true>;
-    'brand-line-needs-priority': BrandLineNeedsPrioritySelect<false> | BrandLineNeedsPrioritySelect<true>;
-    boosts: BoostsSelect<false> | BoostsSelect<true>;
     exclusions: ExclusionsSelect<false> | ExclusionsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
+    'routine-template-step-products': RoutineTemplateStepProductsSelect<false> | RoutineTemplateStepProductsSelect<true>;
+    'routine-steps': RoutineStepsSelect<false> | RoutineStepsSelect<true>;
+    'routine-step-rules': RoutineStepRulesSelect<false> | RoutineStepRulesSelect<true>;
+    'brand-line-needs-priority': BrandLineNeedsPrioritySelect<false> | BrandLineNeedsPrioritySelect<true>;
+    boosts: BoostsSelect<false> | BoostsSelect<true>;
     'order-items': OrderItemsSelect<false> | OrderItemsSelect<true>;
     'order-service-items': OrderServiceItemsSelect<false> | OrderServiceItemsSelect<true>;
     'shop-webhook-events': ShopWebhookEventsSelect<false> | ShopWebhookEventsSelect<true>;
-    'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
     'auth-audit-events': AuthAuditEventsSelect<false> | AuthAuditEventsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -1137,6 +1137,7 @@ export interface Product {
   textures?: (number | Texture)[] | null;
   productAreas?: (number | ProductArea)[] | null;
   timingProducts?: (number | TimingProduct)[] | null;
+  routineSteps?: (number | RoutineStep)[] | null;
   stock?: number | null;
   allocatedStock?: number | null;
   averageCost?: number | null;
@@ -1323,6 +1324,40 @@ export interface TimingProduct {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-steps".
+ */
+export interface RoutineStep {
+  id: number;
+  name: string;
+  slug: string;
+  productArea: number | ProductArea;
+  description?: string | null;
+  stepOrderDefault?: number | null;
+  isOptionalDefault?: boolean | null;
+  isSystem?: boolean | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotions".
+ */
+export interface Promotion {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string | null;
+  discountType: 'percent' | 'amount';
+  discountValue: number;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "attributes".
  */
 export interface Attribute {
@@ -1341,23 +1376,6 @@ export interface Attribute {
         id?: string | null;
       }[]
     | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "promotions".
- */
-export interface Promotion {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string | null;
-  discountType: 'percent' | 'amount';
-  discountValue: number;
-  startsAt?: string | null;
-  endsAt?: string | null;
-  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1392,83 +1410,6 @@ export interface RoutineTemplateStep {
   routineStep: number | RoutineStep;
   stepOrder: number;
   required?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-steps".
- */
-export interface RoutineStep {
-  id: number;
-  name: string;
-  slug: string;
-  productArea: number | ProductArea;
-  description?: string | null;
-  stepOrderDefault?: number | null;
-  isOptionalDefault?: boolean | null;
-  isSystem?: boolean | null;
-  active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-template-step-products".
- */
-export interface RoutineTemplateStepProduct {
-  id: number;
-  routineTemplate: number | RoutineTemplate;
-  routineStep: number | RoutineStep;
-  product: number | Product;
-  rank?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-step-rules".
- */
-export interface RoutineStepRule {
-  id: number;
-  routineStep: number | RoutineStep;
-  timing?: (number | null) | TimingProduct;
-  objective?: (number | null) | Objective;
-  skinType?: (number | null) | SkinType;
-  ruleType: 'require' | 'forbid' | 'warn';
-  note?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-line-needs-priority".
- */
-export interface BrandLineNeedsPriority {
-  id: number;
-  brandLine: number | BrandLine;
-  need: number | Need;
-  score: number;
-  note?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "boosts".
- */
-export interface Boost {
-  id: number;
-  score: number;
-  objective?: (number | null) | Objective;
-  skinType?: (number | null) | SkinType;
-  timing?: (number | null) | TimingProduct;
-  routineStep?: (number | null) | RoutineStep;
-  product?: (number | null) | Product;
-  brand?: (number | null) | Brand;
-  brandLine?: (number | null) | BrandLine;
-  attribute?: (number | null) | Attribute;
-  attributeValueId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1738,6 +1679,78 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-inventory-locks".
+ */
+export interface ShopInventoryLock {
+  id: number;
+  product: number | Product;
+  lockToken: string;
+  expiresAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-template-step-products".
+ */
+export interface RoutineTemplateStepProduct {
+  id: number;
+  routineTemplate: number | RoutineTemplate;
+  routineStep: number | RoutineStep;
+  product: number | Product;
+  rank?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-step-rules".
+ */
+export interface RoutineStepRule {
+  id: number;
+  routineStep: number | RoutineStep;
+  timing?: (number | null) | TimingProduct;
+  objective?: (number | null) | Objective;
+  skinType?: (number | null) | SkinType;
+  ruleType: 'require' | 'forbid' | 'warn';
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-line-needs-priority".
+ */
+export interface BrandLineNeedsPriority {
+  id: number;
+  brandLine: number | BrandLine;
+  need: number | Need;
+  score: number;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "boosts".
+ */
+export interface Boost {
+  id: number;
+  score: number;
+  objective?: (number | null) | Objective;
+  skinType?: (number | null) | SkinType;
+  timing?: (number | null) | TimingProduct;
+  routineStep?: (number | null) | RoutineStep;
+  product?: (number | null) | Product;
+  brand?: (number | null) | Brand;
+  brandLine?: (number | null) | BrandLine;
+  attribute?: (number | null) | Attribute;
+  attributeValueId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "order-items".
  */
 export interface OrderItem {
@@ -1777,18 +1790,6 @@ export interface ShopWebhookEvent {
     | boolean
     | null;
   error?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-inventory-locks".
- */
-export interface ShopInventoryLock {
-  id: number;
-  product: number | Product;
-  lockToken: string;
-  expiresAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1862,20 +1863,20 @@ export interface PayloadLockedDocument {
         value: number | OrderServiceSession;
       } | null)
     | ({
-        relationTo: 'service-decks';
-        value: number | ServiceDeck;
-      } | null)
-    | ({
         relationTo: 'services';
         value: number | Service;
       } | null)
     | ({
-        relationTo: 'treatments';
-        value: number | Treatment;
+        relationTo: 'programs';
+        value: number | Program;
       } | null)
     | ({
-        relationTo: 'areas';
-        value: number | Area;
+        relationTo: 'service-decks';
+        value: number | ServiceDeck;
+      } | null)
+    | ({
+        relationTo: 'treatments';
+        value: number | Treatment;
       } | null)
     | ({
         relationTo: 'objectives';
@@ -1886,20 +1887,28 @@ export interface PayloadLockedDocument {
         value: number | Intent;
       } | null)
     | ({
-        relationTo: 'zones';
-        value: number | Zone;
-      } | null)
-    | ({
         relationTo: 'service-modalities';
         value: number | ServiceModality;
       } | null)
     | ({
-        relationTo: 'programs';
-        value: number | Program;
+        relationTo: 'zones';
+        value: number | Zone;
+      } | null)
+    | ({
+        relationTo: 'areas';
+        value: number | Area;
       } | null)
     | ({
         relationTo: 'products';
         value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'promotions';
+        value: number | Promotion;
+      } | null)
+    | ({
+        relationTo: 'promo-codes';
+        value: number | PromoCode;
       } | null)
     | ({
         relationTo: 'brands';
@@ -1938,20 +1947,32 @@ export interface PayloadLockedDocument {
         value: number | TimingProduct;
       } | null)
     | ({
-        relationTo: 'promotions';
-        value: number | Promotion;
-      } | null)
-    | ({
-        relationTo: 'promo-codes';
-        value: number | PromoCode;
-      } | null)
-    | ({
         relationTo: 'routine-templates';
         value: number | RoutineTemplate;
       } | null)
     | ({
         relationTo: 'routine-template-steps';
         value: number | RoutineTemplateStep;
+      } | null)
+    | ({
+        relationTo: 'exclusions';
+        value: number | Exclusion;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'shop-inventory-locks';
+        value: number | ShopInventoryLock;
       } | null)
     | ({
         relationTo: 'routine-template-step-products';
@@ -1974,22 +1995,6 @@ export interface PayloadLockedDocument {
         value: number | Boost;
       } | null)
     | ({
-        relationTo: 'exclusions';
-        value: number | Exclusion;
-      } | null)
-    | ({
-        relationTo: 'posts';
-        value: number | Post;
-      } | null)
-    | ({
-        relationTo: 'media';
-        value: number | Media;
-      } | null)
-    | ({
-        relationTo: 'users';
-        value: number | User;
-      } | null)
-    | ({
         relationTo: 'order-items';
         value: number | OrderItem;
       } | null)
@@ -2000,10 +2005,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'shop-webhook-events';
         value: number | ShopWebhookEvent;
-      } | null)
-    | ({
-        relationTo: 'shop-inventory-locks';
-        value: number | ShopInventoryLock;
       } | null)
     | ({
         relationTo: 'auth-audit-events';
@@ -2265,23 +2266,6 @@ export interface OrderServiceSessionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-decks_select".
- */
-export interface ServiceDecksSelect<T extends boolean = true> {
-  name?: T;
-  active?: T;
-  slug?: T;
-  deckType?: T;
-  sortOrder?: T;
-  coverTitle?: T;
-  coverSubtitle?: T;
-  coverImage?: T;
-  internalDescription?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "services_select".
  */
 export interface ServicesSelect<T extends boolean = true> {
@@ -2367,6 +2351,59 @@ export interface ServicesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs_select".
+ */
+export interface ProgramsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  price?: T;
+  currency?: T;
+  description?: T;
+  heroMedia?: T;
+  steps?:
+    | T
+    | {
+        stepType?: T;
+        stepService?: T;
+        stepProduct?: T;
+        stepHeroMedia?: T;
+        stepDetailMedia?: T;
+        stepTitle?: T;
+        stepSubtitle?: T;
+        stepBadge?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-decks_select".
+ */
+export interface ServiceDecksSelect<T extends boolean = true> {
+  name?: T;
+  active?: T;
+  slug?: T;
+  deckType?: T;
+  sortOrder?: T;
+  coverTitle?: T;
+  coverSubtitle?: T;
+  coverImage?: T;
+  internalDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "treatments_select".
  */
 export interface TreatmentsSelect<T extends boolean = true> {
@@ -2390,30 +2427,6 @@ export interface TreatmentsSelect<T extends boolean = true> {
   dobGroup?: T;
   slug?: T;
   active?: T;
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        canonicalPath?: T;
-        noIndex?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "areas_select".
- */
-export interface AreasSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  boxTagline?: T;
-  cardTitle?: T;
-  cardTagline?: T;
-  cardMedia?: T;
-  cardDescription?: T;
   seo?:
     | T
     | {
@@ -2464,16 +2477,6 @@ export interface IntentsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "zones_select".
- */
-export interface ZonesSelect<T extends boolean = true> {
-  code?: T;
-  label?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "service-modalities_select".
  */
 export interface ServiceModalitiesSelect<T extends boolean = true> {
@@ -2485,28 +2488,26 @@ export interface ServiceModalitiesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "programs_select".
+ * via the `definition` "zones_select".
  */
-export interface ProgramsSelect<T extends boolean = true> {
-  title?: T;
+export interface ZonesSelect<T extends boolean = true> {
+  code?: T;
+  label?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "areas_select".
+ */
+export interface AreasSelect<T extends boolean = true> {
+  name?: T;
   slug?: T;
-  price?: T;
-  currency?: T;
-  description?: T;
-  heroMedia?: T;
-  steps?:
-    | T
-    | {
-        stepType?: T;
-        stepService?: T;
-        stepProduct?: T;
-        stepHeroMedia?: T;
-        stepDetailMedia?: T;
-        stepTitle?: T;
-        stepSubtitle?: T;
-        stepBadge?: T;
-        id?: T;
-      };
+  boxTagline?: T;
+  cardTitle?: T;
+  cardTagline?: T;
+  cardMedia?: T;
+  cardDescription?: T;
   seo?:
     | T
     | {
@@ -2598,6 +2599,7 @@ export interface ProductsSelect<T extends boolean = true> {
   textures?: T;
   productAreas?: T;
   timingProducts?: T;
+  routineSteps?: T;
   stock?: T;
   allocatedStock?: T;
   averageCost?: T;
@@ -2616,6 +2618,44 @@ export interface ProductsSelect<T extends boolean = true> {
       };
   stripeProductId?: T;
   stripePriceId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotions_select".
+ */
+export interface PromotionsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  discountType?: T;
+  discountValue?: T;
+  startsAt?: T;
+  endsAt?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promo-codes_select".
+ */
+export interface PromoCodesSelect<T extends boolean = true> {
+  code?: T;
+  active?: T;
+  internalLabel?: T;
+  partner?: T;
+  notes?: T;
+  discountType?: T;
+  discountValue?: T;
+  commissionType?: T;
+  commissionValue?: T;
+  appliesToProducts?: T;
+  appliesToServices?: T;
+  startsAt?: T;
+  endsAt?: T;
+  usageLimit?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2766,44 +2806,6 @@ export interface TimingProductsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "promotions_select".
- */
-export interface PromotionsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  description?: T;
-  discountType?: T;
-  discountValue?: T;
-  startsAt?: T;
-  endsAt?: T;
-  active?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "promo-codes_select".
- */
-export interface PromoCodesSelect<T extends boolean = true> {
-  code?: T;
-  active?: T;
-  internalLabel?: T;
-  partner?: T;
-  notes?: T;
-  discountType?: T;
-  discountValue?: T;
-  commissionType?: T;
-  commissionValue?: T;
-  appliesToProducts?: T;
-  appliesToServices?: T;
-  startsAt?: T;
-  endsAt?: T;
-  usageLimit?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "routine-templates_select".
  */
 export interface RoutineTemplatesSelect<T extends boolean = true> {
@@ -2831,78 +2833,6 @@ export interface RoutineTemplateStepsSelect<T extends boolean = true> {
   routineStep?: T;
   stepOrder?: T;
   required?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-template-step-products_select".
- */
-export interface RoutineTemplateStepProductsSelect<T extends boolean = true> {
-  routineTemplate?: T;
-  routineStep?: T;
-  product?: T;
-  rank?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-steps_select".
- */
-export interface RoutineStepsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  productArea?: T;
-  description?: T;
-  stepOrderDefault?: T;
-  isOptionalDefault?: T;
-  isSystem?: T;
-  active?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-step-rules_select".
- */
-export interface RoutineStepRulesSelect<T extends boolean = true> {
-  routineStep?: T;
-  timing?: T;
-  objective?: T;
-  skinType?: T;
-  ruleType?: T;
-  note?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-line-needs-priority_select".
- */
-export interface BrandLineNeedsPrioritySelect<T extends boolean = true> {
-  brandLine?: T;
-  need?: T;
-  score?: T;
-  note?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "boosts_select".
- */
-export interface BoostsSelect<T extends boolean = true> {
-  score?: T;
-  objective?: T;
-  skinType?: T;
-  timing?: T;
-  routineStep?: T;
-  product?: T;
-  brand?: T;
-  brandLine?: T;
-  attribute?: T;
-  attributeValueId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3232,6 +3162,89 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-inventory-locks_select".
+ */
+export interface ShopInventoryLocksSelect<T extends boolean = true> {
+  product?: T;
+  lockToken?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-template-step-products_select".
+ */
+export interface RoutineTemplateStepProductsSelect<T extends boolean = true> {
+  routineTemplate?: T;
+  routineStep?: T;
+  product?: T;
+  rank?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-steps_select".
+ */
+export interface RoutineStepsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  productArea?: T;
+  description?: T;
+  stepOrderDefault?: T;
+  isOptionalDefault?: T;
+  isSystem?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-step-rules_select".
+ */
+export interface RoutineStepRulesSelect<T extends boolean = true> {
+  routineStep?: T;
+  timing?: T;
+  objective?: T;
+  skinType?: T;
+  ruleType?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-line-needs-priority_select".
+ */
+export interface BrandLineNeedsPrioritySelect<T extends boolean = true> {
+  brandLine?: T;
+  need?: T;
+  score?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "boosts_select".
+ */
+export interface BoostsSelect<T extends boolean = true> {
+  score?: T;
+  objective?: T;
+  skinType?: T;
+  timing?: T;
+  routineStep?: T;
+  product?: T;
+  brand?: T;
+  brandLine?: T;
+  attribute?: T;
+  attributeValueId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "order-items_select".
  */
 export interface OrderItemsSelect<T extends boolean = true> {
@@ -3290,17 +3303,6 @@ export interface ShopWebhookEventsSelect<T extends boolean = true> {
   processedAt?: T;
   payload?: T;
   error?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-inventory-locks_select".
- */
-export interface ShopInventoryLocksSelect<T extends boolean = true> {
-  product?: T;
-  lockToken?: T;
-  expiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -5,7 +5,7 @@ import { isAdmin } from '../access/isAdmin'
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   admin: {
-    group: 'Sistema',
+    group: 'Impostazioni',
   },
   access: {
     read: () => true,

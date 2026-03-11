@@ -7,7 +7,7 @@ export const Promotions: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'discountType', 'discountValue', 'active'],
-    group: 'Catalogo Shop',
+    group: 'Marketing',
   },
   access: {
     read: () => true,
