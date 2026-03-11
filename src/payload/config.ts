@@ -1,10 +1,12 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { attachDatabasePool } from '@vercel/functions'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import pgDependency from 'pg'
 
 import { Users } from './collections/Users'
 import { AuthAuditEvents } from './collections/AuthAuditEvents'
@@ -137,6 +139,22 @@ const pickLocalDatabaseUrl = (
 
 type DatabaseTargetEnv = 'local' | 'staging' | 'production'
 
+const createRuntimePgDependency = () => {
+  if (process.env.VERCEL !== '1') return pgDependency
+
+  class VercelManagedPool extends pgDependency.Pool {
+    constructor(config?: ConstructorParameters<typeof pgDependency.Pool>[0]) {
+      super(config)
+      attachDatabasePool(this)
+    }
+  }
+
+  return {
+    ...pgDependency,
+    Pool: VercelManagedPool,
+  }
+}
+
 const blobReadWriteToken =
   (process.env.VERCEL_ENV === 'production'
     ? process.env.PROD_READ_WRITE_TOKEN
@@ -150,6 +168,7 @@ const enableBlobPlugin = hasValidBlobToken
 const appEnv = process.env.APP_ENV?.trim().toLowerCase()
 const isVercelProduction = process.env.VERCEL_ENV === 'production'
 const isVercelPreview = process.env.VERCEL_ENV === 'preview'
+const isVercelRuntime = process.env.VERCEL === '1'
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isCI = process.env.CI === 'true'
 const databaseTargetEnv: DatabaseTargetEnv =
@@ -215,10 +234,15 @@ if (databaseTargetEnv !== 'local' && isLocalDatabaseHost(databaseUrl)) {
 const enableSchemaPush =
   process.env.PAYLOAD_ENABLE_SCHEMA_PUSH === 'true' ||
   (isDevelopment && isLocalDatabaseHost(databaseUrl))
+const runtimePgDependency = createRuntimePgDependency()
 const dbPoolMaxInput = Number(process.env.PAYLOAD_DB_POOL_MAX || '4')
-const dbPoolMinInput = Number(process.env.PAYLOAD_DB_POOL_MIN || '0')
+const dbPoolMinInput = Number(
+  process.env.PAYLOAD_DB_POOL_MIN || (isVercelRuntime && databaseTargetEnv !== 'local' ? '1' : '0'),
+)
 const dbPoolConnectTimeoutInput = Number(process.env.PAYLOAD_DB_CONNECT_TIMEOUT_MS || '30000')
-const dbPoolIdleTimeoutInput = Number(process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || '30000')
+const dbPoolIdleTimeoutInput = Number(
+  process.env.PAYLOAD_DB_IDLE_TIMEOUT_MS || (isVercelRuntime && databaseTargetEnv !== 'local' ? '5000' : '30000'),
+)
 const dbPoolMax = Number.isFinite(dbPoolMaxInput) && dbPoolMaxInput > 0 ? Math.floor(dbPoolMaxInput) : 4
 const dbPoolMin = Number.isFinite(dbPoolMinInput) && dbPoolMinInput >= 0 ? Math.floor(dbPoolMinInput) : 0
 const dbPoolConnectTimeout =
@@ -313,6 +337,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'generated/payload-types.ts'),
   },
   db: postgresAdapter({
+    pg: runtimePgDependency,
     pool: {
       connectionString: databaseUrl,
       // Tunable pool sizing: previous hard-coded max=2 caused admin lock/save timeouts under load.
