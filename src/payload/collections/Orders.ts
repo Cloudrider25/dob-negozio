@@ -591,8 +591,7 @@ export const Orders: CollectionConfig = {
           label: 'Shipping Address',
           admin: {
             condition: (data) => {
-              if (!data?.cartMode) return true
-              return data.cartMode === 'products_only' || data.cartMode === 'mixed'
+              return data?.productFulfillmentMode === 'shipping'
             },
           },
           fields: [
@@ -634,8 +633,7 @@ export const Orders: CollectionConfig = {
           label: 'Sendcloud',
           admin: {
             condition: (data) => {
-              if (!data?.cartMode) return true
-              return data.cartMode === 'products_only' || data.cartMode === 'mixed'
+              return data?.productFulfillmentMode === 'shipping'
             },
           },
           fields: [

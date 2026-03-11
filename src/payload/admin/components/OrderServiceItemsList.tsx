@@ -9,7 +9,14 @@ type ApiListResponse = { docs?: ApiDoc[] }
 type Row = {
   id: string
   title: string
-  itemKind: 'service' | 'package'
+  itemKind: 'service' | 'package' | 'program'
+  programId: string | null
+  programStepsSnapshot: Array<{
+    stepType: 'manual' | 'service' | 'product'
+    title: string | null
+    referenceTitle: string | null
+    referenceSlug: string | null
+  }>
   quantity: number
   unitPrice: number | null
   lineTotal: number | null
@@ -55,6 +62,16 @@ const formatMoney = (value: number | null) => {
   }).format(value)
 }
 
+const formatProgramStepLabel = (step: Row['programStepsSnapshot'][number]) => {
+  if (step.stepType === 'service') {
+    return `Servizio: ${step.referenceTitle || step.title || 'Elemento collegato'}`
+  }
+  if (step.stepType === 'product') {
+    return `Prodotto: ${step.referenceTitle || step.title || 'Elemento collegato'}`
+  }
+  return `Manuale: ${step.title || 'Step programma'}`
+}
+
 export default function OrderServiceItemsList() {
   const documentInfo = useDocumentInfo()
   const locale = useLocale()
@@ -91,10 +108,32 @@ export default function OrderServiceItemsList() {
         const data = (await res.json()) as ApiListResponse
         if (cancelled) return
 
-        const nextRows: Row[] = (data.docs ?? []).map((doc) => ({
+        const baseRows: Row[] = (data.docs ?? []).map((doc) => ({
           id: asId(doc.id),
           title: asString(doc.serviceTitle) || 'Service item',
-          itemKind: asString(doc.itemKind) === 'package' ? 'package' : 'service',
+          itemKind:
+            asString(doc.itemKind) === 'package'
+              ? 'package'
+              : asString(doc.itemKind) === 'program'
+                ? 'program'
+                : 'service',
+          programId: asId(doc.program) || null,
+          programStepsSnapshot: Array.isArray(doc.programStepsSnapshot)
+            ? doc.programStepsSnapshot.map((entry) => {
+                const raw = entry && typeof entry === 'object' ? (entry as ApiDoc) : {}
+                return {
+                  stepType:
+                    asString(raw.stepType) === 'service'
+                      ? 'service'
+                      : asString(raw.stepType) === 'product'
+                        ? 'product'
+                        : 'manual',
+                  title: asString(raw.title) || null,
+                  referenceTitle: asString(raw.referenceTitle) || null,
+                  referenceSlug: asString(raw.referenceSlug) || null,
+                }
+              })
+            : [],
           quantity: asNumber(doc.quantity) ?? 1,
           unitPrice: asNumber(doc.unitPrice),
           lineTotal: asNumber(doc.lineTotal),
@@ -107,7 +146,87 @@ export default function OrderServiceItemsList() {
           appointmentProposalNote: asString(doc.appointmentProposalNote),
         }))
 
-        setRows(nextRows)
+        const rowsNeedingHydration = baseRows.filter(
+          (row) =>
+            row.itemKind === 'program' &&
+            Boolean(row.programId) &&
+            row.programStepsSnapshot.some(
+              (step) =>
+                (step.stepType === 'service' || step.stepType === 'product') &&
+                !step.referenceTitle,
+            ),
+        )
+
+        if (rowsNeedingHydration.length > 0) {
+          const hydratedRows = await Promise.all(
+            baseRows.map(async (row) => {
+              if (
+                row.itemKind !== 'program' ||
+                !row.programId ||
+                !row.programStepsSnapshot.some(
+                  (step) =>
+                    (step.stepType === 'service' || step.stepType === 'product') &&
+                    !step.referenceTitle,
+                )
+              ) {
+                return row
+              }
+
+              try {
+                const programRes = await fetch(
+                  `/api/programs/${row.programId}?depth=1${locale ? `&locale=${encodeURIComponent(String(locale))}` : ''}`,
+                  { credentials: 'include' },
+                )
+                if (!programRes.ok) return row
+                const programDoc = (await programRes.json()) as ApiDoc
+                const programSteps = Array.isArray(programDoc.steps) ? programDoc.steps : []
+
+                return {
+                  ...row,
+                  programStepsSnapshot: row.programStepsSnapshot.map((step, index) => {
+                    if (
+                      (step.stepType !== 'service' && step.stepType !== 'product') ||
+                      step.referenceTitle
+                    ) {
+                      return step
+                    }
+
+                    const source =
+                      index < programSteps.length && programSteps[index] && typeof programSteps[index] === 'object'
+                        ? (programSteps[index] as ApiDoc)
+                        : null
+                    const relation =
+                      step.stepType === 'service'
+                        ? source?.stepService && typeof source.stepService === 'object'
+                          ? (source.stepService as ApiDoc)
+                          : null
+                        : source?.stepProduct && typeof source.stepProduct === 'object'
+                          ? (source.stepProduct as ApiDoc)
+                          : null
+
+                    const resolvedTitle =
+                      step.stepType === 'service'
+                        ? asString(relation?.name) || step.referenceTitle
+                        : asString(relation?.title) || step.referenceTitle
+                    const resolvedSlug = asString(relation?.slug) || step.referenceSlug
+
+                    return {
+                      ...step,
+                      referenceTitle: resolvedTitle || step.referenceTitle,
+                      referenceSlug: resolvedSlug || step.referenceSlug,
+                    }
+                  }),
+                }
+              } catch {
+                return row
+              }
+            }),
+          )
+
+          setRows(hydratedRows)
+        } else {
+          setRows(baseRows)
+        }
 
         const sessionsParams = new URLSearchParams()
         sessionsParams.set('depth', '0')
@@ -246,7 +365,11 @@ export default function OrderServiceItemsList() {
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 600, color: 'var(--theme-text)' }}>{row.title}</div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--theme-elevation-650)' }}>
-                  {row.itemKind === 'package' ? 'Pacchetto' : 'Servizio'}
+                  {row.itemKind === 'package'
+                    ? 'Pacchetto'
+                    : row.itemKind === 'program'
+                      ? 'Programma'
+                      : 'Servizio'}
                   {row.variantLabel ? ` · ${row.variantLabel}` : ''}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--theme-elevation-650)', marginTop: '0.25rem' }}>
@@ -268,6 +391,24 @@ export default function OrderServiceItemsList() {
                         {[session.appointmentProposedDate || session.appointmentRequestedDate, session.appointmentProposedTime || session.appointmentRequestedTime]
                           .filter(Boolean)
                           .join(' · ') || '—'}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {row.itemKind === 'program' && row.programStepsSnapshot.length > 0 ? (
+                  <div
+                    style={{
+                      marginTop: '0.5rem',
+                      display: 'grid',
+                      gap: '0.25rem',
+                      fontSize: '0.8rem',
+                      color: 'var(--theme-elevation-650)',
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, color: 'var(--theme-text)' }}>Include:</div>
+                    {row.programStepsSnapshot.map((step, index) => (
+                      <div key={`${row.id}-step-${index}`}>
+                        {index + 1}. {formatProgramStepLabel(step)}
                       </div>
                     ))}
                   </div>

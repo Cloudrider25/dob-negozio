@@ -134,7 +134,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
     orderCreatedAt: string
     orderStatus: string
     paymentStatus: string
-    itemKind: 'service' | 'package'
+    itemKind: 'service' | 'package' | 'program'
     serviceTitle: string
     variantLabel: string
     sessionLabel: string
@@ -185,10 +185,19 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         itemKind: session.itemKind,
         serviceTitle: session.serviceTitle,
         variantLabel:
-          session.variantLabel?.trim() || (session.itemKind === 'package' ? 'Pacchetto' : 'Default'),
+          session.variantLabel?.trim() ||
+          (session.itemKind === 'package'
+            ? 'Pacchetto'
+            : session.itemKind === 'program'
+              ? 'Programma'
+              : 'Default'),
         sessionLabel:
           session.sessionLabel?.trim() ||
-          (session.itemKind === 'package' ? `Seduta ${session.sessionIndex ?? 1}` : 'Seduta unica'),
+          (session.itemKind === 'package'
+            ? `Seduta ${session.sessionIndex ?? 1}`
+            : session.itemKind === 'program'
+              ? 'Programma completo'
+              : 'Seduta unica'),
         sessionsTotal: Math.max(1, session.sessionsTotal ?? 1),
         durationMinutes: session.durationMinutes ?? null,
         rowPrice: session.sessionPrice,

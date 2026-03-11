@@ -488,8 +488,9 @@ export interface OrderServiceSession {
   id: number;
   order: number | Order;
   orderServiceItem: number | OrderServiceItem;
-  service: number | Service;
-  itemKind: 'service' | 'package';
+  service?: (number | null) | Service;
+  program?: (number | null) | Program;
+  itemKind: 'service' | 'package' | 'program';
   variantKey?: string | null;
   variantLabel?: string | null;
   sessionIndex: number;
@@ -518,12 +519,22 @@ export interface OrderServiceSession {
 export interface OrderServiceItem {
   id: number;
   order: number | Order;
-  service: number | Service;
-  itemKind: 'service' | 'package';
+  service?: (number | null) | Service;
+  program?: (number | null) | Program;
+  itemKind: 'service' | 'package' | 'program';
   variantKey?: string | null;
   variantLabel?: string | null;
   appointmentMode?: ('none' | 'requested_slot' | 'contact_later') | null;
   appointmentStatus?: ('none' | 'pending' | 'confirmed' | 'alternative_proposed' | 'confirmed_by_customer') | null;
+  programStepsSnapshot?:
+    | {
+        stepType?: ('manual' | 'service' | 'product') | null;
+        title?: string | null;
+        referenceTitle?: string | null;
+        referenceSlug?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   appointmentRequestedDate?: string | null;
   appointmentRequestedTime?: string | null;
   appointmentProposedDate?: string | null;
@@ -2252,6 +2263,7 @@ export interface OrderServiceSessionsSelect<T extends boolean = true> {
   order?: T;
   orderServiceItem?: T;
   service?: T;
+  program?: T;
   itemKind?: T;
   variantKey?: T;
   variantLabel?: T;
@@ -3281,11 +3293,21 @@ export interface OrderItemsSelect<T extends boolean = true> {
 export interface OrderServiceItemsSelect<T extends boolean = true> {
   order?: T;
   service?: T;
+  program?: T;
   itemKind?: T;
   variantKey?: T;
   variantLabel?: T;
   appointmentMode?: T;
   appointmentStatus?: T;
+  programStepsSnapshot?:
+    | T
+    | {
+        stepType?: T;
+        title?: T;
+        referenceTitle?: T;
+        referenceSlug?: T;
+        id?: T;
+      };
   appointmentRequestedDate?: T;
   appointmentRequestedTime?: T;
   appointmentProposedDate?: T;
