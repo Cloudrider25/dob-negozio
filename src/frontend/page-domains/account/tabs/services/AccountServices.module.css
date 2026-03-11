@@ -23,7 +23,7 @@
   border: 1px solid var(--stroke);
   border-radius: 18px;
   align-items: start;
-  background: color-mix(in srgb, var(--paper) 55%, var(--bg) 45%);
+  background: var(--paper);
 }
 
 .servicesListCell {
@@ -37,12 +37,12 @@
 }
 
 .packageGroupRow {
-  background: color-mix(in srgb, var(--bg) 92%, var(--text-secondary) 8%);
+  background: var(--paper);
   cursor: pointer;
 }
 
 .packageSessionRow {
-  background: color-mix(in srgb, var(--bg) 96%, var(--text-secondary) 4%);
+  background: var(--bg);
   cursor: pointer;
 }
 

@@ -16,9 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
-      VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -49,50 +48,22 @@ jobs:
             echo "VERCEL_PULL_ENV=preview" >> "${GITHUB_ENV}"
           fi
 
-      - name: Pull Vercel environment
-        run: pnpm dlx vercel pull --yes --environment="${VERCEL_PULL_ENV}" --token="${VERCEL_TOKEN}"
-
-      - name: Export pulled environment
+      - name: Export target database environment
         shell: bash
         run: |
-          if [[ "${VERCEL_PULL_ENV}" == "production" ]]; then
-            env_file=".vercel/.env.production.local"
-            db_key="PROD_POSTGRES_URL"
+          if [[ "${APP_ENV}" == "production" ]]; then
+            if [[ -z "${PRODUCTION_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret PRODUCTION_DATABASE_URL for production quality gate."
+              exit 1
+            fi
+            echo "PROD_POSTGRES_URL=${PRODUCTION_DATABASE_URL}" >> "${GITHUB_ENV}"
           else
-            env_file=".vercel/.env.preview.local"
-            db_key="STG_POSTGRES_URL"
+            if [[ -z "${STAGING_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret STAGING_DATABASE_URL for staging quality gate."
+              exit 1
+            fi
+            echo "STG_POSTGRES_URL=${STAGING_DATABASE_URL}" >> "${GITHUB_ENV}"
           fi
-
-          if [[ ! -f "${env_file}" ]]; then
-            echo "::error::Missing ${env_file} after vercel pull."
-            exit 1
-          fi
-
-          ENV_FILE="${env_file}" DB_KEY="${db_key}" GITHUB_ENV="${GITHUB_ENV}" node --input-type=module <<'EOF'
-          import fs from 'node:fs'
-          import dotenv from 'dotenv'
-
-          const envFile = process.env.ENV_FILE
-          const dbKey = process.env.DB_KEY
-          const githubEnv = process.env.GITHUB_ENV
-
-          const parsed = dotenv.parse(fs.readFileSync(envFile))
-          const candidates =
-            dbKey === 'PROD_POSTGRES_URL'
-              ? ['PROD_POSTGRES_URL', 'PROD_DATABASE_URL', 'PRODUCTION_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
-              : ['STG_POSTGRES_URL', 'STG_DATABASE_URL', 'STAGING_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
-
-          const lines = Object.entries(parsed).map(([key, value]) => `${key}=${value}`)
-          const selected = candidates.map((key) => parsed[key]?.trim()).find(Boolean)
-
-          if (!selected) {
-            console.error('::error::Pulled Vercel environment does not expose a compatible database URL.')
-            process.exit(1)
-          }
-
-          lines.push(`${dbKey}=${selected}`)
-          fs.appendFileSync(githubEnv, `${lines.join('\n')}\n`)
-          EOF
 
       - name: Lint
         run: pnpm lint
@@ -128,9 +99,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
-      VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - name: Checkout
@@ -162,50 +132,22 @@ jobs:
             echo "VERCEL_PULL_ENV=preview" >> "${GITHUB_ENV}"
           fi
 
-      - name: Pull Vercel environment
-        run: pnpm dlx vercel pull --yes --environment="${VERCEL_PULL_ENV}" --token="${VERCEL_TOKEN}"
-
-      - name: Export pulled environment
+      - name: Export target database environment
         shell: bash
         run: |
-          if [[ "${VERCEL_PULL_ENV}" == "production" ]]; then
-            env_file=".vercel/.env.production.local"
-            db_key="PROD_POSTGRES_URL"
+          if [[ "${APP_ENV}" == "production" ]]; then
+            if [[ -z "${PRODUCTION_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret PRODUCTION_DATABASE_URL for production quality gate."
+              exit 1
+            fi
+            echo "PROD_POSTGRES_URL=${PRODUCTION_DATABASE_URL}" >> "${GITHUB_ENV}"
           else
-            env_file=".vercel/.env.preview.local"
-            db_key="STG_POSTGRES_URL"
+            if [[ -z "${STAGING_DATABASE_URL}" ]]; then
+              echo "::error::Missing secret STAGING_DATABASE_URL for staging quality gate."
+              exit 1
+            fi
+            echo "STG_POSTGRES_URL=${STAGING_DATABASE_URL}" >> "${GITHUB_ENV}"
           fi
-
-          if [[ ! -f "${env_file}" ]]; then
-            echo "::error::Missing ${env_file} after vercel pull."
-            exit 1
-          fi
-
-          ENV_FILE="${env_file}" DB_KEY="${db_key}" GITHUB_ENV="${GITHUB_ENV}" node --input-type=module <<'EOF'
-          import fs from 'node:fs'
-          import dotenv from 'dotenv'
-
-          const envFile = process.env.ENV_FILE
-          const dbKey = process.env.DB_KEY
-          const githubEnv = process.env.GITHUB_ENV
-
-          const parsed = dotenv.parse(fs.readFileSync(envFile))
-          const candidates =
-            dbKey === 'PROD_POSTGRES_URL'
-              ? ['PROD_POSTGRES_URL', 'PROD_DATABASE_URL', 'PRODUCTION_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
-              : ['STG_POSTGRES_URL', 'STG_DATABASE_URL', 'STAGING_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
-
-          const lines = Object.entries(parsed).map(([key, value]) => `${key}=${value}`)
-          const selected = candidates.map((key) => parsed[key]?.trim()).find(Boolean)
-
-          if (!selected) {
-            console.error('::error::Pulled Vercel environment does not expose a compatible database URL.')
-            process.exit(1)
-          }
-
-          lines.push(`${dbKey}=${selected}`)
-          fs.appendFileSync(githubEnv, `${lines.join('\n')}\n`)
-          EOF
 
       - name: Check required secrets
         id: secrets-check

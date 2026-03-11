@@ -19,6 +19,8 @@ jobs:
     env:
       APP_ENV: production
       VERCEL_ENV: production
+      PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+      PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -36,37 +38,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pull Vercel production environment
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: team_AyjMkUgQ9PfWcNNzfaMtAS7C
-          VERCEL_PROJECT_ID: prj_aYRziHKjjAAnQBhQpmvlIVbRjBpR
-        run: pnpm dlx vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
-
-      - name: Export Vercel production environment
+      - name: Export production database environment
         shell: bash
         run: |
-          if [[ ! -f .vercel/.env.production.local ]]; then
-            echo "::error::Missing .vercel/.env.production.local after vercel pull."
+          if [[ -z "${PAYLOAD_SECRET}" ]]; then
+            echo "::error::Missing secret PAYLOAD_SECRET for production verification."
             exit 1
           fi
-          ENV_FILE=".vercel/.env.production.local" DB_KEY="PROD_POSTGRES_URL" GITHUB_ENV="${GITHUB_ENV}" node --input-type=module <<'EOF'
-          import fs from 'node:fs'
-          import dotenv from 'dotenv'
-
-          const parsed = dotenv.parse(fs.readFileSync(process.env.ENV_FILE))
-          const candidates = ['PROD_POSTGRES_URL', 'PROD_DATABASE_URL', 'PRODUCTION_DATABASE_URL', 'DATABASE_URL', 'POSTGRES_URL']
-          const lines = Object.entries(parsed).map(([key, value]) => `${key}=${value}`)
-          const selected = candidates.map((key) => parsed[key]?.trim()).find(Boolean)
-
-          if (!selected) {
-            console.error('::error::Production environment does not expose any production database URL.')
-            process.exit(1)
-          }
-
-          lines.push(`PROD_POSTGRES_URL=${selected}`)
-          fs.appendFileSync(process.env.GITHUB_ENV, `${lines.join('\n')}\n`)
-          EOF
+          if [[ -z "${PRODUCTION_DATABASE_URL}" ]]; then
+            echo "::error::Missing secret PRODUCTION_DATABASE_URL for production verification."
+            exit 1
+          fi
+          echo "PROD_POSTGRES_URL=${PRODUCTION_DATABASE_URL}" >> "${GITHUB_ENV}"
 
       - name: Lint
         run: pnpm lint
@@ -76,13 +59,10 @@ jobs:
 
       - name: Integration tests
         run: pnpm test:int
-        env:
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
 
       - name: Build
         run: pnpm build
         env:
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           NEXT_TELEMETRY_DISABLED: '1'
 
   deploy:

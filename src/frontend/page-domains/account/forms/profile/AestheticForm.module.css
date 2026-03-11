@@ -124,7 +124,7 @@
   --btn-active-bg: transparent;
   --btn-active-text: var(--text-secondary);
   --btn-active-border: var(--text-secondary);
-  --btn-focus-ring: color-mix(in srgb, var(--text-secondary) 45%, transparent);
+  --btn-focus-ring: var(--text-secondary);
   --btn-focus-offset: var(--bg);
   min-width: 0;
   width: 100%;

@@ -1,6 +1,6 @@
 .wrap {
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 65%, transparent);
-  background: color-mix(in srgb, var(--paper) 92%, var(--bg) 8%);
+  border-bottom: 1px solid var(--stroke);
+  background: var(--paper);
 }
 
 .inner {
@@ -44,7 +44,7 @@
 }
 
 .secondary {
-  border: 1px solid color-mix(in srgb, var(--text-primary) 28%, transparent);
+  border: 1px solid var(--stroke);
   color: var(--text-secondary);
 }
 
