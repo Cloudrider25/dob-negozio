@@ -38,6 +38,9 @@ importers:
       '@tsamantanis/react-glassmorphism':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.28.6)(react-dom@19.2.1(react@19.2.1))(react-is@18.3.1)(react-scripts@4.0.3(@types/webpack@4.41.40)(eslint@8.57.1)(react@19.2.1)(sass@1.77.4)(sockjs-client@1.6.1)(typescript@5.7.3))(react@19.2.1)
+      '@vercel/functions':
+        specifier: ^3.4.3
+        version: 3.4.3
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -62,6 +65,9 @@ importers:
       payload:
         specifier: 3.71.1
         version: 3.71.1(graphql@16.12.0)(typescript@5.7.3)
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
       react:
         specifier: 19.2.1
         version: 19.2.1
@@ -99,6 +105,9 @@ importers:
       '@types/nodemailer':
         specifier: ^7.0.0
         version: 7.0.9
+      '@types/pg':
+        specifier: ^8.10.2
+        version: 8.10.2
       '@types/react':
         specifier: 19.2.1
         version: 19.2.1
@@ -2882,6 +2891,19 @@ packages:
   '@vercel/blob@0.22.3':
     resolution: {integrity: sha512-l0t2KhbOO/I8ZNOl9zypYf1NE0837aO4/CPQNGR/RAxtj8FpdYKjhyUADUXj2gERLQmnhun+teaVs/G7vZJ/TQ==}
     engines: {node: '>=16.14'}
+
+  '@vercel/functions@3.4.3':
+    resolution: {integrity: sha512-kA14KIUVgAY6VXbhZ5jjY+s0883cV3cZqIU3WhrSRxuJ9KvxatMjtmzl0K23HK59oOUjYl7HaE/eYMmhmqpZzw==}
+    engines: {node: '>= 20'}
+    peerDependencies:
+      '@aws-sdk/credential-provider-web-identity': '*'
+    peerDependenciesMeta:
+      '@aws-sdk/credential-provider-web-identity':
+        optional: true
+
+  '@vercel/oidc@3.2.0':
+    resolution: {integrity: sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug==}
+    engines: {node: '>= 20'}
 
   '@vitejs/plugin-react@4.5.2':
     resolution: {integrity: sha512-QNVT3/Lxx99nMQWJWF7K4N6apUEuT0KlZA3mx/mVaoGj3smm/8rc8ezz15J1pcbcjDK0V15rpHetVfya08r76Q==}
@@ -12962,6 +12984,12 @@ snapshots:
       bytes: 3.1.2
       is-buffer: 2.0.5
       undici: 5.29.0
+
+  '@vercel/functions@3.4.3':
+    dependencies:
+      '@vercel/oidc': 3.2.0
+
+  '@vercel/oidc@3.2.0': {}
 
   '@vitejs/plugin-react@4.5.2(vite@7.3.1(@types/node@22.19.7)(jiti@1.21.7)(sass@1.77.4)(terser@5.46.0)(tsx@4.20.6)(yaml@2.8.2))':
     dependencies:
