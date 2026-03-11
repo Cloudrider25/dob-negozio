@@ -327,6 +327,7 @@ export default async function ShopPage({
     title: product.title || '',
     description: product.description || undefined,
     slug: product.slug || undefined,
+    format: typeof product.format === 'string' ? product.format : undefined,
     price: product.price ?? undefined,
     brand: (() => {
       const brandId = getRelationId(product.brand)
@@ -399,6 +400,7 @@ export default async function ShopPage({
       id: String(product.id),
       title: product.title || '',
       slug: product.slug || undefined,
+      format: typeof product.format === 'string' ? product.format : undefined,
       price: typeof product.price === 'number' ? product.price : undefined,
       createdAt: typeof product.createdAt === 'string' ? product.createdAt : undefined,
       brand,
@@ -459,11 +461,13 @@ export default async function ShopPage({
     const timingId = getRelationId(template.timing) || ''
     const needId = getRelationId(template.need) || ''
     const productAreaId = getRelationId(template.productArea)
+    const skinTypeId = getRelationId(template.skinType)
     const brandId = getRelationId(template.brand)
 
     const timingTaxonomy = routineTimingsById.get(timingId)
     const needTaxonomy = needsById.get(needId)
     const productAreaTaxonomy = productAreaId ? productAreasById.get(productAreaId) : undefined
+    const skinTypeTaxonomy = skinTypeId ? routineSkinTypesById.get(skinTypeId) : undefined
     const brandTaxonomy = brandId ? brandsById.get(brandId) : undefined
 
     const templateSteps = (templateStepsByTemplateId.get(String(template.id)) || [])
@@ -494,6 +498,9 @@ export default async function ShopPage({
       timing: { id: timingId, label: timingTaxonomy?.label || timingId, slug: timingTaxonomy?.slug },
       productArea: productAreaTaxonomy && productAreaId
         ? { id: productAreaId, label: productAreaTaxonomy.label, slug: productAreaTaxonomy.slug }
+        : undefined,
+      skinType: skinTypeTaxonomy && skinTypeId
+        ? { id: skinTypeId, label: skinTypeTaxonomy.label }
         : undefined,
       isMultibrand: Boolean(template.isMultibrand),
       brand: brandTaxonomy ? { id: brandTaxonomy.id, label: brandTaxonomy.label } : undefined,

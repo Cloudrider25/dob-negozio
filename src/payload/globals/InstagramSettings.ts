@@ -5,7 +5,7 @@ import { isAdmin } from '../access/isAdmin'
 export const InstagramSettings: GlobalConfig = {
   slug: 'instagram-settings',
   admin: {
-    group: 'Sistema',
+    group: 'Impostazioni',
   },
   access: {
     read: isAdmin,
