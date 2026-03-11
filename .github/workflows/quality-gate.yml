@@ -71,7 +71,7 @@ jobs:
           fi
 
           grep -v '^[#[:space:]]' "${env_file}" >> "${GITHUB_ENV}"
-          db_line="$(grep -E "${db_pattern}" "${env_file}" | head -n 1 || true)"
+          db_line="$(grep -E "${db_pattern}" "${env_file}" | awk -F= 'NF > 1 && $2 != \"\" { print; exit }' || true)"
           if [[ -z "${db_line}" ]]; then
             echo "::error::Pulled Vercel environment does not expose a compatible database URL."
             exit 1
@@ -168,7 +168,7 @@ jobs:
           fi
 
           grep -v '^[#[:space:]]' "${env_file}" >> "${GITHUB_ENV}"
-          db_line="$(grep -E "${db_pattern}" "${env_file}" | head -n 1 || true)"
+          db_line="$(grep -E "${db_pattern}" "${env_file}" | awk -F= 'NF > 1 && $2 != \"\" { print; exit }' || true)"
           if [[ -z "${db_line}" ]]; then
             echo "::error::Pulled Vercel environment does not expose a compatible database URL."
             exit 1
