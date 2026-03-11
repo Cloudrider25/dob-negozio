@@ -195,11 +195,13 @@ const databaseUrlCandidate =
       ? pickDatabaseUrl([
           { name: 'PROD_POSTGRES_URL', value: process.env.PROD_POSTGRES_URL },
           { name: 'PROD_DATABASE_URL', value: process.env.PROD_DATABASE_URL },
+          { name: 'PRODUCTION_DATABASE_URL', value: process.env.PRODUCTION_DATABASE_URL },
           { name: 'PROD_PRISMA_DATABASE_URL', value: process.env.PROD_PRISMA_DATABASE_URL },
         ])
       : pickDatabaseUrl([
           { name: 'STG_POSTGRES_URL', value: process.env.STG_POSTGRES_URL },
           { name: 'STG_DATABASE_URL', value: process.env.STG_DATABASE_URL },
+          { name: 'STAGING_DATABASE_URL', value: process.env.STAGING_DATABASE_URL },
           { name: 'STG_PRISMA_DATABASE_URL', value: process.env.STG_PRISMA_DATABASE_URL },
         ])
 
@@ -215,13 +217,13 @@ if (databaseTargetEnv === 'local' && !databaseUrlCandidate) {
 
 if (databaseTargetEnv === 'staging' && !databaseUrlCandidate) {
   throw new Error(
-    'Staging execution requires STG_POSTGRES_URL, STG_DATABASE_URL, or STG_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
+    'Staging execution requires STG_POSTGRES_URL, STG_DATABASE_URL, STAGING_DATABASE_URL, or STG_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
   )
 }
 
 if (databaseTargetEnv === 'production' && !databaseUrlCandidate) {
   throw new Error(
-    'Production execution requires PROD_POSTGRES_URL, PROD_DATABASE_URL, or PROD_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
+    'Production execution requires PROD_POSTGRES_URL, PROD_DATABASE_URL, PRODUCTION_DATABASE_URL, or PROD_PRISMA_DATABASE_URL. Refusing to use generic or local database URLs.',
   )
 }
 

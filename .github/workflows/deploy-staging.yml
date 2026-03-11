@@ -20,16 +20,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.0
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
-          cache: pnpm
+
+      - name: Enable Corepack pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.28.0 --activate
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -49,7 +48,7 @@ jobs:
             exit 1
           fi
           grep -v '^[#[:space:]]' .vercel/.env.preview.local >> "${GITHUB_ENV}"
-          db_line="$(grep -E '^(STG_POSTGRES_URL|STG_DATABASE_URL|DATABASE_URL|POSTGRES_URL)=' .vercel/.env.preview.local | head -n 1 || true)"
+          db_line="$(grep -E '^(STG_POSTGRES_URL|STG_DATABASE_URL|STAGING_DATABASE_URL|DATABASE_URL|POSTGRES_URL)=' .vercel/.env.preview.local | head -n 1 || true)"
           if [[ -z "${db_line}" ]]; then
             echo "::error::Preview environment does not expose any staging database URL."
             exit 1

@@ -23,16 +23,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.0
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
-          cache: pnpm
+
+      - name: Enable Corepack pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.28.0 --activate
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -58,11 +57,11 @@ jobs:
         run: |
           if [[ "${VERCEL_PULL_ENV}" == "production" ]]; then
             env_file=".vercel/.env.production.local"
-            db_pattern='^(PROD_POSTGRES_URL|PROD_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
+            db_pattern='^(PROD_POSTGRES_URL|PROD_DATABASE_URL|PRODUCTION_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="PROD_POSTGRES_URL"
           else
             env_file=".vercel/.env.preview.local"
-            db_pattern='^(STG_POSTGRES_URL|STG_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
+            db_pattern='^(STG_POSTGRES_URL|STG_DATABASE_URL|STAGING_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="STG_POSTGRES_URL"
           fi
 
@@ -121,16 +120,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.0
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
-          cache: pnpm
+
+      - name: Enable Corepack pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.28.0 --activate
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -156,11 +154,11 @@ jobs:
         run: |
           if [[ "${VERCEL_PULL_ENV}" == "production" ]]; then
             env_file=".vercel/.env.production.local"
-            db_pattern='^(PROD_POSTGRES_URL|PROD_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
+            db_pattern='^(PROD_POSTGRES_URL|PROD_DATABASE_URL|PRODUCTION_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="PROD_POSTGRES_URL"
           else
             env_file=".vercel/.env.preview.local"
-            db_pattern='^(STG_POSTGRES_URL|STG_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
+            db_pattern='^(STG_POSTGRES_URL|STG_DATABASE_URL|STAGING_DATABASE_URL|DATABASE_URL|POSTGRES_URL)='
             db_key="STG_POSTGRES_URL"
           fi
 
