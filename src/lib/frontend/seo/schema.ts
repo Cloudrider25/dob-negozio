@@ -1,4 +1,5 @@
 import { getSeoBaseUrl } from '@/lib/frontend/seo/metadata'
+import { toPublicSeoPath } from '@/lib/frontend/seo/routes'
 import type { Locale } from '@/lib/i18n/core'
 
 const toAbsoluteUrl = (path: string) => {
@@ -7,6 +8,9 @@ const toAbsoluteUrl = (path: string) => {
   const normalized = path.startsWith('/') ? path : `/${path}`
   return `${base}${normalized}`
 }
+
+const toLocalizedAbsoluteUrl = (locale: Locale, path: string) =>
+  toAbsoluteUrl(`/${locale}${toPublicSeoPath(locale, path)}`)
 
 const stripHtml = (value: string): string =>
   value
@@ -75,7 +79,7 @@ export const buildBreadcrumbJsonLd = ({
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: toAbsoluteUrl(`/${locale}${item.path}`),
+    item: toLocalizedAbsoluteUrl(locale, item.path),
   })),
 })
 
@@ -100,7 +104,7 @@ export const buildServiceJsonLd = ({
   '@type': 'Service',
   name,
   description: description ? stripHtml(description) : undefined,
-  url: toAbsoluteUrl(`/${locale}${path}`),
+  url: toLocalizedAbsoluteUrl(locale, path),
   areaServed: {
     '@type': 'City',
     name: 'Milano',
@@ -118,7 +122,7 @@ export const buildServiceJsonLd = ({
           price: String(price),
           priceCurrency: currency,
           availability: 'https://schema.org/InStock',
-          url: toAbsoluteUrl(`/${locale}${path}`),
+          url: toLocalizedAbsoluteUrl(locale, path),
         }
       : undefined,
 })
