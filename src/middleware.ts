@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { isLocale } from '@/lib/i18n/core'
-import { toInternalSeoPath } from '@/lib/frontend/seo/routes'
+import { toInternalSeoPath, toPublicSeoPath } from '@/lib/frontend/seo/routes'
 import { defaultLocale } from '@/lib/i18n/core'
 
 type WindowState = {
@@ -78,10 +78,18 @@ export function middleware(req: NextRequest) {
   const pathSegments = req.nextUrl.pathname.split('/').filter(Boolean)
   const localeSegment = pathSegments[0]
   if (localeSegment && isLocale(localeSegment)) {
-    const publicLocalePath = `/${pathSegments.slice(1).join('/')}`
-    const internalLocalePath = toInternalSeoPath(localeSegment, publicLocalePath)
+    const localePath = `/${pathSegments.slice(1).join('/')}`
+    const canonicalPublicPath = toPublicSeoPath(localeSegment, localePath)
 
-    if (internalLocalePath !== publicLocalePath) {
+    if (canonicalPublicPath !== localePath) {
+      const redirectUrl = req.nextUrl.clone()
+      redirectUrl.pathname = `/${localeSegment}${canonicalPublicPath}`
+      return NextResponse.redirect(redirectUrl, 308)
+    }
+
+    const internalLocalePath = toInternalSeoPath(localeSegment, localePath)
+
+    if (internalLocalePath !== localePath) {
       const rewriteUrl = req.nextUrl.clone()
       rewriteUrl.pathname = `/${localeSegment}${internalLocalePath}`
       return NextResponse.rewrite(rewriteUrl)
