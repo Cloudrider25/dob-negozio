@@ -9,20 +9,24 @@ import 'dotenv/config'
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+const isCI = Boolean(process.env.CI)
+const localHost = '127.0.0.1'
+const localPort = 3000
+const baseURL = `http://${localHost}:${localPort}`
+
 export default defineConfig({
   testDir: './tests/e2e',
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: isCI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: isCI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://localhost:3000',
+    baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -34,9 +38,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm dev',
-    reuseExistingServer: true,
-    url: 'http://localhost:3000',
-    timeout: process.env.CI ? 180000 : 60000,
+    command: isCI
+      ? `cross-env NODE_OPTIONS=--no-deprecation pnpm exec next start --hostname ${localHost} --port ${localPort}`
+      : `cross-env NODE_OPTIONS=--no-deprecation NEXT_DIST_DIR=.next-dev WATCHPACK_POLLING=true pnpm exec next dev --hostname ${localHost} --port ${localPort}`,
+    reuseExistingServer: !isCI,
+    url: `${baseURL}/it/signin`,
+    timeout: isCI ? 180000 : 60000,
   },
 })
