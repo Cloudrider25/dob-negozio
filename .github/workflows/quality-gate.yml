@@ -226,6 +226,10 @@ jobs:
         if: steps.secrets-check.outputs.has_secrets == 'true'
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Build app for smoke E2E
+        if: steps.secrets-check.outputs.has_secrets == 'true'
+        run: pnpm build
+
       - name: Run smoke E2E
         if: steps.secrets-check.outputs.has_secrets == 'true'
         run: pnpm test:e2e:smoke

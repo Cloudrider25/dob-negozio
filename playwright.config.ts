@@ -9,14 +9,16 @@ import 'dotenv/config'
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+const isCI = Boolean(process.env.CI)
+
 export default defineConfig({
   testDir: './tests/e2e',
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: isCI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: isCI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -34,9 +36,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm dev',
-    reuseExistingServer: true,
+    command: isCI ? 'pnpm start' : 'pnpm dev',
+    reuseExistingServer: !isCI,
     url: 'http://localhost:3000',
-    timeout: process.env.CI ? 180000 : 60000,
+    timeout: isCI ? 180000 : 60000,
   },
 })
