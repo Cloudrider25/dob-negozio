@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test'
 
+const BASE_URL = 'http://127.0.0.1:3000'
+
 test.describe('Checkout validation smoke', () => {
   test('@smoke rejects checkout when cart is empty', async ({ request }) => {
-    const response = await request.post('http://localhost:3000/api/shop/checkout', {
+    const response = await request.post(`${BASE_URL}/api/shop/checkout`, {
       data: {
         locale: 'it',
         customer: {
@@ -25,7 +27,7 @@ test.describe('Checkout validation smoke', () => {
   })
 
   test('@critical rejects service checkout when requested slot is incomplete', async ({ request }) => {
-    const response = await request.post('http://localhost:3000/api/shop/checkout', {
+    const response = await request.post(`${BASE_URL}/api/shop/checkout`, {
       data: {
         locale: 'it',
         serviceAppointment: {

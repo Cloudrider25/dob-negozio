@@ -13,33 +13,34 @@ type CheckoutProduct = {
 }
 
 const oneYearSeconds = 60 * 60 * 24 * 365
+const BASE_URL = 'http://127.0.0.1:3000'
 
 const buildPreferenceCookies = () => [
   {
     name: 'dob_prefs_confirmed',
     value: '1',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },
   {
     name: 'dob_prefs_locale',
     value: 'it',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },
   {
     name: 'dob_prefs_country',
     value: 'ITA',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },
   {
     name: 'dob_prefs_currency',
     value: 'EUR',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },
@@ -98,7 +99,7 @@ test.describe('Shop journey', () => {
     await page.context().addCookies(buildPreferenceCookies())
 
     console.log('[journey] open shop')
-    await page.goto('http://localhost:3000/it/shop', { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE_URL}/it/shop`, { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/\/it\/shop/)
 
     console.log('[journey] seed cart from in-stock product', product.slug)
@@ -122,7 +123,7 @@ test.describe('Shop journey', () => {
     }, product)
 
     console.log('[journey] open cart')
-    await page.goto('http://localhost:3000/it/cart', { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE_URL}/it/cart`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('link', { name: /Procedi al checkout/i })).toBeVisible({ timeout: 15_000 })
 
     console.log('[journey] open checkout')
@@ -130,7 +131,7 @@ test.describe('Shop journey', () => {
     await expect(page).toHaveURL(/\/it\/checkout$/)
 
     console.log('[journey] submit order')
-    const checkoutResponse = await request.post('http://localhost:3000/api/shop/checkout', {
+    const checkoutResponse = await request.post(`${BASE_URL}/api/shop/checkout`, {
       data: {
         locale: 'it',
         customer: {
@@ -158,7 +159,7 @@ test.describe('Shop journey', () => {
 
     console.log('[journey] verify success')
     const order = checkoutJson.orderNumber || String(checkoutJson.orderId || '')
-    await page.goto(`http://localhost:3000/it/checkout/success${order ? `?order=${encodeURIComponent(order)}` : ''}`)
+    await page.goto(`${BASE_URL}/it/checkout/success${order ? `?order=${encodeURIComponent(order)}` : ''}`)
     await expect(page).toHaveURL(/\/it\/checkout\/success/, { timeout: 20_000 })
     await expect(page.getByText('Grazie per il tuo acquisto')).toBeVisible()
     if (order) {
