@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { defaultLocale } from '@/lib/i18n/core'
+
 type WindowState = {
   count: number
   resetAt: number
@@ -17,6 +19,25 @@ const LIMIT_PER_WINDOW: Record<string, number> = {
   '/api/consultation-leads': 10,
 }
 
+const getCanonicalSiteUrl = (): URL => {
+  const raw =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.SITE_URL ||
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+    'https://dobmilano.com'
+
+  try {
+    return new URL(raw)
+  } catch {
+    return new URL('https://dobmilano.com')
+  }
+}
+
+const canonicalSiteUrl = getCanonicalSiteUrl()
+const canonicalHost = canonicalSiteUrl.host.toLowerCase()
+const canonicalProtocol = canonicalSiteUrl.protocol.replace(':', '').toLowerCase() || 'https'
+const wwwHost = canonicalHost.startsWith('www.') ? canonicalHost : `www.${canonicalHost}`
+
 const getClientIP = (req: NextRequest) =>
   req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
   req.headers.get('x-real-ip')?.trim() ||
@@ -28,6 +49,30 @@ const getPathLimit = (pathname: string) => {
 }
 
 export function middleware(req: NextRequest) {
+  const forwardedProto = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase()
+  const requestProtocol = forwardedProto || req.nextUrl.protocol.replace(':', '').toLowerCase()
+  const requestHost = req.headers.get('x-forwarded-host')?.split(',')[0]?.trim().toLowerCase()
+  const effectiveHost = (requestHost || req.nextUrl.host).toLowerCase()
+
+  const shouldNormalizeHost =
+    effectiveHost === canonicalHost || effectiveHost === wwwHost || req.nextUrl.pathname === '/'
+
+  if (
+    shouldNormalizeHost &&
+    (requestProtocol !== canonicalProtocol || effectiveHost === wwwHost)
+  ) {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.protocol = `${canonicalProtocol}:`
+    redirectUrl.host = canonicalHost
+    return NextResponse.redirect(redirectUrl, 308)
+  }
+
+  if (req.nextUrl.pathname === '/') {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.pathname = `/${defaultLocale}`
+    return NextResponse.redirect(redirectUrl, 308)
+  }
+
   if (req.method !== 'POST') return NextResponse.next()
 
   const limit = getPathLimit(req.nextUrl.pathname)
@@ -69,6 +114,8 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|llms.txt).*)',
     '/api/users',
     '/api/users/login',
     '/api/users/forgot-password',
