@@ -989,12 +989,34 @@ export interface Zone {
  */
 export interface Program {
   id: number;
-  title: string;
   slug?: string | null;
-  price?: number | null;
-  currency?: ('EUR' | 'USD') | null;
+  /**
+   * Impostazioni SEO specifiche per questa pagina.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Path relativo senza locale. Esempio: /services/service/laser-viso
+     */
+    canonicalPath?: string | null;
+    noIndex?: boolean | null;
+    image?: (number | null) | Media;
+  };
+  title: string;
+  active?: boolean | null;
   description?: string | null;
   heroMedia?: (number | null) | Media;
+  /**
+   * Calcolato automaticamente dalla somma degli elementi nel programma.
+   */
+  basePrice?: number | null;
+  discountType: 'percent' | 'amount';
+  discountValue?: number | null;
+  /**
+   * Calcolato automaticamente in base allo sconto impostato.
+   */
+  price?: number | null;
   steps?:
     | {
         stepType: 'manual' | 'service' | 'product';
@@ -1014,19 +1036,6 @@ export interface Program {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Impostazioni SEO specifiche per questa pagina.
-   */
-  seo?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Path relativo senza locale. Esempio: /services/service/laser-viso
-     */
-    canonicalPath?: string | null;
-    noIndex?: boolean | null;
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -2488,12 +2497,24 @@ export interface ServiceModalitiesSelect<T extends boolean = true> {
  * via the `definition` "programs_select".
  */
 export interface ProgramsSelect<T extends boolean = true> {
-  title?: T;
   slug?: T;
-  price?: T;
-  currency?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        canonicalPath?: T;
+        noIndex?: T;
+        image?: T;
+      };
+  title?: T;
+  active?: T;
   description?: T;
   heroMedia?: T;
+  basePrice?: T;
+  discountType?: T;
+  discountValue?: T;
+  price?: T;
   steps?:
     | T
     | {
@@ -2506,15 +2527,6 @@ export interface ProgramsSelect<T extends boolean = true> {
         stepSubtitle?: T;
         stepBadge?: T;
         id?: T;
-      };
-  seo?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        canonicalPath?: T;
-        noIndex?: T;
-        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
