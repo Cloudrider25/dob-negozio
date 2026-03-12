@@ -103,7 +103,7 @@
 
 .divider {
   height: 1px;
-  background: color-mix(in srgb, var(--stroke) 70%, transparent);
+  background: var(--stroke);
   width: 100%;
 }
 
@@ -121,7 +121,7 @@
 
 .sizePill {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
+  border: 1px solid var(--stroke);
   background: var(--pearl-1);
   padding: 0.35rem 0.9rem;
   cursor: pointer;
@@ -190,9 +190,9 @@
 }
 
 .packageItem {
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   border-radius: 12px;
-  background: color-mix(in srgb, var(--paper) 80%, transparent);
+  background: var(--paper);
 }
 
 .packageItemButton {
@@ -208,7 +208,7 @@
 }
 
 .packageItemButtonActive {
-  background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+  background: var(--paper);
 }
 
 .packageName {
@@ -236,8 +236,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.8rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-top: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--stroke);
 }
 
 .lineupItem {
@@ -265,7 +265,7 @@
 }
 
 .accordionItem {
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
+  border-bottom: 1px solid var(--stroke);
   padding: 0.6rem 0;
 }
 
@@ -313,7 +313,7 @@
 
 .detailCard {
   border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   background: var(--paper);
   padding: 1.8rem;
 }
@@ -325,7 +325,7 @@
 
 .treatmentsPanel {
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   background: var(--paper);
   padding: 2rem;
 }
@@ -345,7 +345,7 @@
 
 .backLink {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   padding: 0.6rem 1.2rem;
   color: var(--text-secondary);
   text-decoration: none;
@@ -361,7 +361,7 @@
 
 .pill {
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   background: var(--pearl-1);
   padding: 0.4rem 0.9rem;
   color: var(--text-secondary);
@@ -374,7 +374,7 @@
 
 .ingredientsSection {
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   background: var(--paper);
   padding: 2rem;
 }
@@ -498,7 +498,7 @@
 }
 
 .insideNote {
-  border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border-top: 1px solid var(--stroke);
   padding-top: 1rem;
   color: var(--text-secondary);
 }
@@ -554,12 +554,12 @@
 .treatmentCard {
   background: var(--bg);
   border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  border: 1px solid var(--stroke);
   height: 640px;
 }
 
 .treatmentCard:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--text-primary) 40%, transparent);
+  outline: 2px solid var(--text-primary);
   outline-offset: 4px;
 }
 
@@ -898,7 +898,7 @@
   }
 
   .heroPanel {
-    border-color: color-mix(in srgb, var(--stroke) 60%, transparent);
+    border-color: var(--stroke);
   }
 
   .videoWrap {

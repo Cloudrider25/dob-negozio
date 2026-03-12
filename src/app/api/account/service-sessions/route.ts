@@ -73,10 +73,19 @@ export async function GET(request: Request) {
         itemKind: session.itemKind,
         serviceTitle: session.serviceTitle,
         variantLabel:
-          session.variantLabel?.trim() || (session.itemKind === 'package' ? 'Pacchetto' : 'Default'),
+          session.variantLabel?.trim() ||
+          (session.itemKind === 'package'
+            ? 'Pacchetto'
+            : session.itemKind === 'program'
+              ? 'Programma'
+              : 'Default'),
         sessionLabel:
           session.sessionLabel?.trim() ||
-          (session.itemKind === 'package' ? `Seduta ${session.sessionIndex ?? 1}` : 'Seduta unica'),
+          (session.itemKind === 'package'
+            ? `Seduta ${session.sessionIndex ?? 1}`
+            : session.itemKind === 'program'
+              ? 'Programma completo'
+              : 'Seduta unica'),
         sessionsTotal: Math.max(1, session.sessionsTotal ?? 1),
         durationMinutes: session.durationMinutes ?? null,
         rowPrice: session.sessionPrice,

@@ -10,6 +10,7 @@ export const revalidate = 0
 const localizedPaths = [
   '',
   '/services',
+  '/programs',
   '/services/milano',
   '/services/trattamenti-viso-milano',
   '/services/epilazione-laser-milano',
@@ -111,7 +112,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           getCollectionSlugs({ locale, collection: 'treatments', where: { active: { equals: true } } }),
           getCollectionSlugs({ locale, collection: 'areas' }),
           getCollectionSlugs({ locale, collection: 'objectives' }),
-          getCollectionSlugs({ locale, collection: 'programs' }),
+          getCollectionSlugs({ locale, collection: 'programs', where: { active: { equals: true } } }),
         ])
     } catch (error) {
       console.warn(`[sitemap] Skipping dynamic entries for locale "${locale}" because DB is not ready.`, error)

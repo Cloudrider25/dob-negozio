@@ -45,7 +45,12 @@ export const OrderServiceSessions: CollectionConfig = {
       name: 'service',
       type: 'relationship',
       relationTo: 'services',
-      required: true,
+      index: true,
+    },
+    {
+      name: 'program',
+      type: 'relationship',
+      relationTo: 'programs',
       index: true,
     },
     {
@@ -59,6 +64,7 @@ export const OrderServiceSessions: CollectionConfig = {
           options: [
             { label: 'Service', value: 'service' },
             { label: 'Package', value: 'package' },
+            { label: 'Program', value: 'program' },
           ],
         },
         {

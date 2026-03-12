@@ -13,6 +13,7 @@ export const dictionary = {
     brand: 'DOB — Department of Beauty',
     nav: {
       story: 'Our Story',
+      programs: 'Programs',
       protocol: 'DOB Protocol',
       shop: 'Shop',
       journal: 'Journal',
@@ -128,6 +129,10 @@ export const dictionary = {
         faqSubtitle: 'Scopri di più su questo trattamento.',
       },
     },
+    programs: {
+      title: 'Programs',
+      lead: 'Percorsi estetici composti da trattamenti e prodotti selezionati.',
+    },
     cart: {
       title: 'Carrello',
       lead: 'Riepilogo dei prodotti selezionati.',
@@ -157,6 +162,7 @@ export const dictionary = {
     brand: 'DOB — Department of Beauty',
     nav: {
       story: 'Our Story',
+      programs: 'Programs',
       protocol: 'DOB Protocol',
       shop: 'Shop',
       journal: 'Journal',
@@ -272,6 +278,10 @@ export const dictionary = {
         faqSubtitle: 'Discover more about this treatment.',
       },
     },
+    programs: {
+      title: 'Programs',
+      lead: 'Beauty journeys built from selected treatments and products.',
+    },
     cart: {
       title: 'Cart',
       lead: 'Review the products you have selected.',
@@ -301,6 +311,7 @@ export const dictionary = {
     brand: 'DOB — Department of Beauty',
     nav: {
       story: 'Our Story',
+      programs: 'Programs',
       protocol: 'DOB Protocol',
       shop: 'Shop',
       journal: 'Journal',
@@ -415,6 +426,10 @@ export const dictionary = {
         faqSubtitleWithService: 'Узнайте больше о {{service}}.',
         faqSubtitle: 'Узнайте больше об этой процедуре.',
       },
+    },
+    programs: {
+      title: 'Programs',
+      lead: 'Эстетические программы из подобранных процедур и продуктов.',
     },
     cart: {
       title: 'Корзина',

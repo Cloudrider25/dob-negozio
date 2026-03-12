@@ -6,6 +6,7 @@ import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 export type FrontendPageKey =
   | 'home'
   | 'services'
+  | 'programs'
   | 'shop'
   | 'journal'
   | 'location'
