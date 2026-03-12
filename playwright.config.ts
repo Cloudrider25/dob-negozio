@@ -10,6 +10,9 @@ import 'dotenv/config'
  * See https://playwright.dev/docs/test-configuration.
  */
 const isCI = Boolean(process.env.CI)
+const localHost = '127.0.0.1'
+const localPort = 3000
+const baseURL = `http://${localHost}:${localPort}`
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -23,8 +26,7 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://localhost:3000',
+    baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -36,9 +38,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: isCI ? 'pnpm start' : 'pnpm dev',
+    command: isCI
+      ? `cross-env NODE_OPTIONS=--no-deprecation pnpm exec next start --hostname ${localHost} --port ${localPort}`
+      : `cross-env NODE_OPTIONS=--no-deprecation NEXT_DIST_DIR=.next-dev WATCHPACK_POLLING=true pnpm exec next dev --hostname ${localHost} --port ${localPort}`,
     reuseExistingServer: !isCI,
-    url: 'http://localhost:3000',
+    url: `${baseURL}/it/signin`,
     timeout: isCI ? 180000 : 60000,
   },
 })
