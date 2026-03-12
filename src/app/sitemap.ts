@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import type { Where } from 'payload'
 
+import { toPublicSeoPath } from '@/lib/frontend/seo/routes'
 import { locales, type Locale } from '@/lib/i18n/core'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 
@@ -37,7 +38,7 @@ const getBaseUrl = (): string => {
   return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
 }
 
-const toPath = (locale: Locale, path: string) => `/${locale}${path}`
+const toPath = (locale: Locale, path: string) => `/${locale}${toPublicSeoPath(locale, path)}`
 
 const getSlug = (doc: unknown): string | null => {
   if (!doc || typeof doc !== 'object') return null
