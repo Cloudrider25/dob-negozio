@@ -1,34 +1,35 @@
 import { expect, test } from '@playwright/test'
 
-const HOME_URL = 'http://localhost:3000/it'
+const BASE_URL = 'http://127.0.0.1:3000'
+const HOME_URL = `${BASE_URL}/it`
 const oneYearSeconds = 60 * 60 * 24 * 365
 
 const buildPreferenceCookies = () => [
   {
     name: 'dob_prefs_confirmed',
     value: '1',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },
   {
     name: 'dob_prefs_locale',
     value: 'it',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },
   {
     name: 'dob_prefs_country',
     value: 'ITA',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },
   {
     name: 'dob_prefs_currency',
     value: 'EUR',
-    url: 'http://localhost:3000',
+    url: BASE_URL,
     sameSite: 'Lax' as const,
     expires: Math.floor(Date.now() / 1000) + oneYearSeconds,
   },

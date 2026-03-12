@@ -3,6 +3,14 @@ import type { CollectionConfig } from 'payload'
 import { isAdmin } from '../access/isAdmin'
 import { seoFields } from '../fields/seoFields'
 
+const slugifyValue = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '')
+
 const toRelationId = (value: unknown): number | string | null => {
   if (typeof value === 'number' || typeof value === 'string') return value
   if (value && typeof value === 'object' && 'id' in value) {
@@ -28,7 +36,7 @@ export const Programs: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     group: 'Servizi',
-    defaultColumns: ['title', 'updatedAt'],
+    defaultColumns: ['title', 'active', 'price', 'updatedAt'],
   },
   access: {
     read: () => true,
@@ -42,6 +50,7 @@ export const Programs: CollectionConfig = {
         if (!data || data.slug) return data
         const rawTitle = data.title
         let value = ''
+
         if (typeof rawTitle === 'string') {
           value = rawTitle
         } else if (rawTitle && typeof rawTitle === 'object') {
@@ -55,13 +64,9 @@ export const Programs: CollectionConfig = {
             if (typeof first === 'string') value = first
           }
         }
+
         if (!value) return data
-        const slug = value
-          .toLowerCase()
-          .normalize('NFKD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)+/g, '')
+        const slug = slugifyValue(value)
         if (slug) {
           data.slug = slug
         }
@@ -192,6 +197,7 @@ export const Programs: CollectionConfig = {
               name: 'heroMedia',
               type: 'upload',
               relationTo: 'media',
+              label: 'Hero Media',
             },
           ],
         },
