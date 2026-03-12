@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { defaultLocale, locales, type Locale } from '@/lib/i18n/core'
+import { toInternalSeoPath, toPublicSeoPath } from '@/lib/frontend/seo/routes'
 
 const MAX_DESCRIPTION_LENGTH = 160
 
@@ -22,7 +23,7 @@ const normalizePath = (path: string): string => {
 const isAbsoluteUrl = (value: string): boolean => /^https?:\/\//i.test(value)
 
 export const buildLocalizedPath = (locale: Locale, path = ''): string => {
-  const normalized = normalizePath(path)
+  const normalized = toPublicSeoPath(locale, normalizePath(path))
   return `/${locale}${normalized}`
 }
 
@@ -69,7 +70,8 @@ export const buildSeoMetadata = ({
   }
 }): Metadata => {
   const resolvedTitle = toOptionalText(seo?.title) ?? title
-  const canonicalPath = toOptionalText(seo?.canonicalPath) ?? path ?? ''
+  const configuredCanonicalPath = toOptionalText(seo?.canonicalPath) ?? path ?? ''
+  const canonicalPath = toInternalSeoPath(locale, configuredCanonicalPath)
   const relativePath = buildLocalizedPath(locale, canonicalPath)
   const canonical = toAbsoluteUrl(relativePath)
   const fallbackDescription = 'DOB Milano. Trattamenti e prodotti estetici professionali a Milano.'
