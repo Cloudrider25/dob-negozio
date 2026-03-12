@@ -53,4 +53,4 @@ export const STRIPE_LOCALE_MAP: Record<string, StripeElementLocale> = {
 }
 
 export const isServiceCartItem = (item: CartItem) =>
-  item.id.includes(':service:') || item.id.includes(':package:')
+  item.id.includes(':service:') || item.id.includes(':package:') || item.id.includes(':program:')

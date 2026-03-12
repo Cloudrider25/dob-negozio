@@ -1,0 +1,21 @@
+.page {
+  display: grid;
+  gap: 3rem;
+  padding-bottom: 3rem;
+}
+
+.sections {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .page {
+    gap: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .sections {
+    gap: 1.5rem;
+  }
+}

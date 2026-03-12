@@ -148,6 +148,6 @@ img {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--tech-cyan) 35%, transparent);
+  background: var(--tech-cyan);
   color: var(--text-inverse);
 }

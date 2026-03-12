@@ -201,7 +201,15 @@ export const useCheckoutPaymentSession = ({
     setExpressPrefetchTried(false)
     setExpressPrefetchError(null)
     setPaymentSession(null)
-  }, [cartFingerprint, locale, discountCode])
+  }, [
+    cartFingerprint,
+    locale,
+    discountCode,
+    productFulfillmentMode,
+    serviceAppointmentMode,
+    serviceRequestedDate,
+    serviceRequestedTime,
+  ])
 
   useEffect(() => {
     if (activeStep === 'information') {

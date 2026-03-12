@@ -121,6 +121,7 @@ export function CartPageClient({ locale }: { locale: string }) {
         </div>
 
         <section className={styles.summary}>
+          <h2 className={cn(styles.summaryTitle, 'typo-h3')}>{copy.summary.title}</h2>
           <div className={styles.discountBox}>
             <label htmlFor="cart-discount" className={cn(styles.discountLabel, 'typo-small-upper')}>
               {copy.discount.title}
