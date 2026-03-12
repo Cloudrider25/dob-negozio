@@ -51,6 +51,7 @@ type RoutineTemplateItem = {
   need: { id: string; label: string }
   timing: { id: string; label: string; slug?: string }
   productArea?: { id: string; label: string }
+  skinType?: { id: string; label: string; slug?: string }
   isMultibrand: boolean
   brand?: { id: string; label: string }
   steps: Array<{
@@ -62,6 +63,7 @@ type RoutineTemplateItem = {
       id: string
       title: string
       slug?: string
+      format?: string
       price?: number
       currency?: string
       brand?: string
@@ -92,6 +94,7 @@ type FilterProduct = {
   id: string
   title?: string
   slug?: string
+  format?: string
   price?: number
   currency?: string
   brand?: unknown
@@ -118,6 +121,19 @@ const STEP_KEYWORD_MAP: Record<string, string[]> = {
   'esfoliante-corpo': ['esfoliante', 'scrub'],
   'trattamento-mirato': ['anticellulite', 'riduc', 'drenante', 'thermo', 'criogel', 'leggings'],
   'crema-olio-finale': ['crema', 'olio', 'emulsion'],
+}
+
+const formatRoutineProductPrice = (locale: string, value?: number, currency?: string) => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+
+  const normalizedLocale =
+    locale === 'it' ? 'it-IT' : locale === 'en' ? 'en-US' : locale === 'ru' ? 'ru-RU' : locale
+
+  return new Intl.NumberFormat(normalizedLocale, {
+    style: 'currency',
+    currency: currency || 'EUR',
+    minimumFractionDigits: 2,
+  }).format(value)
 }
 
 export function RoutineBuilderSplitSection({
@@ -223,19 +239,40 @@ export function RoutineBuilderSplitSection({
   const activeNeed = needsForSelection.find((need) => need.id === activeNeedId) ?? needsForSelection[0]
   const needMedia = needsForSelection.find((need) => need.id === activeNeed?.id && need.media?.url)
 
-  const filteredTemplates = useMemo(() => {
+  const matchedRoutineTemplates = useMemo(() => {
     if (!selectedArea?.id || !activeTiming?.id || !activeNeed?.id) return []
     return routineTemplates.filter((template) => {
       if (template.productArea?.id && template.productArea.id !== selectedArea.id) return false
       if (template.timing.id !== activeTiming.id) return false
       if (template.need.id !== activeNeed.id) return false
+      if (template.skinType?.id && template.skinType.id !== activeSkinType?.id) return false
+      return true
+    })
+  }, [activeNeed?.id, activeSkinType?.id, activeTiming?.id, routineTemplates, selectedArea?.id])
+
+  const filteredTemplates = useMemo(() => {
+    return matchedRoutineTemplates.filter((template) => {
       if (selectedBrandId === 'multibrand') return template.isMultibrand
       return template.brand?.id === selectedBrandId
     })
-  }, [activeNeed?.id, activeTiming?.id, routineTemplates, selectedArea?.id, selectedBrandId])
+  }, [matchedRoutineTemplates, selectedBrandId])
 
   const selectedTemplate =
     filteredTemplates.find((template) => template.id === selectedTemplateId) ?? filteredTemplates[0]
+
+  const matchedRoutineProductIds = useMemo(() => {
+    const ids = new Set<string>()
+
+    for (const template of matchedRoutineTemplates) {
+      for (const step of template.steps) {
+        for (const product of step.products) {
+          if (product.id) ids.add(product.id)
+        }
+      }
+    }
+
+    return ids
+  }, [matchedRoutineTemplates])
 
   const customSteps = useMemo(() => {
     if (!selectedArea?.id) return []
@@ -272,6 +309,7 @@ export function RoutineBuilderSplitSection({
   const customProductsByStep = useMemo(() => {
     if (!selectedArea?.id || !activeTiming?.id || !activeNeed?.id) return new Map<string, FilterProduct[]>()
     const base = shopAllProducts.filter((product) => {
+      if (matchedRoutineProductIds.has(product.id)) return false
       const matchesArea = product.productAreas.some((area) => area.id === selectedArea.id)
       if (!matchesArea) return false
       const matchesTiming = product.timingProducts.some((timing) => timing.id === activeTiming.id)
@@ -295,7 +333,7 @@ export function RoutineBuilderSplitSection({
       map.set(step.id, items)
     }
     return map
-  }, [activeNeed?.id, activeSkinType, activeTiming?.id, customSteps, selectedArea?.id, shopAllProducts])
+  }, [activeNeed?.id, activeSkinType, activeTiming?.id, customSteps, matchedRoutineProductIds, selectedArea?.id, shopAllProducts])
 
   const presetSteps = useMemo(() => {
     if (!selectedTemplate) return []
@@ -372,6 +410,32 @@ export function RoutineBuilderSplitSection({
       }).format(routineCheckoutTotal),
     [locale, routineCheckoutTotal],
   )
+
+  const renderRoutineProductInfo = (product: {
+    title?: string
+    format?: string
+    price?: number
+    currency?: string
+  }) => {
+    const formattedPrice = formatRoutineProductPrice(locale, product.price, product.currency)
+    const hasMeta = Boolean(product.format || formattedPrice)
+
+    return (
+      <div className={styles.routineProductContent}>
+        <p className={`${styles.routineProductTitle} typo-small`}>{product.title ?? ''}</p>
+        {hasMeta ? (
+          <div className={styles.routineProductMeta}>
+            <span className={`${styles.routineProductFormat} typo-caption`}>
+              {product.format || ''}
+            </span>
+            <span className={`${styles.routineProductPrice} typo-caption`}>
+              {formattedPrice || ''}
+            </span>
+          </div>
+        ) : null}
+      </div>
+    )
+  }
 
   const availableBrands = useMemo(() => {
     const map = new Map<string, { id: string; label: string }>()
@@ -1071,7 +1135,7 @@ export function RoutineBuilderSplitSection({
                                       fallback={<div className={styles.routineThumbFallback} />}
                                       unoptimized={isRemoteThumbnailSrc(media?.url)}
                                     />
-                                    <p className={`${styles.routineProductTitle} typo-small`}>{product.title}</p>
+                                    {renderRoutineProductInfo(product)}
                                   </div>
                                 )
                               })}
@@ -1108,7 +1172,7 @@ export function RoutineBuilderSplitSection({
                                       fallback={<div className={styles.routineThumbFallback} />}
                                       unoptimized={isRemoteThumbnailSrc(media?.url)}
                                     />
-                                    <p className={`${styles.routineProductTitle} typo-small`}>{product.title ?? ''}</p>
+                                    {renderRoutineProductInfo(product)}
                                   </div>
                                 )
                               })}

@@ -46,7 +46,7 @@ export type ServiceBookingRow = {
   orderCreatedAt: string
   orderStatus: string
   paymentStatus: string
-  itemKind: 'service' | 'package'
+  itemKind: 'service' | 'package' | 'program'
   serviceTitle: string
   variantLabel: string
   sessionLabel: string

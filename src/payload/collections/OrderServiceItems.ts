@@ -107,7 +107,12 @@ export const OrderServiceItems: CollectionConfig = {
       name: 'service',
       type: 'relationship',
       relationTo: 'services',
-      required: true,
+      index: true,
+    },
+    {
+      name: 'program',
+      type: 'relationship',
+      relationTo: 'programs',
       index: true,
     },
     {
@@ -121,6 +126,7 @@ export const OrderServiceItems: CollectionConfig = {
           options: [
             { label: 'Service', value: 'service' },
             { label: 'Package', value: 'package' },
+            { label: 'Program', value: 'program' },
           ],
         },
         {
@@ -159,6 +165,39 @@ export const OrderServiceItems: CollectionConfig = {
             { label: 'Confermato', value: 'confirmed' },
             { label: 'Alternativa proposta', value: 'alternative_proposed' },
             { label: 'Confermato da cliente', value: 'confirmed_by_customer' },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'programStepsSnapshot',
+      label: 'Program steps snapshot',
+      type: 'array',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'stepType',
+              type: 'select',
+              options: [
+                { label: 'Manuale', value: 'manual' },
+                { label: 'Servizio', value: 'service' },
+                { label: 'Prodotto', value: 'product' },
+              ],
+            },
+            {
+              name: 'title',
+              type: 'text',
+            },
+            {
+              name: 'referenceTitle',
+              type: 'text',
+            },
+            {
+              name: 'referenceSlug',
+              type: 'text',
+            },
           ],
         },
       ],
