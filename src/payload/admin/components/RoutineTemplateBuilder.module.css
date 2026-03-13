@@ -167,7 +167,7 @@
   }
 
   .stepRow {
-    grid-template-columns: minmax(160px, 1fr) 140px 120px auto;
+    grid-template-columns: minmax(160px, 1fr) minmax(240px, 1.2fr) 140px 120px auto;
   }
 
   .ruleRow {

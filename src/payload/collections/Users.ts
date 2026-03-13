@@ -63,7 +63,7 @@ export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
     useAsTitle: 'email',
-    group: 'Sistema',
+    group: 'Impostazioni',
   },
   auth: {
     maxLoginAttempts: 5,

@@ -11,16 +11,25 @@ const slugifyValue = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '')
 
-const resolveNumeric = (value: unknown): number => {
-  if (typeof value === 'number' && Number.isFinite(value)) return value
-  if (typeof value === 'string') {
-    const parsed = Number(value)
-    if (Number.isFinite(parsed)) return parsed
+const toRelationId = (value: unknown): number | string | null => {
+  if (typeof value === 'number' || typeof value === 'string') return value
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = (value as { id?: unknown }).id
+    if (typeof id === 'number' || typeof id === 'string') return id
   }
-  return 0
+  return null
 }
 
-const clampMoney = (value: number) => Math.max(0, Number(value.toFixed(2)))
+const toPrice = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (value && typeof value === 'object' && 'price' in value) {
+    const price = (value as { price?: unknown }).price
+    if (typeof price === 'number' && Number.isFinite(price)) return price
+  }
+  return null
+}
+
+const roundCurrency = (value: number) => Number(value.toFixed(2))
 
 export const Programs: CollectionConfig = {
   slug: 'programs',
@@ -68,63 +77,81 @@ export const Programs: CollectionConfig = {
       async ({ data, originalDoc, req }) => {
         if (!data) return data
 
-        const steps = Array.isArray(data.steps)
-          ? data.steps
-          : Array.isArray(originalDoc?.steps)
-            ? originalDoc.steps
-            : []
-
-        let basePrice = 0
-
-        for (const step of steps) {
-          if (!step || typeof step !== 'object') continue
-
-          if (step.stepType === 'service' && step.stepService) {
-            const service = await req.payload.findByID({
-              collection: 'services',
-              id:
-                typeof step.stepService === 'object' && step.stepService && 'id' in step.stepService
-                  ? String(step.stepService.id)
-                  : String(step.stepService),
-              depth: 0,
-              overrideAccess: false,
-              req,
-            })
-            basePrice += resolveNumeric(service?.price)
-          }
-
-          if (step.stepType === 'product' && step.stepProduct) {
-            const product = await req.payload.findByID({
-              collection: 'products',
-              id:
-                typeof step.stepProduct === 'object' && step.stepProduct && 'id' in step.stepProduct
-                  ? String(step.stepProduct.id)
-                  : String(step.stepProduct),
-              depth: 0,
-              overrideAccess: false,
-              req,
-            })
-            basePrice += resolveNumeric(product?.price)
-          }
+        const source = {
+          ...(originalDoc && typeof originalDoc === 'object' ? originalDoc : {}),
+          ...data,
+        } as {
+          steps?: Array<Record<string, unknown>>
+          discountType?: 'percent' | 'amount' | null
+          discountValue?: number | null
         }
 
-        const nextBasePrice = clampMoney(basePrice)
-        const discountType =
-          data.discountType ??
-          originalDoc?.discountType ??
-          'percent'
-        const discountValue = resolveNumeric(data.discountValue ?? originalDoc?.discountValue)
+        const steps = Array.isArray(source.steps) ? source.steps : []
+        const priceCache = new Map<string, number | null>()
 
-        let finalPrice = nextBasePrice
-        if (discountType === 'amount') {
-          finalPrice = nextBasePrice - discountValue
-        } else {
-          finalPrice = nextBasePrice - nextBasePrice * (discountValue / 100)
+        const resolveDocPrice = async (
+          collection: 'services' | 'products',
+          stepValue: unknown,
+        ): Promise<number | null> => {
+          const inlinePrice = toPrice(stepValue)
+          if (inlinePrice !== null) return inlinePrice
+
+          const relationId = toRelationId(stepValue)
+          if (!relationId) return null
+
+          const cacheKey = `${collection}:${String(relationId)}`
+          if (priceCache.has(cacheKey)) {
+            return priceCache.get(cacheKey) ?? null
+          }
+
+          const doc = await req.payload.findByID({
+            collection,
+            id: String(relationId),
+            depth: 0,
+            req,
+          })
+
+          const resolvedPrice = toPrice(doc)
+          priceCache.set(cacheKey, resolvedPrice)
+          return resolvedPrice
         }
 
-        data.basePrice = nextBasePrice
-        data.discountValue = clampMoney(discountValue)
-        data.price = clampMoney(finalPrice)
+        const stepPrices = await Promise.all(
+          steps.map(async (step) => {
+            if (!step || typeof step !== 'object') return null
+            if (step.stepType === 'service') {
+              return resolveDocPrice('services', step.stepService)
+            }
+            if (step.stepType === 'product') {
+              return resolveDocPrice('products', step.stepProduct)
+            }
+            return null
+          }),
+        )
+
+        const basePrice = roundCurrency(
+          stepPrices.reduce<number>((sum, price) => {
+            if (typeof price !== 'number' || Number.isNaN(price) || price < 0) return sum
+            return sum + price
+          }, 0),
+        )
+
+        const discountType = source.discountType === 'amount' ? 'amount' : 'percent'
+        const rawDiscountValue =
+          typeof source.discountValue === 'number' && Number.isFinite(source.discountValue)
+            ? source.discountValue
+            : 0
+        const discountValue = rawDiscountValue < 0 ? 0 : rawDiscountValue
+
+        const discountAmount =
+          discountType === 'amount'
+            ? discountValue
+            : (basePrice * Math.min(discountValue, 100)) / 100
+
+        data.basePrice = basePrice
+        data.discountType = discountType
+        data.discountValue = roundCurrency(discountValue)
+        data.price = roundCurrency(Math.max(basePrice - discountAmount, 0))
 
         return data
       },
@@ -151,20 +178,15 @@ export const Programs: CollectionConfig = {
           label: 'Programma Generale',
           fields: [
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'title',
-                  type: 'text',
-                  localized: true,
-                  required: true,
-                },
-                {
-                  name: 'active',
-                  type: 'checkbox',
-                  defaultValue: true,
-                },
-              ],
+              name: 'active',
+              type: 'checkbox',
+              defaultValue: true,
+            },
+            {
+              name: 'title',
+              type: 'text',
+              localized: true,
+              required: true,
             },
             {
               name: 'description',
@@ -192,7 +214,7 @@ export const Programs: CollectionConfig = {
                   min: 0,
                   admin: {
                     readOnly: true,
-                    description: 'Calcolato automaticamente dalla somma degli elementi nel programma.',
+                    description: 'Calcolato automaticamente dagli step del programma al salvataggio.',
                   },
                 },
                 {
@@ -204,7 +226,6 @@ export const Programs: CollectionConfig = {
                     { label: 'Percentuale', value: 'percent' },
                     { label: 'Fisso', value: 'amount' },
                   ],
-                  required: true,
                 },
                 {
                   name: 'discountValue',
@@ -220,7 +241,11 @@ export const Programs: CollectionConfig = {
                   min: 0,
                   admin: {
                     readOnly: true,
-                    description: 'Calcolato automaticamente in base allo sconto impostato.',
+                    description:
+                      'Calcolato automaticamente da somma elementi meno sconto al salvataggio.',
+                    components: {
+                      Field: '/admin/components/ProgramComputedPriceField',
+                    },
                   },
                 },
               ],

@@ -8,11 +8,16 @@
   border-radius: 22px;
   border: 1px solid var(--stroke);
   background: var(--panel);
+  overflow: hidden;
 }
 
 .panelContent {
   padding: 1.1rem;
   height: 100%;
+  border-radius: 22px;
+  background: var(--paper);
+  color: var(--text-primary);
+  overflow-y: auto;
 }
 
 .panelMedia {
@@ -60,7 +65,7 @@
 }
 
 .mediaSwiper :global(.swiper-slide) {
-  background: #000;
+  background: var(--panel);
 }
 
 .mediaSlide {
@@ -83,9 +88,10 @@
 
 .leftSlide {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+  height: auto;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .column {
@@ -93,26 +99,25 @@
   flex-direction: column;
   gap: 0.85rem;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+  height: auto;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .heading {
   margin: 0;
   color: var(--text-primary);
-  font-size: 1.5rem;
-  line-height: 1.04;
-  min-height: 3.3rem;
+  font-size: 1.25rem;
+  line-height: 1.08;
+  min-height: 2.8rem;
 }
 
 .bodyText {
   margin: 0;
   color: var(--text-secondary);
-  min-height: 4rem;
-  height: 4rem;
-  overflow: hidden;
+  min-height: 3rem;
 }
 
 .circleList {
@@ -287,7 +292,6 @@
 }
 
 .optionSlider {
-  margin-top: 4vw;
   width: 100%;
   overflow: visible;
 }
@@ -304,11 +308,12 @@
 
 .optionCard {
   width: 100%;
-  height: 10rem;
-  border: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+  min-height: 10rem;
+  height: auto;
+  border: 1px solid var(--stroke);
   border-radius: 18px;
   padding: 1rem;
-  background: color-mix(in srgb, var(--bg) 90%, #ffffff 10%);
+  background: var(--bg);
   text-align: left;
   display: grid;
   gap: 0.5rem;
@@ -318,8 +323,8 @@
 
 .optionCard:hover,
 .optionCardActive {
-  border-color: color-mix(in srgb, var(--text-primary) 55%, transparent);
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  border-color: var(--text-primary);
+  background: var(--paper);
 }
 
 .optionCardLabel {
@@ -439,9 +444,9 @@
 
 .routineStepGroup {
   display: flex;
-  flex-direction: row;
-  gap: 0.8rem;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.45rem;
+  align-items: stretch;
 }
 
 .routineStepBlock {
@@ -458,7 +463,6 @@
 .routineStepTitle {
   margin: 0;
   color: var(--text-secondary);
-  flex: 0 0 110px;
 }
 
 .routineThumbs {
@@ -468,14 +472,14 @@
 
 .routineProductRow {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: 56px minmax(0, 1fr);
   gap: 0.7rem;
-  align-items: center;
+  align-items: start;
 }
 
 .routineThumb {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--stroke);
@@ -495,9 +499,33 @@
   background: var(--stroke);
 }
 
+.routineProductContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
 .routineProductTitle {
   margin: 0;
   color: var(--text-primary);
+}
+
+.routineProductMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.routineProductFormat {
+  color: var(--text-secondary);
+}
+
+.routineProductPrice {
+  color: var(--text-primary);
+  text-align: right;
+  white-space: nowrap;
 }
 
 .routineCheckoutCta {

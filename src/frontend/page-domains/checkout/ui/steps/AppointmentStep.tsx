@@ -80,13 +80,19 @@ export function AppointmentStep({
                 className={cn(styles.input, 'typo-body')}
                 type="date"
                 value={serviceRequestedDate}
-                onChange={(event) => setServiceRequestedDate(event.target.value)}
+                onChange={(event) => {
+                  setServiceAppointmentMode('requested_slot')
+                  setServiceRequestedDate(event.target.value)
+                }}
               />
               <input
                 className={cn(styles.input, 'typo-body')}
                 type="time"
                 value={serviceRequestedTime}
-                onChange={(event) => setServiceRequestedTime(event.target.value)}
+                onChange={(event) => {
+                  setServiceAppointmentMode('requested_slot')
+                  setServiceRequestedTime(event.target.value)
+                }}
               />
             </div>
           </div>

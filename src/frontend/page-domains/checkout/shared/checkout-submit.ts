@@ -23,7 +23,8 @@ export type CheckoutSubmitPayload = {
       }
 }
 
-const isServiceLikeId = (id: string) => id.includes(':service:') || id.includes(':package:')
+const isServiceLikeId = (id: string) =>
+  id.includes(':service:') || id.includes(':package:') || id.includes(':program:')
 
 export const buildCheckoutSubmitPayload = ({
   locale,
