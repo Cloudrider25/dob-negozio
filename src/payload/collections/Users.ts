@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { getAccountDictionary, resolveLocale } from '@/lib/i18n/account'
 import { getPasswordValidationFailureKey } from '@/lib/shared/auth/passwordPolicy'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
+import { getPublicSiteOrigin } from '@/lib/server/url/getPublicSiteOrigin'
 
 import { isAdmin, isAdminField } from '../access/isAdmin'
 import { isAdminOrSelf } from '../access/isAdminOrSelf'
@@ -74,8 +75,7 @@ export const Users: CollectionConfig = {
         return getAccountDictionary(locale).authEmail.resetPassword.subject
       },
       generateEmailHTML: ({ req, token, user } = {}) => {
-        const origin =
-          req?.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+        const origin = getPublicSiteOrigin(req?.headers)
         const locale = getUserPreferredLocale(user)
         const copy = getAccountDictionary(locale).authEmail.resetPassword
         const url = `${origin}/${locale}/reset-password?token=${encodeURIComponent(token || '')}`
@@ -106,8 +106,7 @@ export const Users: CollectionConfig = {
         return getAccountDictionary(locale).authEmail.verify.subject
       },
       generateEmailHTML: ({ req, token, user }) => {
-        const origin =
-          req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+        const origin = getPublicSiteOrigin(req.headers)
         const locale = getUserPreferredLocale(user)
         const copy = getAccountDictionary(locale).authEmail.verify
         const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}`
