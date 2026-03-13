@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { sendShipmentNotifications } from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 
 type GenericRecord = Record<string, unknown>
@@ -140,6 +141,34 @@ export async function POST(request: Request) {
       },
     },
   })
+
+  const hadTrackingBefore =
+    typeof order.sendcloud === 'object' &&
+    order.sendcloud !== null &&
+    (Boolean(order.sendcloud.trackingNumber) || Boolean(order.sendcloud.trackingUrl))
+  const hasTrackingNow = Boolean(trackingNumber || trackingUrl)
+
+  if (hasTrackingNow && !hadTrackingBefore) {
+    try {
+      await sendShipmentNotifications({
+        payload,
+        eventKey: 'tracking_available',
+        orderNumber: typeof order.orderNumber === 'string' ? order.orderNumber : `#${String(order.id)}`,
+        customerEmail: typeof order.customerEmail === 'string' ? order.customerEmail : '',
+        customerFirstName:
+          typeof order.customerFirstName === 'string' ? order.customerFirstName : '',
+        customerLastName:
+          typeof order.customerLastName === 'string' ? order.customerLastName : '',
+        trackingNumber,
+        trackingUrl,
+      })
+    } catch (emailError) {
+      payload.logger.error({
+        err: emailError,
+        msg: `Tracking notification failed for parcel ${parcelId}`,
+      })
+    }
+  }
 
   return NextResponse.json({
     ok: true,

@@ -33,6 +33,10 @@ import { default as default_105fca366eb1136e5e20aaa4c816c7c1 } from '../../../pa
 import { default as default_ab1d23622ab994e20ed777b305b8a6dd } from '../../../payload/admin/components/RoutineTemplateBuilderClient'
 import { default as default_08847aa119deb03f203ed63fe48d9440 } from '../../../payload/admin/components/RoutineTemplateRulesClient'
 import { default as default_c3f63aefa634036b15029a10a330f6ca } from '../../../payload/admin/components/PartnerCommissionDashboard'
+import { default as default_8b85699d3fe8c472aa1c8e841f55bd77 } from '../../../payload/admin/components/EmailTemplateVariablesField'
+import { default as default_d92911400ac0186f39eee09598cebca2 } from '../../../payload/admin/components/EmailTemplatePreviewField'
+import { default as default_ec0daf9ab8779ae641a176a04c1f3b60 } from '../../../payload/admin/components/EmailDeliveryEventsListTools'
+import { default as default_b2dea793bd361318770f888b6e35321f } from '../../../payload/admin/components/EmailDeliveryPoliciesField'
 import { default as default_0b33f93bb807a080d461c762102c276c } from '../../../payload/admin/components/PartnerPayoutsOverview'
 import { default as default_5e59f4e69d660c312ff48eca151b211a } from '../../../payload/admin/components/AdminSidebarLogo'
 import { default as default_c086fd4548e60a3ba9024fca9e868dc8 } from '../../../payload/admin/components/AdminSidebarHeader'
@@ -75,6 +79,10 @@ export const importMap = {
   "/admin/components/RoutineTemplateBuilderClient#default": default_ab1d23622ab994e20ed777b305b8a6dd,
   "/admin/components/RoutineTemplateRulesClient#default": default_08847aa119deb03f203ed63fe48d9440,
   "/admin/components/PartnerCommissionDashboard#default": default_c3f63aefa634036b15029a10a330f6ca,
+  "/admin/components/EmailTemplateVariablesField#default": default_8b85699d3fe8c472aa1c8e841f55bd77,
+  "/admin/components/EmailTemplatePreviewField#default": default_d92911400ac0186f39eee09598cebca2,
+  "/admin/components/EmailDeliveryEventsListTools#default": default_ec0daf9ab8779ae641a176a04c1f3b60,
+  "/admin/components/EmailDeliveryPoliciesField#default": default_b2dea793bd361318770f888b6e35321f,
   "/admin/components/PartnerPayoutsOverview#default": default_0b33f93bb807a080d461c762102c276c,
   "/admin/components/AdminSidebarLogo#default": default_5e59f4e69d660c312ff48eca151b211a,
   "/admin/components/AdminSidebarHeader#default": default_c086fd4548e60a3ba9024fca9e868dc8,
