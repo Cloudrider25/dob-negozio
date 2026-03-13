@@ -3,7 +3,6 @@ import { getPayload } from 'payload'
 import config from '../src/payload/config'
 import {
   EMAIL_EVENT_META,
-  type EmailChannel,
   type EmailEventKey,
 } from '../src/lib/server/email/events'
 
