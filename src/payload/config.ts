@@ -10,6 +10,8 @@ import pgDependency from 'pg'
 
 import { Users } from './collections/Users'
 import { AuthAuditEvents } from './collections/AuthAuditEvents'
+import { EmailTemplates } from './collections/EmailTemplates'
+import { EmailDeliveryEvents } from './collections/EmailDeliveryEvents'
 import { Media } from './collections/Media'
 import { Products } from './collections/Products'
 import { Needs } from './collections/Needs'
@@ -327,6 +329,7 @@ export default buildConfig({
     Posts,
     Media,
     Users,
+    EmailTemplates,
     ShopInventoryLocks,
     RoutineTemplateStepProducts,
     RoutineSteps,
@@ -337,6 +340,7 @@ export default buildConfig({
     OrderServiceItems,
     ShopWebhookEvents,
     AuthAuditEvents,
+    EmailDeliveryEvents,
   ],
   globals: [SiteSettings, InstagramSettings, PartnerPayouts],
   localization: {

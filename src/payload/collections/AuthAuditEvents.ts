@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { sendAdminAuthEventNotification } from '@/lib/server/email/businessNotifications'
 import { isAdmin } from '../access/isAdmin'
 
 export const AuthAuditEvents: CollectionConfig = {
@@ -14,6 +15,39 @@ export const AuthAuditEvents: CollectionConfig = {
     create: isAdmin,
     update: isAdmin,
     delete: isAdmin,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, req, operation }) => {
+        if (operation !== 'create') return doc
+
+        const eventType = typeof doc?.eventType === 'string' ? doc.eventType : ''
+        const eventKey =
+          eventType === 'login_success'
+            ? 'login_success_admin_notice'
+            : eventType === 'login_failed'
+              ? 'login_failed_admin_notice'
+              : eventType === 'forgot_password'
+                ? 'password_reset_requested'
+                : eventType === 'reset_password'
+                  ? 'password_reset_completed'
+                  : null
+
+        if (!eventKey) return doc
+
+        await sendAdminAuthEventNotification({
+          payload: req.payload,
+          req,
+          eventKey,
+          email: typeof doc?.email === 'string' ? doc.email : '',
+          ip: typeof doc?.ip === 'string' ? doc.ip : '',
+          userAgent: typeof doc?.userAgent === 'string' ? doc.userAgent : '',
+          message: typeof doc?.message === 'string' ? doc.message : '',
+        })
+
+        return doc
+      },
+    ],
   },
   fields: [
     {

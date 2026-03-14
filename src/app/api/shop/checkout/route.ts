@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createHash } from 'node:crypto'
 
-import { sendAdminNewOrderNotification } from '@/lib/server/email/businessNotifications'
+import { sendOrderPaidNotifications } from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 import { isLocale, type Locale } from '@/lib/i18n/core'
-import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
 import {
   allocateOrderInventory,
   commitOrderInventory,
@@ -22,7 +21,7 @@ import {
 import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 import { getSendcloudShippingOptions } from '@/lib/server/sendcloud/getShippingQuote'
 import { isFreeShippingUnlocked } from '@/lib/shared/shop/shipping'
-import type { Product, Program, Service } from '@/payload/generated/payload-types'
+import type { Product, Service } from '@/payload/generated/payload-types'
 import Stripe from 'stripe'
 
 const GENERIC_CHECKOUT_ERROR = 'Si è verificato un errore durante il checkout. Riprova.'
@@ -42,13 +41,6 @@ type ParsedCartItemKey =
       quantity: number
       serviceID: string
       serviceLineKind: 'service' | 'package'
-      variantKey: string
-    }
-  | {
-      kind: 'program'
-      sourceID: string
-      quantity: number
-      programID: string
       variantKey: string
     }
 
@@ -110,27 +102,9 @@ const resolveCoverImage = (product: Product) => {
 const toStripeAmount = (value: number) => Math.round(value * 100)
 const roundCurrency = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
 
-const toRelationId = (value: unknown): string => {
-  if (typeof value === 'string' || typeof value === 'number') return String(value)
-  if (value && typeof value === 'object' && 'id' in value) {
-    const id = (value as { id?: unknown }).id
-    if (typeof id === 'string' || typeof id === 'number') return String(id)
-  }
-  return ''
-}
-
 const parseCartItemKey = (id: string, quantity: number): ParsedCartItemKey => {
-  const serviceMatch = id.match(/^(\d+):(service|package|program):(.+)$/)
+  const serviceMatch = id.match(/^(\d+):(service|package):(.+)$/)
   if (serviceMatch) {
-    if (serviceMatch[2] === 'program') {
-      return {
-        kind: 'program',
-        sourceID: id,
-        quantity,
-        programID: serviceMatch[1],
-        variantKey: serviceMatch[3],
-      }
-    }
     return {
       kind: 'service',
       sourceID: id,
@@ -152,7 +126,6 @@ const toCartSignature = (items: ParsedCartItemKey[]) =>
   items
     .map((item) => {
       if (item.kind === 'product') return `p:${item.productID}:${item.quantity}`
-      if (item.kind === 'program') return `r:${item.programID}:${item.variantKey}:${item.quantity}`
       return `s:${item.serviceID}:${item.serviceLineKind}:${item.variantKey}:${item.quantity}`
     })
     .sort()
@@ -298,7 +271,6 @@ const getOrderCartSignature = async ({
       },
       select: {
         service: true,
-        program: true,
         itemKind: true,
         variantKey: true,
         quantity: true,
@@ -327,29 +299,6 @@ const getOrderCartSignature = async ({
   }
 
   for (const item of orderServiceItems.docs) {
-    const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
-    if (quantity <= 0) continue
-
-    if (item.itemKind === 'program') {
-      const programRaw = item.program
-      const programID =
-        typeof programRaw === 'number'
-          ? String(programRaw)
-          : programRaw && typeof programRaw === 'object' && 'id' in programRaw
-            ? String(programRaw.id)
-            : ''
-      if (!programID) continue
-      const variantKey = toString(item.variantKey) || 'default'
-      parsed.push({
-        kind: 'program',
-        sourceID: `${programID}:program:${variantKey}`,
-        programID,
-        variantKey,
-        quantity,
-      })
-      continue
-    }
-
     const serviceRaw = item.service
     const serviceID =
       typeof serviceRaw === 'number'
@@ -357,6 +306,7 @@ const getOrderCartSignature = async ({
         : serviceRaw && typeof serviceRaw === 'object' && 'id' in serviceRaw
           ? String(serviceRaw.id)
           : ''
+    const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
     if (!serviceID || quantity <= 0) continue
 
     const itemKind = item.itemKind === 'package' ? 'package' : 'service'
@@ -453,7 +403,7 @@ export async function POST(request: Request) {
     }
 
     const parsedCartItems = Array.from(normalized.entries()).map(([id, quantity]) => parseCartItemKey(id, quantity))
-    const directProductIds = parsedCartItems
+    const productIds = parsedCartItems
       .filter((item): item is Extract<ParsedCartItemKey, { kind: 'product' }> => item.kind === 'product')
       .map((item) => item.productID)
     const serviceIds = Array.from(
@@ -463,63 +413,9 @@ export async function POST(request: Request) {
           .map((item) => item.serviceID),
       ),
     )
-    const programIds = Array.from(
-      new Set(
-        parsedCartItems
-          .filter((item): item is Extract<ParsedCartItemKey, { kind: 'program' }> => item.kind === 'program')
-          .map((item) => item.programID),
-      ),
-    )
-    const preliminaryProgramsResult =
-      programIds.length > 0
-        ? await payload.find({
-            collection: 'programs',
-            limit: programIds.length,
-            depth: 0,
-            overrideAccess: false,
-            locale,
-            where: {
-              and: [{ id: { in: programIds } }, { active: { equals: true } }],
-            },
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-              price: true,
-              steps: true,
-              active: true,
-            },
-          })
-        : { docs: [] as Program[] }
-    const preliminaryProgramsById = new Map(
-      preliminaryProgramsResult.docs.map((doc) => [String(doc.id), doc] as const),
-    )
-    const missingPrograms = programIds.filter((id) => !preliminaryProgramsById.has(id))
-    if (missingPrograms.length > 0) {
-      return NextResponse.json(
-        { error: 'Alcuni programmi non sono più disponibili.', missing: missingPrograms },
-        { status: 409 },
-      )
-    }
-
-    const embeddedProgramProductIds = Array.from(
-      new Set(
-        preliminaryProgramsResult.docs.flatMap((program) =>
-          Array.isArray(program.steps)
-            ? program.steps
-                .filter((step) => step.stepType === 'product')
-                .map((step) => toRelationId(step.stepProduct))
-                .filter(Boolean)
-            : [],
-        ),
-      ),
-    )
-    const inventoryProductIds = Array.from(new Set([...directProductIds, ...embeddedProgramProductIds]))
-    const hasDirectProducts = directProductIds.length > 0
-    const hasEmbeddedProgramProducts = embeddedProgramProductIds.length > 0
-    const hasProductsForOrder = hasDirectProducts || hasEmbeddedProgramProducts
-    const hasServices = serviceIds.length > 0 || programIds.length > 0
-    const cartMode: 'products_only' | 'services_only' | 'mixed' = hasProductsForOrder
+    const hasProducts = productIds.length > 0
+    const hasServices = serviceIds.length > 0
+    const cartMode: 'products_only' | 'services_only' | 'mixed' = hasProducts
       ? hasServices
         ? 'mixed'
         : 'products_only'
@@ -532,7 +428,7 @@ export async function POST(request: Request) {
       requestedAppointmentDate && !Number.isNaN(new Date(requestedAppointmentDate).getTime())
         ? new Date(requestedAppointmentDate).toISOString()
         : ''
-    const productFulfillmentMode: 'shipping' | 'pickup' | 'none' = hasDirectProducts
+    const productFulfillmentMode: 'shipping' | 'pickup' | 'none' = hasProducts
       ? requestedFulfillmentMode === 'pickup'
         ? 'pickup'
         : 'shipping'
@@ -604,10 +500,6 @@ export async function POST(request: Request) {
           discountAmount: true,
           total: true,
           currency: true,
-          productFulfillmentMode: true,
-          appointmentMode: true,
-          appointmentRequestedDate: true,
-          appointmentRequestedTime: true,
         },
       })
 
@@ -619,27 +511,7 @@ export async function POST(request: Request) {
           orderID: candidate.id,
         })
         const candidatePromoCode = normalizePromoCodeInput(candidate.promoCodeValue)
-        const candidateFulfillmentMode =
-          candidate.productFulfillmentMode === 'pickup'
-            ? 'pickup'
-            : candidate.productFulfillmentMode === 'none'
-              ? 'none'
-              : 'shipping'
-        const candidateAppointmentMode = resolveAppointmentMode(candidate.appointmentMode)
-        const candidateAppointmentDate =
-          typeof candidate.appointmentRequestedDate === 'string'
-            ? candidate.appointmentRequestedDate.slice(0, 10)
-            : ''
-        const candidateAppointmentTime = toString(candidate.appointmentRequestedTime)
-
-        if (
-          candidateSignature === requestedCartSignature &&
-          candidatePromoCode === requestedPromoCode &&
-          candidateFulfillmentMode === productFulfillmentMode &&
-          candidateAppointmentMode === appointmentMode &&
-          candidateAppointmentDate === requestedAppointmentDate &&
-          candidateAppointmentTime === requestedAppointmentTime
-        ) {
+        if (candidateSignature === requestedCartSignature && candidatePromoCode === requestedPromoCode) {
           existingOrder = candidate
           break
         }
@@ -685,11 +557,11 @@ export async function POST(request: Request) {
       }
     }
 
-    if (inventoryProductIds.length > 0) {
+    if (productIds.length > 0) {
       try {
         locks = await acquireInventoryLocks({
           payload,
-          productIDs: inventoryProductIds,
+          productIDs: productIds,
         })
       } catch (lockError) {
         payload.logger.error({
@@ -708,15 +580,15 @@ export async function POST(request: Request) {
 
     try {
       const productsResult =
-        inventoryProductIds.length > 0
+        productIds.length > 0
           ? await payload.find({
               collection: 'products',
-              limit: inventoryProductIds.length,
+              limit: productIds.length,
               depth: 1,
               overrideAccess: false,
               locale,
               where: {
-                and: [{ id: { in: inventoryProductIds } }, { active: { equals: true } }],
+                and: [{ id: { in: productIds } }, { active: { equals: true } }],
               },
               select: {
                 id: true,
@@ -733,7 +605,7 @@ export async function POST(request: Request) {
           : { docs: [] as Product[] }
 
       const productsById = new Map(productsResult.docs.map((doc) => [String(doc.id), doc]))
-      const missingProducts = inventoryProductIds.filter((id) => !productsById.has(id))
+      const missingProducts = productIds.filter((id) => !productsById.has(id))
       if (missingProducts.length > 0) {
         return NextResponse.json(
           { error: 'Alcuni prodotti non sono più disponibili.', missing: missingProducts },
@@ -764,10 +636,8 @@ export async function POST(request: Request) {
               },
             })
           : { docs: [] as Service[] }
-      const programsResult = preliminaryProgramsResult
 
       const servicesById = new Map(servicesResult.docs.map((doc) => [String(doc.id), doc]))
-      const programsById = new Map(programsResult.docs.map((doc) => [String(doc.id), doc]))
       const missingServices = serviceIds.filter((id) => !servicesById.has(id))
       if (missingServices.length > 0) {
         return NextResponse.json(
@@ -775,32 +645,25 @@ export async function POST(request: Request) {
           { status: 409 },
         )
       }
+
       type ProductLineItem = {
         product: Product
         quantity: number
         unitPrice: number
         lineTotal: number
         available: number
-        billable: boolean
       }
       type ServiceLineItem = {
-        service: Service | null
-        program: Program | null
+        service: Service
         quantity: number
         unitPrice: number
         lineTotal: number
         title: string
-        itemKind: 'service' | 'package' | 'program'
+        itemKind: 'service' | 'package'
         variantKey: string
         variantLabel: string | null
         durationMinutes: number | null
         sessions: number | null
-        programStepsSnapshot?: Array<{
-          stepType: 'manual' | 'service' | 'product'
-          title: string | null
-          referenceTitle: string | null
-          referenceSlug: string | null
-        }>
       }
       type CheckoutLineItem = {
         quantity: number
@@ -833,7 +696,7 @@ export async function POST(request: Request) {
               const released = await releaseStaleAllocationsForProducts({
                 payload,
                 locale,
-                productIDs: inventoryProductIds,
+                productIDs: productIds,
               })
 
               if (released > 0) {
@@ -874,7 +737,6 @@ export async function POST(request: Request) {
                 unitPrice: product.price,
                 lineTotal: product.price * item.quantity,
                 available: latestAvailable,
-                billable: true,
               })
               continue
             }
@@ -895,12 +757,7 @@ export async function POST(request: Request) {
             unitPrice: product.price,
             lineTotal: product.price * item.quantity,
             available,
-            billable: true,
           })
-          continue
-        }
-
-        if (item.kind !== 'service') {
           continue
         }
 
@@ -919,7 +776,6 @@ export async function POST(request: Request) {
           }
           serviceLineItems.push({
             service,
-            program: null,
             quantity: item.quantity,
             unitPrice: pkg.prezzoPacchetto,
             lineTotal: pkg.prezzoPacchetto * item.quantity,
@@ -974,10 +830,9 @@ export async function POST(request: Request) {
         }
 
         const durationSuffix = optionDuration ? ` ${optionDuration} min` : ''
-          serviceLineItems.push({
-            service,
-            program: null,
-            quantity: item.quantity,
+        serviceLineItems.push({
+          service,
+          quantity: item.quantity,
           unitPrice: optionPrice,
           lineTotal: optionPrice * item.quantity,
           title: `${service.name} ${optionName}${durationSuffix}`.trim(),
@@ -989,169 +844,10 @@ export async function POST(request: Request) {
         })
       }
 
-      for (const item of parsedCartItems) {
-        if (item.kind !== 'program') continue
-
-        const program = programsById.get(item.programID)
-        if (!program) continue
-        if (typeof program.price !== 'number' || program.price < 0) {
-          return NextResponse.json(
-            { error: `Prezzo non valido per il programma ${program.title || item.programID}.` },
-            { status: 409 },
-          )
-        }
-
-        const programStepEntries = Array.isArray(program.steps) ? program.steps : []
-        const referencedServiceIds = Array.from(
-          new Set(
-            programStepEntries
-              .filter((step) => step.stepType === 'service')
-              .map((step) => toRelationId(step.stepService))
-              .filter(Boolean),
-          ),
-        )
-        const referencedProductIds = Array.from(
-          new Set(
-            programStepEntries
-              .filter((step) => step.stepType === 'product')
-              .map((step) => toRelationId(step.stepProduct))
-              .filter(Boolean),
-          ),
-        )
-
-        const [referencedServices, referencedProducts] = await Promise.all([
-          referencedServiceIds.length > 0
-            ? payload.find({
-                collection: 'services',
-                limit: referencedServiceIds.length,
-                depth: 0,
-                overrideAccess: false,
-                locale,
-                where: {
-                  id: { in: referencedServiceIds },
-                },
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
-                },
-              })
-            : Promise.resolve({ docs: [] as Service[] }),
-          referencedProductIds.length > 0
-            ? payload.find({
-                collection: 'products',
-                limit: referencedProductIds.length,
-                depth: 0,
-                overrideAccess: false,
-                locale,
-                where: {
-                  id: { in: referencedProductIds },
-                },
-                select: {
-                  id: true,
-                  title: true,
-                  slug: true,
-                },
-              })
-            : Promise.resolve({ docs: [] as Product[] }),
-        ])
-
-        const referencedServicesById = new Map(
-          referencedServices.docs.map((doc) => [String(doc.id), doc] as const),
-        )
-        const referencedProductsById = new Map(
-          referencedProducts.docs.map((doc) => [String(doc.id), doc] as const),
-        )
-
-        const programStepsSnapshot = programStepEntries.map((step) => {
-              const serviceId = step.stepType === 'service' ? toRelationId(step.stepService) : ''
-              const productId = step.stepType === 'product' ? toRelationId(step.stepProduct) : ''
-              const referencedService = serviceId ? referencedServicesById.get(serviceId) : null
-              const referencedProduct = productId ? referencedProductsById.get(productId) : null
-              return {
-                stepType:
-                  step.stepType === 'service'
-                    ? ('service' as const)
-                    : step.stepType === 'product'
-                      ? ('product' as const)
-                      : ('manual' as const),
-                title: typeof step.stepTitle === 'string' ? step.stepTitle : null,
-                referenceTitle:
-                  referencedService && typeof referencedService.name === 'string'
-                    ? referencedService.name
-                    : referencedProduct && typeof referencedProduct.title === 'string'
-                      ? referencedProduct.title
-                      : null,
-                referenceSlug:
-                  referencedService && typeof referencedService.slug === 'string'
-                    ? referencedService.slug
-                    : referencedProduct && typeof referencedProduct.slug === 'string'
-                      ? referencedProduct.slug
-                      : null,
-              }
-            })
-
-        serviceLineItems.push({
-          service: null,
-          program,
-          quantity: item.quantity,
-          unitPrice: program.price,
-          lineTotal: program.price * item.quantity,
-          title: program.title || `Programma ${item.programID}`,
-          itemKind: 'program',
-          variantKey: item.variantKey,
-          variantLabel: null,
-          durationMinutes: null,
-          sessions: 1,
-          programStepsSnapshot,
-        })
-
-        const programProductCounts = new Map<string, number>()
-        for (const step of programStepEntries) {
-          if (step.stepType !== 'product') continue
-          const productId = toRelationId(step.stepProduct)
-          if (!productId) continue
-          programProductCounts.set(productId, (programProductCounts.get(productId) ?? 0) + 1)
-        }
-
-        for (const [productId, stepCount] of programProductCounts.entries()) {
-          const product = productsById.get(productId)
-          if (!product) continue
-          const quantity = Math.max(1, stepCount * item.quantity)
-          const stock = typeof product.stock === 'number' ? product.stock : 0
-          const allocated = typeof product.allocatedStock === 'number' ? product.allocatedStock : 0
-          const available = Math.max(0, stock - allocated)
-
-          if (quantity > available) {
-            return NextResponse.json(
-              {
-                error: `Disponibilità insufficiente per ${product.title || productId}.`,
-                productId,
-                requested: quantity,
-                available,
-              },
-              { status: 409 },
-            )
-          }
-
-          productLineItems.push({
-            product,
-            quantity,
-            unitPrice: 0,
-            lineTotal: 0,
-            available,
-            billable: false,
-          })
-        }
-      }
-
       const productSubtotal = roundCurrency(
-        productLineItems.reduce((sum, item) => sum + (item.billable ? item.lineTotal : 0), 0),
+        productLineItems.reduce((sum, item) => sum + item.lineTotal, 0),
       )
-      const productItemsCount = productLineItems.reduce(
-        (sum, item) => sum + (item.billable ? item.quantity : 0),
-        0,
-      )
+      const productItemsCount = productLineItems.reduce((sum, item) => sum + item.quantity, 0)
       const serviceSubtotal = roundCurrency(
         serviceLineItems.reduce((sum, item) => sum + item.lineTotal, 0),
       )
@@ -1181,7 +877,7 @@ export async function POST(request: Request) {
           resolvedPromoCode = await resolvePromoCode({
             payload,
             discountCode,
-            hasProducts: hasDirectProducts,
+            hasProducts,
             hasServices,
           })
         } catch (promoError) {
@@ -1222,21 +918,19 @@ export async function POST(request: Request) {
         : 0
       const total = roundCurrency(Math.max(0, subtotal + shippingAmount - discountAmount))
       const checkoutLineItems: CheckoutLineItem[] = [
-        ...productLineItems
-          .filter((item) => item.billable)
-          .map((item) => ({
+        ...productLineItems.map((item) => ({
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           lineTotal: item.lineTotal,
           stripeName: item.product.title || String(item.product.id),
           eligibleForDiscount: resolvedPromoCode?.appliesToProducts === true,
-          })),
+        })),
         ...serviceLineItems.map((item) => ({
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-              lineTotal: item.lineTotal,
-              stripeName: item.title,
-              eligibleForDiscount: resolvedPromoCode?.appliesToServices === true,
+          lineTotal: item.lineTotal,
+          stripeName: item.title,
+          eligibleForDiscount: resolvedPromoCode?.appliesToServices === true,
         })),
       ]
       const checkoutUnitLineItems = checkoutLineItems.flatMap((item) =>
@@ -1337,6 +1031,30 @@ export async function POST(request: Request) {
       },
     })
 
+      try {
+        await sendOrderPaidNotifications({
+          payload,
+          eventKey: 'order_created',
+          orderNumber: createdOrder.orderNumber,
+          customerEmail: email,
+          customerFirstName: firstName,
+          customerLastName: lastName,
+          total,
+          cartMode,
+          productFulfillmentMode,
+          appointmentMode: hasServices ? appointmentMode : 'none',
+          appointmentRequestedDate:
+            hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : null,
+          appointmentRequestedTime:
+            hasServices && appointmentMode === 'requested_slot' ? requestedAppointmentTime : null,
+        })
+      } catch (emailError) {
+        payload.logger.error({
+          err: emailError,
+          msg: `Order created email failed for order ${createdOrder.orderNumber}`,
+        })
+      }
+
       if (authenticatedUser) {
         await ensureAnagraficaForCustomer(payload, authenticatedUser, { locale })
       }
@@ -1382,16 +1100,14 @@ export async function POST(request: Request) {
             draft: false,
             data: {
               order: createdOrder.id,
-              service: item.service?.id,
-              program: item.program?.id,
+              service: item.service.id,
               itemKind: item.itemKind,
               variantKey: item.variantKey,
               variantLabel: item.variantLabel || undefined,
               serviceTitle: item.title,
-              serviceSlug: item.itemKind === 'program' ? item.program?.slug || undefined : item.service?.slug || undefined,
+              serviceSlug: item.service.slug || undefined,
               durationMinutes: item.durationMinutes ?? undefined,
               sessions: item.sessions ?? undefined,
-              programStepsSnapshot: item.programStepsSnapshot,
               appointmentMode: hasServices ? appointmentMode : 'none',
               appointmentStatus: hasServices ? 'pending' : 'none',
               appointmentRequestedDate:
@@ -1421,18 +1137,12 @@ export async function POST(request: Request) {
               data: {
                 order: createdOrder.id,
                 orderServiceItem: createdServiceItem.id,
-                service: item.service?.id,
-                program: item.program?.id,
+                service: item.service.id,
                 itemKind: item.itemKind,
                 variantKey: item.variantKey,
                 variantLabel: item.variantLabel || undefined,
                 sessionIndex,
-                sessionLabel:
-                  item.itemKind === 'package'
-                    ? `Seduta ${sessionIndex}`
-                    : item.itemKind === 'program'
-                      ? 'Programma completo'
-                      : 'Seduta unica',
+                sessionLabel: item.itemKind === 'package' ? `Seduta ${sessionIndex}` : 'Seduta unica',
                 sessionsTotal,
                 appointmentMode: hasServices ? appointmentMode : 'none',
                 appointmentStatus: hasServices ? 'pending' : 'none',
@@ -1443,10 +1153,7 @@ export async function POST(request: Request) {
                     ? requestedAppointmentTime
                     : undefined,
                 serviceTitle: item.title,
-                serviceSlug:
-                  item.itemKind === 'program'
-                    ? item.program?.slug || undefined
-                    : item.service?.slug || undefined,
+                serviceSlug: item.service.slug || undefined,
                 durationMinutes: item.durationMinutes ?? undefined,
                 currency: 'EUR',
                 sessionPrice,
@@ -1651,25 +1358,20 @@ export async function POST(request: Request) {
           })
 
           try {
-            await sendSMTPEmail({
+            await sendOrderPaidNotifications({
               payload,
-              to: email,
-              subject: `Conferma ordine ${createdOrder.orderNumber}`,
-              text: [
-                `Ciao ${firstName},`,
-                '',
-                `abbiamo ricevuto il tuo ordine ${createdOrder.orderNumber}.`,
-                `Totale: EUR ${total.toFixed(2)}`,
-                '',
-                'Grazie,',
-                'DOB Milano',
-              ].join('\n'),
-              html: `
-              <p>Ciao ${firstName},</p>
-              <p>abbiamo ricevuto il tuo ordine <strong>${createdOrder.orderNumber}</strong>.</p>
-              <p>Totale: <strong>EUR ${total.toFixed(2)}</strong></p>
-              <p>Grazie,<br/>DOB Milano</p>
-            `,
+              orderNumber: createdOrder.orderNumber,
+              customerEmail: email,
+              customerFirstName: firstName,
+              customerLastName: lastName,
+              total,
+              cartMode,
+              productFulfillmentMode,
+              appointmentMode: hasServices ? appointmentMode : 'none',
+              appointmentRequestedDate:
+                hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : null,
+              appointmentRequestedTime:
+                hasServices && appointmentMode === 'requested_slot' ? requestedAppointmentTime : null,
             })
             emailSent = true
           } catch (emailError) {
@@ -1678,21 +1380,6 @@ export async function POST(request: Request) {
               msg: `Order confirmation email failed for order ${createdOrder.orderNumber}`,
             })
           }
-
-          await sendAdminNewOrderNotification({
-            payload,
-            orderNumber: createdOrder.orderNumber,
-            customerEmail: email,
-            customerFirstName: firstName,
-            customerLastName: lastName,
-            total,
-            cartMode,
-            productFulfillmentMode,
-            appointmentMode: hasServices ? appointmentMode : 'none',
-            appointmentRequestedDate: hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : null,
-            appointmentRequestedTime:
-              hasServices && appointmentMode === 'requested_slot' ? requestedAppointmentTime : null,
-          })
         }
 
         return NextResponse.json({

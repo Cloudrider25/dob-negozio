@@ -1,6 +1,15 @@
 import type { CollectionConfig } from 'payload'
 
 import { getAccountDictionary, resolveLocale } from '@/lib/i18n/account'
+import {
+  sendAdminUserNotification,
+  sendUserRegisteredCustomerNotification,
+} from '@/lib/server/email/businessNotifications'
+import {
+  getEmailDeliveryMode,
+  injectEmailEventMarker,
+} from '@/lib/server/email/deliveryPolicy'
+import { resolveBusinessEventEmailContent } from '@/lib/server/email/sendBusinessEventEmail'
 import { getPasswordValidationFailureKey } from '@/lib/shared/auth/passwordPolicy'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 import { getPublicSiteOrigin } from '@/lib/server/url/getPublicSiteOrigin'
@@ -59,6 +68,58 @@ const getPasswordValidationMessage = (
   return `${copy.feedback.passwordInvalidTitle}. ${copy.passwordStatusMissingPrefix} ${copy.passwordRequirements[requirementKey]}.`
 }
 
+const getVerificationEmailFallback = ({
+  locale,
+  url,
+  firstName,
+}: {
+  locale: ReturnType<typeof resolveLocale>
+  url: string
+  firstName: string
+}) => {
+  const copy = getAccountDictionary(locale).authEmail.verify
+  const greetingLine =
+    firstName.length > 0 ? `${copy.greeting} ${firstName},` : `${copy.greeting},`
+
+  return {
+    subject: copy.subject,
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+        <p>${greetingLine}</p>
+        <p>${copy.intro}</p>
+        <p><a href="${url}">${copy.ctaLabel}</a></p>
+        <p>${copy.outro}</p>
+      </div>
+    `,
+  }
+}
+
+const getResetPasswordEmailFallback = ({
+  locale,
+  url,
+  firstName,
+}: {
+  locale: ReturnType<typeof resolveLocale>
+  url: string
+  firstName: string
+}) => {
+  const copy = getAccountDictionary(locale).authEmail.resetPassword
+  const greetingLine =
+    firstName.length > 0 ? `${copy.greeting} ${firstName},` : `${copy.greeting},`
+
+  return {
+    subject: copy.subject,
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+        <p>${greetingLine}</p>
+        <p>${copy.intro}</p>
+        <p><a href="${url}">${copy.ctaLabel}</a></p>
+        <p>${copy.outro}</p>
+      </div>
+    `,
+  }
+}
+
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
@@ -70,14 +131,9 @@ export const Users: CollectionConfig = {
     lockTime: 15 * 60 * 1000,
     forgotPassword: {
       expiration: 1000 * 60 * 30,
-      generateEmailSubject: ({ user } = {}) => {
-        const locale = getUserPreferredLocale(user)
-        return getAccountDictionary(locale).authEmail.resetPassword.subject
-      },
-      generateEmailHTML: ({ req, token, user } = {}) => {
+      generateEmailSubject: async ({ req, token, user } = {}) => {
         const origin = getPublicSiteOrigin(req?.headers)
         const locale = getUserPreferredLocale(user)
-        const copy = getAccountDictionary(locale).authEmail.resetPassword
         const url = `${origin}/${locale}/reset-password?token=${encodeURIComponent(token || '')}`
         const firstName =
           typeof user === 'object' &&
@@ -87,28 +143,139 @@ export const Users: CollectionConfig = {
           user.firstName.trim().length > 0
             ? user.firstName.trim()
             : ''
-        const greetingLine =
-          firstName.length > 0 ? `${copy.greeting} ${firstName},` : `${copy.greeting},`
+        const lastName =
+          typeof user === 'object' &&
+          user &&
+          'lastName' in user &&
+          typeof user.lastName === 'string' &&
+          user.lastName.trim().length > 0
+            ? user.lastName.trim()
+            : ''
+        const email =
+          typeof user === 'object' &&
+          user &&
+          'email' in user &&
+          typeof user.email === 'string'
+            ? user.email.trim()
+            : ''
 
-        return `
-          <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
-            <p>${greetingLine}</p>
-            <p>${copy.intro}</p>
-            <p><a href="${url}">${copy.ctaLabel}</a></p>
-            <p>${copy.outro}</p>
-          </div>
-        `
+        const fallback = getResetPasswordEmailFallback({
+          locale,
+          url,
+          firstName,
+        })
+
+        if (!req) {
+          return fallback.subject
+        }
+
+        const deliveryMode = await getEmailDeliveryMode({
+          payload: req.payload,
+          req,
+          eventKey: 'password_reset_requested',
+          locale,
+        })
+
+        const content = await resolveBusinessEventEmailContent({
+          payload: req.payload,
+          req,
+          eventKey: 'password_reset_requested',
+          channel: 'customer',
+          locale,
+          data: {
+            user: {
+              firstName,
+              lastName,
+              fullName: [firstName, lastName].filter(Boolean).join(' ').trim(),
+              email,
+            },
+            auth: {
+              resetUrl: url,
+            },
+          },
+          fallback,
+          deliveryMode: deliveryMode === 'disabled' ? undefined : deliveryMode,
+        })
+
+        return content?.subject || fallback.subject
+      },
+      generateEmailHTML: async ({ req, token, user } = {}) => {
+        const origin = getPublicSiteOrigin(req?.headers)
+        const locale = getUserPreferredLocale(user)
+        const url = `${origin}/${locale}/reset-password?token=${encodeURIComponent(token || '')}`
+        const firstName =
+          typeof user === 'object' &&
+          user &&
+          'firstName' in user &&
+          typeof user.firstName === 'string' &&
+          user.firstName.trim().length > 0
+            ? user.firstName.trim()
+            : ''
+        const lastName =
+          typeof user === 'object' &&
+          user &&
+          'lastName' in user &&
+          typeof user.lastName === 'string' &&
+          user.lastName.trim().length > 0
+            ? user.lastName.trim()
+            : ''
+        const email =
+          typeof user === 'object' &&
+          user &&
+          'email' in user &&
+          typeof user.email === 'string'
+            ? user.email.trim()
+            : ''
+
+        const fallback = getResetPasswordEmailFallback({
+          locale,
+          url,
+          firstName,
+        })
+
+        if (!req) {
+          return fallback.html
+        }
+
+        const deliveryMode = await getEmailDeliveryMode({
+          payload: req.payload,
+          req,
+          eventKey: 'password_reset_requested',
+          locale,
+        })
+
+        const content = await resolveBusinessEventEmailContent({
+          payload: req.payload,
+          req,
+          eventKey: 'password_reset_requested',
+          channel: 'customer',
+          locale,
+          data: {
+            user: {
+              firstName,
+              lastName,
+              fullName: [firstName, lastName].filter(Boolean).join(' ').trim(),
+              email,
+            },
+            auth: {
+              resetUrl: url,
+            },
+          },
+          fallback,
+          deliveryMode: deliveryMode === 'disabled' ? undefined : deliveryMode,
+        })
+
+        return injectEmailEventMarker(
+          content?.html || fallback.html,
+          'password_reset_requested',
+          locale,
+        )
       },
     },
     verify: {
-      generateEmailSubject: ({ user }) => {
-        const locale = getUserPreferredLocale(user)
-        return getAccountDictionary(locale).authEmail.verify.subject
-      },
-      generateEmailHTML: ({ req, token, user }) => {
+      generateEmailSubject: async ({ req, token, user }) => {
         const origin = getPublicSiteOrigin(req.headers)
         const locale = getUserPreferredLocale(user)
-        const copy = getAccountDictionary(locale).authEmail.verify
         const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}`
         const firstName =
           typeof user === 'object' &&
@@ -118,17 +285,125 @@ export const Users: CollectionConfig = {
           user.firstName.trim().length > 0
             ? user.firstName.trim()
             : ''
-        const greetingLine =
-          firstName.length > 0 ? `${copy.greeting} ${firstName},` : `${copy.greeting},`
+        const lastName =
+          typeof user === 'object' &&
+          user &&
+          'lastName' in user &&
+          typeof user.lastName === 'string' &&
+          user.lastName.trim().length > 0
+            ? user.lastName.trim()
+            : ''
+        const email =
+          typeof user === 'object' &&
+          user &&
+          'email' in user &&
+          typeof user.email === 'string'
+            ? user.email.trim()
+            : ''
 
-        return `
-          <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
-            <p>${greetingLine}</p>
-            <p>${copy.intro}</p>
-            <p><a href="${url}">${copy.ctaLabel}</a></p>
-            <p>${copy.outro}</p>
-          </div>
-        `
+        const fallback = getVerificationEmailFallback({
+          locale,
+          url,
+          firstName,
+        })
+
+        const deliveryMode = await getEmailDeliveryMode({
+          payload: req.payload,
+          req,
+          eventKey: 'email_verification_requested',
+          locale,
+        })
+
+        const content = await resolveBusinessEventEmailContent({
+          payload: req.payload,
+          req,
+          eventKey: 'email_verification_requested',
+          channel: 'customer',
+          locale,
+          data: {
+            user: {
+              firstName,
+              lastName,
+              fullName: [firstName, lastName].filter(Boolean).join(' ').trim(),
+              email,
+            },
+            auth: {
+              verifyUrl: url,
+            },
+          },
+          fallback,
+          deliveryMode: deliveryMode === 'disabled' ? undefined : deliveryMode,
+        })
+
+        return content?.subject || fallback.subject
+      },
+      generateEmailHTML: async ({ req, token, user }) => {
+        const origin = getPublicSiteOrigin(req.headers)
+        const locale = getUserPreferredLocale(user)
+        const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}`
+        const firstName =
+          typeof user === 'object' &&
+          user &&
+          'firstName' in user &&
+          typeof user.firstName === 'string' &&
+          user.firstName.trim().length > 0
+            ? user.firstName.trim()
+            : ''
+        const lastName =
+          typeof user === 'object' &&
+          user &&
+          'lastName' in user &&
+          typeof user.lastName === 'string' &&
+          user.lastName.trim().length > 0
+            ? user.lastName.trim()
+            : ''
+        const email =
+          typeof user === 'object' &&
+          user &&
+          'email' in user &&
+          typeof user.email === 'string'
+            ? user.email.trim()
+            : ''
+
+        const fallback = getVerificationEmailFallback({
+          locale,
+          url,
+          firstName,
+        })
+
+        const deliveryMode = await getEmailDeliveryMode({
+          payload: req.payload,
+          req,
+          eventKey: 'email_verification_requested',
+          locale,
+        })
+
+        const content = await resolveBusinessEventEmailContent({
+          payload: req.payload,
+          req,
+          eventKey: 'email_verification_requested',
+          channel: 'customer',
+          locale,
+          data: {
+            user: {
+              firstName,
+              lastName,
+              fullName: [firstName, lastName].filter(Boolean).join(' ').trim(),
+              email,
+            },
+            auth: {
+              verifyUrl: url,
+            },
+          },
+          fallback,
+          deliveryMode: deliveryMode === 'disabled' ? undefined : deliveryMode,
+        })
+
+        return injectEmailEventMarker(
+          content?.html || fallback.html,
+          'email_verification_requested',
+          locale,
+        )
       },
     },
   },
@@ -218,9 +493,52 @@ export const Users: CollectionConfig = {
       },
     ],
     afterChange: [
-      async ({ doc, req, context }) => {
+      async ({ doc, req, context, operation, previousDoc }) => {
         if (context?.skipAnagraficaSync) return
         await ensureAnagraficaForCustomer(req.payload, doc, { req })
+
+        const email = typeof doc?.email === 'string' ? doc.email.trim() : ''
+        if (!email) return
+
+        if (operation === 'create') {
+          await sendUserRegisteredCustomerNotification({
+            payload: req.payload,
+            req,
+            eventKey: 'user_registered',
+            firstName: typeof doc?.firstName === 'string' ? doc.firstName : '',
+            lastName: typeof doc?.lastName === 'string' ? doc.lastName : '',
+            email,
+            roles: Array.isArray(doc?.roles)
+              ? doc.roles.filter((role: unknown): role is string => typeof role === 'string')
+              : [],
+          })
+          await sendAdminUserNotification({
+            payload: req.payload,
+            req,
+            eventKey: 'user_registered',
+            firstName: typeof doc?.firstName === 'string' ? doc.firstName : '',
+            lastName: typeof doc?.lastName === 'string' ? doc.lastName : '',
+            email,
+            roles: Array.isArray(doc?.roles)
+              ? doc.roles.filter((role: unknown): role is string => typeof role === 'string')
+              : [],
+          })
+          return
+        }
+
+        if (previousDoc?._verified !== true && doc?._verified === true) {
+          await sendAdminUserNotification({
+            payload: req.payload,
+            req,
+            eventKey: 'user_verified',
+            firstName: typeof doc?.firstName === 'string' ? doc.firstName : '',
+            lastName: typeof doc?.lastName === 'string' ? doc.lastName : '',
+            email,
+            roles: Array.isArray(doc?.roles)
+              ? doc.roles.filter((role: unknown): role is string => typeof role === 'string')
+              : [],
+          })
+        }
       },
     ],
     beforeValidate: [

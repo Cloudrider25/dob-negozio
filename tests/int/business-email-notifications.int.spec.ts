@@ -5,7 +5,7 @@ vi.mock('@/lib/server/email/sendSMTPEmail', () => ({
 }))
 
 import {
-  sendAdminNewOrderNotification,
+  sendOrderPaidNotifications,
   sendAppointmentStatusNotifications,
   sendConsultationLeadNotifications,
   sendServiceDateRequestNotifications,
@@ -13,6 +13,8 @@ import {
 import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
 
 const payload = {
+  create: vi.fn().mockResolvedValue({}),
+  find: vi.fn().mockResolvedValue({ docs: [], totalDocs: 0 }),
   logger: {
     error: vi.fn(),
   },
@@ -43,8 +45,8 @@ describe('business email notifications', () => {
     expect(vi.mocked(sendSMTPEmail).mock.calls[1]?.[0].subject).toContain('[Admin] Nuova richiesta consulenza')
   })
 
-  it('sends an admin new-order notification with contact-later summary', async () => {
-    await sendAdminNewOrderNotification({
+  it('sends customer and admin order-paid notifications with contact-later summary', async () => {
+    await sendOrderPaidNotifications({
       payload,
       orderNumber: 'DOB-20260306-00001',
       customerEmail: 'customer@example.com',
@@ -56,9 +58,9 @@ describe('business email notifications', () => {
       appointmentMode: 'contact_later',
     })
 
-    expect(sendSMTPEmail).toHaveBeenCalledTimes(1)
-    expect(vi.mocked(sendSMTPEmail).mock.calls[0]?.[0].subject).toContain('[Admin] Nuovo ordine')
-    expect(vi.mocked(sendSMTPEmail).mock.calls[0]?.[0].text).toContain('Da concordare con il cliente')
+    expect(sendSMTPEmail).toHaveBeenCalledTimes(2)
+    expect(vi.mocked(sendSMTPEmail).mock.calls[1]?.[0].subject).toContain('[Admin] Nuovo ordine')
+    expect(vi.mocked(sendSMTPEmail).mock.calls[1]?.[0].text).toContain('Da concordare con il cliente')
   })
 
   it('sends customer and admin notifications for requested service dates', async () => {

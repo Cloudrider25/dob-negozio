@@ -25,6 +25,7 @@
     "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed:shop": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/run-shop-seed.ts",
+    "seed:email-templates": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/upsert-email-templates.ts",
     "seed:map-products": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/map-products-taxonomies.ts",
     "media:regenerate-sizes": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/regenerate-media-sizes.ts",
     "test:shop:webhook": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/test-shop-webhook.ts",
