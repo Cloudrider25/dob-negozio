@@ -100,6 +100,7 @@ export interface Config {
     posts: Post;
     media: Media;
     users: User;
+    'email-templates': EmailTemplate;
     'shop-inventory-locks': ShopInventoryLock;
     'routine-template-step-products': RoutineTemplateStepProduct;
     'routine-steps': RoutineStep;
@@ -110,6 +111,7 @@ export interface Config {
     'order-service-items': OrderServiceItem;
     'shop-webhook-events': ShopWebhookEvent;
     'auth-audit-events': AuthAuditEvent;
+    'email-delivery-events': EmailDeliveryEvent;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -150,6 +152,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
     'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
     'routine-template-step-products': RoutineTemplateStepProductsSelect<false> | RoutineTemplateStepProductsSelect<true>;
     'routine-steps': RoutineStepsSelect<false> | RoutineStepsSelect<true>;
@@ -160,6 +163,7 @@ export interface Config {
     'order-service-items': OrderServiceItemsSelect<false> | OrderServiceItemsSelect<true>;
     'shop-webhook-events': ShopWebhookEventsSelect<false> | ShopWebhookEventsSelect<true>;
     'auth-audit-events': AuthAuditEventsSelect<false> | AuthAuditEventsSelect<true>;
+    'email-delivery-events': EmailDeliveryEventsSelect<false> | EmailDeliveryEventsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1157,7 +1161,6 @@ export interface Product {
   textures?: (number | Texture)[] | null;
   productAreas?: (number | ProductArea)[] | null;
   timingProducts?: (number | TimingProduct)[] | null;
-  routineSteps?: (number | RoutineStep)[] | null;
   stock?: number | null;
   allocatedStock?: number | null;
   averageCost?: number | null;
@@ -1344,23 +1347,6 @@ export interface TimingProduct {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-steps".
- */
-export interface RoutineStep {
-  id: number;
-  name: string;
-  slug: string;
-  productArea: number | ProductArea;
-  description?: string | null;
-  stepOrderDefault?: number | null;
-  isOptionalDefault?: boolean | null;
-  isSystem?: boolean | null;
-  active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "promotions".
  */
 export interface Promotion {
@@ -1430,6 +1416,23 @@ export interface RoutineTemplateStep {
   routineStep: number | RoutineStep;
   stepOrder: number;
   required?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-steps".
+ */
+export interface RoutineStep {
+  id: number;
+  name: string;
+  slug: string;
+  productArea: number | ProductArea;
+  description?: string | null;
+  stepOrderDefault?: number | null;
+  isOptionalDefault?: boolean | null;
+  isSystem?: boolean | null;
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1700,6 +1703,66 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-templates".
+ */
+export interface EmailTemplate {
+  id: number;
+  templateKey: string;
+  eventKey:
+    | 'email_verification_requested'
+    | 'user_registered'
+    | 'user_verified'
+    | 'password_reset_requested'
+    | 'password_reset_completed'
+    | 'login_success_admin_notice'
+    | 'login_failed_admin_notice'
+    | 'consultation_lead_created'
+    | 'newsletter_service_created'
+    | 'newsletter_product_created'
+    | 'order_created'
+    | 'order_paid'
+    | 'order_payment_failed'
+    | 'order_cancelled'
+    | 'order_refunded'
+    | 'appointment_requested'
+    | 'appointment_alternative_proposed'
+    | 'appointment_confirmed'
+    | 'appointment_confirmed_by_customer'
+    | 'appointment_cancelled'
+    | 'shipment_created'
+    | 'tracking_available'
+    | 'email_delivery_failed';
+  locale: 'it' | 'en' | 'ru';
+  channel: 'customer' | 'admin' | 'internal';
+  templateType?: ('auth' | 'lead' | 'newsletter' | 'order' | 'appointment' | 'shipping' | 'system') | null;
+  active?: boolean | null;
+  description?: string | null;
+  subject: string;
+  html: string;
+  text?: string | null;
+  availableVariables?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  testDataExample?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shop-inventory-locks".
  */
 export interface ShopInventoryLock {
@@ -1828,6 +1891,57 @@ export interface AuthAuditEvent {
   userAgent?: string | null;
   message?: string | null;
   meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-delivery-events".
+ */
+export interface EmailDeliveryEvent {
+  id: number;
+  eventKey:
+    | 'email_verification_requested'
+    | 'user_registered'
+    | 'user_verified'
+    | 'password_reset_requested'
+    | 'password_reset_completed'
+    | 'login_success_admin_notice'
+    | 'login_failed_admin_notice'
+    | 'consultation_lead_created'
+    | 'newsletter_service_created'
+    | 'newsletter_product_created'
+    | 'order_created'
+    | 'order_paid'
+    | 'order_payment_failed'
+    | 'order_cancelled'
+    | 'order_refunded'
+    | 'appointment_requested'
+    | 'appointment_alternative_proposed'
+    | 'appointment_confirmed'
+    | 'appointment_confirmed_by_customer'
+    | 'appointment_cancelled'
+    | 'shipment_created'
+    | 'tracking_available'
+    | 'email_delivery_failed';
+  channel: 'customer' | 'admin' | 'internal';
+  locale: 'it' | 'en' | 'ru';
+  to: string;
+  subject?: string | null;
+  status: 'queued' | 'sent' | 'failed' | 'skipped';
+  provider?: string | null;
+  relatedCollection?: string | null;
+  relatedID?: string | null;
+  errorMessage?: string | null;
+  payloadSnapshot?:
     | {
         [k: string]: unknown;
       }
@@ -1992,6 +2106,10 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'email-templates';
+        value: number | EmailTemplate;
+      } | null)
+    | ({
         relationTo: 'shop-inventory-locks';
         value: number | ShopInventoryLock;
       } | null)
@@ -2030,6 +2148,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'auth-audit-events';
         value: number | AuthAuditEvent;
+      } | null)
+    | ({
+        relationTo: 'email-delivery-events';
+        value: number | EmailDeliveryEvent;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2624,7 +2746,6 @@ export interface ProductsSelect<T extends boolean = true> {
   textures?: T;
   productAreas?: T;
   timingProducts?: T;
-  routineSteps?: T;
   stock?: T;
   allocatedStock?: T;
   averageCost?: T;
@@ -3187,6 +3308,26 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-templates_select".
+ */
+export interface EmailTemplatesSelect<T extends boolean = true> {
+  templateKey?: T;
+  eventKey?: T;
+  locale?: T;
+  channel?: T;
+  templateType?: T;
+  active?: T;
+  description?: T;
+  subject?: T;
+  html?: T;
+  text?: T;
+  availableVariables?: T;
+  testDataExample?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shop-inventory-locks_select".
  */
 export interface ShopInventoryLocksSelect<T extends boolean = true> {
@@ -3359,6 +3500,25 @@ export interface AuthAuditEventsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-delivery-events_select".
+ */
+export interface EmailDeliveryEventsSelect<T extends boolean = true> {
+  eventKey?: T;
+  channel?: T;
+  locale?: T;
+  to?: T;
+  subject?: T;
+  status?: T;
+  provider?: T;
+  relatedCollection?: T;
+  relatedID?: T;
+  errorMessage?: T;
+  payloadSnapshot?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -3417,17 +3577,6 @@ export interface SiteSetting {
     visualImageAlt?: string | null;
   };
   /**
-   * Configurazione SMTP per invio email. In produzione mantieni sincronizzati questi valori con le variabili ambiente.
-   */
-  smtp?: {
-    host?: string | null;
-    port?: number | null;
-    secure?: boolean | null;
-    user?: string | null;
-    pass?: string | null;
-    from?: string | null;
-  };
-  /**
    * Configurazione Stripe checkout/webhook. In produzione mantieni sincronizzati questi valori con le variabili ambiente.
    */
   stripe?: {
@@ -3442,6 +3591,23 @@ export interface SiteSetting {
     publicKey?: string | null;
     secretKey?: string | null;
   };
+  smtp?: {
+    host?: string | null;
+    port?: number | null;
+    secure?: boolean | null;
+    user?: string | null;
+    pass?: string | null;
+    from?: string | null;
+  };
+  emailDeliveryPolicies?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3492,16 +3658,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         visualImage?: T;
         visualImageAlt?: T;
       };
-  smtp?:
-    | T
-    | {
-        host?: T;
-        port?: T;
-        secure?: T;
-        user?: T;
-        pass?: T;
-        from?: T;
-      };
   stripe?:
     | T
     | {
@@ -3515,6 +3671,17 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         publicKey?: T;
         secretKey?: T;
       };
+  smtp?:
+    | T
+    | {
+        host?: T;
+        port?: T;
+        secure?: T;
+        user?: T;
+        pass?: T;
+        from?: T;
+      };
+  emailDeliveryPolicies?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

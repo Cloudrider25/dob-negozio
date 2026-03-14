@@ -2,10 +2,13 @@ import crypto from 'node:crypto'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-import { sendAdminNewOrderNotification } from '@/lib/server/email/businessNotifications'
+import {
+  sendOrderLifecycleNotifications,
+  sendOrderPaidNotifications,
+  sendShipmentNotifications,
+} from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { isLocale, type Locale } from '@/lib/i18n/core'
-import { sendSMTPEmail } from '@/lib/server/email/sendSMTPEmail'
 import { commitOrderInventory, releaseOrderAllocation } from '@/lib/server/shop/orderInventory'
 import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 import { createSendcloudParcel } from '@/lib/server/sendcloud/createParcel'
@@ -296,25 +299,18 @@ export async function POST(request: Request) {
                 }
               }
 
-              await sendSMTPEmail({
+              await sendOrderPaidNotifications({
                 payload,
-                to: order.customerEmail,
-                subject: `Conferma ordine ${order.orderNumber}`,
-                text: [
-                  `Ciao ${order.customerFirstName},`,
-                  '',
-                  `abbiamo ricevuto il tuo ordine ${order.orderNumber}.`,
-                  `Totale: EUR ${order.total.toFixed(2)}`,
-                  '',
-                  'Grazie,',
-                  'DOB Milano',
-                ].join('\n'),
-                html: `
-                <p>Ciao ${order.customerFirstName},</p>
-                <p>abbiamo ricevuto il tuo ordine <strong>${order.orderNumber}</strong>.</p>
-                <p>Totale: <strong>EUR ${order.total.toFixed(2)}</strong></p>
-                <p>Grazie,<br/>DOB Milano</p>
-              `,
+                orderNumber: order.orderNumber,
+                customerEmail: order.customerEmail,
+                customerFirstName: order.customerFirstName,
+                customerLastName: order.customerLastName,
+                total: order.total,
+                cartMode: order.cartMode,
+                productFulfillmentMode: order.productFulfillmentMode,
+                appointmentMode: order.appointmentMode,
+                appointmentRequestedDate: order.appointmentRequestedDate,
+                appointmentRequestedTime: order.appointmentRequestedTime,
                 attachments,
               })
             } catch (emailError) {
@@ -323,20 +319,6 @@ export async function POST(request: Request) {
                 msg: `Order confirmation email failed for order ${order.orderNumber}`,
               })
             }
-
-            await sendAdminNewOrderNotification({
-              payload,
-              orderNumber: order.orderNumber,
-              customerEmail: order.customerEmail,
-              customerFirstName: order.customerFirstName,
-              customerLastName: order.customerLastName,
-              total: order.total,
-              cartMode: order.cartMode,
-              productFulfillmentMode: order.productFulfillmentMode,
-              appointmentMode: order.appointmentMode,
-              appointmentRequestedDate: order.appointmentRequestedDate,
-              appointmentRequestedTime: order.appointmentRequestedTime,
-            })
           }
 
           if (
@@ -375,6 +357,17 @@ export async function POST(request: Request) {
                       },
                     },
                   })
+
+                  await sendShipmentNotifications({
+                    payload,
+                    eventKey: 'shipment_created',
+                    orderNumber: order.orderNumber,
+                    customerEmail: order.customerEmail,
+                    customerFirstName: order.customerFirstName,
+                    customerLastName: order.customerLastName,
+                    trackingNumber: sendcloud.trackingNumber || undefined,
+                    trackingUrl: sendcloud.trackingUrl || undefined,
+                  })
                 }
               }
             } catch (shippingError) {
@@ -403,6 +396,32 @@ export async function POST(request: Request) {
         break
       case 'payment.failed':
       case 'payment.cancelled':
+        try {
+          const order = await payload.findByID({
+            collection: 'orders',
+            id: orderID,
+            overrideAccess: true,
+            depth: 0,
+            locale,
+          })
+
+          await sendOrderLifecycleNotifications({
+            payload,
+            eventKey: 'order_payment_failed',
+            orderNumber: order.orderNumber,
+            customerEmail: order.customerEmail,
+            customerFirstName: order.customerFirstName,
+            customerLastName: order.customerLastName,
+            total: order.total,
+            reason: providerEventType || type,
+          })
+        } catch (emailError) {
+          payload.logger.error({
+            err: emailError,
+            msg: `Order failed notification failed for order ${orderID}`,
+          })
+        }
+
         await releaseOrderAllocation({
           payload,
           orderID,

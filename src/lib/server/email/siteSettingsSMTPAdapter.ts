@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer'
 import type { EmailAdapter } from 'payload'
 
+import { extractEmailEventMarker, getEmailDeliveryMode } from '@/lib/server/email/deliveryPolicy'
 import { getSMTPConfig } from '@/lib/server/email/smtpConfig'
 
 export const siteSettingsSMTPAdapter = (): EmailAdapter => {
@@ -9,6 +10,25 @@ export const siteSettingsSMTPAdapter = (): EmailAdapter => {
     defaultFromAddress: process.env.SMTP_FROM || 'no-reply@dobmilano.it',
     defaultFromName: 'DOB Milano',
     sendEmail: async (message) => {
+      const htmlInput = typeof message.html === 'string' ? message.html : ''
+      const marker = extractEmailEventMarker(htmlInput)
+      const deliveryMode = marker.eventKey
+        ? await getEmailDeliveryMode({
+            payload,
+            eventKey: marker.eventKey,
+            locale: marker.locale,
+          })
+        : null
+
+      if (deliveryMode === 'disabled') {
+        payload.logger.info({
+          msg: 'Email delivery disabled by site settings.',
+          eventKey: marker.eventKey,
+          to: message.to,
+        })
+        return
+      }
+
       const smtp = await getSMTPConfig(payload)
 
       if (!smtp.host) {
@@ -23,7 +43,7 @@ export const siteSettingsSMTPAdapter = (): EmailAdapter => {
             from: message.from || smtp.from,
             subject: message.subject,
             text: message.text,
-            html: message.html,
+            html: marker.html,
           },
         })
         return
@@ -41,6 +61,7 @@ export const siteSettingsSMTPAdapter = (): EmailAdapter => {
 
       await transporter.sendMail({
         ...message,
+        html: marker.html,
         from: message.from || smtp.from,
       })
     },

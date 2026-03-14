@@ -1,5 +1,7 @@
 import type { CollectionConfig, Where } from 'payload'
 
+import { sendNewsletterNotifications } from '@/lib/server/email/businessNotifications'
+
 import { isAdmin } from '../access/isAdmin'
 import { seoFields } from '../fields/seoFields'
 
@@ -16,7 +18,6 @@ const relationFilterFields = new Set([
   'needs',
   'textures',
   'timingProducts',
-  'routineSteps',
   'skinTypePrimary',
   'skinTypeSecondary',
   'brand',
@@ -87,6 +88,30 @@ const productGalleryMediaFilterOptions = ({ data }: { data?: unknown }) => {
 
   if (ids.size === 0) return true
   return { id: { in: Array.from(ids) } }
+}
+
+const getPrimaryLocalizedText = (value: unknown): string => {
+  if (typeof value === 'string') return value
+  if (value && typeof value === 'object') {
+    const localized = value as Record<string, unknown>
+    if (typeof localized.it === 'string' && localized.it.trim()) return localized.it
+    const first = Object.values(localized).find(
+      (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0,
+    )
+    if (first) return first
+  }
+  return ''
+}
+
+const getRelationLabel = (value: unknown, field: 'title' | 'name' = 'title'): string => {
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    if (typeof record[field] === 'string') return record[field] as string
+    if (record[field] && typeof record[field] === 'object') {
+      return getPrimaryLocalizedText(record[field])
+    }
+  }
+  return ''
 }
 
 export const Products: CollectionConfig = {
@@ -447,6 +472,31 @@ export const Products: CollectionConfig = {
         }
 
         return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        if (operation !== 'create') return doc
+        if (doc?.active === false) return doc
+
+        try {
+          await sendNewsletterNotifications({
+            payload: req.payload,
+            req,
+            eventKey: 'newsletter_product_created',
+            title: getPrimaryLocalizedText(doc?.title) || 'Nuovo prodotto',
+            slug: typeof doc?.slug === 'string' ? doc.slug : '',
+            price: typeof doc?.price === 'number' ? doc.price : null,
+            brand: getRelationLabel(doc?.brand, 'name'),
+          })
+        } catch (error) {
+          req.payload.logger.error({
+            err: error,
+            msg: `Newsletter product notification failed for ${String(doc?.id || doc?.slug || 'unknown-product')}`,
+          })
+        }
+
+        return doc
       },
     ],
   },
@@ -967,12 +1017,6 @@ export const Products: CollectionConfig = {
               name: 'timingProducts',
               type: 'relationship',
               relationTo: 'timing-products',
-              hasMany: true,
-            },
-            {
-              name: 'routineSteps',
-              type: 'relationship',
-              relationTo: 'routine-steps',
               hasMany: true,
             },
           ],

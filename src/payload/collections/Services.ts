@@ -1,5 +1,7 @@
 import type { CollectionConfig, Where } from 'payload'
 
+import { sendNewsletterNotifications } from '@/lib/server/email/businessNotifications'
+
 import { isAdmin } from '../access/isAdmin'
 import { seoFields } from '../fields/seoFields'
 
@@ -224,6 +226,32 @@ export const Services: CollectionConfig = {
         }
 
         return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        if (operation !== 'create') return doc
+        if (doc?.active === false) return doc
+
+        try {
+          await sendNewsletterNotifications({
+            payload: req.payload,
+            req,
+            eventKey: 'newsletter_service_created',
+            title: getPrimaryLocalizedText(doc?.name) || 'Nuovo servizio',
+            slug: typeof doc?.slug === 'string' ? doc.slug : '',
+            price: typeof doc?.price === 'number' ? doc.price : null,
+            durationMinutes:
+              typeof doc?.durationMinutes === 'number' ? doc.durationMinutes : null,
+          })
+        } catch (error) {
+          req.payload.logger.error({
+            err: error,
+            msg: `Newsletter service notification failed for ${String(doc?.id || doc?.slug || 'unknown-service')}`,
+          })
+        }
+
+        return doc
       },
     ],
   },

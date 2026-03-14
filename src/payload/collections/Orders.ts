@@ -1,6 +1,10 @@
 import type { Access, CollectionConfig } from 'payload'
 
-import { sendAppointmentStatusNotifications } from '@/lib/server/email/businessNotifications'
+import {
+  sendAppointmentCancelledNotifications,
+  sendAppointmentStatusNotifications,
+  sendOrderLifecycleNotifications,
+} from '@/lib/server/email/businessNotifications'
 import { isAdmin } from '../access/isAdmin'
 
 const createOrderNumber = () => {
@@ -272,14 +276,6 @@ export const Orders: CollectionConfig = {
           typeof previousDoc?.appointmentStatus === 'string' ? previousDoc.appointmentStatus : 'none'
 
         if (nextStatus === prevStatus) return doc
-        if (
-          nextStatus !== 'alternative_proposed' &&
-          nextStatus !== 'confirmed' &&
-          nextStatus !== 'confirmed_by_customer'
-        ) {
-          return doc
-        }
-
         const customerEmail = typeof doc.customerEmail === 'string' ? doc.customerEmail.trim() : ''
         const customerName = [doc.customerFirstName, doc.customerLastName]
           .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
@@ -293,23 +289,115 @@ export const Orders: CollectionConfig = {
         const note = typeof doc.appointmentProposalNote === 'string' ? doc.appointmentProposalNote : ''
 
         try {
-          await sendAppointmentStatusNotifications({
-            payload: req.payload,
-            nextStatus,
-            customerEmail,
-            customerName,
-            orderNumber,
-            proposedDate,
-            proposedTime,
-            requestedDate,
-            requestedTime,
-            note,
-          })
+          if (
+            nextStatus === 'alternative_proposed' ||
+            nextStatus === 'confirmed' ||
+            nextStatus === 'confirmed_by_customer'
+          ) {
+            await sendAppointmentStatusNotifications({
+              payload: req.payload,
+              req,
+              nextStatus,
+              customerEmail,
+              customerName,
+              orderNumber,
+              proposedDate,
+              proposedTime,
+              requestedDate,
+              requestedTime,
+              note,
+            })
+          } else if (nextStatus === 'none' && prevStatus !== 'none') {
+            await sendAppointmentCancelledNotifications({
+              payload: req.payload,
+              req,
+              customerEmail,
+              customerName,
+              orderNumber,
+              proposedDate,
+              proposedTime,
+              requestedDate,
+              requestedTime,
+              note,
+            })
+          } else {
+            return doc
+          }
         } catch (emailError) {
           req.payload.logger.error({
             err: emailError,
             msg: `Appointment email notification failed for order ${orderNumber}`,
           })
+        }
+
+        return doc
+      },
+      async ({ doc, previousDoc, req, operation }) => {
+        if (!doc || !req) return doc
+        if (operation !== 'update') return doc
+
+        const orderNumber =
+          typeof doc.orderNumber === 'string' ? doc.orderNumber : `#${String(doc.id)}`
+        const customerEmail = typeof doc.customerEmail === 'string' ? doc.customerEmail.trim() : ''
+        const customerFirstName =
+          typeof doc.customerFirstName === 'string' ? doc.customerFirstName : ''
+        const customerLastName =
+          typeof doc.customerLastName === 'string' ? doc.customerLastName : ''
+        const total = typeof doc.total === 'number' ? doc.total : 0
+        const nextStatus = typeof doc.status === 'string' ? doc.status : ''
+        const prevStatus = typeof previousDoc?.status === 'string' ? previousDoc.status : ''
+        const nextPaymentStatus =
+          typeof doc.paymentStatus === 'string' ? doc.paymentStatus : ''
+        const prevPaymentStatus =
+          typeof previousDoc?.paymentStatus === 'string' ? previousDoc.paymentStatus : ''
+
+        const notifications: Array<{
+          eventKey: 'order_payment_failed' | 'order_cancelled' | 'order_refunded'
+          reason: string
+        }> = []
+
+        if (nextPaymentStatus === 'failed' && prevPaymentStatus !== 'failed') {
+          notifications.push({
+            eventKey: 'order_payment_failed',
+            reason: 'Pagamento non riuscito.',
+          })
+        }
+
+        if (nextStatus === 'cancelled' && prevStatus !== 'cancelled') {
+          notifications.push({
+            eventKey: 'order_cancelled',
+            reason: 'Ordine annullato dal backoffice.',
+          })
+        }
+
+        const wasRefunded = prevStatus === 'refunded' || prevPaymentStatus === 'refunded'
+        const isRefunded = nextStatus === 'refunded' || nextPaymentStatus === 'refunded'
+        if (isRefunded && !wasRefunded) {
+          notifications.push({
+            eventKey: 'order_refunded',
+            reason: 'Pagamento rimborsato.',
+          })
+        }
+
+        for (const notification of notifications) {
+          try {
+            await sendOrderLifecycleNotifications({
+              payload: req.payload,
+              req,
+              eventKey: notification.eventKey,
+              orderNumber,
+              customerEmail,
+              customerFirstName,
+              customerLastName,
+              total,
+              reason: notification.reason,
+            })
+          } catch (emailError) {
+            req.payload.logger.error({
+              err: emailError,
+              msg: `Order lifecycle email notification failed for order ${orderNumber}`,
+            })
+          }
         }
 
         return doc
@@ -591,7 +679,8 @@ export const Orders: CollectionConfig = {
           label: 'Shipping Address',
           admin: {
             condition: (data) => {
-              return data?.productFulfillmentMode === 'shipping'
+              if (!data?.cartMode) return true
+              return data.cartMode === 'products_only' || data.cartMode === 'mixed'
             },
           },
           fields: [
@@ -633,7 +722,8 @@ export const Orders: CollectionConfig = {
           label: 'Sendcloud',
           admin: {
             condition: (data) => {
-              return data?.productFulfillmentMode === 'shipping'
+              if (!data?.cartMode) return true
+              return data.cartMode === 'products_only' || data.cartMode === 'mixed'
             },
           },
           fields: [
