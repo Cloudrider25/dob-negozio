@@ -9,6 +9,8 @@ import { getCarouselItemKey, type CarouselItem } from '../shared/types'
 import { ChevronLeft, ChevronRight } from '@/frontend/components/ui/primitives/icons'
 import { CAROUSEL_BREAKPOINTS, CAROUSEL_DEFAULT_LABELS, type CarouselCtaLabel } from '../shared/contracts'
 import { normalizeCarouselItems } from '../shared/mappers'
+import { toCarouselAnalyticsItem } from '@/lib/frontend/analytics/ecommerce'
+import { trackEvent } from '@/lib/frontend/analytics/gtag'
 
 export type CarouselProps = {
   items: CarouselItem[]
@@ -21,6 +23,7 @@ export type CarouselProps = {
   previousLabel?: string
   nextLabel?: string
   ctaLabel?: CarouselCtaLabel
+  analyticsListName?: string
 }
 
 export const Carousel = ({
@@ -34,11 +37,14 @@ export const Carousel = ({
   previousLabel,
   nextLabel,
   ctaLabel,
+  analyticsListName,
 }: CarouselProps) => {
   const prevRef = useRef<HTMLButtonElement | null>(null)
   const nextRef = useRef<HTMLButtonElement | null>(null)
   const [swiper, setSwiper] = useState<UISwiperInstance | null>(null)
   const safeItems = useMemo(() => normalizeCarouselItems(items), [items])
+  const trackedViewRef = useRef<string | null>(null)
+  const resolvedListName = analyticsListName || ariaLabel
 
   useEffect(() => {
     if (!swiper || !prevRef.current || !nextRef.current) return
@@ -49,6 +55,30 @@ export const Carousel = ({
     swiper.navigation.init()
     swiper.navigation.update()
   }, [swiper])
+
+  useEffect(() => {
+    if (!safeItems.length) return
+
+    const trackingKey = `${resolvedListName}:${safeItems
+      .map((item, index) => getCarouselItemKey(item, index))
+      .join('|')}`
+
+    if (trackedViewRef.current === trackingKey) return
+
+    trackEvent('view_item_list', {
+      item_list_name: resolvedListName,
+      items: safeItems.map((item, index) => toCarouselAnalyticsItem(item, index)),
+    })
+
+    trackedViewRef.current = trackingKey
+  }, [resolvedListName, safeItems])
+
+  const handleSelectItem = (item: CarouselItem, index: number) => {
+    trackEvent('select_item', {
+      item_list_name: resolvedListName,
+      items: [toCarouselAnalyticsItem(item, index)],
+    })
+  }
 
   if (safeItems.length === 0) {
     return (
@@ -93,6 +123,7 @@ export const Carousel = ({
                 mediaClassName={mediaClassName}
                 prioritizeImage={prioritizeFirstSlideImage && index === 0}
                 ctaLabel={ctaLabel}
+                onSelectItem={() => handleSelectItem(item, index)}
               />
             </SwiperSlide>
           ))}

@@ -13,6 +13,7 @@ export const COOKIE_CONSENT_COOKIE_KEYS = {
 
 export const COOKIE_CONSENT_EVENT = 'dob:open-cookie-consent'
 export const COOKIE_CONSENT_DRAWER_EVENT = 'dob:open-cookie-preferences'
+export const COOKIE_CONSENT_UPDATED_EVENT = 'dob:cookie-consent-updated'
 
 export const DEFAULT_COOKIE_CONSENT: CookieConsentPreferences = {
   analytics: false,
@@ -78,6 +79,8 @@ export const persistCookieConsent = (next: CookieConsentPreferences) => {
     COOKIE_CONSENT_COOKIE_KEYS.advertising,
     serializeCookieConsentFlag(next.advertising),
   )
+
+  window.dispatchEvent(new CustomEvent<CookieConsentPreferences>(COOKIE_CONSENT_UPDATED_EVENT, { detail: next }))
 }
 
 export const readStoredCookieConsent = (): {

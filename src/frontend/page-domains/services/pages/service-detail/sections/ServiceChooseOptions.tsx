@@ -7,6 +7,8 @@ import { Button } from '@/frontend/components/ui/primitives/button'
 import { StateCircleButton } from '@/frontend/components/ui/primitives/StateCircleButton'
 import drawerStyles from '@/frontend/page-domains/shared/sections/ShopAllSection.module.css'
 import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/frontend/cart/storage'
+import { toAnalyticsItem } from '@/lib/frontend/analytics/ecommerce'
+import { trackEvent } from '@/lib/frontend/analytics/gtag'
 import { formatServicePrice } from '@/lib/frontend/services/format'
 import styles from '@/frontend/page-domains/services/pages/service-detail/page/ServiceDetailPage.module.css'
 
@@ -153,6 +155,22 @@ export function ServiceChooseOptions({
     writeCart(items)
     emitCartUpdated()
     emitCartOpen()
+    trackEvent('add_to_cart', {
+      currency: 'EUR',
+      value: cartItem.price ?? 0,
+      items: [
+        toAnalyticsItem(
+          {
+            id: cartItem.id,
+            title: cartItem.title,
+            price: cartItem.price,
+            quantity: 1,
+            currency: 'EUR',
+          },
+          0,
+        ),
+      ],
+    })
   }
 
   return (
