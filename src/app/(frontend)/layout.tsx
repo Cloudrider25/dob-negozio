@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import { Instrument_Sans } from 'next/font/google'
@@ -85,7 +85,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           `}
         </Script>
         <ThemeHydrator />
-        <AnalyticsRuntime measurementId={gaMeasurementId} />
+        <Suspense fallback={null}>
+          <AnalyticsRuntime measurementId={gaMeasurementId} />
+        </Suspense>
         <main>{children}</main>
       </body>
     </html>
