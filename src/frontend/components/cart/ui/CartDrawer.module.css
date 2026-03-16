@@ -88,6 +88,18 @@
   padding-right: 0.2rem;
 }
 
+.waitlistSection {
+  border-top: 1px solid var(--stroke);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.waitlistTitle {
+  color: var(--text-secondary);
+}
+
 .item {
   display: grid;
   grid-template-columns: 120px 1fr;
@@ -252,6 +264,12 @@
   justify-content: center;
   text-align: center;
   cursor: pointer;
+}
+
+.checkoutButton[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .checkoutButton:focus-visible {

@@ -125,6 +125,18 @@ type ShipmentNotificationInput = {
   trackingUrl?: string | null
 }
 
+type ProductWaitlistNotificationInput = {
+  payload: NotificationPayload
+  req?: PayloadRequest
+  customerEmail: string
+  customerFirstName?: string | null
+  customerLastName?: string | null
+  productTitle: string
+  productSlug: string
+  productBrand?: string | null
+  locale?: string | null
+}
+
 type NewsletterNotificationInput = {
   payload: NotificationPayload
   req?: PayloadRequest
@@ -1183,6 +1195,79 @@ export const sendShipmentNotifications = async ({
       err: error,
       msg: `Admin shipment notification failed for ${orderNumber}`,
     })
+  }
+}
+
+export const sendProductWaitlistAvailableNotification = async ({
+  payload,
+  req,
+  customerEmail,
+  customerFirstName,
+  customerLastName,
+  productTitle,
+  productSlug,
+  productBrand,
+  locale,
+}: ProductWaitlistNotificationInput) => {
+  const normalizedEmail = normalizeText(customerEmail)
+  const normalizedTitle = normalizeText(productTitle)
+  const normalizedSlug = normalizeText(productSlug)
+  if (!isEmail(normalizedEmail) || !normalizedTitle || !normalizedSlug) return
+
+  const resolvedLocale = resolvePreferredLocale(locale)
+  const fullName = getFullName(customerFirstName, customerLastName)
+  const origin = getPublicSiteOrigin(req?.headers)
+  const productUrl = `${origin}/${resolvedLocale}/shop/${normalizedSlug}`
+
+  try {
+    await sendBusinessEventEmail({
+      payload,
+      req,
+      eventKey: 'product_waitlist_back_in_stock',
+      channel: 'customer',
+      locale: resolvedLocale,
+      to: normalizedEmail,
+      data: {
+        customer: {
+          firstName: normalizeText(customerFirstName),
+          lastName: normalizeText(customerLastName),
+          fullName,
+          email: normalizedEmail,
+        },
+        product: {
+          title: normalizedTitle,
+          slug: normalizedSlug,
+          brand: normalizeText(productBrand),
+          url: productUrl,
+        },
+      },
+      relatedCollection: 'products',
+      relatedID: normalizedSlug,
+      fallback: {
+        subject: 'Il prodotto che aspettavi e di nuovo disponibile',
+        text: [
+          'Ciao {{customer.fullName}},',
+          '',
+          'il prodotto {{product.title}} e di nuovo disponibile.',
+          'Puoi tornare alla scheda prodotto dal link qui sotto.',
+          '{{product.url}}',
+          '',
+          'DOB Milano',
+        ].join('\n'),
+        html: `
+          <p>Ciao {{customer.fullName}},</p>
+          <p>il prodotto <strong>{{product.title}}</strong> e di nuovo disponibile.</p>
+          <p><a href="{{product.url}}">Vai al prodotto</a></p>
+          <p>DOB Milano</p>
+        `,
+      },
+    })
+  } catch (error) {
+    payload.logger.error({
+      err: error,
+      msg: `Waitlist availability notification failed for ${normalizedSlug}:${normalizedEmail}`,
+    })
+    throw error
   }
 }
 

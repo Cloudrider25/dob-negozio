@@ -1,4 +1,5 @@
 import type { CartItem } from '@/lib/frontend/cart/storage'
+import { toCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
 import type { CustomerSnapshot } from '@/frontend/page-domains/checkout/shared/contracts'
 
 type ProductFulfillmentMode = 'shipping' | 'pickup' | 'none'
@@ -47,12 +48,7 @@ export const buildCheckoutSubmitPayload = ({
   serviceRequestedDate: string
   serviceRequestedTime: string
 }): CheckoutSubmitPayload => {
-  const normalizedItems = items
-    .map((item) => ({
-      id: String(item.id || '').trim(),
-      quantity: Number.isFinite(item.quantity) ? Math.max(1, Math.floor(item.quantity)) : 1,
-    }))
-    .filter((item) => item.id.length > 0)
+  const normalizedItems = toCheckoutEligibleItems(items)
 
   const hasProducts = normalizedItems.some((item) => !isServiceLikeId(item.id))
   const hasServices = normalizedItems.some((item) => isServiceLikeId(item.id))

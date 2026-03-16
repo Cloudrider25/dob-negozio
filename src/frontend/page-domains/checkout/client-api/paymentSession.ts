@@ -1,4 +1,5 @@
 import type { CartItem } from '@/lib/frontend/cart/storage'
+import { hasCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
 import type { CustomerSnapshot, PaymentSession } from '@/frontend/page-domains/checkout/shared/contracts'
 import { buildCheckoutSubmitPayload } from '@/frontend/page-domains/checkout/shared/checkout-submit'
 
@@ -42,7 +43,7 @@ export const createPaymentElementSession = async ({
     serviceRequestedTime,
   })
 
-  if (payload.items.length === 0) {
+  if (!hasCheckoutEligibleItems(items) || payload.items.length === 0) {
     throw new CheckoutSessionError('checkout_empty_cart')
   }
 
@@ -56,8 +57,17 @@ export const createPaymentElementSession = async ({
 
   const data = (await response.json()) as {
     error?: string
+    attemptId?: string | number
     orderNumber?: string
     orderId?: string | number
+    quote?: {
+      subtotal?: number
+      shippingAmount?: number
+      discountAmount?: number
+      commissionAmount?: number
+      total?: number
+      currency?: string
+    }
     total?: number
     discountAmount?: number
     currency?: string
@@ -88,8 +98,26 @@ export const createPaymentElementSession = async ({
     return {
       clientSecret: data.paymentIntentClientSecret,
       publishableKey: data.stripePublishableKey,
+      attemptId: data.attemptId,
       orderNumber: data.orderNumber,
       orderId: data.orderId,
+      quote:
+        data.quote &&
+        typeof data.quote.subtotal === 'number' &&
+        typeof data.quote.shippingAmount === 'number' &&
+        typeof data.quote.discountAmount === 'number' &&
+        typeof data.quote.commissionAmount === 'number' &&
+        typeof data.quote.total === 'number' &&
+        typeof data.quote.currency === 'string'
+          ? {
+              subtotal: data.quote.subtotal,
+              shippingAmount: data.quote.shippingAmount,
+              discountAmount: data.quote.discountAmount,
+              commissionAmount: data.quote.commissionAmount,
+              total: data.quote.total,
+              currency: data.quote.currency,
+            }
+          : undefined,
       totalAmount: typeof data.total === 'number' ? data.total : undefined,
       discountAmount: typeof data.discountAmount === 'number' ? data.discountAmount : undefined,
       currency: typeof data.currency === 'string' ? data.currency : undefined,

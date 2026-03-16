@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type MouseEvent } from 'react'
 
 import { MediaThumb } from '@/frontend/components/shared/MediaThumb'
 import styles from './CartDrawer.module.css'
@@ -17,6 +17,7 @@ import {
 import {
   CART_OPEN_EVENT,
 } from '@/lib/frontend/cart/storage'
+import { hasCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
 import { useCartState } from '../hooks/useCartState'
 import { formatCartPrice } from '../shared/format'
 import { isServiceLikeCartItem } from '../shared/itemKind'
@@ -42,13 +43,15 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
   const [open, setOpen] = useState(initialOpen)
   const {
     items,
-    itemCount,
+    waitlistItems,
+    totalCount,
     subtotal,
     reloadCart,
     setCartItems,
     incrementItem,
     decrementItem,
     removeItem,
+    removeWaitlistItem,
   } = useCartState()
   const itemsWithoutPrice = useMemo(() => countItemsWithoutPrice(items), [items])
 
@@ -161,6 +164,31 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
         ? `Добавьте товаров на ${remainingLabel} для бесплатной доставки${pickupSuffix}`
         : `${remainingLabel} away from free shipping${pickupSuffix}`
   const showShippingProgress = hasProducts
+  const canStartCheckout = useMemo(() => hasCheckoutEligibleItems(items), [items])
+
+  const onCheckoutClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!canStartCheckout) {
+      event.preventDefault()
+      return
+    }
+    setOpen(false)
+  }
+
+  const onRemoveWaitlist = async (id: string) => {
+    const response = await fetch('/api/shop/waitlist', {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        productId: id,
+        locale: resolvedLocale,
+      }),
+    })
+
+    if (!response.ok) return
+    removeWaitlistItem(id)
+  }
 
   return (
     <SideDrawer
@@ -169,7 +197,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
       ariaLabel={journeyCopy.cartPage.cart}
       title={
         <>
-          {itemCount} {copy.itemsLabel}
+          {totalCount} {copy.itemsLabel}
         </>
       }
     >
@@ -184,7 +212,7 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
 
         <div className={styles.list}>
           {items.length === 0 ? (
-            <div className={`${styles.empty} typo-body`}>{copy.cartEmpty}</div>
+            waitlistItems.length === 0 ? <div className={`${styles.empty} typo-body`}>{copy.cartEmpty}</div> : null
           ) : (
             items.map((item) => (
               <div key={item.id} className={styles.item}>
@@ -239,6 +267,45 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
           )}
         </div>
 
+        <div className={styles.waitlistSection}>
+          <div className={`${styles.waitlistTitle} typo-caption-upper`}>{copy.waitlistTitle}</div>
+          {waitlistItems.length === 0 ? (
+            <div className={`${styles.itemMeta} typo-caption`}>{copy.waitlistEmpty}</div>
+          ) : (
+            <>
+              <div className={`${styles.itemMeta} typo-caption`}>{copy.waitlistNote}</div>
+              {waitlistItems.map((item) => (
+                <div key={`waitlist-${item.id}`} className={styles.item}>
+                  <MediaThumb
+                    src={normalizeThumbnailSrc(item.coverImage)}
+                    alt={item.title}
+                    sizes="144px"
+                    className={styles.thumb}
+                    imageClassName={styles.thumbImage}
+                    unoptimized={isRemoteThumbnailSrc(item.coverImage)}
+                  />
+                  <div>
+                    <h2 className={`${styles.itemTitle} typo-small-upper`}>{item.title}</h2>
+                    {(item.format || item.brand) ? (
+                      <div className={`${styles.itemMeta} typo-caption`}>{item.format || item.brand}</div>
+                    ) : null}
+                    <div className={`${styles.itemMeta} typo-caption`}>{copy.waitlistNote}</div>
+                    <button
+                      type="button"
+                      className={styles.removeButton}
+                      onClick={() => void onRemoveWaitlist(item.id)}
+                      aria-label={copy.remove}
+                    >
+                      <Trash className={styles.removeIcon} size={24} />
+                    </button>
+                  </div>
+                  <div className={`${styles.price} typo-small`}>Waitlist</div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+
         <div className={styles.routine}>
           <MediaThumb
             src={normalizeThumbnailSrc(recommended?.coverImage)}
@@ -271,7 +338,9 @@ export function CartDrawer({ locale, initialOpen = false }: { locale: string; in
           <Link
             className={`${styles.checkoutButton} typo-caption-upper`}
             href={`/${locale}/checkout`}
-            onClick={() => setOpen(false)}
+            aria-disabled={!canStartCheckout}
+            tabIndex={canStartCheckout ? undefined : -1}
+            onClick={onCheckoutClick}
           >
             {copy.checkout}
           </Link>

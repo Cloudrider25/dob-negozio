@@ -1,10 +1,11 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type MouseEvent } from 'react'
 
 import { MediaThumb } from '@/frontend/components/shared/MediaThumb'
 import { ButtonLink } from '@/frontend/components/ui/primitives/button-link'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n/core'
+import { hasCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
 import {
   FREE_SHIPPING_THRESHOLD_EUR,
@@ -22,7 +23,8 @@ export function CartPageClient({ locale }: { locale: string }) {
   const dictionary = getJourneyDictionary(resolvedLocale)
   const copy = dictionary.cartPage
   const drawerCopy = dictionary.cartDrawer
-  const { items, itemCount, subtotal, incrementItem, decrementItem } = useCartState()
+  const { items, waitlistItems, totalCount, subtotal, incrementItem, decrementItem, removeWaitlistItem } =
+    useCartState()
   const [discountCode, setDiscountCode] = useState('')
   const productSubtotal = useMemo(
     () =>
@@ -42,13 +44,34 @@ export function CartPageClient({ locale }: { locale: string }) {
   const freeShippingNote = freeShippingUnlocked
     ? 'Free standard shipping unlocked'
     : `${formatCartPrice(remainingForFreeShipping, resolvedLocale)} away from free standard shipping`
+  const canStartCheckout = useMemo(() => hasCheckoutEligibleItems(items), [items])
+  const removeWaitlist = async (id: string) => {
+    const response = await fetch('/api/shop/waitlist', {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        productId: id,
+        locale: resolvedLocale,
+      }),
+    })
+
+    if (!response.ok) return
+    removeWaitlistItem(id)
+  }
+
+  const onCheckoutClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (canStartCheckout) return
+    event.preventDefault()
+  }
 
   return (
     <section className={styles.page}>
       <div className={styles.shell}>
         <header className={styles.header}>
           <h1 className={cn(styles.itemsCount, 'typo-h2')}>
-            {itemCount} {drawerCopy.itemsLabel}
+            {totalCount} {drawerCopy.itemsLabel}
           </h1>
           {hasProducts ? (
             <>
@@ -62,7 +85,7 @@ export function CartPageClient({ locale }: { locale: string }) {
 
         <div className={styles.list}>
           {items.length === 0 ? (
-            <div className={cn(styles.empty, 'typo-body')}>{copy.empty}</div>
+            waitlistItems.length === 0 ? <div className={cn(styles.empty, 'typo-body')}>{copy.empty}</div> : null
           ) : (
             items.map((item) => {
               const rowSubtotal = (item.price ?? 0) * item.quantity
@@ -118,6 +141,50 @@ export function CartPageClient({ locale }: { locale: string }) {
               )
             })
           )}
+
+          <div className={styles.waitlistSection}>
+            <h2 className={cn(styles.waitlistTitle, 'typo-h3')}>{copy.waitlistTitle}</h2>
+            {waitlistItems.length === 0 ? (
+              <p className={cn(styles.waitlistNote, 'typo-body')}>{copy.waitlistEmpty}</p>
+            ) : (
+              <>
+                <p className={cn(styles.waitlistNote, 'typo-body')}>{copy.waitlistNote}</p>
+                {waitlistItems.map((item) => (
+                  <article key={`waitlist-${item.id}`} className={styles.item}>
+                    <MediaThumb
+                      src={normalizeThumbnailSrc(item.coverImage)}
+                      alt={item.title}
+                      sizes="84px"
+                      className={styles.thumb}
+                      imageClassName={styles.thumbImage}
+                      fallback={<div className={styles.thumbFallback} />}
+                      unoptimized={isRemoteThumbnailSrc(item.coverImage)}
+                    />
+                    <div className={styles.itemBody}>
+                      <div className={styles.itemHead}>
+                        <div className={styles.itemText}>
+                          <h2 className={cn(styles.itemTitle, 'typo-body-lg')}>{item.title}</h2>
+                          {(item.format || item.brand) ? (
+                            <p className={cn(styles.itemMeta, 'typo-body')}>
+                              {item.format || item.brand}
+                            </p>
+                          ) : null}
+                          <p className={cn(styles.itemMeta, 'typo-body')}>{copy.waitlistNote}</p>
+                        </div>
+                        <button
+                          type="button"
+                          className={styles.waitlistRemove}
+                          onClick={() => void removeWaitlist(item.id)}
+                        >
+                          {drawerCopy.remove}
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </>
+            )}
+          </div>
         </div>
 
         <section className={styles.summary}>
@@ -145,7 +212,15 @@ export function CartPageClient({ locale }: { locale: string }) {
           <p className={cn(styles.summaryNote, 'typo-body')}>
             {drawerCopy.summaryNote}
           </p>
-          <ButtonLink href={`/${locale}/checkout`} kind="main" size="md" className={styles.checkoutLink}>
+          <ButtonLink
+            href={`/${locale}/checkout`}
+            kind="main"
+            size="md"
+            className={styles.checkoutLink}
+            aria-disabled={!canStartCheckout}
+            tabIndex={canStartCheckout ? undefined : -1}
+            onClick={onCheckoutClick}
+          >
             {copy.checkoutCta}
           </ButtonLink>
         </section>

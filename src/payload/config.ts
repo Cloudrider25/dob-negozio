@@ -48,6 +48,8 @@ import { Orders } from './collections/Orders'
 import { OrderItems } from './collections/OrderItems'
 import { OrderServiceItems } from './collections/OrderServiceItems'
 import { OrderServiceSessions } from './collections/OrderServiceSessions'
+import { CheckoutAttempts } from './collections/CheckoutAttempts'
+import { ProductWaitlists } from './collections/ProductWaitlists'
 import { ShopWebhookEvents } from './collections/ShopWebhookEvents'
 import { ShopInventoryLocks } from './collections/ShopInventoryLocks'
 import { ConsultationLeads } from './collections/ConsultationLeads'
@@ -331,6 +333,8 @@ export default buildConfig({
     Users,
     EmailTemplates,
     ShopInventoryLocks,
+    CheckoutAttempts,
+    ProductWaitlists,
     RoutineTemplateStepProducts,
     RoutineSteps,
     RoutineStepRules,

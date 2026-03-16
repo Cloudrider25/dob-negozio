@@ -6,10 +6,12 @@ import {
   CART_UPDATED_EVENT,
   emitCartUpdated,
   readCart,
+  readWaitlist,
   writeCart,
+  writeWaitlist,
 } from '@/lib/frontend/cart/storage'
 
-import type { CartItem } from '../shared/types'
+import type { CartItem, WaitlistItem } from '../shared/types'
 import {
   computeItemCount,
   computeSubtotal,
@@ -21,22 +23,30 @@ import { normalizeCartItems } from '../shared/normalize'
 
 type UseCartStateResult = {
   items: CartItem[]
+  waitlistItems: WaitlistItem[]
   itemCount: number
+  waitlistCount: number
+  totalCount: number
   subtotal: number
   reloadCart: () => void
   setCartItems: (next: CartItem[]) => void
+  setWaitlistItems: (next: WaitlistItem[]) => void
   incrementItem: (id: string) => void
   decrementItem: (id: string) => void
   removeItem: (id: string) => void
+  removeWaitlistItem: (id: string) => void
 }
 
 export const useCartState = (): UseCartStateResult => {
   const [items, setItems] = useState<CartItem[]>([])
+  const [waitlistItems, setWaitlist] = useState<WaitlistItem[]>([])
 
   const reloadCart = useCallback(() => {
     const rawItems = readCart()
     const normalizedItems = normalizeCartItems(rawItems)
+    const rawWaitlistItems = readWaitlist()
     setItems(normalizedItems)
+    setWaitlist(rawWaitlistItems)
     if (typeof window !== 'undefined' && JSON.stringify(rawItems) !== JSON.stringify(normalizedItems)) {
       writeCart(normalizedItems)
     }
@@ -62,6 +72,14 @@ export const useCartState = (): UseCartStateResult => {
     }
   }, [])
 
+  const setWaitlistItems = useCallback((next: WaitlistItem[]) => {
+    setWaitlist(next)
+    if (typeof window !== 'undefined') {
+      writeWaitlist(next)
+      emitCartUpdated()
+    }
+  }, [])
+
   const incrementItem = useCallback(
     (id: string) => {
       setCartItems(incrementCartItem(items, id))
@@ -83,17 +101,31 @@ export const useCartState = (): UseCartStateResult => {
     [items, setCartItems],
   )
 
+  const removeWaitlistItem = useCallback(
+    (id: string) => {
+      setWaitlistItems(waitlistItems.filter((item) => item.id !== id))
+    },
+    [setWaitlistItems, waitlistItems],
+  )
+
   const subtotal = useMemo(() => computeSubtotal(items), [items])
   const itemCount = useMemo(() => computeItemCount(items), [items])
+  const waitlistCount = useMemo(() => waitlistItems.length, [waitlistItems])
+  const totalCount = itemCount + waitlistCount
 
   return {
     items,
+    waitlistItems,
     itemCount,
+    waitlistCount,
+    totalCount,
     subtotal,
     reloadCart,
     setCartItems,
+    setWaitlistItems,
     incrementItem,
     decrementItem,
     removeItem,
+    removeWaitlistItem,
   }
 }

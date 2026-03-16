@@ -29,7 +29,11 @@ const findProductForTest = async (payload: Payload) => {
       price: true,
     },
   })
-  return result.docs[0]
+  return result.docs.find((item) => {
+    const stock = asNumber(item.stock)
+    const allocated = asNumber(item.allocatedStock)
+    return Number.isFinite(Number(item.id)) && stock - allocated >= 0
+  })
 }
 
 const main = async () => {
@@ -52,7 +56,6 @@ const main = async () => {
   let expectedStockAfterSetup = stockBefore
   let orderID: string | number | undefined
 
-  // Ensure at least one unit can be allocated.
   const prepared = await payload.update({
     collection: 'products',
     id: productID,
@@ -60,7 +63,6 @@ const main = async () => {
     locale: 'it',
     data: {
       deliveries: [
-        ...deliveriesBefore,
         {
           lot: `qa-failed-${Date.now()}`,
           quantity: 1,
@@ -68,10 +70,15 @@ const main = async () => {
           deliveryDate: new Date().toISOString(),
         },
       ],
-      allocatedStock: allocatedBefore,
+      allocatedStock: 0,
     },
   })
   expectedStockAfterSetup = asNumber(prepared.stock)
+  if (expectedStockAfterSetup !== 1 || asNumber(prepared.allocatedStock) !== 0) {
+    throw new Error(
+      `Failed payment test setup failed. expected stock/allocated 1/0, got ${expectedStockAfterSetup}/${asNumber(prepared.allocatedStock)}`,
+    )
+  }
 
   let stockAfterFail = 0
   let allocatedAfterFail = 0
@@ -83,6 +90,7 @@ const main = async () => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           locale: 'it',
+          productFulfillmentMode: 'pickup',
           customer: {
             email: `qa+failed-${Date.now()}@example.com`,
             firstName: 'QA',
@@ -122,9 +130,9 @@ const main = async () => {
       },
     })
     const allocatedAfterCheckout = asNumber(productAfterCheckout.allocatedStock)
-    if (allocatedAfterCheckout !== allocatedBefore + 1) {
+    if (allocatedAfterCheckout !== 1) {
       throw new Error(
-        `Allocation after checkout mismatch. expected ${allocatedBefore + 1}, got ${allocatedAfterCheckout}`,
+        `Allocation after checkout mismatch. expected 1, got ${allocatedAfterCheckout}`,
       )
     }
 
@@ -197,9 +205,9 @@ const main = async () => {
     stockAfterFail = asNumber(productAfterFail.stock)
     allocatedAfterFail = asNumber(productAfterFail.allocatedStock)
 
-    if (stockAfterFail !== expectedStockAfterSetup || allocatedAfterFail !== allocatedBefore) {
+    if (stockAfterFail !== expectedStockAfterSetup || allocatedAfterFail !== 0) {
       throw new Error(
-        `Inventory recovery mismatch after payment.failed. expected stock/allocated ${expectedStockAfterSetup}/${allocatedBefore} got ${stockAfterFail}/${allocatedAfterFail}`,
+        `Inventory recovery mismatch after payment.failed. expected stock/allocated ${expectedStockAfterSetup}/0 got ${stockAfterFail}/${allocatedAfterFail}`,
       )
     }
 
