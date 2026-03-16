@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 
 import type { Locale } from '@/lib/i18n/core'
 import { getJourneyDictionary } from '@/lib/i18n/core'
+import { consumePendingPurchase } from '@/lib/frontend/analytics/ecommerce'
+import { trackEvent } from '@/lib/frontend/analytics/gtag'
 
 type CheckoutSuccessContentProps = {
   locale: Locale
@@ -86,6 +88,21 @@ export function CheckoutSuccessContent({
       if (retryTimeout) clearTimeout(retryTimeout)
     }
   }, [attemptId, locale, order, paymentIntentId, router])
+
+  useEffect(() => {
+    const matchId = order || paymentIntentId || attemptId
+    if (!matchId) return
+
+    const pendingPurchase = consumePendingPurchase(matchId)
+    if (!pendingPurchase) return
+
+    trackEvent('purchase', {
+      transaction_id: pendingPurchase.transactionId,
+      value: pendingPurchase.value,
+      currency: pendingPurchase.currency,
+      items: pendingPurchase.items,
+    })
+  }, [attemptId, order, paymentIntentId])
 
   return (
     <main className="mx-auto w-full max-w-[760px] px-6 py-20">

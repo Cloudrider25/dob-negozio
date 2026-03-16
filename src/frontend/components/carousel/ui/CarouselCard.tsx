@@ -19,6 +19,7 @@ export const CarouselCard = ({
   prioritizeImage = false,
   ctaLabel,
   onCtaClick,
+  onSelectItem,
 }: {
   item: CarouselItem
   cardClassName?: string
@@ -26,6 +27,7 @@ export const CarouselCard = ({
   prioritizeImage?: boolean
   ctaLabel?: CarouselCtaLabel
   onCtaClick?: (item: CarouselItem) => void
+  onSelectItem?: () => void
 }) => {
   const router = useRouter()
   const [isTouchDevice, setIsTouchDevice] = useState(false)
@@ -51,6 +53,7 @@ export const CarouselCard = ({
 
   const handleNavigateToDetail = () => {
     if (!item.href) return
+    onSelectItem?.()
     router.push(item.href)
   }
 
@@ -126,6 +129,7 @@ export const CarouselCard = ({
               interactive
               onClick={(event) => {
                 event.stopPropagation()
+                onSelectItem?.()
               }}
             >
               {ctaText}
