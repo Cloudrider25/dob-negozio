@@ -6,6 +6,8 @@ import { useState } from 'react'
 import { emitCartOpen, emitCartUpdated, readCart, writeCart } from '@/lib/frontend/cart/storage'
 import { readWaitlist, writeWaitlist } from '@/lib/frontend/cart/storage'
 import { defaultLocale, getJourneyDictionary, isLocale } from '@/lib/i18n/core'
+import { toAnalyticsItem } from '@/lib/frontend/analytics/ecommerce'
+import { trackEvent } from '@/lib/frontend/analytics/gtag'
 import { Button } from '@/frontend/components/ui/primitives/button'
 
 type ProductPurchaseProduct = {
@@ -66,6 +68,24 @@ export function ProductPurchase({
     writeCart(items)
     emitCartUpdated()
     emitCartOpen()
+    trackEvent('add_to_cart', {
+      currency: product.currency || 'EUR',
+      value: product.price ?? 0,
+      items: [
+        toAnalyticsItem(
+          {
+            id: product.id,
+            title: product.title,
+            brand: product.brand,
+            format: product.format,
+            price: product.price,
+            quantity: 1,
+            currency: product.currency || 'EUR',
+          },
+          0,
+        ),
+      ],
+    })
   }
 
   const handleAddToWaitlist = async () => {
@@ -125,6 +145,13 @@ export function ProductPurchase({
       }
       emitCartUpdated()
       emitCartOpen()
+      trackEvent('join_waitlist', {
+        item_id: data.item.id,
+        item_name: data.item.title,
+        item_brand: data.item.brand,
+        item_variant: data.item.format,
+        page_path: pathname || undefined,
+      })
     } finally {
       setPending(false)
     }
