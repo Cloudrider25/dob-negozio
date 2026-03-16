@@ -37,6 +37,7 @@
     "test:shop:tamper": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/test-shop-tamper.ts",
     "cleanup:abandoned-checkouts": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/cleanup-abandoned-checkouts.ts",
     "backfill:anagrafiche": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/backfill-anagrafiche-from-users.ts",
+    "normalize:page-cta-hrefs": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/normalize-page-cta-hrefs.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "start:perf": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
