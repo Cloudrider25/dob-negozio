@@ -83,6 +83,7 @@ export async function POST(request: Request) {
       if (created) {
         await sendOrderPaidNotifications({
           payload,
+          orderID: order.id,
           orderNumber: order.orderNumber,
           customerEmail: order.customerEmail,
           customerFirstName: order.customerFirstName,

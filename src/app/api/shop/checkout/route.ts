@@ -275,113 +275,6 @@ const releaseStaleAllocationsForProducts = async ({
   return released
 }
 
-const getOrderCartSignature = async ({
-  payload,
-  orderID,
-}: {
-  payload: Awaited<ReturnType<typeof getPayloadClient>>
-  orderID: string | number
-}) => {
-  const [orderItems, orderServiceItems] = await Promise.all([
-    payload.find({
-      collection: 'order-items',
-      overrideAccess: true,
-      depth: 0,
-      limit: 500,
-      where: {
-        order: { equals: orderID },
-      },
-      select: {
-        product: true,
-        quantity: true,
-      },
-    }),
-    payload.find({
-      collection: 'order-service-items',
-      overrideAccess: true,
-      depth: 0,
-      limit: 500,
-      where: {
-        order: { equals: orderID },
-      },
-      select: {
-        service: true,
-        program: true,
-        itemKind: true,
-        variantKey: true,
-        quantity: true,
-      },
-    }),
-  ])
-
-  const parsed: ParsedCartItemKey[] = []
-
-  for (const item of orderItems.docs) {
-    const productRaw = item.product
-    const productID =
-      typeof productRaw === 'number'
-        ? String(productRaw)
-        : productRaw && typeof productRaw === 'object' && 'id' in productRaw
-          ? String(productRaw.id)
-          : ''
-    const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
-    if (!productID || quantity <= 0) continue
-    parsed.push({
-      kind: 'product',
-      sourceID: productID,
-      productID,
-      quantity,
-    })
-  }
-
-  for (const item of orderServiceItems.docs) {
-    if (item.itemKind === 'program') {
-      const programRaw = item.program
-      const programID =
-        typeof programRaw === 'number'
-          ? String(programRaw)
-          : programRaw && typeof programRaw === 'object' && 'id' in programRaw
-            ? String(programRaw.id)
-            : ''
-      const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
-      if (!programID || quantity <= 0) continue
-
-      const variantKey = toString(item.variantKey) || 'default'
-      parsed.push({
-        kind: 'program',
-        sourceID: `${programID}:program:${variantKey}`,
-        programID,
-        variantKey,
-        quantity,
-      })
-      continue
-    }
-
-    const serviceRaw = item.service
-    const serviceID =
-      typeof serviceRaw === 'number'
-        ? String(serviceRaw)
-        : serviceRaw && typeof serviceRaw === 'object' && 'id' in serviceRaw
-          ? String(serviceRaw.id)
-          : ''
-    const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
-    if (!serviceID || quantity <= 0) continue
-
-    const itemKind = item.itemKind === 'package' ? 'package' : 'service'
-    const variantKey = toString(item.variantKey) || 'default'
-    parsed.push({
-      kind: 'service',
-      sourceID: `${serviceID}:${itemKind}:${variantKey}`,
-      serviceID,
-      serviceLineKind: itemKind,
-      variantKey,
-      quantity,
-    })
-  }
-
-  return toCartSignature(parsed)
-}
-
 const resolveRequestedFulfillmentMode = (value: unknown): 'shipping' | 'pickup' | 'none' => {
   if (value === 'pickup') return 'pickup'
   if (value === 'none') return 'none'
@@ -1432,6 +1325,7 @@ export async function POST(request: Request) {
         await sendOrderPaidNotifications({
           payload,
           eventKey: 'order_created',
+          orderID: createdOrder.id,
           orderNumber: createdOrder.orderNumber,
           customerEmail: email,
           customerFirstName: firstName,
@@ -1719,6 +1613,7 @@ export async function POST(request: Request) {
           try {
             await sendOrderPaidNotifications({
               payload,
+              orderID: createdOrder.id,
               orderNumber: createdOrder.orderNumber,
               customerEmail: email,
               customerFirstName: firstName,

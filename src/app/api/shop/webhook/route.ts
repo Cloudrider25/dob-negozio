@@ -367,6 +367,7 @@ export async function POST(request: Request) {
 
               await sendOrderPaidNotifications({
                 payload,
+                orderID: order.id,
                 orderNumber: order.orderNumber,
                 customerEmail: order.customerEmail,
                 customerFirstName: order.customerFirstName,
@@ -427,6 +428,7 @@ export async function POST(request: Request) {
                   await sendShipmentNotifications({
                     payload,
                     eventKey: 'shipment_created',
+                    orderID: order.id,
                     orderNumber: order.orderNumber,
                     customerEmail: order.customerEmail,
                     customerFirstName: order.customerFirstName,
@@ -475,6 +477,7 @@ export async function POST(request: Request) {
             await sendOrderLifecycleNotifications({
               payload,
               eventKey: 'order_payment_failed',
+              orderID: order.id,
               orderNumber: order.orderNumber,
               customerEmail: order.customerEmail,
               customerFirstName: order.customerFirstName,

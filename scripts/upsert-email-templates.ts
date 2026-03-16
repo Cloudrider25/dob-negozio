@@ -13,6 +13,8 @@ type TemplateDefinition = {
   title: string
   greeting: string
   intro: string[]
+  customHtml?: string
+  customText?: string[]
   ctaLabel?: string
   ctaUrl?: string
   secondaryText?: string
@@ -469,6 +471,8 @@ const localizeDefinition = (definition: TemplateDefinition, locale: SeedLocale):
   title: translateString(locale, definition.title),
   greeting: translateString(locale, definition.greeting),
   intro: definition.intro.map((entry) => translateString(locale, entry)),
+  customHtml: definition.customHtml ? translateString(locale, definition.customHtml) : undefined,
+  customText: definition.customText?.map((entry) => translateString(locale, entry)),
   ctaLabel: definition.ctaLabel ? translateString(locale, definition.ctaLabel) : undefined,
   ctaUrl: definition.ctaUrl,
   secondaryText: definition.secondaryText ? translateString(locale, definition.secondaryText) : undefined,
@@ -511,6 +515,16 @@ const buildHtml = (definition: TemplateDefinition, locale: SeedLocale) => {
         </tr>
       `
       : ''
+
+  const customBlock = definition.customHtml
+    ? `
+        <tr>
+          <td style="padding:0 32px 8px 32px;">
+            ${definition.customHtml}
+          </td>
+        </tr>
+      `
+    : ''
 
   const secondaryBlock =
     definition.secondaryText || definition.secondaryLinkUrl
@@ -594,6 +608,7 @@ const buildHtml = (definition: TemplateDefinition, locale: SeedLocale) => {
 
             ${ctaBlock}
             ${metaBlock}
+            ${customBlock}
             ${secondaryBlock}
 
             <tr>
@@ -626,6 +641,7 @@ const buildText = (definition: TemplateDefinition, locale: SeedLocale) =>
     '',
     definition.ctaLabel && definition.ctaUrl ? `${definition.ctaLabel}: ${definition.ctaUrl}` : '',
     ...(definition.metaLines || []),
+    ...(definition.customText || []),
     '',
     definition.secondaryText || '',
     definition.secondaryLinkUrl || '',
@@ -834,12 +850,16 @@ const definitions: Record<string, TemplateDefinition> = {
       'Abbiamo registrato correttamente il tuo ordine su <strong>DOB Milano</strong>.',
       'Di seguito trovi il riepilogo principale della richiesta.',
     ],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
+    ctaLabel: 'Apri area account',
+    ctaUrl: '{{account.ordersUrl}}',
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Totale: {{order.total}}',
-      'Modalità carrello: {{order.cartMode}}',
-      'Fulfillment: {{order.productFulfillmentMode}}',
-      'Appuntamento: {{appointment.date}} {{appointment.time}}',
+      'Modalità carrello: {{order.cartModeLabel}}',
+      'Fulfillment: {{order.productFulfillmentModeLabel}}',
+      'Appuntamento: {{appointment.summary}}',
     ],
   },
   'order_created:admin': {
@@ -847,13 +867,17 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Nuovo ordine ricevuto',
     greeting: 'Team DOB,',
     intro: ['È stato creato un nuovo ordine e richiede monitoraggio del checkout.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Cliente: {{customer.fullName}}',
       'Email: {{customer.email}}',
       'Totale: {{order.total}}',
-      'Modalità appuntamento: {{appointment.mode}}',
-      'Data appuntamento: {{appointment.date}} {{appointment.time}}',
+      'Modalità carrello: {{order.cartModeLabel}}',
+      'Fulfillment: {{order.productFulfillmentModeLabel}}',
+      'Modalità appuntamento: {{appointment.modeLabel}}',
+      'Appuntamento: {{appointment.summary}}',
     ],
   },
   'order_paid:customer': {
@@ -864,11 +888,16 @@ const definitions: Record<string, TemplateDefinition> = {
       'Abbiamo ricevuto correttamente il tuo ordine su <strong>DOB Milano</strong>.',
       'Di seguito trovi il riepilogo principale della conferma.',
     ],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
+    ctaLabel: 'Apri area account',
+    ctaUrl: '{{account.ordersUrl}}',
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Totale: {{order.total}}',
-      'Modalità carrello: {{order.cartMode}}',
-      'Fulfillment: {{order.productFulfillmentMode}}',
+      'Modalità carrello: {{order.cartModeLabel}}',
+      'Fulfillment: {{order.productFulfillmentModeLabel}}',
+      'Appuntamento: {{appointment.summary}}',
     ],
   },
   'order_paid:admin': {
@@ -876,13 +905,17 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Nuovo ordine pagato',
     greeting: 'Team DOB,',
     intro: ['È stato registrato un nuovo ordine pagato.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Cliente: {{customer.fullName}}',
       'Email: {{customer.email}}',
       'Totale: {{order.total}}',
-      'Modalità appuntamento: {{appointment.mode}}',
-      'Data appuntamento: {{appointment.date}} {{appointment.time}}',
+      'Modalità carrello: {{order.cartModeLabel}}',
+      'Fulfillment: {{order.productFulfillmentModeLabel}}',
+      'Modalità appuntamento: {{appointment.modeLabel}}',
+      'Appuntamento: {{appointment.summary}}',
     ],
   },
   'order_payment_failed:admin': {
@@ -890,6 +923,8 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Pagamento fallito',
     greeting: 'Team DOB,',
     intro: ['Un pagamento ordine non è andato a buon fine e richiede verifica.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Email cliente: {{customer.email}}',
@@ -905,6 +940,10 @@ const definitions: Record<string, TemplateDefinition> = {
       'Non siamo riusciti a processare il pagamento del tuo ordine.',
       'Ti consigliamo di riprovare oppure contattare il team DOB Milano se il problema persiste.',
     ],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
+    ctaLabel: 'Apri area account',
+    ctaUrl: '{{account.ordersUrl}}',
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Totale: {{order.total}}',
@@ -919,6 +958,10 @@ const definitions: Record<string, TemplateDefinition> = {
       'Ti informiamo che il tuo ordine è stato annullato.',
       'Se hai bisogno di supporto, il team DOB Milano è a disposizione.',
     ],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
+    ctaLabel: 'Apri area account',
+    ctaUrl: '{{account.ordersUrl}}',
     metaLines: ['Numero ordine: {{order.number}}', 'Totale: {{order.total}}'],
   },
   'order_cancelled:admin': {
@@ -926,6 +969,8 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Ordine annullato',
     greeting: 'Team DOB,',
     intro: ['Un ordine è stato annullato e va preso in carico dal backoffice.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Cliente: {{customer.fullName}}',
@@ -941,6 +986,10 @@ const definitions: Record<string, TemplateDefinition> = {
       'Il rimborso relativo al tuo ordine è stato registrato correttamente.',
       'La disponibilità dei fondi dipende dai tempi del tuo provider di pagamento.',
     ],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
+    ctaLabel: 'Apri area account',
+    ctaUrl: '{{account.ordersUrl}}',
     metaLines: ['Numero ordine: {{order.number}}', 'Totale: {{order.total}}'],
   },
   'order_refunded:admin': {
@@ -948,6 +997,8 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Ordine rimborsato',
     greeting: 'Team DOB,',
     intro: ['È stato registrato un rimborso ordine.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Cliente: {{customer.fullName}}',
@@ -1079,6 +1130,10 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Spedizione creata',
     greeting: 'Ciao {{customer.fullName}},',
     intro: ['La spedizione del tuo ordine è stata creata.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
+    ctaLabel: 'Segui spedizione',
+    ctaUrl: '{{shipping.trackingUrl}}',
     metaLines: [
       'Ordine: {{order.number}}',
       'Tracking: {{shipping.trackingNumber}}',
@@ -1092,6 +1147,8 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Spedizione creata',
     greeting: 'Team DOB,',
     intro: ['È stata creata una spedizione in Sendcloud.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
     metaLines: [
       'Cliente: {{customer.fullName}}',
       'Email: {{customer.email}}',
@@ -1106,6 +1163,10 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Tracking disponibile',
     greeting: 'Ciao {{customer.fullName}},',
     intro: ['Il tracking del tuo ordine è ora disponibile.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
+    ctaLabel: 'Segui spedizione',
+    ctaUrl: '{{shipping.trackingUrl}}',
     metaLines: [
       'Ordine: {{order.number}}',
       'Tracking: {{shipping.trackingNumber}}',
@@ -1119,6 +1180,8 @@ const definitions: Record<string, TemplateDefinition> = {
     title: 'Tracking disponibile',
     greeting: 'Team DOB,',
     intro: ['Il tracking di una spedizione è ora disponibile.'],
+    customHtml: '<div style="margin-top:4px;">{{order.itemsHtml}}</div>',
+    customText: ['{{order.itemsText}}'],
     metaLines: [
       'Cliente: {{customer.fullName}}',
       'Email: {{customer.email}}',
