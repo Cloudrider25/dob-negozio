@@ -19,11 +19,12 @@ export function OrdersContainer({
   formatMoney,
   formatDate,
 }: OrdersContainerProps) {
-  const { styles, copy, identity } = useAccountDashboardContext()
+  const { styles, copy, identity, locale } = useAccountDashboardContext()
 
   return (
     <AccountOrdersTab
       styles={styles}
+      locale={locale}
       productsStyles={productsStyles}
       identity={identity}
       data={{ ...data, copy: { orders: { empty: copy.orders.empty } } }}

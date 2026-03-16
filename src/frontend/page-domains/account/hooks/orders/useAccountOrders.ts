@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 
 import { PRODUCT_SORT_OPTIONS } from '../../constants'
-import type { OrderItem, ProductSort } from '../../types'
+import type { AccountWaitlistItem, OrderItem, ProductSort } from '../../types'
 import {
   findNextProductDeliveryRow,
   groupOrders,
@@ -13,9 +13,10 @@ import {
 
 type UseAccountOrdersArgs = {
   initialOrders: OrderItem[]
+  initialWaitlistRows: AccountWaitlistItem[]
 }
 
-export function useAccountOrders({ initialOrders }: UseAccountOrdersArgs) {
+export function useAccountOrders({ initialOrders, initialWaitlistRows }: UseAccountOrdersArgs) {
   const [expandedOrderGroups, setExpandedOrderGroups] = useState<Record<string, boolean>>({})
   const [showAllProductPurchases, setShowAllProductPurchases] = useState(false)
   const [productsFilterDrawerOpen, setProductsFilterDrawerOpen] = useState(false)
@@ -50,6 +51,7 @@ export function useAccountOrders({ initialOrders }: UseAccountOrdersArgs) {
     productsSort,
     setProductsSort,
     ordersByDateDesc,
+    waitlistRows: initialWaitlistRows,
     groupedProductRows,
     nextProductDeliveryRow,
     latestPurchasedProductRow,
