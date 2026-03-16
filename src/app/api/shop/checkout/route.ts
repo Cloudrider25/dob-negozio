@@ -1432,6 +1432,7 @@ export async function POST(request: Request) {
         await sendOrderPaidNotifications({
           payload,
           eventKey: 'order_created',
+          orderID: createdOrder.id,
           orderNumber: createdOrder.orderNumber,
           customerEmail: email,
           customerFirstName: firstName,
@@ -1719,6 +1720,7 @@ export async function POST(request: Request) {
           try {
             await sendOrderPaidNotifications({
               payload,
+              orderID: createdOrder.id,
               orderNumber: createdOrder.orderNumber,
               customerEmail: email,
               customerFirstName: firstName,

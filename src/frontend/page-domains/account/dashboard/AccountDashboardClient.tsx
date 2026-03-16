@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { getAccountDictionary } from '@/lib/i18n/account'
 
@@ -54,6 +55,13 @@ const TAB_PREFETCHERS: Partial<Record<AccountSection, () => Promise<unknown>>> =
   orders: preloadOrdersTab,
 }
 
+const ACCOUNT_SECTIONS: AccountSection[] = ['overview', 'services', 'orders', 'addresses', 'aesthetic']
+
+const resolveSectionParam = (value: string | null): AccountSection | null => {
+  if (!value) return null
+  return ACCOUNT_SECTIONS.includes(value as AccountSection) ? (value as AccountSection) : null
+}
+
 export function AccountDashboardClient({
   locale,
   userId,
@@ -69,8 +77,13 @@ export function AccountDashboardClient({
 }: AccountDashboardClientProps) {
   const copy = getAccountDictionary(locale).account
   const { formatDate, formatDateTime, formatMoney } = useAccountFormatters(locale)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  const [section, setSection] = useState<AccountSection>(initialSection)
+  const [section, setSectionState] = useState<AccountSection>(
+    resolveSectionParam(searchParams?.get('section') ?? null) ?? initialSection,
+  )
   const [serviceDetailsRow, setServiceDetailsRow] = useState<ServiceBookingRow | null>(null)
   const [serviceDetailsIsPackageChild, setServiceDetailsIsPackageChild] = useState(false)
   const [orderDetails, setOrderDetails] = useState<OrderItem | null>(null)
@@ -93,6 +106,28 @@ export function AccountDashboardClient({
     const load = TAB_PREFETCHERS[target]
     if (load) void load()
   }, [])
+
+  useEffect(() => {
+    const sectionFromUrl = resolveSectionParam(searchParams?.get('section') ?? null)
+    if (!sectionFromUrl || sectionFromUrl === section) return
+    setSectionState(sectionFromUrl)
+  }, [searchParams, section])
+
+  const setSection = useCallback<React.Dispatch<React.SetStateAction<AccountSection>>>(
+    (nextSection) => {
+      setSectionState((previousSection) => {
+        const resolvedSection =
+          typeof nextSection === 'function' ? nextSection(previousSection) : nextSection
+
+        const nextParams = new URLSearchParams(searchParams?.toString() ?? '')
+        nextParams.set('section', resolvedSection)
+        router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false })
+
+        return resolvedSection
+      })
+    },
+    [pathname, router, searchParams],
+  )
 
   const dashboardContextValue = useMemo(
     () => ({
