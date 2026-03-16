@@ -857,9 +857,6 @@ const definitions: Record<string, TemplateDefinition> = {
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Totale: {{order.total}}',
-      'Modalità carrello: {{order.cartModeLabel}}',
-      'Fulfillment: {{order.productFulfillmentModeLabel}}',
-      'Appuntamento: {{appointment.summary}}',
     ],
   },
   'order_created:admin': {
@@ -895,9 +892,6 @@ const definitions: Record<string, TemplateDefinition> = {
     metaLines: [
       'Numero ordine: {{order.number}}',
       'Totale: {{order.total}}',
-      'Modalità carrello: {{order.cartModeLabel}}',
-      'Fulfillment: {{order.productFulfillmentModeLabel}}',
-      'Appuntamento: {{appointment.summary}}',
     ],
   },
   'order_paid:admin': {

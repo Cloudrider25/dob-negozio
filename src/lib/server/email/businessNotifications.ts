@@ -642,9 +642,6 @@ export const sendOrderPaidNotifications = async ({
               ? 'abbiamo registrato il tuo ordine {{order.number}}.'
               : 'abbiamo ricevuto il tuo ordine {{order.number}}.',
             'Totale: {{order.total}}',
-            'Carrello: {{order.cartModeLabel}}',
-            'Fulfillment: {{order.productFulfillmentModeLabel}}',
-            'Appuntamento: {{appointment.summary}}',
             '',
             'Riepilogo:',
             '{{order.itemsText}}',
@@ -660,9 +657,6 @@ export const sendOrderPaidNotifications = async ({
                 : 'abbiamo ricevuto il tuo ordine <strong>{{order.number}}</strong>.'
             }</p>
             <p>Totale: <strong>{{order.total}}</strong></p>
-            <p><strong>Carrello:</strong> {{order.cartModeLabel}}</p>
-            <p><strong>Fulfillment:</strong> {{order.productFulfillmentModeLabel}}</p>
-            <p><strong>Appuntamento:</strong> {{appointment.summary}}</p>
             <div>{{order.itemsHtml}}</div>
             <p>Grazie,<br/>DOB Milano</p>
           `,
