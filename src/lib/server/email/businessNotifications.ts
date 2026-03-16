@@ -1217,7 +1217,7 @@ export const sendProductWaitlistAvailableNotification = async ({
   const resolvedLocale = resolvePreferredLocale(locale)
   const fullName = getFullName(customerFirstName, customerLastName)
   const origin = getPublicSiteOrigin(req?.headers)
-  const productUrl = `${origin}/${resolvedLocale}/shop/${normalizedSlug}`
+  const accountProductsUrl = `${origin}/${resolvedLocale}/account?section=orders`
 
   try {
     await sendBusinessEventEmail({
@@ -1238,7 +1238,9 @@ export const sendProductWaitlistAvailableNotification = async ({
           title: normalizedTitle,
           slug: normalizedSlug,
           brand: normalizeText(productBrand),
-          url: productUrl,
+        },
+        account: {
+          productsUrl: accountProductsUrl,
         },
       },
       relatedCollection: 'products',
@@ -1249,15 +1251,16 @@ export const sendProductWaitlistAvailableNotification = async ({
           'Ciao {{customer.fullName}},',
           '',
           'il prodotto {{product.title}} e di nuovo disponibile.',
-          'Puoi tornare alla scheda prodotto dal link qui sotto.',
-          '{{product.url}}',
+          'Trovi il prodotto nella tua area account, sezione Prodotti > Waitlist.',
+          '{{account.productsUrl}}',
           '',
           'DOB Milano',
         ].join('\n'),
         html: `
           <p>Ciao {{customer.fullName}},</p>
           <p>il prodotto <strong>{{product.title}}</strong> e di nuovo disponibile.</p>
-          <p><a href="{{product.url}}">Vai al prodotto</a></p>
+          <p>Trovi il prodotto nella tua area account, sezione <strong>Prodotti</strong> sotto <strong>Waitlist</strong>.</p>
+          <p><a href="{{account.productsUrl}}">Apri area account</a></p>
           <p>DOB Milano</p>
         `,
       },

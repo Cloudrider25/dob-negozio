@@ -137,9 +137,9 @@ Questo file resta il riferimento rapido per il refactor ancora aperto.
 
 - [x] Commit e push eseguiti su `dev` al commit `73d1521`.
 - [x] Branch di promozione creato e pushato: `promote/dev-to-staging-20260316-checkout-attempts-waitlist`.
-- [ ] PR `promote/dev-to-staging-20260316-checkout-attempts-waitlist` -> `staging` aperta e mergiata.
-- [ ] Deploy `staging` completato.
-- [ ] Verifica che staging stia girando sul commit `73d1521`.
+- [x] PR `promote/dev-to-staging-20260316-checkout-attempts-waitlist` -> `staging` aperta e mergiata.
+- [x] Deploy `staging` completato.
+- [x] Verifica che staging stia girando sul merge della promozione `a70f0f4` con incluso il fix `3edc9ed`.
 - [x] `pnpm migrate:staging`.
 - [ ] Verifica migration applicate:
   - [x] `20260315_100500`
@@ -152,26 +152,26 @@ Questo file resta il riferimento rapido per il refactor ancora aperto.
 
 ### Smoke test checkout
 
-- [ ] Checkout prodotto semplice.
-- [ ] Checkout `payment_element` con successo.
-- [ ] Verifica success page e materializzazione ordine.
-- [ ] Test ramo `payment.failed` o pagamento interrotto, con verifica rilascio stock.
+- [x] Accesso pubblico a home/shop/product page.
+- [x] Checkout prodotto semplice.
+- [x] Checkout `payment_element` con successo.
+- [x] Verifica success page e materializzazione ordine.
+- [x] Test ramo `payment.failed` o pagamento interrotto, con verifica rilascio stock.
 
 ### Smoke test waitlist
 
-- [ ] Metti un prodotto in `out of stock`.
-- [ ] Verifica CTA `Waitlist`.
-- [ ] Da anonimo: redirect a `signin?redirect=...`.
-- [ ] Da utente autenticato: registrazione waitlist riuscita.
-- [ ] Verifica waitlist in cart drawer / cart page con checkout disabilitato.
+- [x] Verifica CTA `Waitlist`.
+- [x] Da anonimo: redirect a `signin?redirect=...`.
+- [x] Da utente autenticato: registrazione waitlist riuscita.
+- [x] Verifica waitlist in cart drawer / cart page con checkout disabilitato.
 - [ ] Riporta il prodotto disponibile e verifica invio notifica.
 
 ### Smoke test auth continuity
 
-- [ ] `signin` preserva `redirect`.
-- [ ] `signup` preserva `redirect`.
-- [ ] `verify-email` preserva `redirect`.
-- [ ] Dopo login consentito, ritorno alla product page originaria.
+- [x] `signin` preserva `redirect`.
+- [x] `signup` preserva `redirect`.
+- [x] `verify-email` preserva `redirect`.
+- [x] Dopo login consentito, ritorno alla product page originaria.
 
 ### Check finale
 
@@ -221,3 +221,93 @@ Questo file resta il riferimento rapido per il refactor ancora aperto.
   - `hasProducts` e `hasServices` tornano a derivare dalle righe normalizzate del submit, evitando il falso `productFulfillmentMode = none` nel caso prodotto con quantity non valida ma normalizzata a `1`.
   - verifica locale:
     - `pnpm exec vitest run tests/int/checkout-submit-payload.int.spec.ts --config ./vitest.config.mts` verde.
+- `2026-03-16`: PR `#75` mergiata in `staging`.
+  - merge commit: `a70f0f4f78210de576c044386eb2c7664d5fdb6e`
+  - `origin/staging` aggiornato al merge della promozione.
+- `2026-03-16`: workflow `Deploy Staging` partito sul push a `staging`.
+  - run: `23141619449`
+  - stato corrente verificato:
+    - `Install dependencies`: verde
+    - `Lint`: verde
+    - `Typecheck`: verde
+    - `Integration tests`: verde
+    - `Build`: verde
+  - gli smoke test applicativi su staging restano pendenti fino a deploy completato.
+- `2026-03-16`: deploy staging completato.
+  - workflow `Deploy Staging` concluso `success`
+  - verify job `Verify Staging Build`: verde
+  - deploy job `Deploy Staging`: verde
+  - il deploy webhook e' stato realmente triggerato e ha restituito job id esterno `AGdg5SfmHnJdDiXxCRoM`
+- `2026-03-16`: tentativo di smoke test browser sul deployment URL disponibile da commento Vercel PR.
+  - preview URL PR recuperato:
+    - `https://dob-negozio-git-promote-dev-t-99f692-alessios-projects-403ec24f.vercel.app`
+  - esito:
+    - accesso bloccato da `Vercel SSO`
+    - redirect a `https://vercel.com/login?...`
+- `2026-03-16`: smoke test browser eseguito sul dominio condiviso:
+  - URL usato:
+    - `https://dob-negozio.vercel.app?_vercel_share=cNsL4W4tnlMo1ai6RnvPUacIkoKS1aPD`
+  - verifiche positive:
+    - home pubblica raggiungibile;
+    - shop pubblico raggiungibile;
+    - product page pubblica raggiungibile;
+    - product page `Sinecell kit leggings cellulite refill` mostra CTA `Waitlist`;
+    - click anonimo su `Waitlist` reindirizza a:
+      - `/en/signin?redirect=%2Fen%2Fshop%2Fsinecell-kit-leggings-cellulite-refill`
+    - `signin -> signup` preserva `redirect`;
+    - `signup -> signin` preserva `redirect`;
+    - `verify-email?token=fake-token&redirect=...` espone CTA verso `signin?redirect=...`.
+- `2026-03-16`: smoke test browser autenticato completato sul dominio condiviso.
+  - credenziali staging usate:
+    - `alessio@dobmilano.com`
+  - verifiche positive:
+    - login riuscito;
+    - ritorno automatico alla stessa product page originaria dopo login;
+    - click autenticato su `Waitlist` riuscito;
+    - cart drawer mostra la sezione `Waitlist`, subtotal `EUR0.00` e checkout disabilitato;
+    - cart page `/en/cart` mostra la stessa sezione `Waitlist` e checkout disabilitato.
+  - residui effettivi:
+    - manca il test di ritorno stock con invio notifica email;
+    - manca un test pagamento reale o sandbox guidato per chiudere checkout `payment_element`, success page e `payment.failed`.
+- `2026-03-16`: primo smoke test checkout reale avanzato fino al `PaymentElement`.
+  - prodotto acquistabile usato:
+    - `Delay Infinity Crema Giorno`
+  - verifiche positive:
+    - inserimento nel carrello riuscito mantenendo la waitlist separata;
+    - accesso al checkout riuscito;
+    - step `Information` completato;
+    - step `Shipping` completato;
+    - `PaymentElement` Stripe caricato correttamente.
+  - tentativo `success` eseguito con:
+    - Visa `4242424242424242`
+  - tentativo `failure` eseguito con:
+    - Generic decline `4000000000000002`
+  - esito reale in entrambi i casi:
+    - pagamento non testabile su staging con carte Stripe di test;
+    - Stripe risponde con errore:
+      - `Your card was declined. Your request was in live mode, but used a known test card.`
+    - il checkout resta sulla pagina di pagamento e mostra l'errore utente.
+  - conclusione:
+    - non e' stato possibile chiudere il ramo `payment_element` success, success page, materializzazione ordine e `payment.failed` per configurazione Stripe staging in `live mode`;
+    - per completare questi smoke test serve:
+      - staging con chiavi Stripe test, oppure
+      - un ambiente sandbox dedicato, oppure
+      - una carta reale autorizzata per un test controllato.
+- `2026-03-16`: staging Stripe riallineato a sandbox e smoke test checkout completati.
+  - tentativo `success` eseguito con:
+    - Visa `4242424242424242`
+  - esito positivo:
+    - pagamento confermato;
+    - redirect a success page:
+      - `/en/checkout/success?order=DOB-20260316-61324`
+    - success page renderizzata correttamente con order reference `DOB-20260316-61324`;
+    - area account `Prodotti` aggiornata con il nuovo ultimo acquisto `Delay Infinity Crema Giorno` del `03/16/2026` a `EUR22.00`;
+    - il carrello acquistabile e' stato svuotato, lasciando invariata la sola waitlist.
+  - tentativo `failure` eseguito con:
+    - Generic decline `4000000000000002`
+  - esito positivo del test di fallimento:
+    - Stripe ha restituito il decline atteso:
+      - `Your card was declined.`
+    - il checkout e' rimasto sulla pagina pagamento con errore utente visibile;
+    - nessun nuovo acquisto e' comparso in area account `Prodotti`;
+    - il prodotto acquistabile e' rimasto nel carrello dopo il fallimento, quindi il flusso e' ritentabile.

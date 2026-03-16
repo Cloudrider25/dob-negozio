@@ -11,6 +11,20 @@
   gap: 0;
 }
 
+.waitlistStack {
+  display: grid;
+  gap: 10px;
+}
+
+.waitlistCard {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  background: var(--paper);
+}
+
 .ordersListRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -93,6 +107,30 @@
   font-weight: 600;
 }
 
+.waitlistMeta {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  align-content: center;
+}
+
+.waitlistStatus {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.waitlistBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: var(--bg);
+}
+
 .orderPurchaseMeta .orderNumber {
   order: 1;
   width: 100%;
@@ -153,6 +191,11 @@
     border-radius: 10px;
     background: transparent;
     overflow: hidden;
+  }
+
+  .waitlistCard {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
 
   .orderPurchaseCell {

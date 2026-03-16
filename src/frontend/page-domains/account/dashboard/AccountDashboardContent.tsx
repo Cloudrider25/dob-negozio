@@ -112,6 +112,7 @@ export function AccountDashboardContent({
           productsStyles={productsStyles}
           data={{
             ordersByDateDesc: orders.ordersByDateDesc,
+            waitlistRows: orders.waitlistRows,
             nextProductDeliveryRow: orders.nextProductDeliveryRow,
             latestPurchasedProductRow: orders.latestPurchasedProductRow,
             productsSortLabel: orders.productsSortLabel,

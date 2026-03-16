@@ -51,6 +51,7 @@ type AccountDashboardCopy = {
 
 type AccountDashboardContextValue = {
   styles: Record<string, string>
+  locale: string
   identity: {
     firstName: string
     email: string

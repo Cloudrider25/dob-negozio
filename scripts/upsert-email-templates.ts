@@ -1132,13 +1132,16 @@ const definitions: Record<string, TemplateDefinition> = {
     subject: 'Il prodotto che aspettavi e di nuovo disponibile',
     title: 'Prodotto disponibile',
     greeting: 'Ciao {{customer.fullName}},',
-    intro: ['Il prodotto {{product.title}} e di nuovo disponibile.'],
+    intro: [
+      'Il prodotto {{product.title}} e di nuovo disponibile.',
+      'Lo trovi nella tua area account, sezione Prodotti, dentro Waitlist.',
+    ],
     metaLines: [
       'Prodotto: {{product.title}}',
       'Brand: {{product.brand}}',
     ],
-    ctaLabel: 'Vai al prodotto',
-    ctaUrl: '{{product.url}}',
+    ctaLabel: 'Apri area account',
+    ctaUrl: '{{account.productsUrl}}',
   },
   'email_delivery_failed:admin': {
     subject: 'Errore invio email {{email.eventKey}}',
@@ -1158,6 +1161,7 @@ const definitions: Record<string, TemplateDefinition> = {
 const main = async () => {
   const payload = await getPayload({ config })
   const created: string[] = []
+  const updated: string[] = []
   const skipped: string[] = []
 
   for (const [eventKey, meta] of Object.entries(EMAIL_EVENT_META) as Array<
@@ -1183,12 +1187,43 @@ const main = async () => {
           },
         })
 
-        if (existing.docs[0]) {
-          skipped.push(`${templateKey} (already exists)`)
-          continue
+        const localizedDefinition = localizeDefinition(definition, locale)
+        const nextData = {
+          active: true,
+          description: meta.description,
+          subject: localizedDefinition.subject,
+          html: buildHtml(localizedDefinition, locale),
+          text: buildText(localizedDefinition, locale),
+          availableVariables: meta.availableVariables,
+          testDataExample: meta.testDataExample,
         }
 
-        const localizedDefinition = localizeDefinition(definition, locale)
+        const current = existing.docs[0]
+        if (current) {
+          const needsUpdate =
+            current.subject !== nextData.subject ||
+            current.html !== nextData.html ||
+            current.text !== nextData.text ||
+            current.description !== nextData.description ||
+            JSON.stringify(current.availableVariables ?? []) !== JSON.stringify(nextData.availableVariables) ||
+            JSON.stringify(current.testDataExample ?? {}) !== JSON.stringify(nextData.testDataExample ?? {}) ||
+            current.active !== nextData.active
+
+          if (!needsUpdate) {
+            skipped.push(`${templateKey} (already up to date)`)
+            continue
+          }
+
+          await payload.update({
+            collection: 'email-templates',
+            id: current.id,
+            overrideAccess: true,
+            data: nextData as never,
+          })
+
+          updated.push(templateKey)
+          continue
+        }
 
         await payload.create({
           collection: 'email-templates',
@@ -1197,13 +1232,7 @@ const main = async () => {
             eventKey,
             locale,
             channel,
-            active: true,
-            description: meta.description,
-            subject: localizedDefinition.subject,
-            html: buildHtml(localizedDefinition, locale),
-            text: buildText(localizedDefinition, locale),
-            availableVariables: meta.availableVariables,
-            testDataExample: meta.testDataExample,
+            ...nextData,
           } as never,
         })
 
@@ -1214,6 +1243,8 @@ const main = async () => {
 
   console.log(`Created templates: ${created.length}`)
   created.forEach((entry) => console.log(`+ ${entry}`))
+  console.log(`Updated templates: ${updated.length}`)
+  updated.forEach((entry) => console.log(`~ ${entry}`))
   console.log(`Skipped templates: ${skipped.length}`)
   skipped.forEach((entry) => console.log(`- ${entry}`))
 }
