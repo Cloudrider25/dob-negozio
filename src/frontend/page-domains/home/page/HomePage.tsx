@@ -23,6 +23,34 @@ import {
   resolveGallerySecondary,
   resolveMedia,
 } from '@/lib/frontend/media/resolve'
+import { getPublicSiteOrigin } from '@/lib/server/url/getPublicSiteOrigin'
+
+const normalizeCmsHref = (value: string | null | undefined): string | undefined => {
+  if (typeof value !== 'string') return undefined
+
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+  if (!/^https?:\/\//i.test(trimmed)) return trimmed
+
+  const publicOrigin = getPublicSiteOrigin()
+
+  try {
+    const url = new URL(trimmed)
+    const internalHosts = new Set([
+      new URL(publicOrigin).host,
+      'localhost:3000',
+      '127.0.0.1:3000',
+    ])
+
+    if (internalHosts.has(url.host)) {
+      return `${url.pathname}${url.search}${url.hash}` || '/'
+    }
+  } catch {
+    return trimmed
+  }
+
+  return trimmed
+}
 
 export default async function HomePage({
   params,
@@ -96,7 +124,7 @@ export default async function HomePage({
         label,
         title: record.title || '',
         ctaLabel: record.ctaLabel || undefined,
-        ctaHref: record.ctaHref || undefined,
+        ctaHref: normalizeCmsHref(record.ctaHref),
       } satisfies ValuesSectionItem
     })
     .filter(Boolean) as ValuesSectionItem[]
