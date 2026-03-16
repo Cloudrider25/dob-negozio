@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 
-import { CART_UPDATED_EVENT, emitCartOpen, readCart } from '@/lib/frontend/cart/storage'
+import { CART_UPDATED_EVENT, emitCartOpen, readCart, readWaitlist } from '@/lib/frontend/cart/storage'
 
 type CartDrawerIconTriggerProps = {
   children: ReactNode
@@ -22,7 +22,9 @@ export function CartDrawerIconTrigger({
 
   useEffect(() => {
     const syncCount = () => {
-      const total = readCart().reduce((sum, item) => sum + item.quantity, 0)
+      const cartTotal = readCart().reduce((sum, item) => sum + item.quantity, 0)
+      const waitlistTotal = readWaitlist().length
+      const total = cartTotal + waitlistTotal
       setCount(total)
     }
 

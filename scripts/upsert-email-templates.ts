@@ -1128,6 +1128,18 @@ const definitions: Record<string, TemplateDefinition> = {
     secondaryLinkLabel: '{{shipping.trackingUrl}}',
     secondaryLinkUrl: '{{shipping.trackingUrl}}',
   },
+  'product_waitlist_back_in_stock:customer': {
+    subject: 'Il prodotto che aspettavi e di nuovo disponibile',
+    title: 'Prodotto disponibile',
+    greeting: 'Ciao {{customer.fullName}},',
+    intro: ['Il prodotto {{product.title}} e di nuovo disponibile.'],
+    metaLines: [
+      'Prodotto: {{product.title}}',
+      'Brand: {{product.brand}}',
+    ],
+    ctaLabel: 'Vai al prodotto',
+    ctaUrl: '{{product.url}}',
+  },
   'email_delivery_failed:admin': {
     subject: 'Errore invio email {{email.eventKey}}',
     title: 'Errore invio email',

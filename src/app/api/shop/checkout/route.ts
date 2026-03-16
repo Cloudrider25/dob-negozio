@@ -6,6 +6,12 @@ import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { ensureAnagraficaForCustomer } from '@/lib/server/anagrafiche/ensureAnagraficaForCustomer'
 import { isLocale, type Locale } from '@/lib/i18n/core'
 import {
+  releaseCheckoutAttemptInventory,
+  reserveCheckoutAttemptInventory,
+  type CheckoutAttemptProductItem,
+  type CheckoutAttemptServiceItem,
+} from '@/lib/server/shop/checkoutAttempts'
+import {
   allocateOrderInventory,
   commitOrderInventory,
   releaseOrderAllocation,
@@ -21,12 +27,14 @@ import {
 import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 import { getSendcloudShippingOptions } from '@/lib/server/sendcloud/getShippingQuote'
 import { isFreeShippingUnlocked } from '@/lib/shared/shop/shipping'
-import type { Product, Service } from '@/payload/generated/payload-types'
+import type { Product, Program, Service } from '@/payload/generated/payload-types'
 import Stripe from 'stripe'
 
 const GENERIC_CHECKOUT_ERROR = 'Si è verificato un errore durante il checkout. Riprova.'
 const IDEMPOTENCY_WINDOW_MS = 20 * 60 * 1000
 const STALE_ALLOCATION_WINDOW_MS = 15 * 60 * 1000
+const LOW_STOCK_THRESHOLD = 2
+const LOW_STOCK_RESERVATION_WINDOW_MS = 10 * 60 * 1000
 
 type CheckoutItemInput = {
   id: string
@@ -41,6 +49,13 @@ type ParsedCartItemKey =
       quantity: number
       serviceID: string
       serviceLineKind: 'service' | 'package'
+      variantKey: string
+    }
+  | {
+      kind: 'program'
+      sourceID: string
+      quantity: number
+      programID: string
       variantKey: string
     }
 
@@ -66,6 +81,15 @@ type CheckoutPayload = {
   }
   items?: CheckoutItemInput[]
   shippingOptionID?: string
+}
+
+type LiveCheckoutQuote = {
+  subtotal: number
+  shippingAmount: number
+  discountAmount: number
+  commissionAmount: number
+  total: number
+  currency: 'EUR'
 }
 
 const toString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -103,6 +127,16 @@ const toStripeAmount = (value: number) => Math.round(value * 100)
 const roundCurrency = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
 
 const parseCartItemKey = (id: string, quantity: number): ParsedCartItemKey => {
+  const programMatch = id.match(/^(\d+):program:(.+)$/)
+  if (programMatch) {
+    return {
+      kind: 'program',
+      sourceID: id,
+      quantity,
+      programID: programMatch[1],
+      variantKey: programMatch[2],
+    }
+  }
   const serviceMatch = id.match(/^(\d+):(service|package):(.+)$/)
   if (serviceMatch) {
     return {
@@ -126,6 +160,7 @@ const toCartSignature = (items: ParsedCartItemKey[]) =>
   items
     .map((item) => {
       if (item.kind === 'product') return `p:${item.productID}:${item.quantity}`
+      if (item.kind === 'program') return `g:${item.programID}:${item.variantKey}:${item.quantity}`
       return `s:${item.serviceID}:${item.serviceLineKind}:${item.variantKey}:${item.quantity}`
     })
     .sort()
@@ -271,6 +306,7 @@ const getOrderCartSignature = async ({
       },
       select: {
         service: true,
+        program: true,
         itemKind: true,
         variantKey: true,
         quantity: true,
@@ -299,6 +335,28 @@ const getOrderCartSignature = async ({
   }
 
   for (const item of orderServiceItems.docs) {
+    if (item.itemKind === 'program') {
+      const programRaw = item.program
+      const programID =
+        typeof programRaw === 'number'
+          ? String(programRaw)
+          : programRaw && typeof programRaw === 'object' && 'id' in programRaw
+            ? String(programRaw.id)
+            : ''
+      const quantity = typeof item.quantity === 'number' ? Math.floor(item.quantity) : 0
+      if (!programID || quantity <= 0) continue
+
+      const variantKey = toString(item.variantKey) || 'default'
+      parsed.push({
+        kind: 'program',
+        sourceID: `${programID}:program:${variantKey}`,
+        programID,
+        variantKey,
+        quantity,
+      })
+      continue
+    }
+
     const serviceRaw = item.service
     const serviceID =
       typeof serviceRaw === 'number'
@@ -413,8 +471,15 @@ export async function POST(request: Request) {
           .map((item) => item.serviceID),
       ),
     )
+    const programIds = Array.from(
+      new Set(
+        parsedCartItems
+          .filter((item): item is Extract<ParsedCartItemKey, { kind: 'program' }> => item.kind === 'program')
+          .map((item) => item.programID),
+      ),
+    )
     const hasProducts = productIds.length > 0
-    const hasServices = serviceIds.length > 0
+    const hasServices = serviceIds.length > 0 || programIds.length > 0
     const cartMode: 'products_only' | 'services_only' | 'mixed' = hasProducts
       ? hasServices
         ? 'mixed'
@@ -471,54 +536,60 @@ export async function POST(request: Request) {
     })
 
     if (checkoutMode === 'payment_element') {
+      const nowIso = new Date().toISOString()
       const existingResult = await payload.find({
-        collection: 'orders',
+        collection: 'checkout-attempts',
         overrideAccess: true,
         depth: 0,
         limit: 20,
         sort: '-createdAt',
         where: {
           and: [
-            { customerEmail: { equals: email } },
+            { checkoutFingerprint: { equals: checkoutFingerprint } },
+            { cartSignature: { equals: requestedCartSignature } },
             { paymentProvider: { equals: 'stripe' } },
             { status: { equals: 'pending' } },
-            { paymentStatus: { equals: 'pending' } },
-            { inventoryCommitted: { equals: false } },
-            { allocationReleased: { equals: false } },
             {
-              createdAt: {
-                greater_than: new Date(Date.now() - IDEMPOTENCY_WINDOW_MS).toISOString(),
-              },
+              or: [
+                { expiresAt: { greater_than: nowIso } },
+                {
+                  and: [
+                    { expiresAt: { exists: false } },
+                    {
+                      createdAt: {
+                        greater_than: new Date(Date.now() - IDEMPOTENCY_WINDOW_MS).toISOString(),
+                      },
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
         select: {
           id: true,
-          orderNumber: true,
           paymentReference: true,
+          subtotal: true,
+          shippingAmount: true,
           promoCodeValue: true,
           discountAmount: true,
+          commissionAmount: true,
           total: true,
-          currency: true,
         },
       })
 
-      let existingOrder: (typeof existingResult.docs)[number] | undefined
+      let existingAttempt: (typeof existingResult.docs)[number] | undefined
       const requestedPromoCode = normalizePromoCodeInput(discountCode)
       for (const candidate of existingResult.docs) {
-        const candidateSignature = await getOrderCartSignature({
-          payload,
-          orderID: candidate.id,
-        })
         const candidatePromoCode = normalizePromoCodeInput(candidate.promoCodeValue)
-        if (candidateSignature === requestedCartSignature && candidatePromoCode === requestedPromoCode) {
-          existingOrder = candidate
+        if (candidatePromoCode === requestedPromoCode) {
+          existingAttempt = candidate
           break
         }
       }
 
-      const existingPaymentReference = toString(existingOrder?.paymentReference)
-      if (existingOrder && existingPaymentReference.startsWith('pi_')) {
+      const existingPaymentReference = toString(existingAttempt?.paymentReference)
+      if (existingAttempt && existingPaymentReference.startsWith('pi_')) {
         const integrations = await getShopIntegrationsConfig(payload)
         const stripeSecret = integrations.stripe.secretKey
         const stripePublishableKey = integrations.stripe.publishableKey
@@ -529,17 +600,31 @@ export async function POST(request: Request) {
           try {
             const paymentIntent = await stripe.paymentIntents.retrieve(existingPaymentReference)
             if (paymentIntent.client_secret && paymentIntent.status !== 'canceled') {
+              const quote: LiveCheckoutQuote = {
+                subtotal:
+                  typeof existingAttempt.subtotal === 'number' ? existingAttempt.subtotal : 0,
+                shippingAmount:
+                  typeof existingAttempt.shippingAmount === 'number'
+                    ? existingAttempt.shippingAmount
+                    : 0,
+                discountAmount:
+                  typeof existingAttempt.discountAmount === 'number'
+                    ? existingAttempt.discountAmount
+                    : 0,
+                commissionAmount:
+                  typeof existingAttempt.commissionAmount === 'number'
+                    ? existingAttempt.commissionAmount
+                    : 0,
+                total: typeof existingAttempt.total === 'number' ? existingAttempt.total : 0,
+                currency: 'EUR',
+              }
               return NextResponse.json({
                 ok: true,
-                orderId: existingOrder.id,
-                orderNumber: existingOrder.orderNumber,
-                total: typeof existingOrder.total === 'number' ? existingOrder.total : undefined,
-                discountAmount:
-                  typeof existingOrder.discountAmount === 'number'
-                    ? existingOrder.discountAmount
-                    : undefined,
-                currency:
-                  typeof existingOrder.currency === 'string' ? existingOrder.currency : 'EUR',
+                attemptId: existingAttempt.id,
+                quote,
+                total: quote.total,
+                discountAmount: quote.discountAmount,
+                currency: quote.currency,
                 paymentProvider: 'stripe',
                 paymentIntentClientSecret: paymentIntent.client_secret,
                 stripePublishableKey,
@@ -550,7 +635,7 @@ export async function POST(request: Request) {
           } catch (reuseError) {
             payload.logger.warn({
               err: reuseError,
-              msg: `Unable to reuse Stripe payment intent for order ${String(existingOrder.id)}.`,
+              msg: `Unable to reuse Stripe payment intent for checkout attempt ${String(existingAttempt.id)}.`,
             })
           }
         }
@@ -646,6 +731,37 @@ export async function POST(request: Request) {
         )
       }
 
+      const programsResult =
+        programIds.length > 0
+          ? await payload.find({
+              collection: 'programs',
+              limit: programIds.length,
+              depth: 1,
+              overrideAccess: false,
+              locale,
+              where: {
+                and: [{ id: { in: programIds } }, { active: { equals: true } }],
+              },
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                price: true,
+                active: true,
+                steps: true,
+              },
+            })
+          : { docs: [] as Program[] }
+
+      const programsById = new Map(programsResult.docs.map((doc) => [String(doc.id), doc]))
+      const missingPrograms = programIds.filter((id) => !programsById.has(id))
+      if (missingPrograms.length > 0) {
+        return NextResponse.json(
+          { error: 'Alcuni programmi non sono più disponibili.', missing: missingPrograms },
+          { status: 409 },
+        )
+      }
+
       type ProductLineItem = {
         product: Product
         quantity: number
@@ -654,16 +770,23 @@ export async function POST(request: Request) {
         available: number
       }
       type ServiceLineItem = {
-        service: Service
+        service?: Service
+        program?: Program
         quantity: number
         unitPrice: number
         lineTotal: number
         title: string
-        itemKind: 'service' | 'package'
+        itemKind: 'service' | 'package' | 'program'
         variantKey: string
         variantLabel: string | null
         durationMinutes: number | null
         sessions: number | null
+        programStepsSnapshot?: Array<{
+          stepType: 'manual' | 'service' | 'product'
+          title?: string | null
+          referenceTitle?: string | null
+          referenceSlug?: string | null
+        }>
       }
       type CheckoutLineItem = {
         quantity: number
@@ -757,6 +880,72 @@ export async function POST(request: Request) {
             unitPrice: product.price,
             lineTotal: product.price * item.quantity,
             available,
+          })
+          continue
+        }
+
+        if (item.kind === 'program') {
+          const program = programsById.get(item.programID)
+          if (!program) continue
+          if (typeof program.price !== 'number' || program.price < 0) {
+            return NextResponse.json(
+              { error: `Prezzo non valido per il programma ${program.title || item.programID}.` },
+              { status: 409 },
+            )
+          }
+
+          const programStepsSnapshot: NonNullable<ServiceLineItem['programStepsSnapshot']> = Array.isArray(
+            program.steps,
+          )
+            ? program.steps.map((step) => {
+                const entry = step && typeof step === 'object' ? (step as Record<string, unknown>) : {}
+                const stepType: 'manual' | 'service' | 'product' =
+                  entry.stepType === 'service'
+                    ? 'service'
+                    : entry.stepType === 'product'
+                      ? 'product'
+                      : 'manual'
+
+                const serviceRef =
+                  stepType === 'service' && entry.stepService && typeof entry.stepService === 'object'
+                    ? (entry.stepService as Record<string, unknown>)
+                    : null
+                const productRef =
+                  stepType === 'product' && entry.stepProduct && typeof entry.stepProduct === 'object'
+                    ? (entry.stepProduct as Record<string, unknown>)
+                    : null
+
+                return {
+                  stepType,
+                  title: typeof entry.stepTitle === 'string' ? entry.stepTitle : null,
+                  referenceTitle:
+                    stepType === 'service'
+                      ? toString(serviceRef?.name)
+                      : stepType === 'product'
+                        ? toString(productRef?.title)
+                        : null,
+                  referenceSlug:
+                    stepType === 'service'
+                      ? toString(serviceRef?.slug)
+                      : stepType === 'product'
+                        ? toString(productRef?.slug)
+                        : null,
+                }
+              })
+            : []
+
+          serviceLineItems.push({
+            program,
+            quantity: item.quantity,
+            unitPrice: program.price,
+            lineTotal: program.price * item.quantity,
+            title: typeof program.title === 'string' ? program.title : `Programma ${item.programID}`,
+            itemKind: 'program',
+            variantKey: item.variantKey,
+            variantLabel: null,
+            durationMinutes: null,
+            sessions: 1,
+            programStepsSnapshot,
           })
           continue
         }
@@ -917,6 +1106,14 @@ export async function POST(request: Request) {
           })
         : 0
       const total = roundCurrency(Math.max(0, subtotal + shippingAmount - discountAmount))
+      const liveQuote: LiveCheckoutQuote = {
+        subtotal,
+        shippingAmount,
+        discountAmount,
+        commissionAmount,
+        total,
+        currency: 'EUR',
+      }
       const checkoutLineItems: CheckoutLineItem[] = [
         ...productLineItems.map((item) => ({
           quantity: item.quantity,
@@ -966,70 +1163,270 @@ export async function POST(request: Request) {
         }
       })
 
-      const createdOrder = await payload.create({
-      collection: 'orders',
-      overrideAccess: true,
-      locale,
-      draft: false,
-      data: {
-        orderNumber: createOrderNumber(),
-        status: 'pending',
-        paymentStatus: 'pending',
-        paymentProvider: 'manual',
-        paymentReference: '',
-        inventoryCommitted: false,
-        allocationReleased: false,
-        currency: 'EUR',
-        locale,
-        cartMode,
-        productFulfillmentMode,
-        appointmentMode: hasServices ? appointmentMode : 'none',
-        appointmentStatus: hasServices
-          ? appointmentMode === 'none'
-            ? 'pending'
-            : 'pending'
-          : 'none',
-        appointmentRequestedDate:
-          hasServices && appointmentMode === 'requested_slot'
-            ? appointmentDateISO
-            : undefined,
-        appointmentRequestedTime:
-          hasServices && appointmentMode === 'requested_slot' ? requestedAppointmentTime : undefined,
-        subtotal,
-        shippingAmount,
-        discountAmount,
-        commissionAmount,
-        total,
-        promoCode: resolvedPromoCode?.promoCodeID,
-        promoCodeValue: resolvedPromoCode?.promoCodeValue,
-        partner: resolvedPromoCode?.partnerID,
-        commissionStatus: resolvedPromoCode && commissionAmount > 0 ? 'pending' : undefined,
-        promoCodeSnapshot: resolvedPromoCode
-          ? {
-              code: resolvedPromoCode.promoCodeValue,
-              partnerName: resolvedPromoCode.partnerName,
-              discountType: resolvedPromoCode.discountType,
-              discountValue: resolvedPromoCode.discountValue,
-              commissionType: resolvedPromoCode.commissionType,
-              commissionValue: resolvedPromoCode.commissionValue,
-              appliesToProducts: resolvedPromoCode.appliesToProducts,
-              appliesToServices: resolvedPromoCode.appliesToServices,
+      if (checkoutMode === 'payment_element') {
+        const hasLowStockItems = productLineItems.some((item) => item.available <= LOW_STOCK_THRESHOLD)
+        const attemptExpiresAt = new Date(
+          Date.now() + (hasLowStockItems ? LOW_STOCK_RESERVATION_WINDOW_MS : IDEMPOTENCY_WINDOW_MS),
+        ).toISOString()
+        const integrations = await getShopIntegrationsConfig(payload)
+        const stripeSecret = integrations.stripe.secretKey
+        const stripePublishableKey = integrations.stripe.publishableKey
+
+        if (!stripeSecret || !stripePublishableKey) {
+          return NextResponse.json(
+            { error: 'Stripe non configurato: mancano le chiavi per Payment Element.' },
+            { status: 500 },
+          )
+        }
+
+        const attemptProductItems: CheckoutAttemptProductItem[] = productLineItems.map((item) => ({
+          productID: String(item.product.id),
+          productTitle: item.product.title || String(item.product.id),
+          productSlug: item.product.slug || null,
+          productBrand: resolveBrandLabel(item.product, locale) || null,
+          productCoverImage: resolveCoverImage(item.product) || null,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal,
+        }))
+        const attemptServiceItems: CheckoutAttemptServiceItem[] = serviceLineItems.map((item) => ({
+          serviceID: item.service ? String(item.service.id) : null,
+          programID: item.program ? String(item.program.id) : null,
+          serviceTitle: item.title,
+          serviceSlug: item.service?.slug || item.program?.slug || null,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal,
+          itemKind: item.itemKind,
+          variantKey: item.variantKey,
+          variantLabel: item.variantLabel,
+          durationMinutes: item.durationMinutes,
+          sessions: item.sessions,
+          programStepsSnapshot: item.programStepsSnapshot,
+        }))
+
+        let inventoryReserved = false
+        let createdAttemptID: string | number | null = null
+
+        try {
+          if (attemptProductItems.length > 0) {
+            inventoryReserved = await reserveCheckoutAttemptInventory({
+              payload,
+              locale,
+              productItems: attemptProductItems,
+            })
+          }
+
+          const createdAttempt = await payload.create({
+            collection: 'checkout-attempts',
+            overrideAccess: true,
+            locale,
+            draft: false,
+            data: {
+              checkoutFingerprint,
+              cartSignature: requestedCartSignature,
+              status: 'pending',
+              paymentProvider: 'stripe',
+              locale,
+              expiresAt: attemptExpiresAt,
+              customer:
+                typeof authenticatedUser?.id === 'number' ? authenticatedUser.id : undefined,
+              customerEmail: email,
+              customerPhone: phone || undefined,
+              customerFirstName: firstName || undefined,
+              customerLastName: lastName || undefined,
+              shippingAddress: {
+                address: requiresShippingAddress ? address : 'Ritiro in negozio / N/A',
+                postalCode: requiresShippingAddress ? postalCode : '00000',
+                city: requiresShippingAddress ? city : 'Milano',
+                province: requiresShippingAddress ? province : 'MI',
+                country: 'Italy',
+              },
+              productFulfillmentMode,
+              appointmentMode: hasServices ? appointmentMode : 'none',
+              appointmentRequestedDate:
+                hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : undefined,
+              appointmentRequestedTime:
+                hasServices && appointmentMode === 'requested_slot'
+                  ? requestedAppointmentTime
+                  : undefined,
+              subtotal,
+              shippingAmount: liveQuote.shippingAmount,
+              discountAmount: liveQuote.discountAmount,
+              commissionAmount: liveQuote.commissionAmount,
+              total: liveQuote.total,
+              promoCode: resolvedPromoCode?.promoCodeID,
+              partner: resolvedPromoCode?.partnerID,
+              promoCodeValue: resolvedPromoCode?.promoCodeValue,
+              promoCodeSnapshot: resolvedPromoCode
+                ? {
+                    code: resolvedPromoCode.promoCodeValue,
+                    partnerName: resolvedPromoCode.partnerName,
+                    discountType: resolvedPromoCode.discountType,
+                    discountValue: resolvedPromoCode.discountValue,
+                    commissionType: resolvedPromoCode.commissionType,
+                    commissionValue: resolvedPromoCode.commissionValue,
+                    appliesToProducts: resolvedPromoCode.appliesToProducts,
+                    appliesToServices: resolvedPromoCode.appliesToServices,
+                  }
+                : undefined,
+              itemsSnapshot: rawItems,
+              productItems: attemptProductItems,
+              serviceItems: attemptServiceItems,
+              inventoryReserved,
+              inventoryReleased: false,
+            },
+          })
+          createdAttemptID = createdAttempt.id
+
+          const stripe = new Stripe(stripeSecret, {
+            apiVersion: '2026-01-28.clover',
+          })
+          const paymentIntent = await stripe.paymentIntents.create(
+            {
+              amount: toStripeAmount(total),
+              currency: 'eur',
+              receipt_email: email,
+              metadata: {
+                attemptID: String(createdAttempt.id),
+                customerID:
+                  typeof authenticatedUser?.id === 'number' ? String(authenticatedUser.id) : '',
+                locale,
+                promoCode: resolvedPromoCode?.promoCodeValue || '',
+                partnerID: resolvedPromoCode ? String(resolvedPromoCode.partnerID) : '',
+              },
+              automatic_payment_methods: {
+                enabled: true,
+              },
+            },
+            {
+              idempotencyKey: `${checkoutFingerprint}:${createdAttempt.id}:pi`,
+            },
+          )
+
+          await payload.update({
+            collection: 'checkout-attempts',
+            id: createdAttempt.id,
+            overrideAccess: true,
+            locale,
+            data: {
+              paymentReference: paymentIntent.id,
+            },
+          })
+
+          return NextResponse.json({
+            ok: true,
+            attemptId: createdAttempt.id,
+            total,
+              discountAmount,
+            quote: liveQuote,
+            currency: liveQuote.currency,
+            paymentProvider: 'stripe',
+            paymentIntentClientSecret: paymentIntent.client_secret,
+            stripePublishableKey,
+            checkoutMode: 'payment_element',
+          })
+        } catch (attemptError) {
+          if (createdAttemptID) {
+            try {
+              if (inventoryReserved) {
+                await releaseCheckoutAttemptInventory({
+                  payload,
+                  locale,
+                  productItems: attemptProductItems,
+                })
+              }
+
+              await payload.update({
+                collection: 'checkout-attempts',
+                id: createdAttemptID,
+                overrideAccess: true,
+                locale,
+                data: {
+                  status: 'failed',
+                  inventoryReserved: false,
+                  inventoryReleased: inventoryReserved,
+                },
+              })
+            } catch {
+              // Best-effort cleanup only.
             }
-          : undefined,
-        customerEmail: email,
-        customer: typeof authenticatedUser?.id === 'number' ? authenticatedUser.id : undefined,
-        customerFirstName: firstName,
-        customerLastName: lastName,
-        customerPhone: phone || undefined,
-        shippingAddress: {
-          address: requiresShippingAddress ? address : 'Ritiro in negozio / N/A',
-          postalCode: requiresShippingAddress ? postalCode : '00000',
-          city: requiresShippingAddress ? city : 'Milano',
-          province: requiresShippingAddress ? province : 'MI',
-          country: 'Italy',
+          } else if (inventoryReserved) {
+            try {
+              await releaseCheckoutAttemptInventory({
+                payload,
+                locale,
+                productItems: attemptProductItems,
+              })
+            } catch {
+              // Best-effort cleanup only.
+            }
+          }
+
+          throw attemptError
+        }
+      }
+
+      const createdOrder = await payload.create({
+        collection: 'orders',
+        overrideAccess: true,
+        locale,
+        draft: false,
+        data: {
+          orderNumber: createOrderNumber(),
+          status: 'pending',
+          paymentStatus: 'pending',
+          paymentProvider: 'manual',
+          paymentReference: '',
+          inventoryCommitted: false,
+          allocationReleased: false,
+          currency: 'EUR',
+          locale,
+          cartMode,
+          productFulfillmentMode,
+          appointmentMode: hasServices ? appointmentMode : 'none',
+          appointmentStatus: hasServices ? 'pending' : 'none',
+          appointmentRequestedDate:
+            hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : undefined,
+          appointmentRequestedTime:
+            hasServices && appointmentMode === 'requested_slot'
+              ? requestedAppointmentTime
+              : undefined,
+          subtotal,
+          shippingAmount,
+          discountAmount,
+          commissionAmount,
+          total,
+          promoCode: resolvedPromoCode?.promoCodeID,
+          promoCodeValue: resolvedPromoCode?.promoCodeValue,
+          partner: resolvedPromoCode?.partnerID,
+          commissionStatus: resolvedPromoCode && commissionAmount > 0 ? 'pending' : undefined,
+          promoCodeSnapshot: resolvedPromoCode
+            ? {
+                code: resolvedPromoCode.promoCodeValue,
+                partnerName: resolvedPromoCode.partnerName,
+                discountType: resolvedPromoCode.discountType,
+                discountValue: resolvedPromoCode.discountValue,
+                commissionType: resolvedPromoCode.commissionType,
+                commissionValue: resolvedPromoCode.commissionValue,
+                appliesToProducts: resolvedPromoCode.appliesToProducts,
+                appliesToServices: resolvedPromoCode.appliesToServices,
+              }
+            : undefined,
+          customerEmail: email,
+          customer: typeof authenticatedUser?.id === 'number' ? authenticatedUser.id : undefined,
+          customerFirstName: firstName,
+          customerLastName: lastName,
+          customerPhone: phone || undefined,
+          shippingAddress: {
+            address: requiresShippingAddress ? address : 'Ritiro in negozio / N/A',
+            postalCode: requiresShippingAddress ? postalCode : '00000',
+            city: requiresShippingAddress ? city : 'Milano',
+            province: requiresShippingAddress ? province : 'MI',
+            country: 'Italy',
+          },
         },
-      },
-    })
+      })
 
       try {
         await sendOrderPaidNotifications({
@@ -1100,14 +1497,24 @@ export async function POST(request: Request) {
             draft: false,
             data: {
               order: createdOrder.id,
-              service: item.service.id,
+              service: item.itemKind === 'program' ? undefined : item.service?.id,
+              program: item.itemKind === 'program' ? item.program?.id : undefined,
               itemKind: item.itemKind,
               variantKey: item.variantKey,
               variantLabel: item.variantLabel || undefined,
               serviceTitle: item.title,
-              serviceSlug: item.service.slug || undefined,
+              serviceSlug: item.service?.slug || item.program?.slug || undefined,
               durationMinutes: item.durationMinutes ?? undefined,
               sessions: item.sessions ?? undefined,
+              programStepsSnapshot:
+                item.itemKind === 'program' && Array.isArray(item.programStepsSnapshot)
+                  ? item.programStepsSnapshot.map((step) => ({
+                      stepType: step.stepType,
+                      title: step.title || undefined,
+                      referenceTitle: step.referenceTitle || undefined,
+                      referenceSlug: step.referenceSlug || undefined,
+                    }))
+                  : undefined,
               appointmentMode: hasServices ? appointmentMode : 'none',
               appointmentStatus: hasServices ? 'pending' : 'none',
               appointmentRequestedDate:
@@ -1124,7 +1531,10 @@ export async function POST(request: Request) {
           })
           createdServiceItemIDs.push(createdServiceItem.id)
 
-          const sessionsTotal = Math.max(1, item.itemKind === 'package' ? (item.sessions ?? 1) : 1)
+          const sessionsTotal = Math.max(
+            1,
+            item.itemKind === 'package' ? (item.sessions ?? 1) : item.itemKind === 'program' ? 1 : 1,
+          )
           const sessionPrice = roundCurrency(
             sessionsTotal > 0 ? item.lineTotal / sessionsTotal : item.lineTotal,
           )
@@ -1137,12 +1547,18 @@ export async function POST(request: Request) {
               data: {
                 order: createdOrder.id,
                 orderServiceItem: createdServiceItem.id,
-                service: item.service.id,
+                service: item.itemKind === 'program' ? undefined : item.service?.id,
+                program: item.itemKind === 'program' ? item.program?.id : undefined,
                 itemKind: item.itemKind,
                 variantKey: item.variantKey,
                 variantLabel: item.variantLabel || undefined,
                 sessionIndex,
-                sessionLabel: item.itemKind === 'package' ? `Seduta ${sessionIndex}` : 'Seduta unica',
+                sessionLabel:
+                  item.itemKind === 'package'
+                    ? `Seduta ${sessionIndex}`
+                    : item.itemKind === 'program'
+                      ? 'Programma'
+                      : 'Seduta unica',
                 sessionsTotal,
                 appointmentMode: hasServices ? appointmentMode : 'none',
                 appointmentStatus: hasServices ? 'pending' : 'none',
@@ -1153,7 +1569,7 @@ export async function POST(request: Request) {
                     ? requestedAppointmentTime
                     : undefined,
                 serviceTitle: item.title,
-                serviceSlug: item.service.slug || undefined,
+                serviceSlug: item.service?.slug || item.program?.slug || undefined,
                 durationMinutes: item.durationMinutes ?? undefined,
                 currency: 'EUR',
                 sessionPrice,
@@ -1178,10 +1594,7 @@ export async function POST(request: Request) {
 
         if (isStripeEnabled) {
           const stripeKeyPrefix = `${checkoutFingerprint}:${createdOrder.id}`
-          if (
-            (checkoutMode === 'embedded' || checkoutMode === 'payment_element') &&
-            stripePublishableKey.length === 0
-          ) {
+          if (checkoutMode === 'embedded' && stripePublishableKey.length === 0) {
             return NextResponse.json(
               { error: 'Stripe publishable key non configurata.' },
               { status: 500 },
@@ -1246,54 +1659,6 @@ export async function POST(request: Request) {
             })
           }
 
-          if (checkoutMode === 'payment_element') {
-            const paymentIntentIdempotencyKey = `${stripeKeyPrefix}:pi`
-            const paymentIntent = await stripe.paymentIntents.create({
-              amount: toStripeAmount(total),
-              currency: 'eur',
-              receipt_email: email,
-              metadata: {
-                orderID: String(createdOrder.id),
-                customerID:
-                  typeof authenticatedUser?.id === 'number' ? String(authenticatedUser.id) : '',
-                locale,
-                promoCode: resolvedPromoCode?.promoCodeValue || '',
-                partnerID: resolvedPromoCode ? String(resolvedPromoCode.partnerID) : '',
-              },
-              automatic_payment_methods: {
-                enabled: true,
-              },
-            }, {
-              idempotencyKey: paymentIntentIdempotencyKey,
-            })
-
-            await payload.update({
-              collection: 'orders',
-              id: createdOrder.id,
-              overrideAccess: true,
-              locale,
-              data: {
-                paymentProvider: 'stripe',
-                paymentReference: paymentIntent.id,
-              },
-            })
-
-            return NextResponse.json({
-              ok: true,
-              orderId: createdOrder.id,
-              orderNumber: createdOrder.orderNumber,
-              total,
-              discountAmount,
-              currency: 'EUR',
-              emailSent: false,
-              status: 'pending',
-              paymentProvider: 'stripe',
-              paymentIntentClientSecret: paymentIntent.client_secret,
-              stripePublishableKey,
-              checkoutMode: 'payment_element',
-            })
-          }
-
           const checkoutSession =
             checkoutMode === 'embedded'
               ? await stripe.checkout.sessions.create({
@@ -1328,9 +1693,10 @@ export async function POST(request: Request) {
             ok: true,
             orderId: createdOrder.id,
             orderNumber: createdOrder.orderNumber,
-            total,
-            discountAmount,
-            currency: 'EUR',
+            quote: liveQuote,
+            total: liveQuote.total,
+            discountAmount: liveQuote.discountAmount,
+            currency: liveQuote.currency,
             emailSent: false,
             status: 'pending',
             paymentProvider: 'stripe',
@@ -1339,13 +1705,6 @@ export async function POST(request: Request) {
             stripePublishableKey,
             checkoutMode,
           })
-        }
-
-        if (checkoutMode === 'payment_element') {
-          return NextResponse.json(
-            { error: 'Stripe non configurato: manca secret key per Payment Element.' },
-            { status: 500 },
-          )
         }
 
         const autoCapture = process.env.SHOP_AUTO_CAPTURE !== 'false'
@@ -1386,9 +1745,10 @@ export async function POST(request: Request) {
           ok: true,
           orderId: createdOrder.id,
           orderNumber: createdOrder.orderNumber,
-          total,
-          discountAmount,
-          currency: 'EUR',
+          quote: liveQuote,
+          total: liveQuote.total,
+          discountAmount: liveQuote.discountAmount,
+          currency: liveQuote.currency,
           emailSent,
           status: process.env.SHOP_AUTO_CAPTURE !== 'false' ? 'paid' : 'pending',
           paymentProvider: 'manual',

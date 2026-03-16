@@ -17,6 +17,7 @@ type AlternativeOption = {
   currency: string | null
   coverImage: string | null
   brand: string | null
+  isOutOfStock: boolean
   isCurrent: boolean
 }
 
@@ -37,6 +38,7 @@ export function AlternativeSelector({
     brand?: string | null
     format?: string | null
     coverImage?: string | null
+    isOutOfStock?: boolean
   }
   locale: string
   fallbackLabel: string
@@ -60,6 +62,7 @@ export function AlternativeSelector({
     brand: selected?.brand ?? baseProduct.brand ?? undefined,
     format: selected?.format || baseProduct.format || undefined,
     coverImage: selected?.coverImage ?? baseProduct.coverImage ?? null,
+    isOutOfStock: selected?.isOutOfStock ?? baseProduct.isOutOfStock ?? false,
   }
 
   const labelFor = (option: AlternativeOption) => {
@@ -86,6 +89,7 @@ export function AlternativeSelector({
         product={resolvedProduct}
         locale={locale}
         className={className}
+        isOutOfStock={resolvedProduct.isOutOfStock}
         buttonLabel={`Acquista ${resolvedProduct.title}${
           typeof resolvedProduct.price === 'number'
             ? ` - ${formatPrice(resolvedProduct.price, resolvedProduct.currency ?? null)}`
@@ -129,6 +133,7 @@ export function AlternativeSelector({
         product={resolvedProduct}
         locale={locale}
         className={className}
+        isOutOfStock={resolvedProduct.isOutOfStock}
         buttonLabel={`Acquista ${resolvedProduct.title}${
           typeof resolvedProduct.price === 'number'
             ? ` - ${formatPrice(resolvedProduct.price, resolvedProduct.currency ?? null)}`

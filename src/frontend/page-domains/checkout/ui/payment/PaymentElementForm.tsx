@@ -37,8 +37,9 @@ export function PaymentElementForm({
 
   const confirmPaymentIntent = async (expressEvent?: StripeExpressCheckoutElementConfirmEvent) => {
     if (!stripe || !elements || confirming) return
-    const orderCode = paymentSession.orderNumber || String(paymentSession.orderId || '')
-    const returnUrl = `${window.location.origin}/${locale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`
+    const params = new URLSearchParams()
+    if (paymentSession.attemptId) params.set('attempt', String(paymentSession.attemptId))
+    const returnUrl = `${window.location.origin}/${locale}/checkout/success${params.toString() ? `?${params.toString()}` : ''}`
 
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,

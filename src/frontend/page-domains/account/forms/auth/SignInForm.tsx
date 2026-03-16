@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/i18n/account'
@@ -10,11 +10,16 @@ import { Label } from '@/frontend/components/ui/primitives/label'
 import { Input } from '@/frontend/components/ui/primitives/input'
 
 import styles from './AuthForms.module.css'
-import { getAuthErrorMessage } from './auth-utils'
+import { getAuthErrorMessage, resolveInternalRedirect } from './auth-utils'
 
 export function SignInForm({ locale }: { locale: string }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const copy = getAccountDictionary(locale).auth.signIn
+  const redirect = searchParams?.get('redirect') ?? null
+  const signupHref = redirect
+    ? `/${locale}/signup?redirect=${encodeURIComponent(redirect)}`
+    : `/${locale}/signup`
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -43,7 +48,7 @@ export function SignInForm({ locale }: { locale: string }) {
         return
       }
 
-      router.push(`/${locale}`)
+      router.push(resolveInternalRedirect(searchParams?.get('redirect') ?? null, locale))
       router.refresh()
     } catch {
       setError(copy.errors.network)
@@ -105,7 +110,7 @@ export function SignInForm({ locale }: { locale: string }) {
 
         <p className={`${styles.muted} typo-small`}>
           {copy.noAccount}{' '}
-          <Link className={`${styles.link} typo-small`} href={`/${locale}/signup`}>
+          <Link className={`${styles.link} typo-small`} href={signupHref}>
             {copy.signupCta}
           </Link>
         </p>

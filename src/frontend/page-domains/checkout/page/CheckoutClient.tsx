@@ -33,6 +33,7 @@ import {
   writeCart,
   type CartItem,
 } from '@/lib/frontend/cart/storage'
+import { countCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
 
 export function CheckoutClient({ notice, locale }: { notice?: string | null; locale: string }) {
   const router = useRouter()
@@ -150,6 +151,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     const required = [formState.email, formState.firstName, formState.lastName]
     return required.every((value) => value.trim().length > 0)
   }, [formState.email, formState.firstName, formState.lastName])
+  const checkoutEligibleItemsCount = useMemo(() => countCheckoutEligibleItems(items), [items])
 
   const cartFingerprint = useMemo(
     () => items.map((item) => `${item.id}:${item.quantity}`).join('|'),
@@ -268,8 +270,26 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     },
   })
   const displayDiscountAmount =
-    typeof paymentSession?.discountAmount === 'number' ? paymentSession.discountAmount : 0
-  const totalAmount = Math.max(0, subtotal - displayDiscountAmount + effectiveShippingAmount)
+    typeof paymentSession?.quote?.discountAmount === 'number'
+      ? paymentSession.quote.discountAmount
+      : typeof paymentSession?.discountAmount === 'number'
+        ? paymentSession.discountAmount
+        : 0
+  const displaySubtotal =
+    typeof paymentSession?.quote?.subtotal === 'number' ? paymentSession.quote.subtotal : subtotal
+  const displayShippingAmount =
+    typeof paymentSession?.quote?.shippingAmount === 'number'
+      ? paymentSession.quote.shippingAmount
+      : effectiveShippingAmount
+  const displayCurrency = paymentSession?.quote?.currency || effectiveShippingCurrency
+  const displayShippingLabel =
+    typeof paymentSession?.quote?.shippingAmount === 'number'
+      ? formatPrice(paymentSession.quote.shippingAmount, displayCurrency)
+      : shippingLabel
+  const totalAmount =
+    typeof paymentSession?.quote?.total === 'number'
+      ? paymentSession.quote.total
+      : Math.max(0, displaySubtotal - displayDiscountAmount + displayShippingAmount)
   const mobileSummaryLabel = resolvedLocale === 'it' ? 'Riepilogo ordine' : 'Order summary'
 
   useEffect(() => {
@@ -281,7 +301,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
       activeStep,
       setActiveStep,
       isInformationComplete,
-      itemsCount: items.length,
+      itemsCount: checkoutEligibleItemsCount,
       submitting,
       paymentSession,
       createPaymentSession: async () => createPaymentSession(),
@@ -304,25 +324,43 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     : copy.actions.returnToShipping
 
   const onPaymentComplete = async (paymentIntentId?: string) => {
-    if (paymentSession?.orderId && paymentIntentId) {
+    let resolvedOrderCode = paymentSession?.orderNumber || String(paymentSession?.orderId || '')
+
+    if ((paymentSession?.attemptId || paymentSession?.orderId) && paymentIntentId) {
       try {
-        await fetch('/api/shop/checkout/confirm-payment', {
+        const response = await fetch('/api/shop/checkout/confirm-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            attemptId: paymentSession.attemptId,
             orderId: paymentSession.orderId,
             paymentIntentId,
             locale: resolvedLocale,
           }),
         })
+        const data = (await response.json()) as {
+          orderNumber?: string
+          orderId?: string | number
+        }
+        if (response.ok) {
+          resolvedOrderCode =
+            (typeof data.orderNumber === 'string' && data.orderNumber) ||
+            String(data.orderId || resolvedOrderCode || '')
+        }
       } catch {
         // Best-effort fallback for local/test environments without Stripe webhook
       }
     }
     writeCart([])
     emitCartUpdated()
-    const orderCode = paymentSession?.orderNumber || String(paymentSession?.orderId || '')
-    router.push(`/${resolvedLocale}/checkout/success${orderCode ? `?order=${encodeURIComponent(orderCode)}` : ''}`)
+    const params = new URLSearchParams()
+    if (resolvedOrderCode) {
+      params.set('order', resolvedOrderCode)
+    } else {
+      if (paymentSession?.attemptId) params.set('attempt', String(paymentSession.attemptId))
+      if (paymentIntentId) params.set('payment_intent', paymentIntentId)
+    }
+    router.push(`/${resolvedLocale}/checkout/success${params.toString() ? `?${params.toString()}` : ''}`)
   }
 
   const onApplyDiscountCode = async () => {
@@ -393,7 +431,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                     />
                   </span>
                   <span className={cn(styles.mobileSummaryTotal, 'typo-body-lg')}>
-                    {formatPrice(totalAmount, effectiveShippingCurrency)}
+                    {formatPrice(totalAmount, displayCurrency)}
                   </span>
                 </button>
                 {mobileSummaryOpen ? (
@@ -402,11 +440,11 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
                       variant="mobile"
                       items={items}
                       copy={copy}
-                      subtotal={subtotal}
+                      subtotal={displaySubtotal}
                       totalAmount={totalAmount}
                       discountAmount={displayDiscountAmount}
-                      effectiveShippingCurrency={effectiveShippingCurrency}
-                      shippingLabel={shippingLabel}
+                      effectiveShippingCurrency={displayCurrency}
+                      shippingLabel={displayShippingLabel}
                       discountCodeInput={discountCodeInput}
                       appliedDiscountCode={appliedDiscountCode}
                       discountCodeError={discountCodeError}
@@ -514,11 +552,11 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         variant="desktop"
         items={items}
         copy={copy}
-        subtotal={subtotal}
+        subtotal={displaySubtotal}
         totalAmount={totalAmount}
         discountAmount={displayDiscountAmount}
-        effectiveShippingCurrency={effectiveShippingCurrency}
-        shippingLabel={shippingLabel}
+        effectiveShippingCurrency={displayCurrency}
+        shippingLabel={displayShippingLabel}
         discountCodeInput={discountCodeInput}
         appliedDiscountCode={appliedDiscountCode}
         discountCodeError={discountCodeError}

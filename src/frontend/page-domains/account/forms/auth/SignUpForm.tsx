@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { getAccountDictionary } from '@/lib/i18n/account'
@@ -15,11 +15,21 @@ import {
 } from '@/lib/shared/auth/passwordPolicy'
 
 import styles from './AuthForms.module.css'
-import { getSignUpErrorFeedback, type SignUpErrorFeedback } from './auth-utils'
+import {
+  getAuthErrorMessage,
+  getSignUpErrorFeedback,
+  resolveInternalRedirect,
+  type SignUpErrorFeedback,
+} from './auth-utils'
 
 export function SignUpForm({ locale }: { locale: string }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const copy = getAccountDictionary(locale).auth.signUp
+  const redirect = searchParams?.get('redirect') ?? null
+  const signInHref = redirect
+    ? `/${locale}/signin?redirect=${encodeURIComponent(redirect)}`
+    : `/${locale}/signin`
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -78,6 +88,7 @@ export function SignUpForm({ locale }: { locale: string }) {
           password,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
+          ...(redirect ? { redirect } : {}),
         }),
       })
 
@@ -87,13 +98,36 @@ export function SignUpForm({ locale }: { locale: string }) {
         return
       }
 
+      const loginResponse = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      })
+
+      const loginData = (await loginResponse.json().catch(() => ({}))) as unknown
+      if (!loginResponse.ok) {
+        const loginMessage = getAuthErrorMessage(loginData, copy.errors.network)
+        const requiresEmailVerification = loginMessage.toLowerCase().includes('verify your email')
+        setError({
+          title: requiresEmailVerification ? copy.feedback.verifyEmailTitle : copy.feedback.genericTitle,
+          body: requiresEmailVerification ? copy.feedback.verifyEmailBody : loginMessage,
+          suggestLogin: true,
+          suggestResetPassword: false,
+        })
+        return
+      }
+
       setSuccess(copy.success)
       if (redirectTimeoutRef.current !== null) {
         window.clearTimeout(redirectTimeoutRef.current)
       }
       redirectTimeoutRef.current = window.setTimeout(() => {
-        router.push(`/${locale}/signin`)
-      }, 1400)
+        router.push(resolveInternalRedirect(redirect, locale))
+        router.refresh()
+      }, 700)
     } catch {
       setError({
         title: copy.feedback.networkTitle,
@@ -120,7 +154,7 @@ export function SignUpForm({ locale }: { locale: string }) {
           {error.suggestLogin || error.suggestResetPassword ? (
             <div className={styles.inlineErrorLinks}>
               {error.suggestLogin ? (
-                <Link className={`${styles.inlineErrorLink} typo-small`} href={`/${locale}/signin`}>
+                <Link className={`${styles.inlineErrorLink} typo-small`} href={signInHref}>
                   {copy.feedback.signInLink}
                 </Link>
               ) : null}
@@ -187,7 +221,7 @@ export function SignUpForm({ locale }: { locale: string }) {
 
         <p className={`${styles.muted} typo-small`}>
           {copy.hasAccount}{' '}
-          <Link className={`${styles.link} typo-small`} href={`/${locale}/signin`}>
+          <Link className={`${styles.link} typo-small`} href={signInHref}>
             {copy.signInCta}
           </Link>
         </p>

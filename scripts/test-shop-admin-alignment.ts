@@ -26,7 +26,11 @@ const findProductForTest = async (payload: Payload) => {
     },
   })
 
-  return result.docs[0]
+  return result.docs.find((item) => {
+    const stock = asNumber(item.stock)
+    const allocated = asNumber(item.allocatedStock)
+    return Number.isFinite(Number(item.id)) && stock - allocated >= 0
+  })
 }
 
 const main = async () => {
@@ -46,14 +50,13 @@ const main = async () => {
     throw new Error('Product ID must be numeric for admin alignment test.')
   }
 
-  await payload.update({
+  const prepared = await payload.update({
     collection: 'products',
     id: productID,
     overrideAccess: true,
     locale: 'it',
     data: {
       deliveries: [
-        ...deliveriesBefore,
         {
           lot: `qa-admin-align-${Date.now()}`,
           quantity: 1,
@@ -61,9 +64,16 @@ const main = async () => {
           deliveryDate: new Date().toISOString(),
         },
       ],
-      allocatedStock: allocatedBefore,
+      allocatedStock: 0,
     },
   })
+  const preparedStock = asNumber(prepared.stock)
+  const preparedAllocated = asNumber(prepared.allocatedStock)
+  if (preparedStock !== 1 || preparedAllocated !== 0) {
+    throw new Error(
+      `Admin alignment test setup failed. expected stock/allocated 1/0, got ${preparedStock}/${preparedAllocated}`,
+    )
+  }
 
   let orderID: string | number | undefined
 
@@ -75,6 +85,7 @@ const main = async () => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           locale: 'it',
+          productFulfillmentMode: 'pickup',
           customer: {
             email,
             firstName: 'QA',

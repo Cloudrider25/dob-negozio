@@ -9,6 +9,8 @@ type ItemQty = {
   quantity: number
 }
 
+export type InventoryQuantity = ItemQty
+
 type DeliveryEntry = {
   lot?: string | null
   quantity?: number | null
@@ -137,6 +139,72 @@ const adjustProductInventory = async ({
   })
 }
 
+export const reserveInventoryQuantities = async ({
+  payload,
+  locale,
+  quantities,
+}: {
+  payload: Payload
+  locale: Locale
+  quantities: InventoryQuantity[]
+}) => {
+  for (const item of quantities) {
+    await adjustProductInventory({
+      payload,
+      productID: item.productID,
+      locale,
+      stockDelta: 0,
+      allocatedDelta: item.quantity,
+    })
+  }
+
+  return true
+}
+
+export const commitInventoryQuantities = async ({
+  payload,
+  locale,
+  quantities,
+}: {
+  payload: Payload
+  locale: Locale
+  quantities: InventoryQuantity[]
+}) => {
+  for (const item of quantities) {
+    await adjustProductInventory({
+      payload,
+      productID: item.productID,
+      locale,
+      stockDelta: -item.quantity,
+      allocatedDelta: -item.quantity,
+    })
+  }
+
+  return true
+}
+
+export const releaseInventoryQuantities = async ({
+  payload,
+  locale,
+  quantities,
+}: {
+  payload: Payload
+  locale: Locale
+  quantities: InventoryQuantity[]
+}) => {
+  for (const item of quantities) {
+    await adjustProductInventory({
+      payload,
+      productID: item.productID,
+      locale,
+      stockDelta: 0,
+      allocatedDelta: -item.quantity,
+    })
+  }
+
+  return true
+}
+
 export const allocateOrderInventory = async ({
   payload,
   orderID,
@@ -162,15 +230,11 @@ export const allocateOrderInventory = async ({
   if (order.inventoryCommitted || order.allocationReleased) return false
 
   const quantities = await getOrderItemQuantities(payload, orderIDValue)
-  for (const item of quantities) {
-    await adjustProductInventory({
-      payload,
-      productID: item.productID,
-      locale,
-      stockDelta: 0,
-      allocatedDelta: item.quantity,
-    })
-  }
+  await reserveInventoryQuantities({
+    payload,
+    locale,
+    quantities,
+  })
 
   return true
 }
@@ -202,15 +266,11 @@ export const commitOrderInventory = async ({
   if (order.inventoryCommitted) return false
 
   const quantities = await getOrderItemQuantities(payload, orderIDValue)
-  for (const item of quantities) {
-    await adjustProductInventory({
-      payload,
-      productID: item.productID,
-      locale,
-      stockDelta: -item.quantity,
-      allocatedDelta: -item.quantity,
-    })
-  }
+  await commitInventoryQuantities({
+    payload,
+    locale,
+    quantities,
+  })
 
   await payload.update({
     collection: 'orders',
@@ -253,15 +313,11 @@ export const releaseOrderAllocation = async ({
   if (order.inventoryCommitted || order.allocationReleased) return false
 
   const quantities = await getOrderItemQuantities(payload, orderIDValue)
-  for (const item of quantities) {
-    await adjustProductInventory({
-      payload,
-      productID: item.productID,
-      locale,
-      stockDelta: 0,
-      allocatedDelta: -item.quantity,
-    })
-  }
+  await releaseInventoryQuantities({
+    payload,
+    locale,
+    quantities,
+  })
 
   await payload.update({
     collection: 'orders',

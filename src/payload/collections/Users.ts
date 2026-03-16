@@ -60,6 +60,19 @@ const getPreferredRequestLocale = (req: { headers: Headers; locale?: unknown }, 
   return 'it'
 }
 
+const getRequestedRedirect = (req: { data?: Record<string, unknown> }) => {
+  const redirect =
+    req.data && typeof req.data.redirect === 'string'
+      ? req.data.redirect.trim()
+      : ''
+
+  if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
+    return null
+  }
+
+  return redirect
+}
+
 const getPasswordValidationMessage = (
   locale: ReturnType<typeof resolveLocale>,
   requirementKey: NonNullable<ReturnType<typeof getPasswordValidationFailureKey>>,
@@ -276,7 +289,10 @@ export const Users: CollectionConfig = {
       generateEmailSubject: async ({ req, token, user }) => {
         const origin = getPublicSiteOrigin(req.headers)
         const locale = getUserPreferredLocale(user)
-        const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}`
+        const redirect = getRequestedRedirect(req)
+        const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}${
+          redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''
+        }`
         const firstName =
           typeof user === 'object' &&
           user &&
@@ -340,7 +356,10 @@ export const Users: CollectionConfig = {
       generateEmailHTML: async ({ req, token, user }) => {
         const origin = getPublicSiteOrigin(req.headers)
         const locale = getUserPreferredLocale(user)
-        const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}`
+        const redirect = getRequestedRedirect(req)
+        const url = `${origin}/${locale}/verify-email?token=${encodeURIComponent(token)}${
+          redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''
+        }`
         const firstName =
           typeof user === 'object' &&
           user &&

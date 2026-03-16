@@ -549,6 +549,9 @@ type JourneyCopy = {
     itemsLabel: string
     freeShippingUnlocked: string
     cartEmpty: string
+    waitlistTitle: string
+    waitlistEmpty: string
+    waitlistNote: string
     decreaseQuantityAria: string
     increaseQuantityAria: string
     remove: string
@@ -569,6 +572,9 @@ type JourneyCopy = {
     quantity: string
     subtotal: string
     empty: string
+    waitlistTitle: string
+    waitlistEmpty: string
+    waitlistNote: string
     checkoutCta: string
     completeOrder: string
     steps: {
@@ -603,6 +609,7 @@ type JourneyCopy = {
   }
   shop: {
     addToCart: string
+    waitlist: string
   }
   checkoutSuccess: {
     orderCompleted: string
@@ -725,6 +732,9 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       itemsLabel: 'articoli',
       freeShippingUnlocked: 'Spedizione standard gratuita sbloccata',
       cartEmpty: 'Il carrello è vuoto.',
+      waitlistTitle: 'Waitlist',
+      waitlistEmpty: 'Nessun prodotto in waitlist.',
+      waitlistNote: 'Ti avviseremo via email quando il prodotto tornera disponibile.',
       decreaseQuantityAria: 'Diminuisci quantità',
       increaseQuantityAria: 'Aumenta quantità',
       remove: 'Rimuovi',
@@ -745,6 +755,9 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       quantity: 'Quantità',
       subtotal: 'Subtotale',
       empty: 'Il carrello è vuoto.',
+      waitlistTitle: 'Waitlist',
+      waitlistEmpty: 'Nessun prodotto in waitlist.',
+      waitlistNote: 'I prodotti in waitlist non entrano nel checkout. Riceverai una email quando torneranno disponibili.',
       checkoutCta: 'Procedi al checkout',
       completeOrder: 'Completa ordine',
       steps: {
@@ -780,6 +793,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
     },
     shop: {
       addToCart: 'Aggiungi al carrello',
+      waitlist: 'Waitlist',
     },
     checkoutSuccess: {
       orderCompleted: 'Ordine completato',
@@ -900,6 +914,9 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       itemsLabel: 'items',
       freeShippingUnlocked: 'Free standard shipping unlocked',
       cartEmpty: 'Your cart is empty.',
+      waitlistTitle: 'Waitlist',
+      waitlistEmpty: 'No waitlist products yet.',
+      waitlistNote: 'We will email you when the product is available again.',
       decreaseQuantityAria: 'Decrease quantity',
       increaseQuantityAria: 'Increase quantity',
       remove: 'Remove',
@@ -920,6 +937,9 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       quantity: 'Quantity',
       subtotal: 'Subtotal',
       empty: 'Your cart is empty.',
+      waitlistTitle: 'Waitlist',
+      waitlistEmpty: 'No waitlist products yet.',
+      waitlistNote: 'Waitlist products do not enter checkout. You will receive an email when they are available again.',
       checkoutCta: 'Proceed to checkout',
       completeOrder: 'Complete order',
       steps: {
@@ -955,6 +975,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
     },
     shop: {
       addToCart: 'Add to cart',
+      waitlist: 'Waitlist',
     },
     checkoutSuccess: {
       orderCompleted: 'Order completed',
@@ -1075,6 +1096,9 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       itemsLabel: 'товаров',
       freeShippingUnlocked: 'Бесплатная стандартная доставка доступна',
       cartEmpty: 'Корзина пуста.',
+      waitlistTitle: 'Waitlist',
+      waitlistEmpty: 'В waitlist пока нет товаров.',
+      waitlistNote: 'Мы отправим email, когда товар снова появится в наличии.',
       decreaseQuantityAria: 'Уменьшить количество',
       increaseQuantityAria: 'Увеличить количество',
       remove: 'Удалить',
@@ -1095,6 +1119,9 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
       quantity: 'Количество',
       subtotal: 'Промежуточный итог',
       empty: 'Корзина пуста.',
+      waitlistTitle: 'Waitlist',
+      waitlistEmpty: 'В waitlist пока нет товаров.',
+      waitlistNote: 'Товары из waitlist не попадают в checkout. Когда они снова появятся в наличии, вы получите email.',
       checkoutCta: 'Перейти к checkout',
       completeOrder: 'Оформление заказа',
       steps: {
@@ -1130,6 +1157,7 @@ export const journeyDictionary: Record<Locale, JourneyCopy> = {
     },
     shop: {
       addToCart: 'Добавить в корзину',
+      waitlist: 'Waitlist',
     },
     checkoutSuccess: {
       orderCompleted: 'Заказ оформлен',

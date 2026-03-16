@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 
 import { getAccountDictionary } from '@/lib/i18n/account'
 import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
+import { resolveInternalRedirect } from '../forms/auth/auth-utils'
 
 import styles from '../forms/auth/AuthForms.module.css'
 
@@ -18,6 +19,7 @@ export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
   const { loading, missingToken, genericError, success, networkError } = copy
   const searchParams = useSearchParams()
   const token = searchParams?.get('token') ?? null
+  const redirect = resolveInternalRedirect(searchParams?.get('redirect') ?? null, locale)
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState(loading)
   const didRun = useRef(false)
@@ -71,7 +73,7 @@ export function VerifyEmailCard({ locale }: VerifyEmailCardProps) {
       </p>
 
       <div className={styles.actions}>
-        <Link className={`${styles.submit} typo-small-upper`} href={`/${locale}/signin`}>
+        <Link className={`${styles.submit} typo-small-upper`} href={`/${locale}/signin?redirect=${encodeURIComponent(redirect)}`}>
           {copy.goToSignIn}
         </Link>
       </div>

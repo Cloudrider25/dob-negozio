@@ -5,8 +5,17 @@ import { getJourneyDictionary } from '@/lib/i18n/core'
 export type PaymentSession = {
   clientSecret: string
   publishableKey: string
+  attemptId?: string | number
   orderNumber?: string
   orderId?: string | number
+  quote?: {
+    subtotal: number
+    shippingAmount: number
+    discountAmount: number
+    commissionAmount: number
+    total: number
+    currency: string
+  }
   discountAmount?: number
   totalAmount?: number
   currency?: string

@@ -2,6 +2,17 @@
 
 ## Log blocchi chiusi
 
+- 2026-03-15 | Blocco SHOP-056 (`checkout-attempts` per Payment Element + webhook conversion)
+  - Scope: `src/app/api/shop/checkout/**`, `src/app/api/shop/webhook/route.ts`, `src/lib/server/shop/checkoutAttempts.ts`, `src/payload/collections/{CheckoutAttempts,ShopWebhookEvents}.ts`, `src/payload/config.ts`, `src/migrations/*`, checkout client payment flow.
+  - Decisione: separare il flusso `payment_element` dalla creazione anticipata di `orders`, introducendo `checkout-attempts` come stato transitorio fino alla conferma pagamento.
+  - Implementazione:
+  - `POST /api/shop/checkout` ora nel ramo `payment_element` crea/riusa `checkout-attempts`, riserva inventario solo sull’attempt e crea `PaymentIntent` Stripe con metadata `attemptID`;
+  - `confirm-payment` e webhook Stripe convertono l’attempt in `order` una sola volta tramite helper shared `createOrderFromCheckoutAttempt`;
+  - webhook allineato a `attemptID` anche per failure/cancel, con rilascio inventario attempt-based;
+  - client checkout aggiornato per propagare `attemptId` nel fallback/success flow;
+  - aggiunte collection `CheckoutAttempts`, campo `checkoutAttempt` su `shop-webhook-events`, migration `20260315_100500` e rigenerati i tipi Payload.
+  - Verifica: `pnpm run generate:types` ok; `pnpm exec tsc --noEmit` ok.
+
 - 2026-03-02 | Blocco ARCH-054 (`frontend` namespace hardening + page-domain structure normalization)
   - Scope: `src/frontend/components/**`, `src/frontend/page-domains/**`, `src/lib/**`, route wrappers in `src/app/(frontend)/**`.
   - Decisione: consolidare definitivamente la struttura frontend su due assi chiari:

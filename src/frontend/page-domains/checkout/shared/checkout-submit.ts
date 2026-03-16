@@ -1,4 +1,5 @@
 import type { CartItem } from '@/lib/frontend/cart/storage'
+import { toCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
 import type { CustomerSnapshot } from '@/frontend/page-domains/checkout/shared/contracts'
 
 type ProductFulfillmentMode = 'shipping' | 'pickup' | 'none'
@@ -26,6 +27,24 @@ export type CheckoutSubmitPayload = {
 const isServiceLikeId = (id: string) =>
   id.includes(':service:') || id.includes(':package:') || id.includes(':program:')
 
+const normalizeSubmitItems = (items: CartItem[]): Array<{ id: string; quantity: number }> => {
+  const normalized: Array<{ id: string; quantity: number }> = []
+
+  for (const item of items) {
+    const id = item.id.trim()
+    if (!id) continue
+
+    const quantity =
+      typeof item.quantity === 'number' && Number.isFinite(item.quantity)
+        ? Math.max(1, Math.min(50, Math.floor(item.quantity)))
+        : 1
+
+    normalized.push({ id, quantity })
+  }
+
+  return normalized
+}
+
 export const buildCheckoutSubmitPayload = ({
   locale,
   customer,
@@ -47,12 +66,8 @@ export const buildCheckoutSubmitPayload = ({
   serviceRequestedDate: string
   serviceRequestedTime: string
 }): CheckoutSubmitPayload => {
-  const normalizedItems = items
-    .map((item) => ({
-      id: String(item.id || '').trim(),
-      quantity: Number.isFinite(item.quantity) ? Math.max(1, Math.floor(item.quantity)) : 1,
-    }))
-    .filter((item) => item.id.length > 0)
+  const normalizedItems = normalizeSubmitItems(items)
+  const checkoutEligibleItems = toCheckoutEligibleItems(items)
 
   const hasProducts = normalizedItems.some((item) => !isServiceLikeId(item.id))
   const hasServices = normalizedItems.some((item) => isServiceLikeId(item.id))
