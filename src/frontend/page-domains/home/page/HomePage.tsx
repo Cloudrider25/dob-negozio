@@ -23,7 +23,6 @@ import {
   resolveGallerySecondary,
   resolveMedia,
 } from '@/lib/frontend/media/resolve'
-import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
 import { getPublicSiteOrigin } from '@/lib/server/url/getPublicSiteOrigin'
 
 const normalizeCmsHref = (value: string | null | undefined): string | undefined => {
@@ -100,7 +99,7 @@ export default async function HomePage({
     pageDoc?.storyHeroBody ||
     'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'
   const storyHeroCtaLabel = pageDoc?.storyHeroCtaLabel || 'Scopri DOB'
-  const storyHeroCtaHref = pageDoc?.storyHeroCtaHref || buildLocalizedSeoHref(locale, '/shop')
+  const storyHeroCtaHref = pageDoc?.storyHeroCtaHref || `/${locale}/shop`
   const storyHeroImage = {
     url: storyHeroMedia?.url || '/api/media/file/hero_homepage_light-1.png',
     alt: storyHeroMedia?.alt?.trim() || storyHeroTitle,
@@ -347,9 +346,9 @@ export default async function HomePage({
           variant={heroStyle}
           mediaDark={darkHeroMedia || undefined}
           mediaLight={lightHeroMedia || undefined}
-        ctas={[
-            { href: buildLocalizedSeoHref(locale, '/services'), label: t.nav.services, kind: 'hero' },
-            { href: buildLocalizedSeoHref(locale, '/shop'), label: t.nav.shop, kind: 'hero' },
+          ctas={[
+            { href: `/${locale}/services`, label: t.nav.services, kind: 'hero' },
+            { href: `/${locale}/shop`, label: t.nav.shop, kind: 'hero' },
           ]}
         />
       )}
