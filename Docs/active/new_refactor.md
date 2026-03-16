@@ -130,3 +130,94 @@ Questo file resta il riferimento rapido per il refactor ancora aperto.
 - Verificare il componente frontend che consuma questi campi.
 - Allineare naming editoriale e naming tecnico dei campi.
 - Rigenerare tipi Payload dopo modifiche schema.
+
+## Checklist staging
+
+### Stato operativo
+
+- [x] Commit e push eseguiti su `dev` al commit `73d1521`.
+- [x] Branch di promozione creato e pushato: `promote/dev-to-staging-20260316-checkout-attempts-waitlist`.
+- [ ] PR `promote/dev-to-staging-20260316-checkout-attempts-waitlist` -> `staging` aperta e mergiata.
+- [ ] Deploy `staging` completato.
+- [ ] Verifica che staging stia girando sul commit `73d1521`.
+- [x] `pnpm migrate:staging`.
+- [ ] Verifica migration applicate:
+  - [x] `20260315_100500`
+  - [x] `20260315_183500`
+  - [x] `20260316_110000`
+  - [x] `20260316_111500`
+  - [x] `20260316_112500`
+- [x] `pnpm seed:email-templates`.
+- [x] Verifica template `product_waitlist_back_in_stock`.
+
+### Smoke test checkout
+
+- [ ] Checkout prodotto semplice.
+- [ ] Checkout `payment_element` con successo.
+- [ ] Verifica success page e materializzazione ordine.
+- [ ] Test ramo `payment.failed` o pagamento interrotto, con verifica rilascio stock.
+
+### Smoke test waitlist
+
+- [ ] Metti un prodotto in `out of stock`.
+- [ ] Verifica CTA `Waitlist`.
+- [ ] Da anonimo: redirect a `signin?redirect=...`.
+- [ ] Da utente autenticato: registrazione waitlist riuscita.
+- [ ] Verifica waitlist in cart drawer / cart page con checkout disabilitato.
+- [ ] Riporta il prodotto disponibile e verifica invio notifica.
+
+### Smoke test auth continuity
+
+- [ ] `signin` preserva `redirect`.
+- [ ] `signup` preserva `redirect`.
+- [ ] `verify-email` preserva `redirect`.
+- [ ] Dopo login consentito, ritorno alla product page originaria.
+
+### Check finale
+
+- [ ] Nessun errore applicativo nei log checkout/webhook.
+- [ ] Nessun problema su `checkout-attempts`, `product-waitlists`, `shop-webhook-events`.
+- [ ] Nessuna dipendenza staging che punti a DB non corretto.
+
+### Log esecuzione
+
+- `2026-03-16`: checklist staging trasformata in formato operativo con check box.
+- `2026-03-16`: `pnpm migrate:staging` eseguito con successo.
+  - Payload ha chiesto conferma per precedente schema push dinamico su staging; conferma fornita esplicitamente.
+  - Applicate in output le migration `20260316_110000`, `20260316_111500`, `20260316_112500`.
+- `2026-03-16`: `payload migrate:status` eseguito su staging.
+  - Verificate come presenti anche `20260315_100500` e `20260315_183500`.
+  - Stato migration staging ora allineato fino a `20260316_112500`.
+- `2026-03-16`: seed template staging eseguito con env preview esplicito.
+  - `scripts/upsert-email-templates.ts` ha creato `123` template.
+  - Verificata in output la creazione di:
+    - `product_waitlist_back_in_stock:it:customer`
+    - `product_waitlist_back_in_stock:en:customer`
+    - `product_waitlist_back_in_stock:ru:customer`
+  - Nessun template saltato.
+- `2026-03-16`: creato e pushato il branch di promozione `promote/dev-to-staging-20260316-checkout-attempts-waitlist`.
+  - URL PR suggerita da GitHub:
+    - `https://github.com/Cloudrider25/dob-negozio/pull/new/promote/dev-to-staging-20260316-checkout-attempts-waitlist`
+  - Il deploy applicativo su staging resta pendente fino a merge della PR verso `staging`.
+- `2026-03-16`: PR di promozione aperta:
+  - `https://github.com/Cloudrider25/dob-negozio/pull/75`
+  - stato: `OPEN`
+  - target: `staging`
+  - source: `promote/dev-to-staging-20260316-checkout-attempts-waitlist`
+- `2026-03-16`: merge non ancora possibile.
+  - `mergeStateStatus`: `BEHIND`
+  - il ramo di promozione non e' ancora mergiabile direttamente su `staging`
+  - quality gate ha mostrato due blocker:
+    - errore schema CI su `product_waitlists_id does not exist` nel run vecchio, coerente con staging non ancora migrato al momento del test;
+    - test applicativo reale fallito in `tests/int/checkout-submit-payload.int.spec.ts`
+      - aspettativa: `productFulfillmentMode === 'shipping'`
+      - risultato ottenuto: `none`
+  - finche' i check non sono verdi, il deploy staging applicativo resta pendente.
+- `2026-03-16`: correzione applicata sul fail reale `checkout-submit-payload.int.spec.ts`.
+  - fix in `src/frontend/page-domains/checkout/shared/checkout-submit.ts`
+  - il payload submit ora separa:
+    - semantica stretta di `checkout eligibility` per il gating;
+    - normalizzazione submit delle righe per il payload finale.
+  - `hasProducts` e `hasServices` tornano a derivare dalle righe normalizzate del submit, evitando il falso `productFulfillmentMode = none` nel caso prodotto con quantity non valida ma normalizzata a `1`.
+  - verifica locale:
+    - `pnpm exec vitest run tests/int/checkout-submit-payload.int.spec.ts --config ./vitest.config.mts` verde.
