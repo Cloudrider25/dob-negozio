@@ -152,6 +152,7 @@ export function AccountDashboardClient({
       locale,
       prefetchSection,
       section,
+      setSection,
     ],
   )
 
