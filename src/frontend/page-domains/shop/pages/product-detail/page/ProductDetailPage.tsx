@@ -5,6 +5,7 @@ import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { getDictionary, isLocale } from '@/lib/i18n/core'
 import styles from '@/frontend/page-domains/shop/pages/product-detail/page/ProductDetailPage.module.css'
 import { AlternativeSelector } from '@/frontend/page-domains/shop/pages/product-detail/sections/AlternativeSelector'
+import { ProductAnalyticsTracker } from '@/frontend/page-domains/shop/pages/product-detail/sections/ProductAnalyticsTracker'
 import type { ProductDetailRouteParams } from '@/frontend/page-domains/shop/pages/product-detail/internal/contracts'
 import {
   escapeHtml,
@@ -382,6 +383,16 @@ export default async function ProductDetailPage({ params }: { params: ProductDet
 
   return (
     <div className={`frontend-page ${styles.page}`}>
+      <ProductAnalyticsTracker
+        product={{
+          id: String(product.id),
+          title: product.title || t.shop.title,
+          brand: resolveBrandLabel(product.brand, locale) || undefined,
+          format: product.format || undefined,
+          price: product.price ?? undefined,
+          currency: 'EUR',
+        }}
+      />
       <SplitSection
         className={styles.leadSection}
         left={

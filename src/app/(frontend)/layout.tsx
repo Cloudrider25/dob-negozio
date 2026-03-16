@@ -4,6 +4,7 @@ import Script from 'next/script'
 import { Instrument_Sans } from 'next/font/google'
 import { Work_Sans } from 'next/font/google'
 import '../../styles/globals.css'
+import { AnalyticsRuntime } from '@/frontend/layout/analytics/AnalyticsRuntime'
 import { ThemeHydrator } from '@/frontend/components/theme/ThemeHydrator'
 import { getSeoBaseUrl } from '@/lib/frontend/seo/metadata'
 
@@ -66,11 +67,25 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
             gtag('js', new Date());
-            gtag('config', '${gaMeasurementId}');
+            gtag('consent', 'default', {
+              analytics_storage: 'denied',
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              functionality_storage: 'denied',
+              personalization_storage: 'denied',
+              security_storage: 'granted'
+            });
+            gtag('config', '${gaMeasurementId}', {
+              anonymize_ip: true,
+              send_page_view: false
+            });
           `}
         </Script>
         <ThemeHydrator />
+        <AnalyticsRuntime measurementId={gaMeasurementId} />
         <main>{children}</main>
       </body>
     </html>

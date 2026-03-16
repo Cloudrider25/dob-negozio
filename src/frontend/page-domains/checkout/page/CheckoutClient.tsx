@@ -34,6 +34,11 @@ import {
   type CartItem,
 } from '@/lib/frontend/cart/storage'
 import { countCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
+import {
+  persistPendingPurchase,
+  toAnalyticsItem,
+} from '@/lib/frontend/analytics/ecommerce'
+import { trackEvent } from '@/lib/frontend/analytics/gtag'
 
 export function CheckoutClient({ notice, locale }: { notice?: string | null; locale: string }) {
   const router = useRouter()
@@ -66,6 +71,9 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false)
   const [items, setItems] = useState<CartItem[]>([])
   const isDesktopViewport = useDesktopViewport()
+  const [beginCheckoutTrackedKey, setBeginCheckoutTrackedKey] = useState<string | null>(null)
+  const [shippingInfoTrackedKey, setShippingInfoTrackedKey] = useState<string | null>(null)
+  const [paymentInfoTrackedKey, setPaymentInfoTrackedKey] = useState<string | null>(null)
 
   useEffect(() => {
     const forcedStep = searchParams?.get('e2eStep')
@@ -145,6 +153,24 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     }
     writeCart(next)
     emitCartUpdated()
+    trackEvent('add_to_cart', {
+      currency: product.currency || 'EUR',
+      value: typeof product.price === 'number' ? product.price : 0,
+      items: [
+        toAnalyticsItem(
+          {
+            id: product.id,
+            title: product.title,
+            brand: product.brandName || product.lineName || undefined,
+            format: product.format || undefined,
+            price: typeof product.price === 'number' ? product.price : undefined,
+            quantity: 1,
+            currency: product.currency || 'EUR',
+          },
+          0,
+        ),
+      ],
+    })
   }
 
   const isContactComplete = useMemo(() => {
@@ -296,6 +322,81 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     if (isDesktopViewport) setMobileSummaryOpen(false)
   }, [isDesktopViewport])
 
+  useEffect(() => {
+    if (activeStep !== 'payment') return
+    if (!items.length) return
+    if (beginCheckoutTrackedKey === cartFingerprint) return
+
+    trackEvent('begin_checkout', {
+      currency: displayCurrency || 'EUR',
+      value: totalAmount,
+      coupon: appliedDiscountCode || undefined,
+      items: items.map((item, index) => toAnalyticsItem(item, index)),
+    })
+    setBeginCheckoutTrackedKey(cartFingerprint)
+  }, [activeStep, appliedDiscountCode, beginCheckoutTrackedKey, cartFingerprint, displayCurrency, items, totalAmount])
+
+  useEffect(() => {
+    if (activeStep !== 'payment') return
+    if (!items.length) return
+
+    const shippingTier =
+      productFulfillmentMode === 'pickup'
+        ? 'pickup'
+        : selectedShippingOption?.name || (hasProducts ? 'shipping' : 'services_only')
+    const trackingKey = `${cartFingerprint}:${productFulfillmentMode}:${selectedShippingOptionID || 'none'}:${serviceAppointmentMode}`
+    if (shippingInfoTrackedKey === trackingKey) return
+
+    trackEvent('add_shipping_info', {
+      currency: displayCurrency || 'EUR',
+      value: totalAmount,
+      coupon: appliedDiscountCode || undefined,
+      shipping_tier: shippingTier,
+      items: items.map((item, index) => toAnalyticsItem(item, index)),
+    })
+    setShippingInfoTrackedKey(trackingKey)
+  }, [
+    activeStep,
+    appliedDiscountCode,
+    cartFingerprint,
+    displayCurrency,
+    hasProducts,
+    items,
+    productFulfillmentMode,
+    selectedShippingOption?.name,
+    selectedShippingOptionID,
+    serviceAppointmentMode,
+    shippingInfoTrackedKey,
+    totalAmount,
+  ])
+
+  useEffect(() => {
+    if (activeStep !== 'payment') return
+    if (!paymentSession) return
+    if (!items.length) return
+
+    const trackingKey = `${cartFingerprint}:${paymentSession.attemptId || paymentSession.clientSecret}`
+    if (paymentInfoTrackedKey === trackingKey) return
+
+    trackEvent('add_payment_info', {
+      currency: displayCurrency || 'EUR',
+      value: totalAmount,
+      coupon: appliedDiscountCode || undefined,
+      payment_type: 'stripe_payment_element',
+      items: items.map((item, index) => toAnalyticsItem(item, index)),
+    })
+    setPaymentInfoTrackedKey(trackingKey)
+  }, [
+    activeStep,
+    appliedDiscountCode,
+    cartFingerprint,
+    displayCurrency,
+    items,
+    paymentInfoTrackedKey,
+    paymentSession,
+    totalAmount,
+  ])
+
   const { onGoToShippingStep, onBackToInformationStep, onGoToPaymentStep, onBackToShippingStep } =
     useCheckoutStepActions({
       activeStep,
@@ -351,6 +452,25 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
         // Best-effort fallback for local/test environments without Stripe webhook
       }
     }
+    const transactionId =
+      resolvedOrderCode ||
+      (paymentIntentId ? String(paymentIntentId) : '') ||
+      (paymentSession?.attemptId ? String(paymentSession.attemptId) : '')
+    const matchId =
+      resolvedOrderCode ||
+      (paymentIntentId ? String(paymentIntentId) : '') ||
+      (paymentSession?.attemptId ? String(paymentSession.attemptId) : '')
+
+    if (transactionId && matchId) {
+      persistPendingPurchase({
+        matchId,
+        transactionId,
+        value: totalAmount,
+        currency: displayCurrency || 'EUR',
+        items: items.map((item, index) => toAnalyticsItem(item, index)),
+      })
+    }
+
     writeCart([])
     emitCartUpdated()
     const params = new URLSearchParams()
