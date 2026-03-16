@@ -29,6 +29,7 @@
     "seed:map-products": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/map-products-taxonomies.ts",
     "media:regenerate-sizes": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/regenerate-media-sizes.ts",
     "test:shop:webhook": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/test-shop-webhook.ts",
+    "test:shop:waitlist": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/test-shop-waitlist.ts",
     "test:shop:concurrency": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/test-shop-concurrency.ts",
     "test:shop:cart-validation": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/test-shop-cart-validation.ts",
     "test:shop:failed-payment": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/test-shop-payment-failed.ts",

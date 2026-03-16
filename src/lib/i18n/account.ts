@@ -51,6 +51,8 @@ type AccountI18n = {
         duplicateEmailBody: string
         emailInvalidTitle: string
         passwordInvalidTitle: string
+        verifyEmailTitle: string
+        verifyEmailBody: string
         genericTitle: string
         networkTitle: string
         signInLink: string
@@ -232,6 +234,9 @@ const accountDictionary: Record<Locale, AccountI18n> = {
           duplicateEmailBody: 'Puoi accedere con questo account oppure reimpostare la password se non la ricordi.',
           emailInvalidTitle: 'Controlla il campo email',
           passwordInvalidTitle: 'La password non è valida',
+          verifyEmailTitle: 'Controlla la tua email',
+          verifyEmailBody:
+            "Abbiamo creato l'account, ma prima di accedere devi verificare l'email dal link ricevuto. Dopo la verifica potrai tornare al prodotto e iscriverti alla waitlist.",
           genericTitle: 'Registrazione non completata',
           networkTitle: 'Errore di rete',
           signInLink: 'Accedi',
@@ -412,6 +417,9 @@ const accountDictionary: Record<Locale, AccountI18n> = {
           duplicateEmailBody: 'You can sign in with this account or reset your password if you do not remember it.',
           emailInvalidTitle: 'Check the email field',
           passwordInvalidTitle: 'Password is not valid',
+          verifyEmailTitle: 'Check your email',
+          verifyEmailBody:
+            'Your account has been created, but you need to verify your email before signing in. After verification you can return to the product and join the waitlist.',
           genericTitle: 'Sign-up could not be completed',
           networkTitle: 'Network error',
           signInLink: 'Sign in',
@@ -592,6 +600,9 @@ const accountDictionary: Record<Locale, AccountI18n> = {
           duplicateEmailBody: 'Вы можете войти в этот аккаунт или сбросить пароль, если не помните его.',
           emailInvalidTitle: 'Проверьте поле email',
           passwordInvalidTitle: 'Пароль недействителен',
+          verifyEmailTitle: 'Проверьте вашу почту',
+          verifyEmailBody:
+            'Аккаунт создан, но перед входом нужно подтвердить email по ссылке из письма. После подтверждения вы сможете вернуться к товару и вступить в waitlist.',
           genericTitle: 'Не удалось завершить регистрацию',
           networkTitle: 'Ошибка сети',
           signInLink: 'Войти',

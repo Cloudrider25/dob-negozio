@@ -7,6 +7,7 @@ import type { StripeElementsOptions } from '@stripe/stripe-js'
 import { createPaymentElementSession, CheckoutSessionError } from '@/frontend/page-domains/checkout/client-api/paymentSession'
 import type { CustomerSnapshot, PaymentSession } from '@/frontend/page-domains/checkout/shared/contracts'
 import { STRIPE_LOCALE_MAP } from '@/frontend/page-domains/checkout/shared/contracts'
+import { hasCheckoutEligibleItems } from '@/lib/frontend/cart/checkoutEligibility'
 import type { CartItem } from '@/lib/frontend/cart/storage'
 
 const resolveCssColor = (varName: string, fallback: string) => {
@@ -111,7 +112,7 @@ export const useCheckoutPaymentSession = ({
         if (!silent) setError(messages.completeRequiredFields)
         return null
       }
-      if (items.length === 0) {
+      if (!hasCheckoutEligibleItems(items)) {
         if (!silent) setError(messages.cartEmptyError)
         return null
       }

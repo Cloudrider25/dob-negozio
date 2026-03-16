@@ -1,13 +1,45 @@
 import { notFound, redirect } from 'next/navigation'
 
 import { AccountDashboardClient } from '@/frontend/page-domains/account/dashboard/AccountDashboardClient'
+import type { AccountSection } from '@/frontend/page-domains/account/types'
+import { getAvailableProductUnits } from '@/lib/server/shop/productWaitlists'
 import { getAuthenticatedUser } from '@/lib/server/auth/getAuthenticatedUser'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { isLocale } from '@/lib/i18n/core'
-import type { Order, OrderItem as PayloadOrderItem, OrderServiceSession } from '@/payload/generated/payload-types'
+import type {
+  Media,
+  Order,
+  OrderItem as PayloadOrderItem,
+  OrderServiceSession,
+  Product,
+  ProductWaitlist,
+} from '@/payload/generated/payload-types'
 
-export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
+const ACCOUNT_SECTIONS: AccountSection[] = ['overview', 'services', 'orders', 'addresses', 'aesthetic']
+
+const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
+
+const resolveMediaUrl = (media: unknown) => {
+  if (typeof media === 'string') return asString(media) || null
+  if (!media || typeof media !== 'object') return null
+  const record = media as Media
+  return asString(record.thumbnailURL) || asString(record.url) || null
+}
+
+const resolveBrandName = (value: unknown) => {
+  if (!value || typeof value !== 'object') return ''
+  return asString((value as { name?: unknown }).name)
+}
+
+export default async function AccountPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams?: Promise<{ section?: string }>
+}) {
   const { locale } = await params
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
 
   if (!isLocale(locale)) {
     notFound()
@@ -20,6 +52,12 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   }
 
   const payload = await getPayloadClient()
+  const initialSection: AccountSection = ACCOUNT_SECTIONS.includes(
+    resolvedSearchParams?.section as AccountSection,
+  )
+    ? (resolvedSearchParams?.section as AccountSection)
+    : 'overview'
+
   const ordersResult = await payload.find({
     collection: 'orders',
     overrideAccess: false,
@@ -43,6 +81,20 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   const firstName = user.firstName?.trim() || ''
   const lastName = user.lastName?.trim() || ''
   const orderIds = orders.map((order) => order.id)
+  const waitlistsResult = await payload.find({
+    collection: 'product-waitlists',
+    overrideAccess: false,
+    user,
+    depth: 2,
+    limit: 100,
+    sort: '-updatedAt',
+    where: {
+      and: [
+        { customer: { equals: user.id } },
+        { status: { not_equals: 'cancelled' } },
+      ],
+    },
+  })
 
   const initialOrders: Array<{
     id: number
@@ -63,6 +115,49 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
     deliveryStatus: string | null
     deliveryUpdatedAt: string | null
   }> = []
+  const initialWaitlistRows: Array<{
+    id: string
+    productId: number
+    title: string
+    slug: string
+    brand: string
+    price: number
+    currency: string
+    format: string
+    coverImage: string | null
+    status: 'active' | 'notified' | 'cancelled'
+    availableNow: boolean
+    registeredAt: string | null
+    notifiedAt: string | null
+  }> = []
+
+  for (const entry of waitlistsResult.docs as ProductWaitlist[]) {
+    const product =
+      entry.product && typeof entry.product === 'object' ? (entry.product as Product) : null
+    if (!product) continue
+    if (product.active === false) continue
+
+    initialWaitlistRows.push({
+      id: String(entry.id),
+      productId: product.id,
+      title: asString(product.title) || entry.productTitle,
+      slug: asString(product.slug) || entry.productSlug,
+      brand: resolveBrandName(product.brand) || entry.productBrand || '',
+      price: typeof product.price === 'number' ? product.price : 0,
+      currency: 'EUR',
+      format: asString(product.format),
+      coverImage: resolveMediaUrl(product.coverImage),
+      status: entry.status,
+      availableNow: getAvailableProductUnits(product) > 0,
+      registeredAt: entry.createdAt ?? null,
+      notifiedAt: entry.notifiedAt ?? null,
+    })
+  }
+
+  initialWaitlistRows.sort((a, b) => {
+    if (a.availableNow !== b.availableNow) return a.availableNow ? -1 : 1
+    return new Date(b.registeredAt || 0).getTime() - new Date(a.registeredAt || 0).getTime()
+  })
 
   if (orderIds.length > 0) {
     // Intentional admin Local API read, constrained to already-authorized user's orders.
@@ -323,8 +418,10 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         lastName={lastName}
         phone={user.phone?.trim() || ''}
         initialOrders={initialOrders}
+        initialWaitlistRows={initialWaitlistRows}
         initialServiceRows={serviceRows}
         initialAddresses={initialAddresses}
+        initialSection={initialSection}
       />
     </main>
   )

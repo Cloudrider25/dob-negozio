@@ -1,6 +1,7 @@
 import type { CollectionConfig, Where } from 'payload'
 
 import { sendNewsletterNotifications } from '@/lib/server/email/businessNotifications'
+import { notifyProductWaitlistsOnAvailability } from '@/lib/server/shop/productWaitlists'
 
 import { isAdmin } from '../access/isAdmin'
 import { seoFields } from '../fields/seoFields'
@@ -475,6 +476,24 @@ export const Products: CollectionConfig = {
       },
     ],
     afterChange: [
+      async ({ doc, previousDoc, operation, req }) => {
+        if (operation !== 'update') return doc
+
+        try {
+          await notifyProductWaitlistsOnAvailability({
+            req,
+            doc: (doc ?? {}) as Record<string, unknown>,
+            previousDoc: (previousDoc ?? null) as Record<string, unknown> | null,
+          })
+        } catch (error) {
+          req.payload.logger.error({
+            err: error,
+            msg: `Product waitlist availability processing failed for ${String(doc?.id || doc?.slug || 'unknown-product')}`,
+          })
+        }
+
+        return doc
+      },
       async ({ doc, operation, req }) => {
         if (operation !== 'create') return doc
         if (doc?.active === false) return doc
@@ -1017,6 +1036,12 @@ export const Products: CollectionConfig = {
               name: 'timingProducts',
               type: 'relationship',
               relationTo: 'timing-products',
+              hasMany: true,
+            },
+            {
+              name: 'routineSteps',
+              type: 'relationship',
+              relationTo: 'routine-steps',
               hasMany: true,
             },
           ],

@@ -9,6 +9,11 @@ import {
 } from '@/lib/server/email/businessNotifications'
 import { getPayloadClient } from '@/lib/server/payload/getPayloadClient'
 import { isLocale, type Locale } from '@/lib/i18n/core'
+import {
+  createOrderFromCheckoutAttempt,
+  releaseCheckoutAttemptInventory,
+  type CheckoutAttemptProductItem,
+} from '@/lib/server/shop/checkoutAttempts'
 import { commitOrderInventory, releaseOrderAllocation } from '@/lib/server/shop/orderInventory'
 import { getShopIntegrationsConfig } from '@/lib/server/shop/shopIntegrationsConfig'
 import { createSendcloudParcel } from '@/lib/server/sendcloud/createParcel'
@@ -20,6 +25,7 @@ type WebhookPayload = {
   locale?: string
   data?: {
     orderID?: string | number
+    attemptID?: string | number
     paymentReference?: string
   }
 }
@@ -92,6 +98,7 @@ export async function POST(request: Request) {
   let provider = 'custom'
   let providerEventType = ''
   let orderID = NaN
+  let attemptID = NaN
   let locale: Locale = 'it'
   let payloadBody: WebhookPayload | Record<string, unknown> = {}
   let stripeClient: Stripe | null = null
@@ -145,6 +152,35 @@ export async function POST(request: Request) {
         return NaN
       }
 
+      const readAttemptID = async () => {
+        const object = event.data.object as unknown as Record<string, unknown>
+        const metadata =
+          object && typeof object.metadata === 'object' && object.metadata !== null
+            ? (object.metadata as Record<string, unknown>)
+            : {}
+        const fromMetadata = asString(metadata.attemptID)
+        if (fromMetadata) return Number(fromMetadata)
+
+        if (event.type.startsWith('payment_intent.')) {
+          const paymentIntentID = asString(object.id)
+          if (paymentIntentID) {
+            const attempts = await payload.find({
+              collection: 'checkout-attempts',
+              overrideAccess: true,
+              depth: 0,
+              limit: 1,
+              where: {
+                paymentReference: { equals: paymentIntentID },
+              },
+            })
+            const attempt = attempts.docs[0]
+            if (attempt) return Number(attempt.id)
+          }
+        }
+
+        return NaN
+      }
+
       switch (event.type) {
         case 'checkout.session.completed':
         case 'payment_intent.succeeded':
@@ -175,6 +211,7 @@ export async function POST(request: Request) {
         stripeCheckoutSessionID = asString(object.id)
       }
       orderID = await readOrderID()
+      attemptID = await readAttemptID()
     } catch {
       return NextResponse.json({ error: 'Invalid Stripe signature.' }, { status: 401 })
     }
@@ -207,6 +244,13 @@ export async function POST(request: Request) {
           : typeof rawOrderID === 'string' && rawOrderID.trim() !== ''
             ? Number(rawOrderID)
             : NaN
+      const rawAttemptID = parsed.data?.attemptID
+      attemptID =
+        typeof rawAttemptID === 'number'
+          ? rawAttemptID
+          : typeof rawAttemptID === 'string' && rawAttemptID.trim() !== ''
+            ? Number(rawAttemptID)
+            : NaN
       const localeInput = asString(parsed.locale)
       locale = isLocale(localeInput) ? localeInput : 'it'
     } catch {
@@ -214,9 +258,9 @@ export async function POST(request: Request) {
     }
   }
 
-  if (!eventID || !type || !Number.isFinite(orderID)) {
+  if (!eventID || !type || (!Number.isFinite(orderID) && !Number.isFinite(attemptID))) {
     return NextResponse.json(
-      { error: 'Missing required fields: eventID, type, data.orderID.' },
+      { error: 'Missing required fields: eventID, type, data.orderID or data.attemptID.' },
       { status: 400 },
     )
   }
@@ -244,7 +288,8 @@ export async function POST(request: Request) {
       eventID,
       type,
       provider,
-      order: orderID,
+      order: Number.isFinite(orderID) ? orderID : undefined,
+      checkoutAttempt: Number.isFinite(attemptID) ? attemptID : undefined,
       payload: payloadBody,
       processed: false,
     },
@@ -254,6 +299,25 @@ export async function POST(request: Request) {
     switch (type) {
       case 'payment.paid':
         {
+          let createdFromAttempt = false
+          if (!Number.isFinite(orderID) && Number.isFinite(attemptID)) {
+            const attempt = await payload.findByID({
+              collection: 'checkout-attempts',
+              id: attemptID,
+              overrideAccess: true,
+              depth: 0,
+              locale,
+            })
+
+            const result = await createOrderFromCheckoutAttempt({
+              payload,
+              locale,
+              attempt,
+            })
+            orderID = Number(result.order.id)
+            createdFromAttempt = result.created
+          }
+
           const orderBefore = await payload.findByID({
             collection: 'orders',
             id: orderID,
@@ -264,11 +328,13 @@ export async function POST(request: Request) {
           const wasAlreadyPaid =
             orderBefore.paymentStatus === 'paid' || orderBefore.status === 'paid'
 
-        await commitOrderInventory({
-          payload,
-          orderID,
-          locale,
-        })
+          if (!createdFromAttempt) {
+            await commitOrderInventory({
+              payload,
+              orderID,
+              locale,
+            })
+          }
 
           const order = await payload.findByID({
             collection: 'orders',
@@ -301,6 +367,7 @@ export async function POST(request: Request) {
 
               await sendOrderPaidNotifications({
                 payload,
+                orderID: order.id,
                 orderNumber: order.orderNumber,
                 customerEmail: order.customerEmail,
                 customerFirstName: order.customerFirstName,
@@ -361,6 +428,7 @@ export async function POST(request: Request) {
                   await sendShipmentNotifications({
                     payload,
                     eventKey: 'shipment_created',
+                    orderID: order.id,
                     orderNumber: order.orderNumber,
                     customerEmail: order.customerEmail,
                     customerFirstName: order.customerFirstName,
@@ -396,37 +464,70 @@ export async function POST(request: Request) {
         break
       case 'payment.failed':
       case 'payment.cancelled':
-        try {
-          const order = await payload.findByID({
-            collection: 'orders',
-            id: orderID,
+        if (Number.isFinite(orderID)) {
+          try {
+            const order = await payload.findByID({
+              collection: 'orders',
+              id: orderID,
+              overrideAccess: true,
+              depth: 0,
+              locale,
+            })
+
+            await sendOrderLifecycleNotifications({
+              payload,
+              eventKey: 'order_payment_failed',
+              orderID: order.id,
+              orderNumber: order.orderNumber,
+              customerEmail: order.customerEmail,
+              customerFirstName: order.customerFirstName,
+              customerLastName: order.customerLastName,
+              total: order.total,
+              reason: providerEventType || type,
+            })
+          } catch (emailError) {
+            payload.logger.error({
+              err: emailError,
+              msg: `Order failed notification failed for order ${orderID}`,
+            })
+          }
+
+          await releaseOrderAllocation({
+            payload,
+            orderID,
+            locale,
+          })
+        } else if (Number.isFinite(attemptID)) {
+          const attempt = await payload.findByID({
+            collection: 'checkout-attempts',
+            id: attemptID,
             overrideAccess: true,
             depth: 0,
             locale,
           })
 
-          await sendOrderLifecycleNotifications({
-            payload,
-            eventKey: 'order_payment_failed',
-            orderNumber: order.orderNumber,
-            customerEmail: order.customerEmail,
-            customerFirstName: order.customerFirstName,
-            customerLastName: order.customerLastName,
-            total: order.total,
-            reason: providerEventType || type,
-          })
-        } catch (emailError) {
-          payload.logger.error({
-            err: emailError,
-            msg: `Order failed notification failed for order ${orderID}`,
+          if (attempt.inventoryReserved && !attempt.inventoryReleased) {
+            await releaseCheckoutAttemptInventory({
+              payload,
+              locale,
+              productItems: Array.isArray(attempt.productItems)
+                ? (attempt.productItems as CheckoutAttemptProductItem[])
+                : [],
+            })
+          }
+
+          await payload.update({
+            collection: 'checkout-attempts',
+            id: attemptID,
+            overrideAccess: true,
+            locale,
+            data: {
+              status: type === 'payment.cancelled' ? 'cancelled' : 'failed',
+              inventoryReserved: false,
+              inventoryReleased: Boolean(attempt.inventoryReserved),
+            },
           })
         }
-
-        await releaseOrderAllocation({
-          payload,
-          orderID,
-          locale,
-        })
         break
       case 'payment.refunded':
         await payload.update({
@@ -452,6 +553,7 @@ export async function POST(request: Request) {
       data: {
         processed: true,
         processedAt: new Date().toISOString(),
+        order: Number.isFinite(orderID) ? orderID : undefined,
       },
     })
   } catch (error) {

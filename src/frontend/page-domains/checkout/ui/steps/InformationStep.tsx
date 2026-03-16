@@ -46,36 +46,40 @@ export function InformationStep({
   onGoToShippingStep,
   nextStepLabel,
 }: InformationStepProps) {
+  const showExpressSection = Boolean(paymentSession || submitting || (expressPrefetchTried && expressPrefetchError))
+
   return (
     <>
-      {paymentSession && stripePromise && stripeOptions ? (
-        <Elements stripe={stripePromise} options={stripeOptions}>
-          <ExpressCheckoutQuickForm
-            locale={locale}
-            paymentSession={paymentSession}
-            copy={copy}
-            onError={(message) => onExpressError(message || '')}
-            onSuccess={onExpressSuccess}
-          />
-        </Elements>
-      ) : submitting ? (
-        <div className={cn(styles.paymentLoading, 'typo-body')}>{copy.messages.loadingPaymentElement}</div>
-      ) : expressPrefetchTried && expressPrefetchError ? (
-        <div className={cn(styles.paymentLoadingError, 'typo-body')}>
-          {expressPrefetchError}
-          <div className={styles.actionsRow}>
-            <button
-              className={cn(styles.continueButton, 'typo-small-upper')}
-              type="button"
-              onClick={onExpressRetry}
-            >
-              Riprova
-            </button>
+      {showExpressSection ? (
+        paymentSession && stripePromise && stripeOptions ? (
+          <Elements stripe={stripePromise} options={stripeOptions}>
+            <ExpressCheckoutQuickForm
+              locale={locale}
+              paymentSession={paymentSession}
+              copy={copy}
+              onError={(message) => onExpressError(message || '')}
+              onSuccess={onExpressSuccess}
+            />
+          </Elements>
+        ) : submitting ? (
+          <div className={cn(styles.paymentLoading, 'typo-body')}>
+            {copy.messages.loadingPaymentElement}
           </div>
-        </div>
-      ) : (
-        <div className={cn(styles.paymentLoading, 'typo-body')}>{copy.messages.loadingPaymentElement}</div>
-      )}
+        ) : (
+          <div className={cn(styles.paymentLoadingError, 'typo-body')}>
+            {expressPrefetchError}
+            <div className={styles.actionsRow}>
+              <button
+                className={cn(styles.continueButton, 'typo-small-upper')}
+                type="button"
+                onClick={onExpressRetry}
+              >
+                Riprova
+              </button>
+            </div>
+          </div>
+        )
+      ) : null}
 
       <div className={styles.fieldGroup}>
         <div className={cn(styles.labelRow, 'typo-small')}>

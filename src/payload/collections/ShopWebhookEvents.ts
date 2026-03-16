@@ -41,6 +41,12 @@ export const ShopWebhookEvents: CollectionConfig = {
       index: true,
     },
     {
+      name: 'checkoutAttempt',
+      type: 'relationship',
+      relationTo: 'checkout-attempts',
+      index: true,
+    },
+    {
       name: 'processed',
       type: 'checkbox',
       required: true,

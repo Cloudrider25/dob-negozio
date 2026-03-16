@@ -12,7 +12,19 @@ export type CartItem = {
   quantity: number
 }
 
+export type WaitlistItem = {
+  id: string
+  title: string
+  slug?: string
+  currency?: string
+  brand?: string
+  format?: string
+  coverImage?: string | null
+  registeredAt?: string
+}
+
 export const CART_STORAGE_KEY = 'dob:cart'
+export const WAITLIST_STORAGE_KEY = 'dob:waitlist'
 export const CART_UPDATED_EVENT = 'dob:cart-updated'
 export const CART_OPEN_EVENT = 'dob:cart-open'
 export const CART_OPEN_REQUESTED_FLAG = '__dobCartRequestedOpen'
@@ -74,14 +86,55 @@ export const parseCartItems = (raw: string | null): CartItem[] => {
   }
 }
 
+export const parseWaitlistItems = (raw: string | null): WaitlistItem[] => {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return []
+    const items: WaitlistItem[] = []
+    for (const item of parsed) {
+      if (!isRecord(item)) continue
+      const id = typeof item.id === 'string' ? item.id : ''
+      const title = typeof item.title === 'string' ? item.title : ''
+      if (!id || !title) continue
+      items.push({
+        id,
+        title,
+        slug: typeof item.slug === 'string' ? item.slug : undefined,
+        currency: typeof item.currency === 'string' ? item.currency : undefined,
+        brand: typeof item.brand === 'string' ? item.brand : undefined,
+        format: typeof item.format === 'string' ? item.format : undefined,
+        coverImage: readLegacyCoverImage(item),
+        registeredAt: typeof item.registeredAt === 'string' ? item.registeredAt : undefined,
+      })
+    }
+    return items
+  } catch {
+    if (typeof window !== 'undefined') {
+      console.warn('Invalid waitlist payload found in localStorage. Waitlist has been reset.')
+    }
+    return []
+  }
+}
+
 export const readCart = (): CartItem[] => {
   if (typeof window === 'undefined') return []
   return parseCartItems(window.localStorage.getItem(CART_STORAGE_KEY))
 }
 
+export const readWaitlist = (): WaitlistItem[] => {
+  if (typeof window === 'undefined') return []
+  return parseWaitlistItems(window.localStorage.getItem(WAITLIST_STORAGE_KEY))
+}
+
 export const writeCart = (items: CartItem[]) => {
   if (typeof window === 'undefined') return
   window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+}
+
+export const writeWaitlist = (items: WaitlistItem[]) => {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(WAITLIST_STORAGE_KEY, JSON.stringify(items))
 }
 
 export const emitCartUpdated = () => {

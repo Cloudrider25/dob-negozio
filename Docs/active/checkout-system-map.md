@@ -1,6 +1,6 @@
 # Checkout System Map
 
-Ultimo aggiornamento: 9 marzo 2026, update checkout summary extraction
+Ultimo aggiornamento: 16 marzo 2026, attempt-first flow consolidato + quote live + waitlist + auth redirect flow
 
 ## Scopo
 
@@ -11,6 +11,70 @@ Serve come riferimento rapido per:
 - debug prezzi / sconti / spedizione
 - debug Stripe / webhook / ordine
 - debug Payload admin / ordine / promo code
+
+## Stato attuale del sistema
+
+- Il checkout usa ormai la pipeline `cart -> checkout-attempt -> order`.
+- Il flusso `payment_element` e' `attempt-first`: il server crea o riusa `checkout-attempts`, Stripe conferma il pagamento, poi `confirm-payment` o webhook materializzano l'ordine una sola volta.
+- La quote live server-side e' la fonte di verita' economica finale prima del pagamento.
+- Il gating checkout usa una semantica condivisa di `item acquistabile`, `empty cart` e `checkout allowed`.
+- La reservation inventory e il rilascio automatico sono attivi e allineati con `checkout-attempts`.
+- La waitlist prodotto e' attiva e separata dal checkout pagabile.
+
+## Invarianti operative
+
+- I prezzi mostrati in UI non sono la fonte di verita': il totale autorevole viene dal server checkout.
+- Gli item non acquistabili, inclusi gli item waitlist, non abilitano il checkout e non entrano nel totale.
+- `expiresAt` e' la semantica primaria di scadenza dei `checkout-attempts`.
+- La conversione `checkout-attempt -> order` deve restare idempotente e serializzata.
+- La policy ambienti database va preservata:
+  - `dev` solo DB locale;
+  - `staging` solo DB staging;
+  - `prod` solo DB production.
+
+## Aree implementate nel branch
+
+### Pricing e quote live
+
+- La risposta checkout restituisce una `quote` completa e autorevole.
+- La stessa semantica economica e' allineata tra UI checkout, `checkout-attempt`, ordine e Stripe.
+- Il supporto copre i rami `payment_element`, `redirect`, `embedded` e `manual`.
+
+### Cart gating e checkout eligibility
+
+- Pagina carrello e cart drawer non aprono il checkout senza item checkout-eligible.
+- Frontend e backend condividono la stessa definizione minima di `empty cart`.
+- La route checkout continua a rifiutare payload senza item validi.
+
+### Inventory reservation
+
+- `checkout-attempts` gestisce riserva e rilascio inventory nel flusso `payment_element`.
+- Il cleanup usa `expiresAt` come fonte primaria di scadenza.
+- E' presente una policy tecnica minima per `low stock` con finestra piu' corta.
+
+### Waitlist e auth flow collegato
+
+- I prodotti `out of stock` espongono CTA `Waitlist` invece di `Compra`.
+- La waitlist vive separata dal checkout economico e compare in cart page / cart drawer senza abilitare il pagamento.
+- Quando l'utente anonimo tenta `Waitlist`, il redirect a `signin` preserva il path prodotto tramite `redirect`.
+- Il parametro `redirect` viene preservato anche in `signup` e `verify-email`, cosi' il ritorno al prodotto resta disponibile dopo autenticazione/verifica.
+- L'auto-login post-signup dipende dalla policy auth del progetto; con email non verificata il ramo corretto resta `verify-email -> signin?redirect=...`.
+
+## Regression e verifica runtime
+
+- Regression pass shop verde:
+  - `pnpm test:shop:cart-validation`
+  - `pnpm test:shop:concurrency`
+  - `pnpm test:shop:admin-alignment`
+  - `pnpm test:shop:failed-payment`
+  - `pnpm test:shop:waitlist`
+- `pnpm exec tsc --noEmit` verde.
+- Verifiche browser confermate:
+  - CTA `Waitlist` su product page `out of stock`;
+  - redirect anonimo a `signin?redirect=...`;
+  - ritorno automatico al prodotto dopo login;
+  - preservazione `redirect` tra `signin`, `signup` e `verify-email`;
+  - sezione waitlist visibile in cart drawer / cart page con checkout disabilitato.
 
 ## 1. Entry Points
 
@@ -25,6 +89,11 @@ Questi sono i punti di ingresso principali del flusso checkout.
 
 - [src/app/(checkout)/[locale]/checkout/success/page.tsx](/Users/ale/Progetti/DOBMilano/src/app/(checkout)/[locale]/checkout/success/page.tsx)
   - pagina di conferma finale post pagamento
+
+- [src/frontend/page-domains/checkout/ui/CheckoutSuccessContent.tsx](/Users/ale/Progetti/DOBMilano/src/frontend/page-domains/checkout/ui/CheckoutSuccessContent.tsx)
+  - contenuto client della success page
+  - risolve l'ordine a posteriori quando il flusso `payment_element` arriva con `attempt` + `payment_intent`
+  - chiama `POST /api/shop/checkout/confirm-payment` in polling leggero finche' l'ordine non e' materializzato
 
 - [src/app/(checkout)/layout.tsx](/Users/ale/Progetti/DOBMilano/src/app/(checkout)/layout.tsx)
 - [src/app/(checkout)/[locale]/layout.tsx](/Users/ale/Progetti/DOBMilano/src/app/(checkout)/[locale]/layout.tsx)
@@ -131,17 +200,22 @@ Questi sono i file piu' critici lato server.
   - endpoint centrale checkout
   - crea / riusa sessione pagamento
   - calcola subtotale, sconto, commissione partner, totale
-  - crea l'ordine
-  - decide la modalita' `payment_element` / redirect
+  - per `redirect` / `embedded` crea l'ordine subito
+  - per `payment_element` crea / riusa `checkout-attempts`, riserva inventario sull'attempt e crea il `PaymentIntent`
+  - decide la modalita' `payment_element` / redirect / embedded
 
 - [src/app/api/shop/checkout/confirm-payment/route.ts](/Users/ale/Progetti/DOBMilano/src/app/api/shop/checkout/confirm-payment/route.ts)
-  - conferma best-effort del pagamento in alcuni ambienti
+  - conferma server-side del pagamento `payment_element`
+  - nel flusso attempt-first materializza l'ordine da `checkout-attempts` solo quando il `PaymentIntent` e' `succeeded`
+  - resta anche fallback best-effort per ambienti locali / race con webhook
 
 - [src/app/api/shop/shipping-quote/route.ts](/Users/ale/Progetti/DOBMilano/src/app/api/shop/shipping-quote/route.ts)
   - endpoint preventivo spedizione
 
 - [src/app/api/shop/webhook/route.ts](/Users/ale/Progetti/DOBMilano/src/app/api/shop/webhook/route.ts)
   - webhook Stripe / aggiornamento ordine
+  - per `payment_element` puo' materializzare l'ordine da `checkout-attempts`
+  - su `payment.failed` / `payment.cancelled` rilascia inventory dell'attempt o dell'ordine
 
 - [src/app/api/sendcloud/webhook/route.ts](/Users/ale/Progetti/DOBMilano/src/app/api/sendcloud/webhook/route.ts)
   - webhook Sendcloud
@@ -166,6 +240,12 @@ Questi file sono il layer di business logic.
 
 - [src/lib/server/shop/orderInventory.ts](/Users/ale/Progetti/DOBMilano/src/lib/server/shop/orderInventory.ts)
   - commit / release inventario ordine
+
+- [src/lib/server/shop/checkoutAttempts.ts](/Users/ale/Progetti/DOBMilano/src/lib/server/shop/checkoutAttempts.ts)
+  - business logic del flusso `payment_element` attempt-first
+  - reserve / release inventario per `checkout-attempts`
+  - converte `checkout-attempts` in `orders`
+  - serializza la conversione con advisory lock per evitare doppi ordini in race fra webhook e confirm-payment
 
 - [src/lib/server/shop/shopIntegrationsConfig.ts](/Users/ale/Progetti/DOBMilano/src/lib/server/shop/shopIntegrationsConfig.ts)
   - configurazione integrazioni Stripe + Sendcloud
@@ -200,6 +280,14 @@ Questi file toccano il checkout lato CMS / backoffice.
 - [src/payload/collections/OrderServiceSessions.ts](/Users/ale/Progetti/DOBMilano/src/payload/collections/OrderServiceSessions.ts)
   - appuntamenti / fulfillment servizi
 
+- [src/payload/collections/CheckoutAttempts.ts](/Users/ale/Progetti/DOBMilano/src/payload/collections/CheckoutAttempts.ts)
+  - stato transitorio del flusso `payment_element`
+  - contiene fingerprint checkout, snapshot linee, importi, metadata Stripe e stato conversione
+
+- [src/payload/collections/ShopWebhookEvents.ts](/Users/ale/Progetti/DOBMilano/src/payload/collections/ShopWebhookEvents.ts)
+  - log eventi webhook
+  - ora puo' riferire sia `order` sia `checkoutAttempt`
+
 - [src/payload/collections/PromoCodes.ts](/Users/ale/Progetti/DOBMilano/src/payload/collections/PromoCodes.ts)
   - schema promo code / partner
 
@@ -211,6 +299,16 @@ Questi file toccano il checkout lato CMS / backoffice.
 
 - [src/payload/config.ts](/Users/ale/Progetti/DOBMilano/src/payload/config.ts)
   - registrazione collection / globals / env targeting
+
+- [src/migrations/20260315_100500.ts](/Users/ale/Progetti/DOBMilano/src/migrations/20260315_100500.ts)
+  - migration principale che introduce `checkout_attempts` e i riferimenti collegati
+
+- [src/migrations/20260315_183500.ts](/Users/ale/Progetti/DOBMilano/src/migrations/20260315_183500.ts)
+  - migration di completamento per gli indici mancanti su `checkout_attempts`
+
+- [src/migrations/index.ts](/Users/ale/Progetti/DOBMilano/src/migrations/index.ts)
+  - registry migrations
+  - `20260315_100500` deve precedere `20260315_183500`
 
 ## 9. Account e Post-Checkout
 
@@ -272,8 +370,14 @@ Se devi lavorare sul checkout e vuoi aprire subito i file giusti, parti da quest
   - `CheckoutClient`
   - `useCheckoutPaymentSession`
   - `/api/shop/checkout`
-  - `Orders`
+  - `Orders` per `redirect` / `embedded`
+  - `CheckoutAttempts -> confirm-payment / webhook -> Orders` per `payment_element`
 - Il recap laterale e' ora isolato dal container principale:
   - `CheckoutClient` = orchestration layer
   - `CheckoutSummaryPanel` = recap / sidebar / recommendations
 - I contenuti editoriali della pagina checkout sono gestiti da Payload tramite `Pages.pageKey = checkout`.
+- Il flusso `payment_element` e' ora `attempt-first`:
+  - `/api/shop/checkout` crea o riusa `checkout-attempts`
+  - il browser conferma Stripe con `return_url`
+  - `confirm-payment` o il webhook materializzano l'ordine una sola volta
+  - la success page puo' risolvere l'ordine post redirect usando `attempt` + `payment_intent`

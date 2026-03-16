@@ -101,6 +101,11 @@ export default async function ProductDetailPage({ params }: { params: ProductDet
   }
 
   const brandLineDoc = await resolveBrandLineDoc()
+  const isOutOfStock = Math.max(
+    0,
+    (typeof product.stock === 'number' ? product.stock : 0) -
+      (typeof product.allocatedStock === 'number' ? product.allocatedStock : 0),
+  ) <= 0
 
   const relatedDocs = brandLineId
     ? (
@@ -133,6 +138,7 @@ export default async function ProductDetailPage({ params }: { params: ProductDet
       currency: 'EUR',
       coverImage: cartCoverImage,
       brand: resolveBrandLabel(product.brand, locale),
+      isOutOfStock,
       isCurrent: true,
     },
     ...(Array.isArray(product.alternatives)
@@ -141,6 +147,21 @@ export default async function ProductDetailPage({ params }: { params: ProductDet
             typeof alt?.product === 'object' && alt.product && 'id' in alt.product
               ? String((alt.product as { id?: string | number }).id || '')
               : ''
+          const altStock =
+            typeof alt?.product === 'object' &&
+            alt.product &&
+            'stock' in alt.product &&
+            typeof (alt.product as { stock?: unknown }).stock === 'number'
+              ? ((alt.product as { stock?: number }).stock ?? 0)
+              : null
+          const altAllocated =
+            typeof alt?.product === 'object' &&
+            alt.product &&
+            'allocatedStock' in alt.product &&
+            typeof (alt.product as { allocatedStock?: unknown }).allocatedStock === 'number'
+              ? ((alt.product as { allocatedStock?: number }).allocatedStock ?? 0)
+              : 0
+
           return {
             key: String(alt?.id || `alt-${index}`),
             productId: relatedId || String(alt?.id || `alt-${index}`),
@@ -187,6 +208,7 @@ export default async function ProductDetailPage({ params }: { params: ProductDet
                 : null,
               locale,
             ),
+            isOutOfStock: typeof altStock === 'number' ? Math.max(0, altStock - altAllocated) <= 0 : false,
             isCurrent: false,
           }
         })
@@ -407,6 +429,7 @@ export default async function ProductDetailPage({ params }: { params: ProductDet
                 brand: resolveBrandLabel(product.brand, locale),
                 format: product.format || undefined,
                 coverImage: cartCoverImage,
+                isOutOfStock,
               }}
               locale={locale}
               fallbackLabel={product.title || t.shop.title}

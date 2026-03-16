@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
-import { getJourneyDictionary, isLocale } from '@/lib/i18n/core'
+import { CheckoutSuccessContent } from '@/frontend/page-domains/checkout/ui/CheckoutSuccessContent'
+import { isLocale } from '@/lib/i18n/core'
 import { buildSeoMetadata } from '@/lib/frontend/seo/metadata'
 
 export const generateMetadata = async ({
@@ -29,7 +29,7 @@ export default async function CheckoutSuccessPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>
-  searchParams?: Promise<{ order?: string }>
+  searchParams?: Promise<{ order?: string; attempt?: string; payment_intent?: string }>
 }) {
   const { locale } = await params
   const query = await searchParams
@@ -37,36 +37,17 @@ export default async function CheckoutSuccessPage({
   if (!isLocale(locale)) {
     notFound()
   }
-  const copy = getJourneyDictionary(locale).checkoutSuccess
-
   const order = typeof query?.order === 'string' ? query.order : ''
+  const attempt = typeof query?.attempt === 'string' ? query.attempt : ''
+  const paymentIntent =
+    typeof query?.payment_intent === 'string' ? query.payment_intent : ''
 
   return (
-    <main className="mx-auto w-full max-w-[760px] px-6 py-20">
-      <div className="rounded-2xl border border-stroke bg-white p-8 text-center shadow-sm">
-        <p className="typo-caption-upper text-text-muted">{copy.orderCompleted}</p>
-        <h1 className="mt-3 typo-h1 text-text-primary">{copy.thankYou}</h1>
-        <p className="mt-4 text-text-secondary">{copy.processingOrder}</p>
-        {order ? (
-          <p className="mt-2 text-sm text-text-muted">
-            {copy.orderReference}: <strong>{order}</strong>
-          </p>
-        ) : null}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href={`/${locale}/shop`}
-            className="rounded-full border border-stroke px-5 py-2 text-sm text-text-primary"
-          >
-            {copy.backToShop}
-          </Link>
-          <Link
-            href={`/${locale}`}
-            className="rounded-full bg-accent-cyan px-5 py-2 text-sm text-text-inverse"
-          >
-            {copy.goHome}
-          </Link>
-        </div>
-      </div>
-    </main>
+    <CheckoutSuccessContent
+      locale={locale}
+      initialOrder={order}
+      attemptId={attempt}
+      paymentIntentId={paymentIntent}
+    />
   )
 }

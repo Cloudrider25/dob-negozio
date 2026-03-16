@@ -37,6 +37,22 @@ export type OrderItem = {
   deliveryUpdatedAt: string | null
 }
 
+export type AccountWaitlistItem = {
+  id: string
+  productId: number
+  title: string
+  slug: string
+  brand: string
+  price: number
+  currency: string
+  format: string
+  coverImage: string | null
+  status: 'active' | 'notified' | 'cancelled'
+  availableNow: boolean
+  registeredAt: string | null
+  notifiedAt: string | null
+}
+
 export type ServiceBookingRow = {
   id: string
   orderServiceItemId: string

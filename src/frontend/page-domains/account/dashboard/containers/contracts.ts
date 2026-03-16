@@ -1,5 +1,11 @@
 import type { AestheticFolderDraft, AddressDraft, FormMessage, PhotonAddressSuggestion } from '../../forms/types'
-import type { AddressItem, AddressesView, OrderItem, ServiceBookingRow } from '../../types'
+import type {
+  AccountWaitlistItem,
+  AddressItem,
+  AddressesView,
+  OrderItem,
+  ServiceBookingRow,
+} from '../../types'
 
 export type OverviewContainerProps = {
   data: {
@@ -37,6 +43,7 @@ export type OrdersContainerProps = {
   productsStyles: Record<string, string>
   data: {
     ordersByDateDesc: OrderItem[]
+    waitlistRows: AccountWaitlistItem[]
     nextProductDeliveryRow: OrderItem | null
     latestPurchasedProductRow: OrderItem | null
     productsSortLabel: string

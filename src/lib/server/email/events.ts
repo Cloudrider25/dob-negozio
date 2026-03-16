@@ -43,6 +43,7 @@ export const EMAIL_EVENT_OPTIONS = [
   { label: 'Appointment Cancelled', value: 'appointment_cancelled' },
   { label: 'Shipment Created', value: 'shipment_created' },
   { label: 'Tracking Available', value: 'tracking_available' },
+  { label: 'Product Back In Stock Waitlist', value: 'product_waitlist_back_in_stock' },
   { label: 'Email Delivery Failed', value: 'email_delivery_failed' },
 ] as const
 
@@ -465,6 +466,36 @@ export const EMAIL_EVENT_META: Record<EmailEventKey, EmailEventMeta> = {
       shipping: { trackingNumber: 'TRK123', trackingUrl: 'https://tracking.example.com/TRK123' },
     },
     supportedChannels: ['customer', 'admin'],
+    supportedLocales: ['it', 'en', 'ru'],
+  },
+  product_waitlist_back_in_stock: {
+    type: 'system',
+    description: 'A product in the customer waitlist is available again.',
+    availableVariables: [
+      '{{customer.firstName}}',
+      '{{customer.lastName}}',
+      '{{customer.fullName}}',
+      '{{customer.email}}',
+      '{{product.title}}',
+      '{{product.slug}}',
+      '{{product.brand}}',
+      '{{product.url}}',
+    ],
+    testDataExample: {
+      customer: {
+        firstName: 'Alessia',
+        lastName: 'Verdi',
+        fullName: 'Alessia Verdi',
+        email: 'alessia@example.com',
+      },
+      product: {
+        title: 'Sinecell kit leggings cellulite refill',
+        slug: 'sinecell-kit-leggings-cellulite-refill',
+        brand: 'DOB Milano',
+        url: 'https://dobmilano.com/it/shop/sinecell-kit-leggings-cellulite-refill',
+      },
+    },
+    supportedChannels: ['customer'],
     supportedLocales: ['it', 'en', 'ru'],
   },
   email_delivery_failed: {

@@ -6,6 +6,14 @@ type PayloadErrorResponse = {
   }
 }
 
+export const resolveInternalRedirect = (redirect: string | null, locale: string) => {
+  if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
+    return `/${locale}`
+  }
+
+  return redirect
+}
+
 export const getAuthErrorMessage = (payload: unknown, fallback: string) => {
   if (payload && typeof payload === 'object') {
     const record = payload as PayloadErrorResponse

@@ -102,6 +102,8 @@ export interface Config {
     users: User;
     'email-templates': EmailTemplate;
     'shop-inventory-locks': ShopInventoryLock;
+    'checkout-attempts': CheckoutAttempt;
+    'product-waitlists': ProductWaitlist;
     'routine-template-step-products': RoutineTemplateStepProduct;
     'routine-steps': RoutineStep;
     'routine-step-rules': RoutineStepRule;
@@ -154,6 +156,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
     'shop-inventory-locks': ShopInventoryLocksSelect<false> | ShopInventoryLocksSelect<true>;
+    'checkout-attempts': CheckoutAttemptsSelect<false> | CheckoutAttemptsSelect<true>;
+    'product-waitlists': ProductWaitlistsSelect<false> | ProductWaitlistsSelect<true>;
     'routine-template-step-products': RoutineTemplateStepProductsSelect<false> | RoutineTemplateStepProductsSelect<true>;
     'routine-steps': RoutineStepsSelect<false> | RoutineStepsSelect<true>;
     'routine-step-rules': RoutineStepRulesSelect<false> | RoutineStepRulesSelect<true>;
@@ -1161,6 +1165,7 @@ export interface Product {
   textures?: (number | Texture)[] | null;
   productAreas?: (number | ProductArea)[] | null;
   timingProducts?: (number | TimingProduct)[] | null;
+  routineSteps?: (number | RoutineStep)[] | null;
   stock?: number | null;
   allocatedStock?: number | null;
   averageCost?: number | null;
@@ -1347,6 +1352,23 @@ export interface TimingProduct {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "routine-steps".
+ */
+export interface RoutineStep {
+  id: number;
+  name: string;
+  slug: string;
+  productArea: number | ProductArea;
+  description?: string | null;
+  stepOrderDefault?: number | null;
+  isOptionalDefault?: boolean | null;
+  isSystem?: boolean | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "promotions".
  */
 export interface Promotion {
@@ -1416,23 +1438,6 @@ export interface RoutineTemplateStep {
   routineStep: number | RoutineStep;
   stepOrder: number;
   required?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "routine-steps".
- */
-export interface RoutineStep {
-  id: number;
-  name: string;
-  slug: string;
-  productArea: number | ProductArea;
-  description?: string | null;
-  stepOrderDefault?: number | null;
-  isOptionalDefault?: boolean | null;
-  isSystem?: boolean | null;
-  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1731,6 +1736,7 @@ export interface EmailTemplate {
     | 'appointment_cancelled'
     | 'shipment_created'
     | 'tracking_available'
+    | 'product_waitlist_back_in_stock'
     | 'email_delivery_failed';
   locale: 'it' | 'en' | 'ru';
   channel: 'customer' | 'admin' | 'internal';
@@ -1770,6 +1776,110 @@ export interface ShopInventoryLock {
   product: number | Product;
   lockToken: string;
   expiresAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "checkout-attempts".
+ */
+export interface CheckoutAttempt {
+  id: number;
+  checkoutFingerprint: string;
+  cartSignature: string;
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'expired' | 'converted';
+  paymentProvider: string;
+  paymentReference?: string | null;
+  locale: 'it' | 'en' | 'ru';
+  expiresAt?: string | null;
+  customer?: (number | null) | User;
+  customerEmail: string;
+  customerPhone?: string | null;
+  customerFirstName?: string | null;
+  customerLastName?: string | null;
+  shippingAddress?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  productFulfillmentMode: 'shipping' | 'pickup' | 'none';
+  appointmentMode: 'requested_slot' | 'contact_later' | 'none';
+  appointmentRequestedDate?: string | null;
+  appointmentRequestedTime?: string | null;
+  subtotal?: number | null;
+  shippingAmount?: number | null;
+  discountAmount?: number | null;
+  commissionAmount?: number | null;
+  total?: number | null;
+  promoCode?: (number | null) | PromoCode;
+  partner?: (number | null) | User;
+  promoCodeValue?: string | null;
+  promoCodeSnapshot?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  itemsSnapshot:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  productItems?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  serviceItems?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  inventoryReserved?: boolean | null;
+  inventoryReleased?: boolean | null;
+  order?: (number | null) | Order;
+  convertedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-waitlists".
+ */
+export interface ProductWaitlist {
+  id: number;
+  customer: number | User;
+  product: number | Product;
+  locale: 'it' | 'en' | 'ru';
+  status: 'active' | 'notified' | 'cancelled';
+  customerEmail: string;
+  customerFirstName?: string | null;
+  customerLastName?: string | null;
+  productTitle: string;
+  productSlug: string;
+  productBrand?: string | null;
+  notifiedAt?: string | null;
+  lastAvailabilityAt?: string | null;
+  notificationError?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1862,6 +1972,7 @@ export interface ShopWebhookEvent {
   provider: string;
   type: string;
   order?: (number | null) | Order;
+  checkoutAttempt?: (number | null) | CheckoutAttempt;
   processed: boolean;
   processedAt?: string | null;
   payload?:
@@ -1931,6 +2042,7 @@ export interface EmailDeliveryEvent {
     | 'appointment_cancelled'
     | 'shipment_created'
     | 'tracking_available'
+    | 'product_waitlist_back_in_stock'
     | 'email_delivery_failed';
   channel: 'customer' | 'admin' | 'internal';
   locale: 'it' | 'en' | 'ru';
@@ -2112,6 +2224,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'shop-inventory-locks';
         value: number | ShopInventoryLock;
+      } | null)
+    | ({
+        relationTo: 'checkout-attempts';
+        value: number | CheckoutAttempt;
+      } | null)
+    | ({
+        relationTo: 'product-waitlists';
+        value: number | ProductWaitlist;
       } | null)
     | ({
         relationTo: 'routine-template-step-products';
@@ -2746,6 +2866,7 @@ export interface ProductsSelect<T extends boolean = true> {
   textures?: T;
   productAreas?: T;
   timingProducts?: T;
+  routineSteps?: T;
   stock?: T;
   allocatedStock?: T;
   averageCost?: T;
@@ -3339,6 +3460,68 @@ export interface ShopInventoryLocksSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "checkout-attempts_select".
+ */
+export interface CheckoutAttemptsSelect<T extends boolean = true> {
+  checkoutFingerprint?: T;
+  cartSignature?: T;
+  status?: T;
+  paymentProvider?: T;
+  paymentReference?: T;
+  locale?: T;
+  expiresAt?: T;
+  customer?: T;
+  customerEmail?: T;
+  customerPhone?: T;
+  customerFirstName?: T;
+  customerLastName?: T;
+  shippingAddress?: T;
+  productFulfillmentMode?: T;
+  appointmentMode?: T;
+  appointmentRequestedDate?: T;
+  appointmentRequestedTime?: T;
+  subtotal?: T;
+  shippingAmount?: T;
+  discountAmount?: T;
+  commissionAmount?: T;
+  total?: T;
+  promoCode?: T;
+  partner?: T;
+  promoCodeValue?: T;
+  promoCodeSnapshot?: T;
+  itemsSnapshot?: T;
+  productItems?: T;
+  serviceItems?: T;
+  inventoryReserved?: T;
+  inventoryReleased?: T;
+  order?: T;
+  convertedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-waitlists_select".
+ */
+export interface ProductWaitlistsSelect<T extends boolean = true> {
+  customer?: T;
+  product?: T;
+  locale?: T;
+  status?: T;
+  customerEmail?: T;
+  customerFirstName?: T;
+  customerLastName?: T;
+  productTitle?: T;
+  productSlug?: T;
+  productBrand?: T;
+  notifiedAt?: T;
+  lastAvailabilityAt?: T;
+  notificationError?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "routine-template-step-products_select".
  */
 export interface RoutineTemplateStepProductsSelect<T extends boolean = true> {
@@ -3475,6 +3658,7 @@ export interface ShopWebhookEventsSelect<T extends boolean = true> {
   provider?: T;
   type?: T;
   order?: T;
+  checkoutAttempt?: T;
   processed?: T;
   processedAt?: T;
   payload?: T;
