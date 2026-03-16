@@ -267,6 +267,7 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     paymentSession,
     submitting,
     createPaymentSession,
+    getLastCreatePaymentSessionError,
     expressPrefetchTried,
     expressPrefetchError,
     onExpressRetry,
@@ -504,16 +505,39 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
       return
     }
 
+    const failureMessage = getLastCreatePaymentSessionError()
+    const isCheckoutStateError =
+      failureMessage === copy.messages.completeRequiredFields ||
+      failureMessage === copy.messages.cartEmptyError ||
+      failureMessage === copy.messages.unavailableProducts ||
+      failureMessage === copy.messages.insufficientAvailability ||
+      failureMessage === copy.messages.checkoutResponseInvalid ||
+      failureMessage === copy.messages.checkoutFailed
+
     setAppliedDiscountCode('')
+
+    if (failureMessage && !isCheckoutStateError) {
+      setDiscountCodeError(failureMessage)
+      setError(null)
+      return
+    }
+
     setDiscountCodeError('Codice non valido')
-    setError(null)
   }
 
-  const onRemoveDiscountCode = () => {
+  const onRemoveDiscountCode = async () => {
     setError(null)
     setDiscountCodeError(null)
     setDiscountCodeInput('')
     setAppliedDiscountCode('')
+
+    if (activeStep !== 'payment') return
+    if (!paymentSession) return
+
+    await createPaymentSession({
+      silent: false,
+      overrideDiscountCode: '',
+    })
   }
 
   const onDiscountCodeInputChange = (value: string) => {

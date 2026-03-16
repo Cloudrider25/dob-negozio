@@ -96,6 +96,7 @@ export const useCheckoutPaymentSession = ({
   const [expressPrefetchError, setExpressPrefetchError] = useState<string | null>(null)
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark')
   const inFlightRef = useRef(false)
+  const lastCreatePaymentSessionErrorRef = useRef<string | null>(null)
 
   const createPaymentSession = useCallback(
     async ({
@@ -107,12 +108,18 @@ export const useCheckoutPaymentSession = ({
       allowIncompleteForExpress?: boolean
       overrideDiscountCode?: string | null
     } = {}): Promise<PaymentSession | null> => {
-      if (inFlightRef.current || submitting || prefetching) return null
+      lastCreatePaymentSessionErrorRef.current = null
+
+      if (inFlightRef.current || submitting || prefetching) {
+        return null
+      }
       if (!allowIncompleteForExpress && !isFormComplete) {
+        lastCreatePaymentSessionErrorRef.current = messages.completeRequiredFields
         if (!silent) setError(messages.completeRequiredFields)
         return null
       }
       if (!hasCheckoutEligibleItems(items)) {
+        lastCreatePaymentSessionErrorRef.current = messages.cartEmptyError
         if (!silent) setError(messages.cartEmptyError)
         return null
       }
@@ -141,6 +148,7 @@ export const useCheckoutPaymentSession = ({
 
         setPaymentSession(session)
         setExpressPrefetchError(null)
+        lastCreatePaymentSessionErrorRef.current = null
         return session
       } catch (err) {
         let message = messages.checkoutFailed
@@ -163,6 +171,7 @@ export const useCheckoutPaymentSession = ({
           message = err.message
         }
 
+        lastCreatePaymentSessionErrorRef.current = message
         if (silent) setExpressPrefetchError(message)
         if (!silent) setError(message)
         return null
@@ -322,6 +331,7 @@ export const useCheckoutPaymentSession = ({
     paymentSession,
     submitting,
     createPaymentSession,
+    getLastCreatePaymentSessionError: () => lastCreatePaymentSessionErrorRef.current,
     expressPrefetchTried,
     expressPrefetchError,
     onExpressRetry,

@@ -102,7 +102,7 @@ export function CheckoutSummaryPanel({
         <div className={`${styles.summaryMeta} typo-small`}>
           Codice applicato: {appliedDiscountCode}{' '}
           <button type="button" className={cn(styles.applyButton, 'typo-body')} onClick={onRemoveDiscountCode}>
-            x
+            ×
           </button>
         </div>
       ) : null}
