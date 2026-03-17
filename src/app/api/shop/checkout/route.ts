@@ -1445,7 +1445,6 @@ export async function POST(request: Request) {
           payload,
           locale,
           eventKey: 'order_created',
-          orderID: createdOrder.id,
           orderNumber: createdOrder.orderNumber,
           customerEmail: email,
           customerFirstName: firstName,
@@ -1733,11 +1732,7 @@ export async function POST(request: Request) {
           try {
             await sendOrderPaidNotifications({
               payload,
-<<<<<<< HEAD
-              orderID: createdOrder.id,
-=======
               locale,
->>>>>>> 9c10c51... Fix checkout attempt reuse and order email templates
               orderNumber: createdOrder.orderNumber,
               customerEmail: email,
               customerFirstName: firstName,
