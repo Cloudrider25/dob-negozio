@@ -153,7 +153,6 @@ export async function POST(request: Request) {
       await sendShipmentNotifications({
         payload,
         eventKey: 'tracking_available',
-        orderID: order.id,
         orderNumber: typeof order.orderNumber === 'string' ? order.orderNumber : `#${String(order.id)}`,
         customerEmail: typeof order.customerEmail === 'string' ? order.customerEmail : '',
         customerFirstName:
