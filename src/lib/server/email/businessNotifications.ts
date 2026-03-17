@@ -27,6 +27,7 @@ type AdminOrderNotificationInput = {
   payload: NotificationPayload
   req?: PayloadRequest
   eventKey?: 'order_created' | 'order_paid'
+  locale?: string | null
   orderNumber: string
   customerEmail: string
   customerFirstName?: string | null
@@ -174,6 +175,108 @@ const getFullName = (firstName?: string | null, lastName?: string | null) =>
 const getAdminEmail = () =>
   normalizeText(process.env.SHOP_APPOINTMENT_ADMIN_EMAIL) || normalizeText(process.env.ADMIN_EMAIL)
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
+const buildOrderItemsSummary = async ({
+  payload,
+  req,
+  orderNumber,
+  locale,
+}: {
+  payload: NotificationPayload
+  req?: PayloadRequest
+  orderNumber: string
+  locale: 'it' | 'en' | 'ru'
+}) => {
+  const client = req?.payload ?? payload
+  const orderResult = await client.find({
+    collection: 'orders',
+    overrideAccess: true,
+    ...(req ? { req } : {}),
+    locale,
+    depth: 0,
+    limit: 1,
+    where: {
+      orderNumber: { equals: orderNumber },
+    },
+  })
+
+  const order = orderResult.docs[0]
+  if (!order) {
+    return { itemsText: '', itemsHtml: '' }
+  }
+
+  const [productItems, serviceItems] = await Promise.all([
+    client.find({
+      collection: 'order-items',
+      overrideAccess: true,
+      ...(req ? { req } : {}),
+      locale,
+      depth: 0,
+      limit: 100,
+      where: {
+        order: { equals: order.id },
+      },
+      select: {
+        productTitle: true,
+        quantity: true,
+        lineTotal: true,
+      },
+    }),
+    client.find({
+      collection: 'order-service-items',
+      overrideAccess: true,
+      ...(req ? { req } : {}),
+      locale,
+      depth: 0,
+      limit: 100,
+      where: {
+        order: { equals: order.id },
+      },
+      select: {
+        serviceTitle: true,
+        quantity: true,
+        lineTotal: true,
+      },
+    }),
+  ])
+
+  const lines = [
+    ...productItems.docs.map((item) => ({
+      title: normalizeText(item.productTitle) || 'Prodotto',
+      quantity: typeof item.quantity === 'number' ? item.quantity : 0,
+      total: typeof item.lineTotal === 'number' ? item.lineTotal : 0,
+    })),
+    ...serviceItems.docs.map((item) => ({
+      title: normalizeText(item.serviceTitle) || 'Servizio',
+      quantity: typeof item.quantity === 'number' ? item.quantity : 0,
+      total: typeof item.lineTotal === 'number' ? item.lineTotal : 0,
+    })),
+  ].filter((item) => item.quantity > 0)
+
+  if (lines.length === 0) {
+    return { itemsText: '', itemsHtml: '' }
+  }
+
+  return {
+    itemsText: lines
+      .map((item) => `- ${item.title} x${item.quantity} · ${formatCurrency(item.total)}`)
+      .join('\n'),
+    itemsHtml: `<ul style="margin:0; padding-left:20px;">${lines
+      .map(
+        (item) =>
+          `<li style="margin:0 0 8px 0;">${escapeHtml(item.title)} x${item.quantity} · ${escapeHtml(formatCurrency(item.total))}</li>`,
+      )
+      .join('')}</ul>`,
+  }
+}
+
 export const sendConsultationLeadNotifications = async ({
   payload,
   req,
@@ -297,6 +400,7 @@ export const sendOrderPaidNotifications = async ({
   payload,
   req,
   eventKey = 'order_paid',
+  locale,
   orderNumber,
   customerEmail,
   customerFirstName,
@@ -310,6 +414,15 @@ export const sendOrderPaidNotifications = async ({
   attachments,
 }: AdminOrderNotificationInput) => {
   const adminEmail = getAdminEmail()
+  const resolvedLocale = resolvePreferredLocale(locale)
+  const origin = getPublicSiteOrigin(req?.headers)
+  const accountOrdersUrl = `${origin}/${resolvedLocale}${toPublicSeoPath(resolvedLocale, '/account')}?section=orders`
+  const { itemsText, itemsHtml } = await buildOrderItemsSummary({
+    payload,
+    req,
+    orderNumber,
+    locale: resolvedLocale,
+  })
 
   const customerName =
     [customerFirstName, customerLastName].map((value) => normalizeText(value)).filter(Boolean).join(' ') || 'Cliente'
@@ -332,6 +445,11 @@ export const sendOrderPaidNotifications = async ({
       total: formatCurrency(total),
       cartMode: normalizeText(cartMode),
       productFulfillmentMode: normalizeText(productFulfillmentMode),
+      itemsText,
+      itemsHtml,
+    },
+    account: {
+      ordersUrl: accountOrdersUrl,
     },
     appointment: {
       mode: normalizeText(appointmentMode),

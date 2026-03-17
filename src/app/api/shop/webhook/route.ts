@@ -367,6 +367,7 @@ export async function POST(request: Request) {
 
               await sendOrderPaidNotifications({
                 payload,
+                locale,
                 orderNumber: order.orderNumber,
                 customerEmail: order.customerEmail,
                 customerFirstName: order.customerFirstName,

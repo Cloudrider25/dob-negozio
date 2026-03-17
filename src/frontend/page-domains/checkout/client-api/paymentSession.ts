@@ -16,6 +16,7 @@ export const createPaymentElementSession = async ({
   items,
   shippingOptionID,
   discountCode,
+  quoteOnly,
   productFulfillmentMode,
   serviceAppointmentMode,
   serviceRequestedDate,
@@ -26,6 +27,7 @@ export const createPaymentElementSession = async ({
   items: CartItem[]
   shippingOptionID: string | null
   discountCode?: string | null
+  quoteOnly?: boolean
   productFulfillmentMode: 'shipping' | 'pickup' | 'none'
   serviceAppointmentMode: 'requested_slot' | 'contact_later'
   serviceRequestedDate: string
@@ -37,6 +39,7 @@ export const createPaymentElementSession = async ({
     items,
     shippingOptionID,
     discountCode,
+    quoteOnly,
     productFulfillmentMode,
     serviceAppointmentMode,
     serviceRequestedDate,
@@ -60,6 +63,8 @@ export const createPaymentElementSession = async ({
     attemptId?: string | number
     orderNumber?: string
     orderId?: string | number
+    requiresPayment?: boolean
+    quoteOnly?: boolean
     quote?: {
       subtotal?: number
       shippingAmount?: number
@@ -88,6 +93,60 @@ export const createPaymentElementSession = async ({
     throw error
   }
 
+  if (data.requiresPayment === false) {
+    return {
+      requiresPayment: false,
+      attemptId: data.attemptId,
+      orderNumber: data.orderNumber,
+      orderId: data.orderId,
+      quote:
+        data.quote &&
+        typeof data.quote.subtotal === 'number' &&
+        typeof data.quote.shippingAmount === 'number' &&
+        typeof data.quote.discountAmount === 'number' &&
+        typeof data.quote.commissionAmount === 'number' &&
+        typeof data.quote.total === 'number' &&
+        typeof data.quote.currency === 'string'
+          ? {
+              subtotal: data.quote.subtotal,
+              shippingAmount: data.quote.shippingAmount,
+              discountAmount: data.quote.discountAmount,
+              commissionAmount: data.quote.commissionAmount,
+              total: data.quote.total,
+              currency: data.quote.currency,
+            }
+          : undefined,
+      totalAmount: typeof data.total === 'number' ? data.total : undefined,
+      discountAmount: typeof data.discountAmount === 'number' ? data.discountAmount : undefined,
+      currency: typeof data.currency === 'string' ? data.currency : undefined,
+    }
+  }
+
+  if (data.quoteOnly === true && data.quote) {
+    return {
+      quoteOnly: true,
+      quote:
+        typeof data.quote.subtotal === 'number' &&
+        typeof data.quote.shippingAmount === 'number' &&
+        typeof data.quote.discountAmount === 'number' &&
+        typeof data.quote.commissionAmount === 'number' &&
+        typeof data.quote.total === 'number' &&
+        typeof data.quote.currency === 'string'
+          ? {
+              subtotal: data.quote.subtotal,
+              shippingAmount: data.quote.shippingAmount,
+              discountAmount: data.quote.discountAmount,
+              commissionAmount: data.quote.commissionAmount,
+              total: data.quote.total,
+              currency: data.quote.currency,
+            }
+          : undefined,
+      totalAmount: typeof data.total === 'number' ? data.total : undefined,
+      discountAmount: typeof data.discountAmount === 'number' ? data.discountAmount : undefined,
+      currency: typeof data.currency === 'string' ? data.currency : undefined,
+    }
+  }
+
   if (
     data.checkoutMode === 'payment_element' &&
     typeof data.paymentIntentClientSecret === 'string' &&
@@ -96,6 +155,7 @@ export const createPaymentElementSession = async ({
     data.stripePublishableKey.length > 0
   ) {
     return {
+      requiresPayment: true,
       clientSecret: data.paymentIntentClientSecret,
       publishableKey: data.stripePublishableKey,
       attemptId: data.attemptId,
