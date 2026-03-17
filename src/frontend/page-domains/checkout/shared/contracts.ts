@@ -3,8 +3,10 @@ import type { StripeElementLocale } from '@stripe/stripe-js'
 import { getJourneyDictionary } from '@/lib/i18n/core'
 
 export type PaymentSession = {
-  clientSecret: string
-  publishableKey: string
+  clientSecret?: string
+  publishableKey?: string
+  requiresPayment?: boolean
+  quoteOnly?: boolean
   attemptId?: string | number
   orderNumber?: string
   orderId?: string | number

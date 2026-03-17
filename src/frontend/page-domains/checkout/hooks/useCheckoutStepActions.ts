@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react'
 
+import type { PaymentSession } from '@/frontend/page-domains/checkout/shared/contracts'
 import type { CheckoutStep } from '@/frontend/page-domains/checkout/shared/contracts'
 import { resolveCheckoutStepTransition } from '@/frontend/page-domains/checkout/shared/step-machine'
 
@@ -24,8 +25,8 @@ export const useCheckoutStepActions = ({
   isInformationComplete: boolean
   itemsCount: number
   submitting: boolean
-  paymentSession: unknown
-  createPaymentSession: () => Promise<unknown>
+  paymentSession: PaymentSession | null
+  createPaymentSession: () => Promise<PaymentSession | null>
   setError: (message: string | null) => void
   completeRequiredFieldsMessage: string
   cartEmptyErrorMessage: string
@@ -114,7 +115,7 @@ export const useCheckoutStepActions = ({
     setError(null)
     setActiveStep(result.nextStep)
 
-    if (result.nextStep === 'payment' && !paymentSession) {
+    if (result.nextStep === 'payment' && (!paymentSession || paymentSession.quoteOnly === true)) {
       void createPaymentSession()
     }
   }, [
