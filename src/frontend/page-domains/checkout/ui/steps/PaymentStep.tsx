@@ -1,5 +1,6 @@
 import { Elements } from '@stripe/react-stripe-js'
 import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js'
+import { useState } from 'react'
 
 import { cn } from '@/lib/shared/ui/cn'
 import type {
@@ -9,6 +10,7 @@ import type {
   ShippingOption,
 } from '@/frontend/page-domains/checkout/shared/contracts'
 import { formatPrice } from '@/frontend/page-domains/checkout/shared/format'
+import { Button } from '@/frontend/components/ui/primitives/button'
 import { PaymentElementForm } from '@/frontend/page-domains/checkout/ui/payment/PaymentElementForm'
 import styles from '@/frontend/page-domains/checkout/page/CheckoutClient.module.css'
 
@@ -63,6 +65,20 @@ export function PaymentStep({
   onPaymentError,
   onPaymentComplete,
 }: PaymentStepProps) {
+  const [completingFreeOrder, setCompletingFreeOrder] = useState(false)
+  const isLoadingFinalSession = submitting && (!paymentSession || paymentSession.quoteOnly === true)
+
+  const handleCompleteFreeOrder = async () => {
+    if (completingFreeOrder) return
+
+    setCompletingFreeOrder(true)
+    try {
+      await onPaymentComplete()
+    } finally {
+      setCompletingFreeOrder(false)
+    }
+  }
+
   return (
     <>
       <section className={styles.shippingSummaryCard}>
@@ -160,12 +176,39 @@ export function PaymentStep({
         <p className={cn(styles.paymentDescription, 'typo-body')}>
           {copy.messages.secureTransactions}
         </p>
-        {!paymentSession && submitting ? (
+        {isLoadingFinalSession ? (
           <div className={cn(styles.paymentLoading, 'typo-body')}>
             {copy.messages.loadingPaymentElement}
           </div>
         ) : null}
-        {paymentSession && stripePromise && stripeOptions ? (
+        {paymentSession?.requiresPayment === false ? (
+          <>
+            <div className={cn(styles.paymentLoading, 'typo-body')}>
+              Ordine gratuito rilevato. Nessun pagamento richiesto.
+            </div>
+            <div className={styles.actionsRow}>
+              <button
+                type="button"
+                className={cn(styles.returnLinkButton, 'typo-body')}
+                onClick={onBackToPreviousStep}
+                disabled={completingFreeOrder}
+              >
+                <span className={cn(styles.returnIcon, 'typo-body-lg')}>‹</span>
+                {backLabel}
+              </button>
+              <Button
+                kind="main"
+                size="md"
+                type="button"
+                onClick={handleCompleteFreeOrder}
+                disabled={completingFreeOrder}
+              >
+                {completingFreeOrder ? copy.actions.processing : 'Completa ordine'}
+              </Button>
+            </div>
+          </>
+        ) : null}
+        {paymentSession && paymentSession.requiresPayment !== false && stripePromise && stripeOptions ? (
           <Elements stripe={stripePromise} options={stripeOptions}>
             <PaymentElementForm
               locale={locale}
@@ -179,7 +222,7 @@ export function PaymentStep({
             />
           </Elements>
         ) : null}
-        {!paymentSession && !submitting && error ? (
+        {(!paymentSession || paymentSession.quoteOnly === true) && !submitting && error ? (
           <div className={cn(styles.paymentLoadingError, 'typo-body')}>
             {copy.messages.paymentElementLoadErrorPrefix} {error}
           </div>

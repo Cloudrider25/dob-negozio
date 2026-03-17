@@ -32,7 +32,11 @@ type AdminOrderNotificationInput = {
   payload: NotificationPayload
   req?: PayloadRequest
   eventKey?: 'order_created' | 'order_paid'
+<<<<<<< HEAD
   orderID?: number | string | null
+=======
+  locale?: string | null
+>>>>>>> 9c10c51... Fix checkout attempt reuse and order email templates
   orderNumber: string
   customerEmail: string
   customerFirstName?: string | null
@@ -190,6 +194,7 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
 
+<<<<<<< HEAD
 const resolveCartModeLabel = (value: string | null | undefined) => {
   switch (normalizeText(value)) {
     case 'products_only':
@@ -421,6 +426,99 @@ const buildOrderEmailArtifacts = async ({
     appointmentSummary,
     itemsHtml: buildOrderItemsHtml(rows),
     itemsText: buildOrderItemsText(rows),
+=======
+const buildOrderItemsSummary = async ({
+  payload,
+  req,
+  orderNumber,
+  locale,
+}: {
+  payload: NotificationPayload
+  req?: PayloadRequest
+  orderNumber: string
+  locale: 'it' | 'en' | 'ru'
+}) => {
+  const client = req?.payload ?? payload
+  const orderResult = await client.find({
+    collection: 'orders',
+    overrideAccess: true,
+    ...(req ? { req } : {}),
+    locale,
+    depth: 0,
+    limit: 1,
+    where: {
+      orderNumber: { equals: orderNumber },
+    },
+  })
+
+  const order = orderResult.docs[0]
+  if (!order) {
+    return { itemsText: '', itemsHtml: '' }
+  }
+
+  const [productItems, serviceItems] = await Promise.all([
+    client.find({
+      collection: 'order-items',
+      overrideAccess: true,
+      ...(req ? { req } : {}),
+      locale,
+      depth: 0,
+      limit: 100,
+      where: {
+        order: { equals: order.id },
+      },
+      select: {
+        productTitle: true,
+        quantity: true,
+        lineTotal: true,
+      },
+    }),
+    client.find({
+      collection: 'order-service-items',
+      overrideAccess: true,
+      ...(req ? { req } : {}),
+      locale,
+      depth: 0,
+      limit: 100,
+      where: {
+        order: { equals: order.id },
+      },
+      select: {
+        serviceTitle: true,
+        quantity: true,
+        lineTotal: true,
+      },
+    }),
+  ])
+
+  const lines = [
+    ...productItems.docs.map((item) => ({
+      title: normalizeText(item.productTitle) || 'Prodotto',
+      quantity: typeof item.quantity === 'number' ? item.quantity : 0,
+      total: typeof item.lineTotal === 'number' ? item.lineTotal : 0,
+    })),
+    ...serviceItems.docs.map((item) => ({
+      title: normalizeText(item.serviceTitle) || 'Servizio',
+      quantity: typeof item.quantity === 'number' ? item.quantity : 0,
+      total: typeof item.lineTotal === 'number' ? item.lineTotal : 0,
+    })),
+  ].filter((item) => item.quantity > 0)
+
+  if (lines.length === 0) {
+    return { itemsText: '', itemsHtml: '' }
+  }
+
+  return {
+    itemsText: lines
+      .map((item) => `- ${item.title} x${item.quantity} · ${formatCurrency(item.total)}`)
+      .join('\n'),
+    itemsHtml: `<ul style="margin:0; padding-left:20px;">${lines
+      .map(
+        (item) =>
+          `<li style="margin:0 0 8px 0;">${escapeHtml(item.title)} x${item.quantity} · ${escapeHtml(formatCurrency(item.total))}</li>`,
+      )
+      .join('')}</ul>`,
+>>>>>>> 9c10c51... Fix checkout attempt reuse and order email templates
   }
 }
 
@@ -547,7 +645,11 @@ export const sendOrderPaidNotifications = async ({
   payload,
   req,
   eventKey = 'order_paid',
+<<<<<<< HEAD
   orderID,
+=======
+  locale,
+>>>>>>> 9c10c51... Fix checkout attempt reuse and order email templates
   orderNumber,
   customerEmail,
   customerFirstName,
@@ -561,6 +663,15 @@ export const sendOrderPaidNotifications = async ({
   attachments,
 }: AdminOrderNotificationInput) => {
   const adminEmail = getAdminEmail()
+  const resolvedLocale = resolvePreferredLocale(locale)
+  const origin = getPublicSiteOrigin(req?.headers)
+  const accountOrdersUrl = `${origin}/${resolvedLocale}${toPublicSeoPath(resolvedLocale, '/account')}?section=orders`
+  const { itemsText, itemsHtml } = await buildOrderItemsSummary({
+    payload,
+    req,
+    orderNumber,
+    locale: resolvedLocale,
+  })
 
   const customerName =
     [customerFirstName, customerLastName].map((value) => normalizeText(value)).filter(Boolean).join(' ') || 'Cliente'
@@ -595,9 +706,17 @@ export const sendOrderPaidNotifications = async ({
       cartMode: normalizeText(cartMode),
       cartModeLabel: orderArtifacts.cartModeLabel,
       productFulfillmentMode: normalizeText(productFulfillmentMode),
+<<<<<<< HEAD
       productFulfillmentModeLabel: orderArtifacts.productFulfillmentModeLabel,
       itemsHtml: orderArtifacts.itemsHtml,
       itemsText: orderArtifacts.itemsText,
+=======
+      itemsText,
+      itemsHtml,
+    },
+    account: {
+      ordersUrl: accountOrdersUrl,
+>>>>>>> 9c10c51... Fix checkout attempt reuse and order email templates
     },
     appointment: {
       mode: normalizeText(appointmentMode),

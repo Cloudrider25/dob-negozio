@@ -101,19 +101,23 @@ export const useCheckoutPaymentSession = ({
   const createPaymentSession = useCallback(
     async ({
       silent = false,
+      allowIncomplete = false,
       allowIncompleteForExpress = false,
       overrideDiscountCode,
+      quoteOnly = false,
     }: {
       silent?: boolean
+      allowIncomplete?: boolean
       allowIncompleteForExpress?: boolean
       overrideDiscountCode?: string | null
+      quoteOnly?: boolean
     } = {}): Promise<PaymentSession | null> => {
       lastCreatePaymentSessionErrorRef.current = null
 
       if (inFlightRef.current || submitting || prefetching) {
         return null
       }
-      if (!allowIncompleteForExpress && !isFormComplete) {
+      if (!allowIncomplete && !allowIncompleteForExpress && !isFormComplete) {
         lastCreatePaymentSessionErrorRef.current = messages.completeRequiredFields
         if (!silent) setError(messages.completeRequiredFields)
         return null
@@ -140,6 +144,7 @@ export const useCheckoutPaymentSession = ({
           items,
           shippingOptionID: selectedShippingOptionID,
           discountCode: overrideDiscountCode ?? discountCode,
+          quoteOnly,
           productFulfillmentMode,
           serviceAppointmentMode,
           serviceRequestedDate,
@@ -214,7 +219,6 @@ export const useCheckoutPaymentSession = ({
   }, [
     cartFingerprint,
     locale,
-    discountCode,
     productFulfillmentMode,
     serviceAppointmentMode,
     serviceRequestedDate,
