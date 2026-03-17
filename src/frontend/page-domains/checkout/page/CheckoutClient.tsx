@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ChevronDownIcon } from '@heroicons/react/24/outline'
 
@@ -425,10 +425,10 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     ? copy.actions.returnToAppointment
     : copy.actions.returnToShipping
 
-  const onPaymentComplete = async (paymentIntentId?: string) => {
+  const onPaymentComplete = useCallback(async (paymentIntentId?: string) => {
     let resolvedOrderCode = paymentSession?.orderNumber || String(paymentSession?.orderId || '')
 
-    if ((paymentSession?.attemptId || paymentSession?.orderId) && paymentIntentId) {
+    if (paymentSession?.attemptId || paymentSession?.orderId) {
       try {
         const response = await fetch('/api/shop/checkout/confirm-payment', {
           method: 'POST',
@@ -482,7 +482,14 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
       if (paymentIntentId) params.set('payment_intent', paymentIntentId)
     }
     router.push(`/${resolvedLocale}/checkout/success${params.toString() ? `?${params.toString()}` : ''}`)
-  }
+  }, [
+    paymentSession,
+    resolvedLocale,
+    router,
+    displayCurrency,
+    totalAmount,
+    items,
+  ])
 
   const onApplyDiscountCode = async () => {
     const normalized = discountCodeInput.trim().toUpperCase()
@@ -496,6 +503,8 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
 
     const session = await createPaymentSession({
       silent: false,
+      allowIncomplete: true,
+      quoteOnly: true,
       overrideDiscountCode: normalized,
     })
 
@@ -515,6 +524,10 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
       failureMessage === copy.messages.checkoutFailed
 
     setAppliedDiscountCode('')
+
+    if (failureMessage && isCheckoutStateError) {
+      return
+    }
 
     if (failureMessage && !isCheckoutStateError) {
       setDiscountCodeError(failureMessage)
@@ -545,6 +558,51 @@ export function CheckoutClient({ notice, locale }: { notice?: string | null; loc
     setDiscountCodeInput(value)
   }
 
+  useEffect(() => {
+    if (!appliedDiscountCode) return
+    if (!items.length) return
+    if (activeStep === 'payment') return
+
+    void createPaymentSession({
+      silent: true,
+      allowIncomplete: true,
+      quoteOnly: true,
+      overrideDiscountCode: appliedDiscountCode,
+    })
+  }, [
+    activeStep,
+    appliedDiscountCode,
+    cartFingerprint,
+    createPaymentSession,
+    items.length,
+    productFulfillmentMode,
+    selectedShippingOptionID,
+    serviceAppointmentMode,
+    serviceRequestedDate,
+    serviceRequestedTime,
+  ])
+
+  useEffect(() => {
+    if (activeStep !== 'payment') return
+    if (!isCheckoutReady) return
+    if (paymentSession && paymentSession.quoteOnly !== true) return
+
+    let cancelled = false
+
+    const ensureFinalSession = async () => {
+      const session = await createPaymentSession({
+        silent: false,
+      })
+
+      if (cancelled || !session) return
+    }
+
+    void ensureFinalSession()
+
+    return () => {
+      cancelled = true
+    }
+  }, [activeStep, createPaymentSession, isCheckoutReady, paymentSession])
 
   return (
     <div className={styles.page}>
