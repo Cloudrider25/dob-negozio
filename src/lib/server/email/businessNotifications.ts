@@ -1,11 +1,6 @@
 import type { Payload } from 'payload'
 import { toPublicSeoPath } from '@/lib/frontend/seo/routes'
 import { getPublicSiteOrigin } from '@/lib/server/url/getPublicSiteOrigin'
-import type {
-  Order,
-  OrderItem as PayloadOrderItem,
-  OrderServiceItem as PayloadOrderServiceItem,
-} from '@/payload/generated/payload-types'
 
 import type { PayloadRequest } from 'payload'
 
@@ -32,7 +27,7 @@ type AdminOrderNotificationInput = {
   payload: NotificationPayload
   req?: PayloadRequest
   eventKey?: 'order_created' | 'order_paid'
-  orderID?: number | string | null
+  locale?: string | null
   orderNumber: string
   customerEmail: string
   customerFirstName?: string | null
@@ -111,7 +106,6 @@ type OrderLifecycleNotificationInput = {
   payload: NotificationPayload
   req?: PayloadRequest
   eventKey: 'order_payment_failed' | 'order_cancelled' | 'order_refunded'
-  orderID?: number | string | null
   orderNumber: string
   customerEmail: string
   customerFirstName?: string | null
@@ -124,7 +118,6 @@ type ShipmentNotificationInput = {
   payload: NotificationPayload
   req?: PayloadRequest
   eventKey: 'shipment_created' | 'tracking_available'
-  orderID?: number | string | null
   orderNumber: string
   customerEmail: string
   customerFirstName?: string | null
@@ -190,237 +183,97 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
 
-const resolveCartModeLabel = (value: string | null | undefined) => {
-  switch (normalizeText(value)) {
-    case 'products_only':
-      return 'Solo prodotti'
-    case 'services_only':
-      return 'Solo servizi'
-    case 'mixed':
-      return 'Prodotti e servizi'
-    default:
-      return 'Non definita'
-  }
-}
-
-const resolveFulfillmentLabel = (value: string | null | undefined) => {
-  switch (normalizeText(value)) {
-    case 'shipping':
-      return 'Spedizione'
-    case 'pickup':
-      return 'Ritiro in sede'
-    case 'none':
-      return 'Non applicabile'
-    default:
-      return 'Da definire'
-  }
-}
-
-const resolveAppointmentModeLabel = (value: string | null | undefined) => {
-  switch (normalizeText(value)) {
-    case 'requested_slot':
-      return 'Data richiesta dal cliente'
-    case 'contact_later':
-      return 'Da concordare con il cliente'
-    case 'none':
-      return 'Non applicabile'
-    default:
-      return 'Da definire'
-  }
-}
-
-const resolveAbsoluteMediaUrl = (origin: string, value: string | null | undefined) => {
-  const normalized = normalizeText(value)
-  if (!normalized) return ''
-  if (/^https?:\/\//i.test(normalized)) return normalized
-  return `${origin}${normalized.startsWith('/') ? normalized : `/${normalized}`}`
-}
-
-type OrderEmailRow = {
-  title: string
-  subtitle: string
-  quantity: number
-  price: string
-  imageUrl?: string
-  placeholderLabel?: string
-}
-
-const buildOrderItemsHtml = (rows: OrderEmailRow[]) => {
-  if (rows.length === 0) return ''
-
-  return rows
-    .map((row) => {
-      const title = escapeHtml(row.title)
-      const subtitle = escapeHtml(row.subtitle)
-      const price = escapeHtml(row.price)
-      const quantity = row.quantity > 1 ? String(row.quantity) : ''
-      const imageBlock = row.imageUrl
-        ? `<img src="${escapeHtml(row.imageUrl)}" alt="" width="72" height="72" style="width:100%; height:100%; object-fit:contain; display:block; padding:5px; border-radius:12px;" />`
-        : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:10px; border-radius:12px; background-color:#f8f5f1; color:#6b6257; font-size:11px; line-height:1.3; text-transform:uppercase; letter-spacing:0.08em; text-align:center;">${escapeHtml(row.placeholderLabel || 'Item')}</div>`
-
-      return `
-        <div style="display:grid; grid-template-columns:72px minmax(0, 1fr) auto; gap:16px; align-items:center; margin:0 0 14px 0;">
-          <div style="position:relative; width:72px; height:72px; border-radius:18px; background:#ffffff; border:1px solid #ded6cc; box-shadow:0 4px 14px rgba(17,17,17,0.08); padding:0.35rem; box-sizing:border-box;">
-            ${imageBlock}
-            ${
-              quantity
-                ? `<span style="position:absolute; top:-10px; right:-10px; width:28px; height:28px; border-radius:12px; background:#f5f1eb; color:#1f1f1f; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:3px solid #f5f1eb;">${quantity}</span>`
-                : ''
-            }
-          </div>
-          <div style="min-width:0;">
-            <p style="margin:0; font-size:15px; line-height:22px; color:#1f1f1f; font-weight:600;">${title}</p>
-            ${subtitle ? `<p style="margin:4px 0 0 0; font-size:13px; line-height:20px; color:#6b6257;">${subtitle}</p>` : ''}
-          </div>
-          <div style="font-size:14px; line-height:20px; color:#1f1f1f; font-weight:600; white-space:nowrap;">${price}</div>
-        </div>
-      `
-    })
-    .join('')
-}
-
-const buildOrderItemsText = (rows: OrderEmailRow[]) => {
-  if (rows.length === 0) return ''
-
-  return rows
-    .map((row) => {
-      const qtyPrefix = row.quantity > 1 ? `${row.quantity}x ` : ''
-      const subtitle = row.subtitle ? ` · ${row.subtitle}` : ''
-      return `- ${qtyPrefix}${row.title}${subtitle} · ${row.price}`
-    })
-    .join('\n')
-}
-
-const findOrderForEmail = async ({
+const buildOrderItemsSummary = async ({
   payload,
   req,
-  orderID,
   orderNumber,
+  locale,
 }: {
   payload: NotificationPayload
   req?: PayloadRequest
-  orderID?: number | string | null
   orderNumber: string
+  locale: 'it' | 'en' | 'ru'
 }) => {
-  if (typeof orderID === 'number' || (typeof orderID === 'string' && orderID.trim())) {
-    return (await payload.findByID({
-      collection: 'orders',
-      id: orderID,
-      overrideAccess: true,
-      req,
-      depth: 0,
-    })) as Order
-  }
-
-  const result = await payload.find({
+  const client = req?.payload ?? payload
+  const orderResult = await client.find({
     collection: 'orders',
     overrideAccess: true,
-    req,
+    ...(req ? { req } : {}),
+    locale,
     depth: 0,
     limit: 1,
     where: {
-      orderNumber: {
-        equals: orderNumber,
-      },
+      orderNumber: { equals: orderNumber },
     },
   })
 
-  return ((result.docs?.[0] as Order | undefined) ?? null)
-}
-
-const buildOrderEmailArtifacts = async ({
-  payload,
-  req,
-  orderID,
-  orderNumber,
-  cartMode,
-  productFulfillmentMode,
-  appointmentMode,
-  appointmentRequestedDate,
-  appointmentRequestedTime,
-}: {
-  payload: NotificationPayload
-  req?: PayloadRequest
-  orderID?: number | string | null
-  orderNumber: string
-  cartMode?: string | null
-  productFulfillmentMode?: string | null
-  appointmentMode?: string | null
-  appointmentRequestedDate?: string | null
-  appointmentRequestedTime?: string | null
-}) => {
-  const origin = getPublicSiteOrigin(req?.headers)
-  const order = await findOrderForEmail({ payload, req, orderID, orderNumber })
-  const orderDocId = order?.id
-  const rows: OrderEmailRow[] = []
-
-  if (typeof orderDocId === 'number') {
-    const [productItems, serviceItems] = await Promise.all([
-      payload.find({
-        collection: 'order-items',
-        overrideAccess: true,
-        req,
-        depth: 0,
-        limit: 100,
-        sort: 'createdAt',
-        where: {
-          order: { equals: orderDocId },
-        },
-      }),
-      payload.find({
-        collection: 'order-service-items',
-        overrideAccess: true,
-        req,
-        depth: 0,
-        limit: 100,
-        sort: 'createdAt',
-        where: {
-          order: { equals: orderDocId },
-        },
-      }),
-    ])
-
-    for (const item of productItems.docs as PayloadOrderItem[]) {
-      rows.push({
-        title: item.productTitle,
-        subtitle: [normalizeText(item.productBrand)].filter(Boolean).join(' · '),
-        quantity: Math.max(1, item.quantity || 1),
-        price: formatCurrency(item.lineTotal || item.unitPrice || 0),
-        imageUrl: resolveAbsoluteMediaUrl(origin, item.productCoverImage),
-        placeholderLabel: 'Prodotto',
-      })
-    }
-
-    for (const item of serviceItems.docs as PayloadOrderServiceItem[]) {
-      const kindLabel =
-        item.itemKind === 'program' ? 'Programma' : item.itemKind === 'package' ? 'Pacchetto' : 'Servizio'
-      rows.push({
-        title: item.serviceTitle,
-        subtitle: [kindLabel, normalizeText(item.variantLabel)].filter(Boolean).join(' · '),
-        quantity: Math.max(1, item.quantity || 1),
-        price: formatCurrency(item.lineTotal || item.unitPrice || 0),
-        placeholderLabel: kindLabel,
-      })
-    }
+  const order = orderResult.docs[0]
+  if (!order) {
+    return { itemsText: '', itemsHtml: '' }
   }
 
-  const appointmentSummary =
-    normalizeText(appointmentMode) === 'requested_slot'
-      ? [formatDate(appointmentRequestedDate), normalizeText(appointmentRequestedTime)]
-          .filter(Boolean)
-          .join(' · ') || 'Da definire'
-      : normalizeText(appointmentMode) === 'contact_later'
-        ? 'Da concordare con il cliente'
-        : 'Non applicabile'
+  const [productItems, serviceItems] = await Promise.all([
+    client.find({
+      collection: 'order-items',
+      overrideAccess: true,
+      ...(req ? { req } : {}),
+      locale,
+      depth: 0,
+      limit: 100,
+      where: {
+        order: { equals: order.id },
+      },
+      select: {
+        productTitle: true,
+        quantity: true,
+        lineTotal: true,
+      },
+    }),
+    client.find({
+      collection: 'order-service-items',
+      overrideAccess: true,
+      ...(req ? { req } : {}),
+      locale,
+      depth: 0,
+      limit: 100,
+      where: {
+        order: { equals: order.id },
+      },
+      select: {
+        serviceTitle: true,
+        quantity: true,
+        lineTotal: true,
+      },
+    }),
+  ])
+
+  const lines = [
+    ...productItems.docs.map((item) => ({
+      title: normalizeText(item.productTitle) || 'Prodotto',
+      quantity: typeof item.quantity === 'number' ? item.quantity : 0,
+      total: typeof item.lineTotal === 'number' ? item.lineTotal : 0,
+    })),
+    ...serviceItems.docs.map((item) => ({
+      title: normalizeText(item.serviceTitle) || 'Servizio',
+      quantity: typeof item.quantity === 'number' ? item.quantity : 0,
+      total: typeof item.lineTotal === 'number' ? item.lineTotal : 0,
+    })),
+  ].filter((item) => item.quantity > 0)
+
+  if (lines.length === 0) {
+    return { itemsText: '', itemsHtml: '' }
+  }
 
   return {
-    accountOrdersUrl: `${origin}/it/account?section=orders`,
-    cartModeLabel: resolveCartModeLabel(cartMode),
-    productFulfillmentModeLabel: resolveFulfillmentLabel(productFulfillmentMode),
-    appointmentModeLabel: resolveAppointmentModeLabel(appointmentMode),
-    appointmentSummary,
-    itemsHtml: buildOrderItemsHtml(rows),
-    itemsText: buildOrderItemsText(rows),
+    itemsText: lines
+      .map((item) => `- ${item.title} x${item.quantity} · ${formatCurrency(item.total)}`)
+      .join('\n'),
+    itemsHtml: `<ul style="margin:0; padding-left:20px;">${lines
+      .map(
+        (item) =>
+          `<li style="margin:0 0 8px 0;">${escapeHtml(item.title)} x${item.quantity} · ${escapeHtml(formatCurrency(item.total))}</li>`,
+      )
+      .join('')}</ul>`,
   }
 }
 
@@ -547,7 +400,7 @@ export const sendOrderPaidNotifications = async ({
   payload,
   req,
   eventKey = 'order_paid',
-  orderID,
+  locale,
   orderNumber,
   customerEmail,
   customerFirstName,
@@ -561,6 +414,15 @@ export const sendOrderPaidNotifications = async ({
   attachments,
 }: AdminOrderNotificationInput) => {
   const adminEmail = getAdminEmail()
+  const resolvedLocale = resolvePreferredLocale(locale)
+  const origin = getPublicSiteOrigin(req?.headers)
+  const accountOrdersUrl = `${origin}/${resolvedLocale}${toPublicSeoPath(resolvedLocale, '/account')}?section=orders`
+  const { itemsText, itemsHtml } = await buildOrderItemsSummary({
+    payload,
+    req,
+    orderNumber,
+    locale: resolvedLocale,
+  })
 
   const customerName =
     [customerFirstName, customerLastName].map((value) => normalizeText(value)).filter(Boolean).join(' ') || 'Cliente'
@@ -571,17 +433,6 @@ export const sendOrderPaidNotifications = async ({
       : appointmentMode === 'contact_later'
         ? 'Da concordare con il cliente'
         : ''
-  const orderArtifacts = await buildOrderEmailArtifacts({
-    payload,
-    req,
-    orderID,
-    orderNumber,
-    cartMode,
-    productFulfillmentMode,
-    appointmentMode,
-    appointmentRequestedDate,
-    appointmentRequestedTime,
-  })
   const eventData = {
     customer: {
       firstName: normalizeText(customerFirstName),
@@ -593,21 +444,18 @@ export const sendOrderPaidNotifications = async ({
       number: normalizeText(orderNumber),
       total: formatCurrency(total),
       cartMode: normalizeText(cartMode),
-      cartModeLabel: orderArtifacts.cartModeLabel,
       productFulfillmentMode: normalizeText(productFulfillmentMode),
-      productFulfillmentModeLabel: orderArtifacts.productFulfillmentModeLabel,
-      itemsHtml: orderArtifacts.itemsHtml,
-      itemsText: orderArtifacts.itemsText,
+      itemsText,
+      itemsHtml,
+    },
+    account: {
+      ordersUrl: accountOrdersUrl,
     },
     appointment: {
       mode: normalizeText(appointmentMode),
-      modeLabel: orderArtifacts.appointmentModeLabel,
       date: formatDate(appointmentRequestedDate),
       time: normalizeText(appointmentRequestedTime),
-      summary: appointmentSummary || orderArtifacts.appointmentSummary,
-    },
-    account: {
-      ordersUrl: orderArtifacts.accountOrdersUrl,
+      summary: appointmentSummary,
     },
   }
 
@@ -643,9 +491,6 @@ export const sendOrderPaidNotifications = async ({
               : 'abbiamo ricevuto il tuo ordine {{order.number}}.',
             'Totale: {{order.total}}',
             '',
-            'Riepilogo:',
-            '{{order.itemsText}}',
-            '',
             'Grazie,',
             'DOB Milano',
           ].join('\n'),
@@ -657,7 +502,6 @@ export const sendOrderPaidNotifications = async ({
                 : 'abbiamo ricevuto il tuo ordine <strong>{{order.number}}</strong>.'
             }</p>
             <p>Totale: <strong>{{order.total}}</strong></p>
-            <div>{{order.itemsHtml}}</div>
             <p>Grazie,<br/>DOB Milano</p>
           `,
         },
@@ -690,24 +534,20 @@ export const sendOrderPaidNotifications = async ({
           'Cliente: {{customer.fullName}}',
           'Email: {{customer.email}}',
           'Totale: {{order.total}}',
-          'Carrello: {{order.cartModeLabel}}',
-          'Fulfillment: {{order.productFulfillmentModeLabel}}',
-          'Appointment mode: {{appointment.modeLabel}}',
+          'Cart mode: {{order.cartMode}}',
+          'Fulfillment: {{order.productFulfillmentMode}}',
+          'Appointment mode: {{appointment.mode}}',
           'Appuntamento: {{appointment.summary}}',
-          '',
-          'Riepilogo:',
-          '{{order.itemsText}}',
         ].join('\n'),
         html: `
           <p><strong>Ordine:</strong> {{order.number}}</p>
           <p><strong>Cliente:</strong> {{customer.fullName}}</p>
           <p><strong>Email:</strong> {{customer.email}}</p>
           <p><strong>Totale:</strong> {{order.total}}</p>
-          <p><strong>Carrello:</strong> {{order.cartModeLabel}}</p>
-          <p><strong>Fulfillment:</strong> {{order.productFulfillmentModeLabel}}</p>
-          <p><strong>Appointment mode:</strong> {{appointment.modeLabel}}</p>
+          <p><strong>Cart mode:</strong> {{order.cartMode}}</p>
+          <p><strong>Fulfillment:</strong> {{order.productFulfillmentMode}}</p>
+          <p><strong>Appointment mode:</strong> {{appointment.mode}}</p>
           <p><strong>Appuntamento:</strong> {{appointment.summary}}</p>
-          <div>{{order.itemsHtml}}</div>
         `,
       },
     })
@@ -1241,7 +1081,6 @@ export const sendOrderLifecycleNotifications = async ({
   payload,
   req,
   eventKey,
-  orderID,
   orderNumber,
   customerEmail,
   customerFirstName,
@@ -1252,12 +1091,6 @@ export const sendOrderLifecycleNotifications = async ({
   const adminEmail = getAdminEmail()
   const customerName =
     [customerFirstName, customerLastName].map((value) => normalizeText(value)).filter(Boolean).join(' ') || 'Cliente'
-  const orderArtifacts = await buildOrderEmailArtifacts({
-    payload,
-    req,
-    orderID,
-    orderNumber,
-  })
   const eventData = {
     customer: {
       firstName: normalizeText(customerFirstName),
@@ -1268,14 +1101,9 @@ export const sendOrderLifecycleNotifications = async ({
     order: {
       number: normalizeText(orderNumber),
       total: formatCurrency(total),
-      itemsHtml: orderArtifacts.itemsHtml,
-      itemsText: orderArtifacts.itemsText,
     },
     payment: {
       reason: normalizeText(reason),
-    },
-    account: {
-      ordersUrl: orderArtifacts.accountOrdersUrl,
     },
   }
 
@@ -1310,9 +1138,6 @@ export const sendOrderLifecycleNotifications = async ({
             'Totale: {{order.total}}',
             eventKey === 'order_payment_failed' ? 'Motivo: {{payment.reason}}' : '',
             '',
-            'Riepilogo:',
-            '{{order.itemsText}}',
-            '',
             'DOB Milano',
           ].join('\n'),
           html: `
@@ -1326,7 +1151,6 @@ export const sendOrderLifecycleNotifications = async ({
             }</p>
             <p><strong>Totale:</strong> {{order.total}}</p>
             ${eventKey === 'order_payment_failed' ? '<p><strong>Motivo:</strong> {{payment.reason}}</p>' : ''}
-            <div>{{order.itemsHtml}}</div>
             <p>DOB Milano</p>
           `,
         },
@@ -1360,9 +1184,6 @@ export const sendOrderLifecycleNotifications = async ({
           'Email: {{customer.email}}',
           'Totale: {{order.total}}',
           'Motivo: {{payment.reason}}',
-          '',
-          'Riepilogo:',
-          '{{order.itemsText}}',
         ].join('\n'),
         html: `
           <p><strong>Ordine:</strong> {{order.number}}</p>
@@ -1370,7 +1191,6 @@ export const sendOrderLifecycleNotifications = async ({
           <p><strong>Email:</strong> {{customer.email}}</p>
           <p><strong>Totale:</strong> {{order.total}}</p>
           <p><strong>Motivo:</strong> {{payment.reason}}</p>
-          <div>{{order.itemsHtml}}</div>
         `,
       },
     })
@@ -1386,7 +1206,6 @@ export const sendShipmentNotifications = async ({
   payload,
   req,
   eventKey,
-  orderID,
   orderNumber,
   customerEmail,
   customerFirstName,
@@ -1397,12 +1216,6 @@ export const sendShipmentNotifications = async ({
   const adminEmail = getAdminEmail()
   const customerName =
     [customerFirstName, customerLastName].map((value) => normalizeText(value)).filter(Boolean).join(' ') || 'Cliente'
-  const orderArtifacts = await buildOrderEmailArtifacts({
-    payload,
-    req,
-    orderID,
-    orderNumber,
-  })
   const eventData = {
     customer: {
       firstName: normalizeText(customerFirstName),
@@ -1412,15 +1225,10 @@ export const sendShipmentNotifications = async ({
     },
     order: {
       number: normalizeText(orderNumber),
-      itemsHtml: orderArtifacts.itemsHtml,
-      itemsText: orderArtifacts.itemsText,
     },
     shipping: {
       trackingNumber: normalizeText(trackingNumber),
       trackingUrl: normalizeText(trackingUrl),
-    },
-    account: {
-      ordersUrl: orderArtifacts.accountOrdersUrl,
     },
   }
 
@@ -1450,9 +1258,6 @@ export const sendShipmentNotifications = async ({
             'Tracking: {{shipping.trackingNumber}}',
             'Link: {{shipping.trackingUrl}}',
             '',
-            'Riepilogo:',
-            '{{order.itemsText}}',
-            '',
             'DOB Milano',
           ].join('\n'),
           html: `
@@ -1460,7 +1265,6 @@ export const sendShipmentNotifications = async ({
             <p>il tuo ordine <strong>{{order.number}}</strong> è in spedizione.</p>
             <p><strong>Tracking:</strong> {{shipping.trackingNumber}}</p>
             <p><strong>Link:</strong> <a href="{{shipping.trackingUrl}}">{{shipping.trackingUrl}}</a></p>
-            <div>{{order.itemsHtml}}</div>
             <p>DOB Milano</p>
           `,
         },
@@ -1494,9 +1298,6 @@ export const sendShipmentNotifications = async ({
           'Email: {{customer.email}}',
           'Tracking: {{shipping.trackingNumber}}',
           'Link: {{shipping.trackingUrl}}',
-          '',
-          'Riepilogo:',
-          '{{order.itemsText}}',
         ].join('\n'),
         html: `
           <p><strong>Ordine:</strong> {{order.number}}</p>
@@ -1504,7 +1305,6 @@ export const sendShipmentNotifications = async ({
           <p><strong>Email:</strong> {{customer.email}}</p>
           <p><strong>Tracking:</strong> {{shipping.trackingNumber}}</p>
           <p><strong>Link:</strong> <a href="{{shipping.trackingUrl}}">{{shipping.trackingUrl}}</a></p>
-          <div>{{order.itemsHtml}}</div>
         `,
       },
     })

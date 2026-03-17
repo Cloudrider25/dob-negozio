@@ -28,7 +28,7 @@ export function CheckoutSuccessContent({
   const [resolving, setResolving] = useState(false)
 
   useEffect(() => {
-    if (order || !attemptId || !paymentIntentId) return
+    if (order || !attemptId) return
 
     let cancelled = false
     let retryTimeout: ReturnType<typeof setTimeout> | null = null
@@ -44,7 +44,7 @@ export function CheckoutSuccessContent({
           },
           body: JSON.stringify({
             attemptId,
-            paymentIntentId,
+            ...(paymentIntentId ? { paymentIntentId } : {}),
             locale,
           }),
         })

@@ -6,6 +6,7 @@ type ServiceAppointmentMode = 'requested_slot' | 'contact_later' | 'none'
 
 export type CheckoutSubmitPayload = {
   checkoutMode: 'payment_element'
+  quoteOnly?: boolean
   locale: string
   discountCode?: string
   customer: CustomerSnapshot
@@ -50,6 +51,7 @@ export const buildCheckoutSubmitPayload = ({
   items,
   shippingOptionID,
   discountCode,
+  quoteOnly,
   productFulfillmentMode,
   serviceAppointmentMode,
   serviceRequestedDate,
@@ -60,6 +62,7 @@ export const buildCheckoutSubmitPayload = ({
   items: CartItem[]
   shippingOptionID: string | null
   discountCode?: string | null
+  quoteOnly?: boolean
   productFulfillmentMode: ProductFulfillmentMode
   serviceAppointmentMode: 'requested_slot' | 'contact_later'
   serviceRequestedDate: string
@@ -98,6 +101,7 @@ export const buildCheckoutSubmitPayload = ({
 
   return {
     checkoutMode: 'payment_element',
+    ...(quoteOnly ? { quoteOnly: true } : {}),
     locale,
     ...(typeof discountCode === 'string' && discountCode.trim().length > 0
       ? { discountCode: discountCode.trim() }

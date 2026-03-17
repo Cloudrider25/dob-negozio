@@ -38,26 +38,14 @@ export async function POST(request: Request) {
     const locale: Locale = isLocale(localeInput) ? localeInput : 'it'
     const paymentIntentId = asString(body.paymentIntentId)
 
-    if (!paymentIntentId || (!Number.isFinite(attemptId) && !Number.isFinite(legacyOrderId))) {
-      return NextResponse.json({ error: 'Missing attemptId/orderId or paymentIntentId' }, { status: 400 })
+    if (!Number.isFinite(attemptId) && !Number.isFinite(legacyOrderId)) {
+      return NextResponse.json({ error: 'Missing attemptId/orderId' }, { status: 400 })
     }
 
     const payload = await getPayloadClient()
     const integrations = await getShopIntegrationsConfig(payload)
-    if (!integrations.stripe.secretKey) {
+    if (paymentIntentId && !integrations.stripe.secretKey) {
       return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
-    }
-
-    const stripe = new Stripe(integrations.stripe.secretKey, {
-      apiVersion: '2026-01-28.clover',
-    })
-
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
-    if (paymentIntent.status !== 'succeeded') {
-      return NextResponse.json(
-        { ok: false, status: paymentIntent.status, error: 'Payment not finalized' },
-        { status: 409 },
-      )
     }
 
     if (Number.isFinite(attemptId)) {
@@ -69,9 +57,24 @@ export async function POST(request: Request) {
         depth: 0,
       })
 
-      const paymentReference = asString(attempt.paymentReference)
-      if (paymentReference && paymentReference !== paymentIntent.id) {
-        return NextResponse.json({ error: 'Payment reference mismatch' }, { status: 409 })
+      if (paymentIntentId) {
+        const stripe = new Stripe(integrations.stripe.secretKey, {
+          apiVersion: '2026-01-28.clover',
+        })
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+        if (paymentIntent.status !== 'succeeded') {
+          return NextResponse.json(
+            { ok: false, status: paymentIntent.status, error: 'Payment not finalized' },
+            { status: 409 },
+          )
+        }
+
+        const paymentReference = asString(attempt.paymentReference)
+        if (paymentReference && paymentReference !== paymentIntent.id) {
+          return NextResponse.json({ error: 'Payment reference mismatch' }, { status: 409 })
+        }
+      } else if ((typeof attempt.total === 'number' ? attempt.total : 0) > 0) {
+        return NextResponse.json({ error: 'Missing paymentIntentId' }, { status: 400 })
       }
 
       const { order, created } = await createOrderFromCheckoutAttempt({
@@ -83,7 +86,7 @@ export async function POST(request: Request) {
       if (created) {
         await sendOrderPaidNotifications({
           payload,
-          orderID: order.id,
+          locale,
           orderNumber: order.orderNumber,
           customerEmail: order.customerEmail,
           customerFirstName: order.customerFirstName,

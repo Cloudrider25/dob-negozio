@@ -62,6 +62,7 @@ type ParsedCartItemKey =
 type CheckoutPayload = {
   locale?: string
   checkoutMode?: 'redirect' | 'embedded' | 'payment_element'
+  quoteOnly?: boolean
   discountCode?: string
   productFulfillmentMode?: 'shipping' | 'pickup' | 'none'
   serviceAppointment?: {
@@ -90,6 +91,19 @@ type LiveCheckoutQuote = {
   commissionAmount: number
   total: number
   currency: 'EUR'
+}
+
+type ReusableCheckoutAttempt = {
+  id: string | number
+  paymentReference?: string | null
+  paymentProvider?: string | null
+  subtotal?: number | null
+  shippingAmount?: number | null
+  discountAmount?: number | null
+  commissionAmount?: number | null
+  total?: number | null
+  promoCodeValue?: string | null
+  inventoryReserved?: boolean | null
 }
 
 const toString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -202,6 +216,71 @@ const computeCheckoutFingerprint = ({
   ].join('||')
 
   return createHash('sha256').update(raw).digest('hex')
+}
+
+const findReusableCheckoutAttempt = async ({
+  payload,
+  checkoutFingerprint,
+  cartSignature,
+  discountCode,
+}: {
+  payload: Awaited<ReturnType<typeof getPayloadClient>>
+  checkoutFingerprint: string
+  cartSignature: string
+  discountCode: string
+}): Promise<ReusableCheckoutAttempt | null> => {
+  const nowIso = new Date().toISOString()
+  const existingResult = await payload.find({
+    collection: 'checkout-attempts',
+    overrideAccess: true,
+    depth: 0,
+    limit: 20,
+    sort: '-createdAt',
+    where: {
+      and: [
+        { checkoutFingerprint: { equals: checkoutFingerprint } },
+        { cartSignature: { equals: cartSignature } },
+        { status: { equals: 'pending' } },
+        {
+          or: [
+            { expiresAt: { greater_than: nowIso } },
+            {
+              and: [
+                { expiresAt: { exists: false } },
+                {
+                  createdAt: {
+                    greater_than: new Date(Date.now() - IDEMPOTENCY_WINDOW_MS).toISOString(),
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    select: {
+      id: true,
+      paymentReference: true,
+      paymentProvider: true,
+      subtotal: true,
+      shippingAmount: true,
+      promoCodeValue: true,
+      discountAmount: true,
+      commissionAmount: true,
+      total: true,
+      inventoryReserved: true,
+    },
+  })
+
+  const requestedPromoCode = normalizePromoCodeInput(discountCode)
+  for (const candidate of existingResult.docs) {
+    const candidatePromoCode = normalizePromoCodeInput(candidate.promoCodeValue)
+    if (candidatePromoCode === requestedPromoCode) {
+      return candidate
+    }
+  }
+
+  return null
 }
 
 const releaseStaleAllocationsForProducts = async ({
@@ -333,6 +412,7 @@ export async function POST(request: Request) {
       Boolean(toString(customer.province))
     const shippingOptionID = toString(body.shippingOptionID)
     const discountCode = toString(body.discountCode)
+    const quoteOnly = body.quoteOnly === true
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Email non valida.' }, { status: 400 })
@@ -428,59 +508,13 @@ export async function POST(request: Request) {
       items: parsedCartItems,
     })
 
-    if (checkoutMode === 'payment_element') {
-      const nowIso = new Date().toISOString()
-      const existingResult = await payload.find({
-        collection: 'checkout-attempts',
-        overrideAccess: true,
-        depth: 0,
-        limit: 20,
-        sort: '-createdAt',
-        where: {
-          and: [
-            { checkoutFingerprint: { equals: checkoutFingerprint } },
-            { cartSignature: { equals: requestedCartSignature } },
-            { paymentProvider: { equals: 'stripe' } },
-            { status: { equals: 'pending' } },
-            {
-              or: [
-                { expiresAt: { greater_than: nowIso } },
-                {
-                  and: [
-                    { expiresAt: { exists: false } },
-                    {
-                      createdAt: {
-                        greater_than: new Date(Date.now() - IDEMPOTENCY_WINDOW_MS).toISOString(),
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        select: {
-          id: true,
-          paymentReference: true,
-          subtotal: true,
-          shippingAmount: true,
-          promoCodeValue: true,
-          discountAmount: true,
-          commissionAmount: true,
-          total: true,
-        },
+    if (checkoutMode === 'payment_element' && !quoteOnly) {
+      const existingAttempt = await findReusableCheckoutAttempt({
+        payload,
+        checkoutFingerprint,
+        cartSignature: requestedCartSignature,
+        discountCode,
       })
-
-      let existingAttempt: (typeof existingResult.docs)[number] | undefined
-      const requestedPromoCode = normalizePromoCodeInput(discountCode)
-      for (const candidate of existingResult.docs) {
-        const candidatePromoCode = normalizePromoCodeInput(candidate.promoCodeValue)
-        if (candidatePromoCode === requestedPromoCode) {
-          existingAttempt = candidate
-          break
-        }
-      }
-
       const existingPaymentReference = toString(existingAttempt?.paymentReference)
       if (existingAttempt && existingPaymentReference.startsWith('pi_')) {
         const integrations = await getShopIntegrationsConfig(payload)
@@ -532,6 +566,33 @@ export async function POST(request: Request) {
             })
           }
         }
+      }
+      if (existingAttempt && (typeof existingAttempt.total === 'number' ? existingAttempt.total : 0) <= 0) {
+        const quote: LiveCheckoutQuote = {
+          subtotal: typeof existingAttempt.subtotal === 'number' ? existingAttempt.subtotal : 0,
+          shippingAmount:
+            typeof existingAttempt.shippingAmount === 'number' ? existingAttempt.shippingAmount : 0,
+          discountAmount:
+            typeof existingAttempt.discountAmount === 'number' ? existingAttempt.discountAmount : 0,
+          commissionAmount:
+            typeof existingAttempt.commissionAmount === 'number'
+              ? existingAttempt.commissionAmount
+              : 0,
+          total: typeof existingAttempt.total === 'number' ? existingAttempt.total : 0,
+          currency: 'EUR',
+        }
+        return NextResponse.json({
+          ok: true,
+          attemptId: existingAttempt.id,
+          quote,
+          total: quote.total,
+          discountAmount: quote.discountAmount,
+          currency: quote.currency,
+          paymentProvider: 'manual',
+          requiresPayment: false,
+          checkoutMode: 'payment_element',
+          reused: true,
+        })
       }
     }
 
@@ -1007,6 +1068,19 @@ export async function POST(request: Request) {
         total,
         currency: 'EUR',
       }
+
+      if (quoteOnly) {
+        return NextResponse.json({
+          ok: true,
+          quoteOnly: true,
+          quote: liveQuote,
+          total: liveQuote.total,
+          discountAmount: liveQuote.discountAmount,
+          currency: liveQuote.currency,
+          checkoutMode,
+        })
+      }
+
       const checkoutLineItems: CheckoutLineItem[] = [
         ...productLineItems.map((item) => ({
           quantity: item.quantity,
@@ -1061,16 +1135,6 @@ export async function POST(request: Request) {
         const attemptExpiresAt = new Date(
           Date.now() + (hasLowStockItems ? LOW_STOCK_RESERVATION_WINDOW_MS : IDEMPOTENCY_WINDOW_MS),
         ).toISOString()
-        const integrations = await getShopIntegrationsConfig(payload)
-        const stripeSecret = integrations.stripe.secretKey
-        const stripePublishableKey = integrations.stripe.publishableKey
-
-        if (!stripeSecret || !stripePublishableKey) {
-          return NextResponse.json(
-            { error: 'Stripe non configurato: mancano le chiavi per Payment Element.' },
-            { status: 500 },
-          )
-        }
 
         const attemptProductItems: CheckoutAttemptProductItem[] = productLineItems.map((item) => ({
           productID: String(item.product.id),
@@ -1100,9 +1164,71 @@ export async function POST(request: Request) {
 
         let inventoryReserved = false
         let createdAttemptID: string | number | null = null
+        const existingAttempt = await findReusableCheckoutAttempt({
+          payload,
+          checkoutFingerprint,
+          cartSignature: requestedCartSignature,
+          discountCode,
+        })
+        const existingInventoryReserved = existingAttempt?.inventoryReserved === true
+        const attemptPayloadBase = {
+          checkoutFingerprint,
+          cartSignature: requestedCartSignature,
+          status: 'pending' as const,
+          paymentProvider: total > 0 ? 'stripe' : 'manual',
+          locale,
+          expiresAt: attemptExpiresAt,
+          customer:
+            typeof authenticatedUser?.id === 'number' ? authenticatedUser.id : undefined,
+          customerEmail: email,
+          customerPhone: phone || undefined,
+          customerFirstName: firstName || undefined,
+          customerLastName: lastName || undefined,
+          shippingAddress: {
+            address: requiresShippingAddress ? address : 'Ritiro in negozio / N/A',
+            postalCode: requiresShippingAddress ? postalCode : '00000',
+            city: requiresShippingAddress ? city : 'Milano',
+            province: requiresShippingAddress ? province : 'MI',
+            country: 'Italy',
+          },
+          productFulfillmentMode,
+          appointmentMode: hasServices ? appointmentMode : 'none',
+          appointmentRequestedDate:
+            hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : undefined,
+          appointmentRequestedTime:
+            hasServices && appointmentMode === 'requested_slot'
+              ? requestedAppointmentTime
+              : undefined,
+          subtotal,
+          shippingAmount: liveQuote.shippingAmount,
+          discountAmount: liveQuote.discountAmount,
+          commissionAmount: liveQuote.commissionAmount,
+          total: liveQuote.total,
+          promoCode: resolvedPromoCode?.promoCodeID,
+          partner: resolvedPromoCode?.partnerID,
+          promoCodeValue: resolvedPromoCode?.promoCodeValue,
+          promoCodeSnapshot: resolvedPromoCode
+            ? {
+                code: resolvedPromoCode.promoCodeValue,
+                partnerName: resolvedPromoCode.partnerName,
+                discountType: resolvedPromoCode.discountType,
+                discountValue: resolvedPromoCode.discountValue,
+                commissionType: resolvedPromoCode.commissionType,
+                commissionValue: resolvedPromoCode.commissionValue,
+                appliesToProducts: resolvedPromoCode.appliesToProducts,
+                appliesToServices: resolvedPromoCode.appliesToServices,
+              }
+            : undefined,
+          itemsSnapshot: rawItems,
+          productItems: attemptProductItems,
+          serviceItems: attemptServiceItems,
+          inventoryReleased: false,
+          convertedAt: undefined,
+          order: undefined,
+        }
 
         try {
-          if (attemptProductItems.length > 0) {
+          if (attemptProductItems.length > 0 && (!existingAttempt || !existingInventoryReserved)) {
             inventoryReserved = await reserveCheckoutAttemptInventory({
               payload,
               locale,
@@ -1110,67 +1236,56 @@ export async function POST(request: Request) {
             })
           }
 
-          const createdAttempt = await payload.create({
-            collection: 'checkout-attempts',
-            overrideAccess: true,
-            locale,
-            draft: false,
-            data: {
-              checkoutFingerprint,
-              cartSignature: requestedCartSignature,
-              status: 'pending',
-              paymentProvider: 'stripe',
+          if (existingAttempt) {
+            createdAttemptID = existingAttempt.id
+            await payload.update({
+              collection: 'checkout-attempts',
+              id: existingAttempt.id,
+              overrideAccess: true,
               locale,
-              expiresAt: attemptExpiresAt,
-              customer:
-                typeof authenticatedUser?.id === 'number' ? authenticatedUser.id : undefined,
-              customerEmail: email,
-              customerPhone: phone || undefined,
-              customerFirstName: firstName || undefined,
-              customerLastName: lastName || undefined,
-              shippingAddress: {
-                address: requiresShippingAddress ? address : 'Ritiro in negozio / N/A',
-                postalCode: requiresShippingAddress ? postalCode : '00000',
-                city: requiresShippingAddress ? city : 'Milano',
-                province: requiresShippingAddress ? province : 'MI',
-                country: 'Italy',
+              data: {
+                ...attemptPayloadBase,
+                inventoryReserved: existingInventoryReserved || inventoryReserved,
               },
-              productFulfillmentMode,
-              appointmentMode: hasServices ? appointmentMode : 'none',
-              appointmentRequestedDate:
-                hasServices && appointmentMode === 'requested_slot' ? appointmentDateISO : undefined,
-              appointmentRequestedTime:
-                hasServices && appointmentMode === 'requested_slot'
-                  ? requestedAppointmentTime
-                  : undefined,
-              subtotal,
-              shippingAmount: liveQuote.shippingAmount,
-              discountAmount: liveQuote.discountAmount,
-              commissionAmount: liveQuote.commissionAmount,
+            })
+          } else {
+            const createdAttempt = await payload.create({
+              collection: 'checkout-attempts',
+              overrideAccess: true,
+              locale,
+              draft: false,
+              data: {
+                ...attemptPayloadBase,
+                inventoryReserved,
+              },
+            })
+            createdAttemptID = createdAttempt.id
+          }
+
+          if (total <= 0) {
+            return NextResponse.json({
+              ok: true,
+              attemptId: createdAttemptID,
+              quote: liveQuote,
               total: liveQuote.total,
-              promoCode: resolvedPromoCode?.promoCodeID,
-              partner: resolvedPromoCode?.partnerID,
-              promoCodeValue: resolvedPromoCode?.promoCodeValue,
-              promoCodeSnapshot: resolvedPromoCode
-                ? {
-                    code: resolvedPromoCode.promoCodeValue,
-                    partnerName: resolvedPromoCode.partnerName,
-                    discountType: resolvedPromoCode.discountType,
-                    discountValue: resolvedPromoCode.discountValue,
-                    commissionType: resolvedPromoCode.commissionType,
-                    commissionValue: resolvedPromoCode.commissionValue,
-                    appliesToProducts: resolvedPromoCode.appliesToProducts,
-                    appliesToServices: resolvedPromoCode.appliesToServices,
-                  }
-                : undefined,
-              itemsSnapshot: rawItems,
-              productItems: attemptProductItems,
-              serviceItems: attemptServiceItems,
-              inventoryReserved,
-              inventoryReleased: false,
-            },
-          })
-          createdAttemptID = createdAttempt.id
+              discountAmount: liveQuote.discountAmount,
+              currency: liveQuote.currency,
+              paymentProvider: 'manual',
+              requiresPayment: false,
+              checkoutMode: 'payment_element',
+            })
+          }
+
+          const integrations = await getShopIntegrationsConfig(payload)
+          const stripeSecret = integrations.stripe.secretKey
+          const stripePublishableKey = integrations.stripe.publishableKey
+
+          if (!stripeSecret || !stripePublishableKey) {
+            return NextResponse.json(
+              { error: 'Stripe non configurato: mancano le chiavi per Payment Element.' },
+              { status: 500 },
+            )
+          }
 
           const stripe = new Stripe(stripeSecret, {
             apiVersion: '2026-01-28.clover',
@@ -1181,7 +1296,7 @@ export async function POST(request: Request) {
               currency: 'eur',
               receipt_email: email,
               metadata: {
-                attemptID: String(createdAttempt.id),
+                attemptID: String(createdAttemptID),
                 customerID:
                   typeof authenticatedUser?.id === 'number' ? String(authenticatedUser.id) : '',
                 locale,
@@ -1193,25 +1308,26 @@ export async function POST(request: Request) {
               },
             },
             {
-              idempotencyKey: `${checkoutFingerprint}:${createdAttempt.id}:pi`,
+              idempotencyKey: `${checkoutFingerprint}:${createdAttemptID}:pi`,
             },
           )
 
           await payload.update({
             collection: 'checkout-attempts',
-            id: createdAttempt.id,
+            id: createdAttemptID,
             overrideAccess: true,
             locale,
             data: {
               paymentReference: paymentIntent.id,
+              paymentProvider: 'stripe',
             },
           })
 
           return NextResponse.json({
             ok: true,
-            attemptId: createdAttempt.id,
+            attemptId: createdAttemptID,
             total,
-              discountAmount,
+            discountAmount,
             quote: liveQuote,
             currency: liveQuote.currency,
             paymentProvider: 'stripe',
@@ -1220,9 +1336,10 @@ export async function POST(request: Request) {
             checkoutMode: 'payment_element',
           })
         } catch (attemptError) {
+          const reservedOnThisRequest = inventoryReserved
           if (createdAttemptID) {
             try {
-              if (inventoryReserved) {
+              if (reservedOnThisRequest) {
                 await releaseCheckoutAttemptInventory({
                   payload,
                   locale,
@@ -1237,14 +1354,16 @@ export async function POST(request: Request) {
                 locale,
                 data: {
                   status: 'failed',
-                  inventoryReserved: false,
-                  inventoryReleased: inventoryReserved,
+                  inventoryReserved: existingAttempt ? existingInventoryReserved : false,
+                  inventoryReleased: existingAttempt
+                    ? !existingInventoryReserved && reservedOnThisRequest
+                    : reservedOnThisRequest,
                 },
               })
             } catch {
               // Best-effort cleanup only.
             }
-          } else if (inventoryReserved) {
+          } else if (reservedOnThisRequest) {
             try {
               await releaseCheckoutAttemptInventory({
                 payload,
@@ -1324,8 +1443,8 @@ export async function POST(request: Request) {
       try {
         await sendOrderPaidNotifications({
           payload,
+          locale,
           eventKey: 'order_created',
-          orderID: createdOrder.id,
           orderNumber: createdOrder.orderNumber,
           customerEmail: email,
           customerFirstName: firstName,
@@ -1613,7 +1732,7 @@ export async function POST(request: Request) {
           try {
             await sendOrderPaidNotifications({
               payload,
-              orderID: createdOrder.id,
+              locale,
               orderNumber: createdOrder.orderNumber,
               customerEmail: email,
               customerFirstName: firstName,
