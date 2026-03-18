@@ -100,7 +100,7 @@ test.describe('Shop journey', () => {
 
     console.log('[journey] open shop')
     await page.goto(`${BASE_URL}/it/shop`, { waitUntil: 'domcontentloaded' })
-    await expect(page).toHaveURL(/\/it\/shop/)
+    await expect(page).toHaveURL(/\/it\/negozio/)
 
     console.log('[journey] seed cart from in-stock product', product.slug)
     await page.evaluate((item) => {
