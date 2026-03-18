@@ -142,7 +142,9 @@ export const Footer = ({
             <Link href={buildLocalizedSeoHref(locale as Locale, '/terms')} className={`${styles.columnLink} typo-small`}>
               Terms
             </Link>
-            <span className={`${styles.columnMuted} typo-small`}>FAQ</span>
+            <Link href={buildLocalizedSeoHref(resolvedLocale, '/faq')} className={`${styles.columnLink} typo-small`}>
+              FAQ
+            </Link>
             <Link href={buildLocalizedSeoHref(resolvedLocale, '/contact')} className={`${styles.columnLink} typo-small`}>
               {contactLabelByLocale[resolvedLocale]}
             </Link>
