@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useDocumentInfo } from '@payloadcms/ui'
 
@@ -127,10 +128,12 @@ export default function ContactRequestAttachmentsField() {
             }}
           >
             {attachment.thumbnailURL || attachment.url ? (
-              <img
+              <Image
                 src={attachment.thumbnailURL || attachment.url}
                 alt={attachment.alt || attachment.filename || 'Attachment'}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                fill
+                sizes="72px"
+                style={{ objectFit: 'cover' }}
               />
             ) : null}
           </a>
