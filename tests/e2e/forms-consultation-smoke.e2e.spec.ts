@@ -54,7 +54,7 @@ test.describe('Consultation form smoke', () => {
     })
 
     await page.context().addCookies(buildPreferenceCookies())
-    await page.goto('http://localhost:3000/it/services?view=consulenza', { waitUntil: 'networkidle' })
+    await page.goto('http://localhost:3000/it/servizi?view=consulenza', { waitUntil: 'networkidle' })
     await expect(page.getByPlaceholder('Il tuo nome')).toBeVisible()
 
     await fillRequiredFields(page)
@@ -86,7 +86,7 @@ test.describe('Consultation form smoke', () => {
       { width: 390, height: 844 },
     ]) {
       await page.setViewportSize(viewport)
-      await page.goto('http://localhost:3000/it/services?view=consulenza', { waitUntil: 'networkidle' })
+      await page.goto('http://localhost:3000/it/servizi?view=consulenza', { waitUntil: 'networkidle' })
 
       await expect(page.getByPlaceholder('Il tuo nome')).toBeVisible()
       await expect(page.getByRole('button', { name: /Invia Richiesta di Consulenza/i })).toBeVisible()

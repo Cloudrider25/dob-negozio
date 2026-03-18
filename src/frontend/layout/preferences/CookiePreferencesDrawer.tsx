@@ -13,6 +13,8 @@ import {
   type CookieConsentPreferences,
 } from '@/lib/frontend/preferences/cookie-consent'
 import type { CookiePolicyBannerContent } from '@/lib/frontend/legal/cookie-policy'
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
+import type { Locale } from '@/lib/i18n/core'
 import { cn } from '@/lib/shared/ui/cn'
 import styles from './CookiePreferencesDrawer.module.css'
 
@@ -94,7 +96,7 @@ export function CookiePreferencesDrawer({ locale, content }: CookiePreferencesDr
           <p className={cn(styles.intro, 'typo-body')}>{content.body}</p>
           <div className={styles.linksRow}>
             <Link
-              href={`/${locale}/cookie-policy`}
+              href={buildLocalizedSeoHref(locale as Locale, '/cookie-policy')}
               className={cn(styles.link, 'typo-body')}
               onClick={() => setIsOpen(false)}
             >
@@ -102,7 +104,7 @@ export function CookiePreferencesDrawer({ locale, content }: CookiePreferencesDr
             </Link>
             <span className={styles.separator}>|</span>
             <Link
-              href={`/${locale}/privacy`}
+              href={buildLocalizedSeoHref(locale as Locale, '/privacy')}
               className={cn(styles.link, 'typo-body')}
               onClick={() => setIsOpen(false)}
             >

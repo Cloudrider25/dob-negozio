@@ -8,6 +8,7 @@ import { Carousel } from '@/frontend/components/carousel/ui/Carousel'
 import { createCarouselItem } from '@/frontend/components/carousel/shared/mappers'
 import type { CarouselItem } from '@/frontend/components/carousel/shared/types'
 import type { Where } from 'payload'
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
 import styles from '@/frontend/page-domains/our-story/page/OurStoryPage.module.css'
 
 export default async function OurStoryPage({
@@ -75,7 +76,7 @@ export default async function OurStoryPage({
     pageDoc?.storyHeroBody ||
     'In DOB Milano crediamo in pochi essenziali, curati in ogni dettaglio. Formule mirate, performance reale e un gesto quotidiano che diventa rituale: pulizia, trattamento, luce.'
   const storyNoteCtaLabel = pageDoc?.storyHeroCtaLabel || 'Scopri DOB'
-  const storyNoteCtaHref = pageDoc?.storyHeroCtaHref || `/${locale}/shop`
+  const storyNoteCtaHref = pageDoc?.storyHeroCtaHref || buildLocalizedSeoHref(locale, '/shop')
   const storyNoteImage = {
     url: storyNoteMedia?.url || '/api/media/file/about-hero.webp',
     alt: storyNoteMedia?.alt?.trim() || storyNoteTitle,

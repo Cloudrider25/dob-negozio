@@ -156,7 +156,7 @@ test.describe('Performance vitals baseline', () => {
     test.setTimeout(240_000)
     await context.addCookies(buildPreferenceCookies())
 
-    const targets = ['/it', '/it/services?view=consulenza', '/it/checkout']
+    const targets = ['/it', '/it/servizi?view=consulenza', '/it/checkout']
     const snapshots: VitalsSnapshot[] = []
 
     for (const target of targets) {

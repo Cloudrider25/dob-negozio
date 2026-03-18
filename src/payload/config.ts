@@ -449,7 +449,8 @@ export default buildConfig({
 
       const disableShopSeed = process.env.PAYLOAD_DISABLE_SHOP_SEED === 'true'
       const isProduction = process.env.NODE_ENV === 'production'
-      if (!isProduction) {
+      const shouldBootstrapLocalPages = !isProduction && databaseTargetEnv === 'local'
+      if (shouldBootstrapLocalPages) {
         const pageKeys = [
           'home',
           'services',
@@ -460,6 +461,7 @@ export default buildConfig({
           'our-story',
           'dob-protocol',
           'privacy',
+          'terms',
           'cookie-policy',
           'contact',
           'checkout',
@@ -519,7 +521,7 @@ export default buildConfig({
         }
       }
 
-      if (!disableShopSeed && !isProduction) {
+      if (!disableShopSeed && shouldBootstrapLocalPages) {
         await seedShopTaxonomies(payload)
       }
     } catch (error) {
