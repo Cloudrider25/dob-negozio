@@ -1501,6 +1501,7 @@ export interface Page {
     | 'privacy'
     | 'terms'
     | 'cookie-policy'
+    | 'faq'
     | 'contact'
     | 'checkout';
   /**
@@ -1645,6 +1646,37 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
+  faqTitle?: string | null;
+  faqSubtitle?: string | null;
+  faqMedia?: (number | null) | Media;
+  faqGroups?:
+    | {
+        label: string;
+        title?: string | null;
+        items?:
+          | {
+              q: string;
+              a: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   storyHeroTitle?: string | null;
   storyHeroBody?: string | null;
   storyHeroCtaLabel?: string | null;
@@ -3285,6 +3317,23 @@ export interface PagesSelect<T extends boolean = true> {
   termsContent?: T;
   contactTitle?: T;
   contactDescription?: T;
+  faqTitle?: T;
+  faqSubtitle?: T;
+  faqMedia?: T;
+  faqGroups?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        items?:
+          | T
+          | {
+              q?: T;
+              a?: T;
+              id?: T;
+            };
+        id?: T;
+      };
   storyHeroTitle?: T;
   storyHeroBody?: T;
   storyHeroCtaLabel?: T;

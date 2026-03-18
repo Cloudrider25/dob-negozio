@@ -12,6 +12,7 @@ export type FrontendPageKey =
   | 'location'
   | 'our-story'
   | 'dob-protocol'
+  | 'faq'
   | 'contact'
   | 'checkout'
 
