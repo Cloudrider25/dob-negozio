@@ -7,14 +7,54 @@ const normalizePath = (path: string): string => {
 
 const servicePublicPathAliases: Record<Locale, Array<{ internal: string; public: string }>> = {
   it: [
+    { internal: '/privacy', public: '/informativa-privacy' },
+    { internal: '/cookie-policy', public: '/informativa-cookie' },
+    { internal: '/shipping', public: '/spedizioni' },
+    { internal: '/refund', public: '/resi-e-rimborsi' },
+    { internal: '/terms', public: '/termini-e-condizioni' },
+    { internal: '/contact', public: '/contatti' },
+    { internal: '/our-story', public: '/chi-siamo' },
+    { internal: '/dob-protocol', public: '/protocollo-dob' },
+    { internal: '/journal', public: '/editoriale' },
+    { internal: '/programs', public: '/programmi' },
+    { internal: '/shop', public: '/negozio' },
     { internal: '/services/service/', public: '/servizi/servizio/' },
     { internal: '/services/treatment/', public: '/servizi/trattamento/' },
     { internal: '/services/goal/', public: '/servizi/obiettivo/' },
     { internal: '/services/area/', public: '/servizi/area/' },
+    { internal: '/cart', public: '/carrello' },
     { internal: '/services', public: '/servizi' },
   ],
-  en: [],
-  ru: [],
+  en: [
+    { internal: '/privacy', public: '/privacy-policy' },
+    { internal: '/cookie-policy', public: '/cookie-policy' },
+    { internal: '/shipping', public: '/shipping-policy' },
+    { internal: '/refund', public: '/refund-policy' },
+    { internal: '/terms', public: '/terms-and-conditions' },
+    { internal: '/contact', public: '/contact' },
+    { internal: '/our-story', public: '/our-story' },
+    { internal: '/dob-protocol', public: '/dob-protocol' },
+    { internal: '/journal', public: '/journal' },
+    { internal: '/programs', public: '/programs' },
+    { internal: '/shop', public: '/shop' },
+    { internal: '/cart', public: '/cart' },
+    { internal: '/services', public: '/services' },
+  ],
+  ru: [
+    { internal: '/privacy', public: '/politika-konfidentsialnosti' },
+    { internal: '/cookie-policy', public: '/politika-cookie' },
+    { internal: '/shipping', public: '/dostavka' },
+    { internal: '/refund', public: '/vozvrat-i-vozmeshchenie' },
+    { internal: '/terms', public: '/usloviya-i-polozheniya' },
+    { internal: '/contact', public: '/kontakty' },
+    { internal: '/our-story', public: '/o-nas' },
+    { internal: '/dob-protocol', public: '/protokol-dob' },
+    { internal: '/journal', public: '/zhurnal' },
+    { internal: '/programs', public: '/programmy' },
+    { internal: '/shop', public: '/magazin' },
+    { internal: '/cart', public: '/korzina' },
+    { internal: '/services', public: '/uslugi' },
+  ],
 }
 
 const byLongestPrefix = (entries: Array<{ internal: string; public: string }>) =>
@@ -47,3 +87,6 @@ export const toInternalSeoPath = (locale: Locale, path: string): string => {
 
   return normalized
 }
+
+export const buildLocalizedSeoHref = (locale: Locale, path: string): string =>
+  `/${locale}${toPublicSeoPath(locale, path)}`

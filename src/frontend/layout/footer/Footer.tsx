@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { CookiePreferencesControl } from '@/frontend/layout/preferences/CookiePreferencesControl'
 import { PreferencesFooterControl } from '@/frontend/layout/preferences/PreferencesFooterControl'
 import { ThemeToggle } from '@/frontend/components/theme/ThemeToggle'
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
+import type { Locale } from '@/lib/i18n/core'
 import type { FooterProps } from '@/frontend/layout/footer/contracts'
 import styles from './Footer.module.css'
 
@@ -72,7 +74,7 @@ export const Footer = ({
           </form>
           <p className={`${styles.newsPolicy} typo-small`}>
             Iscrivendoti, accetti la nostra{' '}
-            <Link className={styles.inlineLink} href={`/${locale}/privacy`}>
+            <Link className={styles.inlineLink} href={buildLocalizedSeoHref(locale as Locale, '/privacy')}>
               Privacy Policy
             </Link>
             .
@@ -82,22 +84,22 @@ export const Footer = ({
         <section className={styles.columnsBlock}>
           <div className={styles.column}>
             <p className={`${styles.columnTitle} typo-caption-upper`}>Navigate</p>
-            <Link href={`/${locale}/shop`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/shop')} className={`${styles.columnLink} typo-small`}>
               Shop
             </Link>
-            <Link href={`/${locale}/our-story`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/our-story')} className={`${styles.columnLink} typo-small`}>
               About
             </Link>
-            <Link href={`/${locale}/programs`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/programs')} className={`${styles.columnLink} typo-small`}>
               Programs
             </Link>
-            <Link href={`/${locale}/services`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/services')} className={`${styles.columnLink} typo-small`}>
               Services
             </Link>
-            <Link href={`/${locale}/dob-protocol`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/dob-protocol')} className={`${styles.columnLink} typo-small`}>
               DOB Protocol
             </Link>
-            <Link href={`/${locale}/journal`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/journal')} className={`${styles.columnLink} typo-small`}>
               Journal
             </Link>
           </div>
@@ -124,13 +126,15 @@ export const Footer = ({
           </div>
           <div className={styles.column}>
             <p className={`${styles.columnTitle} typo-caption-upper`}>Official</p>
-            <Link href={`/${locale}/privacy`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/privacy')} className={`${styles.columnLink} typo-small`}>
               Privacy
             </Link>
-            <Link href={`/${locale}/cookie-policy`} className={`${styles.columnLink} typo-small`}>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/cookie-policy')} className={`${styles.columnLink} typo-small`}>
               Cookie Policy
             </Link>
-            <span className={`${styles.columnMuted} typo-small`}>Terms (placeholder)</span>
+            <Link href={buildLocalizedSeoHref(locale as Locale, '/terms')} className={`${styles.columnLink} typo-small`}>
+              Terms
+            </Link>
             <span className={`${styles.columnMuted} typo-small`}>Accessibility (placeholder)</span>
             <span className={`${styles.columnMuted} typo-small`}>FAQ (placeholder)</span>
             <span className={`${styles.columnMuted} typo-small`}>Contact (placeholder)</span>

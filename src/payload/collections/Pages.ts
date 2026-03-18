@@ -15,6 +15,7 @@ import { dobProtocolTrattamentiFields } from '../fields/dobProtocolTrattamentiFi
 import { dobProtocolRoutineFields } from '../fields/dobProtocolRoutineFields'
 import { dobProtocolCheckUpFields } from '../fields/dobProtocolCheckUpFields'
 import { privacyContentFields } from '../fields/privacyContentFields'
+import { termsContentFields } from '../fields/termsContentFields'
 import { cookiePolicyContentFields } from '../fields/cookiePolicyContentFields'
 import { cookiePolicyBannerFields } from '../fields/cookiePolicyBannerFields'
 import { seoFields } from '../fields/seoFields'
@@ -53,6 +54,7 @@ export const Pages: CollectionConfig = {
         { label: 'Our Story', value: 'our-story' },
         { label: 'DOB Protocol', value: 'dob-protocol' },
         { label: 'Privacy', value: 'privacy' },
+        { label: 'Termini e condizioni', value: 'terms' },
         { label: 'Cookie Policy', value: 'cookie-policy' },
         { label: 'Contact', value: 'contact' },
         { label: 'Checkout', value: 'checkout' },
@@ -149,6 +151,13 @@ export const Pages: CollectionConfig = {
             condition: (data) => data?.pageKey === 'privacy',
           },
           fields: [...privacyContentFields],
+        },
+        {
+          label: 'Terms Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'terms',
+          },
+          fields: [...termsContentFields],
         },
         {
           label: 'Story Hero',

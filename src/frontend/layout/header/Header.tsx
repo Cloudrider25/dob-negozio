@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useState } from 'react'
 
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
+import type { Locale } from '@/lib/i18n/core'
 import { cn } from '@/lib/shared/ui/cn'
 import {
   HeaderActions,
@@ -29,7 +31,7 @@ export const Header = ({
 }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const isItalian = locale === 'it'
-  const fallbackHref = `/${locale}/contact`
+  const fallbackHref = buildLocalizedSeoHref(locale as Locale, '/contact')
   const primaryHref = whatsappLink || phoneLink || fallbackHref
   const primaryIsInternal = primaryHref.startsWith('/')
   const proofText =

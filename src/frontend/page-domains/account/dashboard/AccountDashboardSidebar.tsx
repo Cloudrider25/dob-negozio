@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
+import type { Locale } from '@/lib/i18n/core'
 import { SectionTitle } from '@/frontend/components/ui/primitives/section-title'
 
 import { AccountLogoutButton } from '../shared/AccountLogoutButton'
@@ -44,7 +46,7 @@ function FooterActions({
   return (
     <div className={className}>
       <p className={`${styles.help} typo-body-lg`}>
-        {copy.help} <Link href={`/${locale}/contact`}>{copy.contactUs}</Link>
+        {copy.help} <Link href={buildLocalizedSeoHref(locale as Locale, '/contact')}>{copy.contactUs}</Link>
       </p>
       <AccountLogoutButton locale={locale} className="typo-small-upper" label="LOG OUT" />
     </div>

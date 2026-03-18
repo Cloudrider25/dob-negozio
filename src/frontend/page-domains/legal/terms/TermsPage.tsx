@@ -1,7 +1,14 @@
 import { notFound } from 'next/navigation'
 
 import { isLocale } from '@/lib/i18n/core'
+import { getTermsConfig } from '@/lib/frontend/legal/terms'
 import styles from './TermsPage.module.css'
+
+const titleByLocale = {
+  it: 'Termini e condizioni',
+  en: 'Terms of Service',
+  ru: 'Условия использования',
+} as const
 
 export default async function TermsPage({
   params,
@@ -10,13 +17,15 @@ export default async function TermsPage({
 }) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
+  const config = await getTermsConfig(locale)
 
   return (
     <main className={styles.page}>
-      <h1 className={`typo-h1 ${styles.title}`}>Terms of Service</h1>
-      <p className={styles.subtitle}>
-        Termini e condizioni di vendita DOB Milano. Versione operativa da integrare con il testo legale finale.
-      </p>
+      <h1 className={`typo-h1 ${styles.title}`}>{titleByLocale[locale]}</h1>
+      <div
+        className={`${styles.content} typo-body`}
+        dangerouslySetInnerHTML={{ __html: config.html || '' }}
+      />
     </main>
   )
 }
