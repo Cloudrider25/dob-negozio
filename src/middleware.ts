@@ -19,6 +19,7 @@ const LIMIT_PER_WINDOW: Record<string, number> = {
   '/api/users/reset-password': 6,
   '/api/users/verify': 20,
   '/api/consultation-leads': 10,
+  '/api/contact-requests': 10,
 }
 
 const getCanonicalSiteUrl = (): URL => {
