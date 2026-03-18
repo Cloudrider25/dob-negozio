@@ -146,7 +146,6 @@ export const Footer = ({
             <Link href={buildLocalizedSeoHref(resolvedLocale, '/contact')} className={`${styles.columnLink} typo-small`}>
               {contactLabelByLocale[resolvedLocale]}
             </Link>
-            <span className={`${styles.columnMuted} typo-small`}>Events</span>
           </div>
         </section>
 

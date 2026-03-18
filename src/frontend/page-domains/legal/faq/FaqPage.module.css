@@ -1,0 +1,154 @@
+.page {
+  width: 100%;
+}
+
+.listSection {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1440px;
+  padding: 4rem 1.5rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  margin: 0;
+}
+
+.intro {
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+  max-width: 46rem;
+}
+
+.list {
+  display: grid;
+  gap: 1rem;
+}
+
+.faqPanel {
+  display: grid;
+  gap: 1rem;
+}
+
+.groupNav {
+  border-radius: 1.5rem;
+  background: var(--sand);
+  padding: 1.5rem 1.25rem;
+}
+
+.groupNavTitle {
+  margin: 0 0 1.5rem;
+}
+
+.groupTabs {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin-bottom: 2rem;
+}
+
+.groupTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.groupTab {
+  flex: 0 0 auto;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.groupTabActive {
+  background: var(--paper);
+  color: var(--text-primary);
+}
+
+.groupContent {
+  border-radius: 1.5rem;
+  background: var(--sand);
+  padding: 1.5rem 1.25rem;
+}
+
+.groupTitle {
+  margin: 0 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--stroke);
+}
+
+@media (min-width: 768px) {
+  .listSection {
+    padding-inline: 2rem;
+  }
+
+  .groupNav {
+    padding: 2rem;
+  }
+
+  .groupContent {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1080px) {
+  .header {
+    display: none;
+  }
+
+  .faqPanel {
+    grid-template-columns: minmax(18rem, 0.34fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 2rem;
+  }
+
+  .groupNav {
+    position: sticky;
+    top: calc(var(--header-height, 5rem) + 1.5rem);
+    min-height: 27.5rem;
+    padding: 2.5rem 2.75rem;
+  }
+
+  .groupNavTitle {
+    margin-bottom: 2rem;
+  }
+
+  .groupTabs {
+    display: grid;
+    gap: 1.5rem;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+
+  .groupTab {
+    min-height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    text-align: left;
+    justify-content: flex-start;
+  }
+
+  .groupTabActive {
+    background: transparent;
+    color: var(--text-primary);
+  }
+
+  .groupContent {
+    min-height: 100%;
+    padding: 2.5rem 2.75rem;
+  }
+
+  .groupTitle {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+  }
+}

@@ -465,6 +465,7 @@ export default buildConfig({
           'privacy',
           'terms',
           'cookie-policy',
+          'faq',
           'contact',
           'checkout',
         ] as const
