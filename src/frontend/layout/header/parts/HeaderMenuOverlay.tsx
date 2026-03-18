@@ -7,6 +7,8 @@ import { HiOutlinePhone } from 'react-icons/hi2'
 import { MenuLink } from '@/frontend/layout/header/MenuLink'
 import { PreferencesFooterControl } from '@/frontend/layout/preferences/PreferencesFooterControl'
 import { ThemeToggle } from '@/frontend/components/theme/ThemeToggle'
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
+import type { Locale } from '@/lib/i18n/core'
 import { cn } from '@/lib/shared/ui/cn'
 import styles from '../Header.module.css'
 import type { HeaderProps } from '@/frontend/layout/header/contracts'
@@ -145,22 +147,22 @@ export const HeaderMenuOverlay = ({
             <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={accountHref} {...closeMenuLinkProps}>
               {accountHref.includes('/signin') ? 'Sign in' : 'Account'}
             </MenuLink>
-            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/our-story`} {...closeMenuLinkProps}>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={buildLocalizedSeoHref(locale as Locale, '/our-story')} {...closeMenuLinkProps}>
               About
             </MenuLink>
-            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/programs`} {...closeMenuLinkProps}>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={buildLocalizedSeoHref(locale as Locale, '/programs')} {...closeMenuLinkProps}>
               {t.nav.programs}
             </MenuLink>
-            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/services`} {...closeMenuLinkProps}>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={buildLocalizedSeoHref(locale as Locale, '/services')} {...closeMenuLinkProps}>
               {t.nav.services}
             </MenuLink>
-            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/shop`} {...closeMenuLinkProps}>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={buildLocalizedSeoHref(locale as Locale, '/shop')} {...closeMenuLinkProps}>
               {t.nav.shop}
             </MenuLink>
-            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/dob-protocol`} {...closeMenuLinkProps}>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={buildLocalizedSeoHref(locale as Locale, '/dob-protocol')} {...closeMenuLinkProps}>
               {t.nav.protocol}
             </MenuLink>
-            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={`/${locale}/journal`} {...closeMenuLinkProps}>
+            <MenuLink className={cn(styles.menuLink, 'typo-small-upper')} href={buildLocalizedSeoHref(locale as Locale, '/journal')} {...closeMenuLinkProps}>
               {t.nav.journal}
             </MenuLink>
           </div>

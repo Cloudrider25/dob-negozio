@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
+import type { Locale } from '@/lib/i18n/core'
 import styles from './LocalProofCtaStrip.module.css'
 
 type LocalProofCtaStripProps = {
@@ -16,7 +18,7 @@ export const LocalProofCtaStrip = ({
   phoneLink,
 }: LocalProofCtaStripProps) => {
   const isItalian = locale === 'it'
-  const fallbackHref = `/${locale}/contact`
+  const fallbackHref = buildLocalizedSeoHref(locale as Locale, '/contact')
   const primaryHref = whatsappLink || phoneLink || fallbackHref
   const primaryIsInternal = primaryHref.startsWith('/')
   const proofText =

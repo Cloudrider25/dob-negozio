@@ -12,6 +12,8 @@ import {
   type CookieConsentPreferences,
 } from '@/lib/frontend/preferences/cookie-consent'
 import type { CookiePolicyBannerContent } from '@/lib/frontend/legal/cookie-policy'
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
+import type { Locale } from '@/lib/i18n/core'
 import { cn } from '@/lib/shared/ui/cn'
 import styles from './CookieConsentBanner.module.css'
 
@@ -75,11 +77,11 @@ export const CookieConsentBanner = ({ locale, content }: CookieConsentBannerProp
       <p className={cn(styles.body, 'typo-body')}>{content.body}</p>
 
       <div className={styles.linksRow}>
-        <Link href={`/${locale}/cookie-policy`} className={cn(styles.link, 'typo-body')}>
+        <Link href={buildLocalizedSeoHref(locale as Locale, '/cookie-policy')} className={cn(styles.link, 'typo-body')}>
           {content.cookiePolicyLabel}
         </Link>
         <span className={styles.separator}>|</span>
-        <Link href={`/${locale}/privacy`} className={cn(styles.link, 'typo-body')}>
+        <Link href={buildLocalizedSeoHref(locale as Locale, '/privacy')} className={cn(styles.link, 'typo-body')}>
           {content.privacyPolicyLabel}
         </Link>
       </div>

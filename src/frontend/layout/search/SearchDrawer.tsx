@@ -8,6 +8,7 @@ import { MediaThumb } from '@/frontend/components/shared/MediaThumb'
 import styles from './SearchDrawer.module.css'
 import { SideDrawer } from '@/frontend/components/ui/compositions/SideDrawer'
 import { defaultLocale, isLocale } from '@/lib/i18n/core'
+import { buildLocalizedSeoHref } from '@/lib/frontend/seo/routes'
 import { isRemoteThumbnailSrc, normalizeThumbnailSrc } from '@/lib/media-core/thumbnail'
 import { SEARCH_DRAWER_OPEN_EVENT } from '@/lib/frontend/search/drawer'
 import type { LiveSearchOption } from '@/frontend/layout/search/shared/contracts'
@@ -87,10 +88,10 @@ export function SearchDrawer({ locale, initialOpen = false }: { locale: string; 
     if (!q) return
     setOpen(false)
     if (q.length >= 2 && liveServiceCount > 0 && liveProductCount === 0) {
-      router.push(`/${resolvedLocale}/services?view=listino&q=${encodeURIComponent(q)}`)
+      router.push(`${buildLocalizedSeoHref(resolvedLocale, '/services')}?view=listino&q=${encodeURIComponent(q)}`)
       return
     }
-    router.push(`/${resolvedLocale}/shop?section=shop-all&q=${encodeURIComponent(q)}`)
+    router.push(`${buildLocalizedSeoHref(resolvedLocale, '/shop')}?section=shop-all&q=${encodeURIComponent(q)}`)
   }
 
   const executeOption = (option: LiveSearchOption) => {

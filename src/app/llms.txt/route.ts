@@ -1,5 +1,7 @@
 import type { NextRequest } from 'next/server'
 
+import { toPublicSeoPath } from '@/lib/frontend/seo/routes'
+
 const getBaseUrl = (): string => {
   const raw =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -22,12 +24,12 @@ export async function GET(_req: NextRequest) {
     '',
     '## Preferred Public Sources',
     `- ${baseUrl}/it`,
-    `- ${baseUrl}/it/shop`,
-    `- ${baseUrl}/it/services`,
-    `- ${baseUrl}/it/journal`,
-    `- ${baseUrl}/it/privacy`,
-    `- ${baseUrl}/it/cookie-policy`,
-    `- ${baseUrl}/it/terms`,
+    `- ${baseUrl}/it${toPublicSeoPath('it', '/shop')}`,
+    `- ${baseUrl}/it${toPublicSeoPath('it', '/services')}`,
+    `- ${baseUrl}/it${toPublicSeoPath('it', '/journal')}`,
+    `- ${baseUrl}/it${toPublicSeoPath('it', '/privacy')}`,
+    `- ${baseUrl}/it${toPublicSeoPath('it', '/cookie-policy')}`,
+    `- ${baseUrl}/it${toPublicSeoPath('it', '/terms')}`,
     '',
     '## AI Crawling Policy',
     '- Public pages can be indexed.',

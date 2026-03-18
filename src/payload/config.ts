@@ -460,6 +460,7 @@ export default buildConfig({
           'our-story',
           'dob-protocol',
           'privacy',
+          'terms',
           'cookie-policy',
           'contact',
           'checkout',

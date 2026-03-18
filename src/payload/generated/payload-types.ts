@@ -1480,6 +1480,7 @@ export interface Page {
     | 'our-story'
     | 'dob-protocol'
     | 'privacy'
+    | 'terms'
     | 'cookie-policy'
     | 'contact'
     | 'checkout';
@@ -1580,6 +1581,21 @@ export interface Page {
     media?: (number | null) | Media;
   };
   privacyContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  termsContent?: {
     root: {
       type: string;
       children: {
@@ -3211,6 +3227,7 @@ export interface PagesSelect<T extends boolean = true> {
         media?: T;
       };
   privacyContent?: T;
+  termsContent?: T;
   storyHeroTitle?: T;
   storyHeroBody?: T;
   storyHeroCtaLabel?: T;
