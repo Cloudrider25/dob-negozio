@@ -9,19 +9,29 @@
   margin: 0;
 }
 
-.subtitle {
-  margin-top: 1rem;
+.content {
+  margin-top: 1.5rem;
   color: var(--color-text-secondary);
 }
 
-.links {
-  margin-top: 1rem;
-  display: grid;
-  gap: 0.5rem;
+.content :global(p),
+.content :global(ul),
+.content :global(ol) {
+  margin: 0 0 1rem;
+}
+
+.content :global(h2),
+.content :global(h3),
+.content :global(h4) {
+  margin: 2rem 0 0.75rem;
   color: var(--color-text-primary);
 }
 
-.link {
-  display: block;
-  text-decoration: underline;
+.content :global(ul),
+.content :global(ol) {
+  padding-left: 1.25rem;
+}
+
+.content :global(a) {
+  color: inherit;
 }

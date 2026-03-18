@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 
 import ContactPage from '@/frontend/page-domains/legal/contact/ContactPage'
+import { getContactConfig } from '@/lib/frontend/legal/contact'
 import { isLocale } from '@/lib/i18n/core'
 import { buildSeoMetadata } from '@/lib/frontend/seo/metadata'
-import { getPageSeo } from '@/lib/frontend/seo/payload'
 
 export const generateMetadata = async ({
   params,
@@ -12,7 +12,7 @@ export const generateMetadata = async ({
 }): Promise<Metadata> => {
   const { locale } = await params
   if (!isLocale(locale)) return {}
-  const seo = await getPageSeo(locale, 'contact')
+  const config = await getContactConfig(locale)
 
   return buildSeoMetadata({
     locale,
@@ -20,13 +20,7 @@ export const generateMetadata = async ({
     description:
       'Contatta DOB Milano per prenotazioni e consulenze su trattamenti estetici e prodotti professionali.',
     path: '/contact',
-    seo: {
-      title: seo?.title,
-      description: seo?.description,
-      canonicalPath: seo?.canonicalPath,
-      noIndex: seo?.noIndex,
-      image: seo?.image,
-    },
+    seo: config.seo ?? undefined,
   })
 }
 

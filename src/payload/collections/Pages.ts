@@ -18,6 +18,7 @@ import { privacyContentFields } from '../fields/privacyContentFields'
 import { termsContentFields } from '../fields/termsContentFields'
 import { cookiePolicyContentFields } from '../fields/cookiePolicyContentFields'
 import { cookiePolicyBannerFields } from '../fields/cookiePolicyBannerFields'
+import { contactContentFields } from '../fields/contactContentFields'
 import { seoFields } from '../fields/seoFields'
 import { storyHeroFields } from '../fields/storyHeroFields'
 import { storyValuesFields } from '../fields/storyValuesFields'
@@ -158,6 +159,13 @@ export const Pages: CollectionConfig = {
             condition: (data) => data?.pageKey === 'terms',
           },
           fields: [...termsContentFields],
+        },
+        {
+          label: 'Contact Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'contact',
+          },
+          fields: [...contactContentFields],
         },
         {
           label: 'Story Hero',

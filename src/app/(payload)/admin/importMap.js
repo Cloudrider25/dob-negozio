@@ -1,5 +1,6 @@
 import { default as default_d7dfd30fbd2518b2f2bc1c1a7731fff4 } from '../../../payload/admin/components/AnagProductsPurchasesList'
 import { default as default_4b747d35dbdc28debe7959d186f5e517 } from '../../../payload/admin/components/AnagServicesPurchasesList'
+import { default as default_52b0221915ace5c2b18d3d0e81f90fe6 } from '../../../payload/admin/components/ContactRequestAttachmentsField'
 import { default as default_e3695ce68af376caa3a3d5d3199e1212 } from '../../../payload/admin/components/OrderProductItemsList'
 import { default as default_b31f8897b1d7989c09709ed7f8b9aa53 } from '../../../payload/admin/components/OrderServiceItemsList'
 import { default as default_1ede004e1879acd3cdc1f0719f688eea } from '../../../payload/admin/components/SectionTitle'
@@ -46,6 +47,7 @@ import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } f
 export const importMap = {
   "/admin/components/AnagProductsPurchasesList#default": default_d7dfd30fbd2518b2f2bc1c1a7731fff4,
   "/admin/components/AnagServicesPurchasesList#default": default_4b747d35dbdc28debe7959d186f5e517,
+  "/admin/components/ContactRequestAttachmentsField#default": default_52b0221915ace5c2b18d3d0e81f90fe6,
   "/admin/components/OrderProductItemsList#default": default_e3695ce68af376caa3a3d5d3199e1212,
   "/admin/components/OrderServiceItemsList#default": default_b31f8897b1d7989c09709ed7f8b9aa53,
   "/admin/components/SectionTitle#default": default_1ede004e1879acd3cdc1f0719f688eea,
