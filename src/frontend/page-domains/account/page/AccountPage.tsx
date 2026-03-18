@@ -20,6 +20,7 @@ const ACCOUNT_SECTIONS: AccountSection[] = ['overview', 'services', 'orders', 'a
 const asString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 
 const resolveMediaUrl = (media: unknown) => {
+  if (typeof media === 'string') return asString(media) || null
   if (!media || typeof media !== 'object') return null
   const record = media as Media
   return asString(record.thumbnailURL) || asString(record.url) || null
@@ -84,7 +85,7 @@ export default async function AccountPage({
     collection: 'product-waitlists',
     overrideAccess: false,
     user,
-    depth: 1,
+    depth: 2,
     limit: 100,
     sort: '-updatedAt',
     where: {
