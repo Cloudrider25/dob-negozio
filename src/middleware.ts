@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { isLocale } from '@/lib/i18n/core'
 import { toInternalSeoPath, toPublicSeoPath } from '@/lib/frontend/seo/routes'
-import { defaultLocale } from '@/lib/i18n/core'
+import { defaultLocale, isLocale } from '@/lib/i18n/core'
 
 type WindowState = {
   count: number
   resetAt: number
 }
+
+const INTERNAL_SEO_REWRITE_HEADER = 'x-dob-internal-seo-rewrite'
 
 const authLimiterState = new Map<string, WindowState>()
 
@@ -51,7 +52,7 @@ const getPathLimit = (pathname: string) => {
   return LIMIT_PER_WINDOW[pathname]
 }
 
-export function middleware(req: NextRequest) {
+const handleCanonicalHostRedirect = (req: NextRequest) => {
   const forwardedProto = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase()
   const requestProtocol = forwardedProto || req.nextUrl.protocol.replace(':', '').toLowerCase()
   const requestHost = req.headers.get('x-forwarded-host')?.split(',')[0]?.trim().toLowerCase()
@@ -70,37 +71,46 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl, 308)
   }
 
-  if (req.nextUrl.pathname === '/') {
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = `/${defaultLocale}`
-    return NextResponse.redirect(redirectUrl, 308)
-  }
+  return null
+}
+
+const handleLocaleSeoRouting = (req: NextRequest) => {
+  if (req.headers.get(INTERNAL_SEO_REWRITE_HEADER) === '1') return null
 
   const pathSegments = req.nextUrl.pathname.split('/').filter(Boolean)
   const localeSegment = pathSegments[0]
-  if (localeSegment && isLocale(localeSegment)) {
-    const localePath = `/${pathSegments.slice(1).join('/')}`
-    const canonicalPublicPath = toPublicSeoPath(localeSegment, localePath)
+  if (!localeSegment || !isLocale(localeSegment)) return null
 
-    if (canonicalPublicPath !== localePath) {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = `/${localeSegment}${canonicalPublicPath}`
-      return NextResponse.redirect(redirectUrl, 308)
-    }
+  const localePath = `/${pathSegments.slice(1).join('/')}`
+  const canonicalPublicPath = toPublicSeoPath(localeSegment, localePath)
 
-    const internalLocalePath = toInternalSeoPath(localeSegment, localePath)
-
-    if (internalLocalePath !== localePath) {
-      const rewriteUrl = req.nextUrl.clone()
-      rewriteUrl.pathname = `/${localeSegment}${internalLocalePath}`
-      return NextResponse.rewrite(rewriteUrl)
-    }
+  if (canonicalPublicPath !== localePath) {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.pathname = `/${localeSegment}${canonicalPublicPath}`
+    return NextResponse.redirect(redirectUrl, 308)
   }
 
-  if (req.method !== 'POST') return NextResponse.next()
+  const internalLocalePath = toInternalSeoPath(localeSegment, localePath)
+  if (internalLocalePath === localePath) return null
+
+  const rewriteUrl = req.nextUrl.clone()
+  rewriteUrl.pathname = `/${localeSegment}${internalLocalePath}`
+
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set(INTERNAL_SEO_REWRITE_HEADER, '1')
+
+  return NextResponse.rewrite(rewriteUrl, {
+    request: {
+      headers: requestHeaders,
+    },
+  })
+}
+
+const handleRateLimit = (req: NextRequest) => {
+  if (req.method !== 'POST') return null
 
   const limit = getPathLimit(req.nextUrl.pathname)
-  if (!limit) return NextResponse.next()
+  if (!limit) return null
 
   const now = Date.now()
   const ip = getClientIP(req)
@@ -112,7 +122,7 @@ export function middleware(req: NextRequest) {
       count: 1,
       resetAt: now + WINDOW_MS,
     })
-    return NextResponse.next()
+    return null
   }
 
   if (state.count >= limit) {
@@ -133,6 +143,25 @@ export function middleware(req: NextRequest) {
   state.count += 1
   authLimiterState.set(key, state)
 
+  return null
+}
+
+export function middleware(req: NextRequest) {
+  const canonicalHostRedirect = handleCanonicalHostRedirect(req)
+  if (canonicalHostRedirect) return canonicalHostRedirect
+
+  if (req.nextUrl.pathname === '/') {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.pathname = `/${defaultLocale}`
+    return NextResponse.redirect(redirectUrl, 308)
+  }
+
+  const localeSeoResponse = handleLocaleSeoRouting(req)
+  if (localeSeoResponse) return localeSeoResponse
+
+  const rateLimitResponse = handleRateLimit(req)
+  if (rateLimitResponse) return rateLimitResponse
+
   return NextResponse.next()
 }
 
@@ -146,5 +175,6 @@ export const config = {
     '/api/users/reset-password',
     '/api/users/verify/:path*',
     '/api/consultation-leads',
+    '/api/contact-requests',
   ],
 }
