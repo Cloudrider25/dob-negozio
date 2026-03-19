@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { defaultLocale, isLocale } from '@/lib/i18n/core'
 import { toInternalSeoPath, toPublicSeoPath } from '@/lib/frontend/seo/routes'
+import { defaultLocale, isLocale } from '@/lib/i18n/core'
 
 type WindowState = {
   count: number
   resetAt: number
 }
+
+const SEO_REWRITE_HEADER = 'x-dob-seo-rewrite'
 
 const authLimiterState = new Map<string, WindowState>()
 
@@ -18,9 +20,8 @@ const LIMIT_PER_WINDOW: Record<string, number> = {
   '/api/users/reset-password': 6,
   '/api/users/verify': 20,
   '/api/consultation-leads': 10,
+  '/api/contact-requests': 10,
 }
-
-const SEO_REWRITE_HEADER = 'x-dob-seo-rewrite'
 
 const getCanonicalSiteUrl = (): URL => {
   const raw =
@@ -77,6 +78,28 @@ const buildSeoRewriteResponse = (req: NextRequest, pathname: string) => {
   })
 }
 
+const handleCanonicalHostRedirect = (req: NextRequest) => {
+  const forwardedProto = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase()
+  const requestProtocol = forwardedProto || req.nextUrl.protocol.replace(':', '').toLowerCase()
+  const requestHost = req.headers.get('x-forwarded-host')?.split(',')[0]?.trim().toLowerCase()
+  const effectiveHost = (requestHost || req.nextUrl.host).toLowerCase()
+
+  const shouldNormalizeHost =
+    effectiveHost === canonicalHost || effectiveHost === wwwHost || req.nextUrl.pathname === '/'
+
+  if (
+    shouldNormalizeHost &&
+    (requestProtocol !== canonicalProtocol || effectiveHost === wwwHost)
+  ) {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.protocol = `${canonicalProtocol}:`
+    redirectUrl.host = canonicalHost
+    return NextResponse.redirect(redirectUrl, 308)
+  }
+
+  return null
+}
+
 const handleLocalizedSeoRoute = (req: NextRequest) => {
   const localePathParts = getLocalePathParts(req.nextUrl.pathname)
   if (!localePathParts) return null
@@ -100,38 +123,11 @@ const handleLocalizedSeoRoute = (req: NextRequest) => {
   return null
 }
 
-export function middleware(req: NextRequest) {
-  const forwardedProto = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase()
-  const requestProtocol = forwardedProto || req.nextUrl.protocol.replace(':', '').toLowerCase()
-  const requestHost = req.headers.get('x-forwarded-host')?.split(',')[0]?.trim().toLowerCase()
-  const effectiveHost = (requestHost || req.nextUrl.host).toLowerCase()
-
-  const shouldNormalizeHost =
-    effectiveHost === canonicalHost || effectiveHost === wwwHost || req.nextUrl.pathname === '/'
-
-  if (
-    shouldNormalizeHost &&
-    (requestProtocol !== canonicalProtocol || effectiveHost === wwwHost)
-  ) {
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.protocol = `${canonicalProtocol}:`
-    redirectUrl.host = canonicalHost
-    return NextResponse.redirect(redirectUrl, 308)
-  }
-
-  if (req.nextUrl.pathname === '/') {
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = `/${defaultLocale}`
-    return NextResponse.redirect(redirectUrl, 308)
-  }
-
-  const localizedSeoResponse = handleLocalizedSeoRoute(req)
-  if (localizedSeoResponse) return localizedSeoResponse
-
-  if (req.method !== 'POST') return NextResponse.next()
+const handleRateLimit = (req: NextRequest) => {
+  if (req.method !== 'POST') return null
 
   const limit = getPathLimit(req.nextUrl.pathname)
-  if (!limit) return NextResponse.next()
+  if (!limit) return null
 
   const now = Date.now()
   const ip = getClientIP(req)
@@ -143,7 +139,7 @@ export function middleware(req: NextRequest) {
       count: 1,
       resetAt: now + WINDOW_MS,
     })
-    return NextResponse.next()
+    return null
   }
 
   if (state.count >= limit) {
@@ -164,6 +160,25 @@ export function middleware(req: NextRequest) {
   state.count += 1
   authLimiterState.set(key, state)
 
+  return null
+}
+
+export function middleware(req: NextRequest) {
+  const canonicalHostRedirect = handleCanonicalHostRedirect(req)
+  if (canonicalHostRedirect) return canonicalHostRedirect
+
+  if (req.nextUrl.pathname === '/') {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.pathname = `/${defaultLocale}`
+    return NextResponse.redirect(redirectUrl, 308)
+  }
+
+  const localizedSeoResponse = handleLocalizedSeoRoute(req)
+  if (localizedSeoResponse) return localizedSeoResponse
+
+  const rateLimitResponse = handleRateLimit(req)
+  if (rateLimitResponse) return rateLimitResponse
+
   return NextResponse.next()
 }
 
@@ -177,5 +192,6 @@ export const config = {
     '/api/users/reset-password',
     '/api/users/verify/:path*',
     '/api/consultation-leads',
+    '/api/contact-requests',
   ],
 }

@@ -347,9 +347,9 @@ export default async function HomePage({
           variant={heroStyle}
           mediaDark={darkHeroMedia || undefined}
           mediaLight={lightHeroMedia || undefined}
-        ctas={[
-            { href: buildLocalizedSeoHref(locale, '/services'), label: t.nav.services, kind: 'hero' },
-            { href: buildLocalizedSeoHref(locale, '/shop'), label: t.nav.shop, kind: 'hero' },
+          ctas={[
+            { href: `/${locale}/services`, label: t.nav.services, kind: 'hero' },
+            { href: `/${locale}/shop`, label: t.nav.shop, kind: 'hero' },
           ]}
         />
       )}

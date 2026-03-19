@@ -18,6 +18,9 @@ import { privacyContentFields } from '../fields/privacyContentFields'
 import { termsContentFields } from '../fields/termsContentFields'
 import { cookiePolicyContentFields } from '../fields/cookiePolicyContentFields'
 import { cookiePolicyBannerFields } from '../fields/cookiePolicyBannerFields'
+import { contactContentFields } from '../fields/contactContentFields'
+import { faqHeroFields } from '../fields/faqHeroFields'
+import { faqContentFields } from '../fields/faqContentFields'
 import { seoFields } from '../fields/seoFields'
 import { storyHeroFields } from '../fields/storyHeroFields'
 import { storyValuesFields } from '../fields/storyValuesFields'
@@ -56,6 +59,7 @@ export const Pages: CollectionConfig = {
         { label: 'Privacy', value: 'privacy' },
         { label: 'Termini e condizioni', value: 'terms' },
         { label: 'Cookie Policy', value: 'cookie-policy' },
+        { label: 'FAQ', value: 'faq' },
         { label: 'Contact', value: 'contact' },
         { label: 'Checkout', value: 'checkout' },
       ],
@@ -158,6 +162,27 @@ export const Pages: CollectionConfig = {
             condition: (data) => data?.pageKey === 'terms',
           },
           fields: [...termsContentFields],
+        },
+        {
+          label: 'Contact Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'contact',
+          },
+          fields: [...contactContentFields],
+        },
+        {
+          label: 'FAQ Hero',
+          admin: {
+            condition: (data) => data?.pageKey === 'faq',
+          },
+          fields: [...faqHeroFields],
+        },
+        {
+          label: 'FAQ Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'faq',
+          },
+          fields: [...faqContentFields],
         },
         {
           label: 'Story Hero',

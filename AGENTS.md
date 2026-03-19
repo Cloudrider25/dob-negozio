@@ -41,6 +41,13 @@ When changing DB config, CI, migrations, or environment selection logic:
 3. preserve `prod = remote DB + alignment on request`
 4. do not introduce fallback behavior that silently points local development to staging/prod if a local DB env var is available
 
+### Migration Promotion Discipline
+
+1. New migrations must always be created on `dev`.
+2. Migrations must then be promoted by PR from `dev` to `staging`.
+3. After validation on `staging`, migrations must be promoted by PR from `staging` to `prod`.
+4. Do not create migrations only on promotion branches.
+
 Reference:
 
 - `Docs/reference/database-environment-policy.md`

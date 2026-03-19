@@ -23,6 +23,13 @@ export const Footer = ({
   activePreferences,
   preferencesConfirmed,
 }: FooterProps) => {
+  const contactLabelByLocale: Record<Locale, string> = {
+    it: 'Contattaci',
+    en: 'Contact',
+    ru: 'Контакты',
+  }
+  const resolvedLocale: Locale = locale === 'it' || locale === 'en' || locale === 'ru' ? locale : 'en'
+
   const toExternalHref = (raw: string | null | undefined, fallback: string) => {
     const value = raw?.trim()
     if (!value) return fallback
@@ -135,10 +142,12 @@ export const Footer = ({
             <Link href={buildLocalizedSeoHref(locale as Locale, '/terms')} className={`${styles.columnLink} typo-small`}>
               Terms
             </Link>
-            <span className={`${styles.columnMuted} typo-small`}>Accessibility (placeholder)</span>
-            <span className={`${styles.columnMuted} typo-small`}>FAQ (placeholder)</span>
-            <span className={`${styles.columnMuted} typo-small`}>Contact (placeholder)</span>
-            <span className={`${styles.columnMuted} typo-small`}>Events (placeholder)</span>
+            <Link href={buildLocalizedSeoHref(resolvedLocale, '/faq')} className={`${styles.columnLink} typo-small`}>
+              FAQ
+            </Link>
+            <Link href={buildLocalizedSeoHref(resolvedLocale, '/contact')} className={`${styles.columnLink} typo-small`}>
+              {contactLabelByLocale[resolvedLocale]}
+            </Link>
           </div>
         </section>
 

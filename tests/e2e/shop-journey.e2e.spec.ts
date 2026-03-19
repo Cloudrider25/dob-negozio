@@ -13,7 +13,7 @@ type CheckoutProduct = {
 }
 
 const oneYearSeconds = 60 * 60 * 24 * 365
-const BASE_URL = 'http://127.0.0.1:3000'
+const BASE_URL = 'http://localhost:3000'
 const IT_SHOP_PATH = '/it/negozio'
 const IT_CART_PATH = '/it/carrello'
 
