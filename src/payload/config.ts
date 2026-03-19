@@ -53,6 +53,7 @@ import { ProductWaitlists } from './collections/ProductWaitlists'
 import { ShopWebhookEvents } from './collections/ShopWebhookEvents'
 import { ShopInventoryLocks } from './collections/ShopInventoryLocks'
 import { ConsultationLeads } from './collections/ConsultationLeads'
+import { ContactRequests } from './collections/ContactRequests'
 import { Anagrafiche } from './collections/Anagrafiche'
 import { AccountAestheticProfiles } from './collections/AccountAestheticProfiles'
 import { SiteSettings } from './globals/SiteSettings'
@@ -301,6 +302,7 @@ export default buildConfig({
     AccountAestheticProfiles,
     Anagrafiche,
     ConsultationLeads,
+    ContactRequests,
     Orders,
     OrderServiceSessions,
     Services,
@@ -463,6 +465,7 @@ export default buildConfig({
           'privacy',
           'terms',
           'cookie-policy',
+          'faq',
           'contact',
           'checkout',
         ] as const

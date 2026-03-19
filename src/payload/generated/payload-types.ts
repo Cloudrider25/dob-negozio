@@ -70,6 +70,7 @@ export interface Config {
     'account-aesthetic-profiles': AccountAestheticProfile;
     anagrafiche: Anagrafiche;
     'consultation-leads': ConsultationLead;
+    'contact-requests': ContactRequest;
     orders: Order;
     'order-service-sessions': OrderServiceSession;
     services: Service;
@@ -124,6 +125,7 @@ export interface Config {
     'account-aesthetic-profiles': AccountAestheticProfilesSelect<false> | AccountAestheticProfilesSelect<true>;
     anagrafiche: AnagraficheSelect<false> | AnagraficheSelect<true>;
     'consultation-leads': ConsultationLeadsSelect<false> | ConsultationLeadsSelect<true>;
+    'contact-requests': ContactRequestsSelect<false> | ContactRequestsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-service-sessions': OrderServiceSessionsSelect<false> | OrderServiceSessionsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
@@ -376,6 +378,76 @@ export interface ConsultationLead {
   userAgent?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-requests".
+ */
+export interface ContactRequest {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactReason: 'general' | 'booking' | 'order-support' | 'partnership';
+  topic: string;
+  message: string;
+  attachments?: (number | Media)[] | null;
+  status: 'new' | 'in-progress' | 'closed';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    heroDesktop?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    heroMobile?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    cardLarge?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -731,59 +803,6 @@ export interface Service {
   relatedProgram?: (number | null) | Program;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    heroDesktop?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    heroMobile?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    cardLarge?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    thumb?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1482,6 +1501,7 @@ export interface Page {
     | 'privacy'
     | 'terms'
     | 'cookie-policy'
+    | 'faq'
     | 'contact'
     | 'checkout';
   /**
@@ -1610,6 +1630,53 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
+  contactTitle?: string | null;
+  contactDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  faqTitle?: string | null;
+  faqSubtitle?: string | null;
+  faqMedia?: (number | null) | Media;
+  faqGroups?:
+    | {
+        label: string;
+        title?: string | null;
+        items?:
+          | {
+              q: string;
+              a: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   storyHeroTitle?: string | null;
   storyHeroBody?: string | null;
   storyHeroCtaLabel?: string | null;
@@ -2118,6 +2185,10 @@ export interface PayloadLockedDocument {
         value: number | ConsultationLead;
       } | null)
     | ({
+        relationTo: 'contact-requests';
+        value: number | ContactRequest;
+      } | null)
+    | ({
         relationTo: 'orders';
         value: number | Order;
       } | null)
@@ -2432,6 +2503,22 @@ export interface ConsultationLeadsSelect<T extends boolean = true> {
   pagePath?: T;
   ip?: T;
   userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-requests_select".
+ */
+export interface ContactRequestsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  contactReason?: T;
+  topic?: T;
+  message?: T;
+  attachments?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3228,6 +3315,25 @@ export interface PagesSelect<T extends boolean = true> {
       };
   privacyContent?: T;
   termsContent?: T;
+  contactTitle?: T;
+  contactDescription?: T;
+  faqTitle?: T;
+  faqSubtitle?: T;
+  faqMedia?: T;
+  faqGroups?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        items?:
+          | T
+          | {
+              q?: T;
+              a?: T;
+              id?: T;
+            };
+        id?: T;
+      };
   storyHeroTitle?: T;
   storyHeroBody?: T;
   storyHeroCtaLabel?: T;
