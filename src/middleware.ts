@@ -8,7 +8,7 @@ type WindowState = {
   resetAt: number
 }
 
-const INTERNAL_SEO_REWRITE_HEADER = 'x-dob-internal-seo-rewrite'
+const SEO_REWRITE_HEADER = 'x-dob-seo-rewrite'
 
 const authLimiterState = new Map<string, WindowState>()
 
@@ -52,6 +52,32 @@ const getPathLimit = (pathname: string) => {
   return LIMIT_PER_WINDOW[pathname]
 }
 
+const getLocalePathParts = (pathname: string) => {
+  const pathSegments = pathname.split('/').filter(Boolean)
+  const localeSegment = pathSegments[0]
+
+  if (!localeSegment || !isLocale(localeSegment)) return null
+
+  return {
+    locale: localeSegment,
+    localePath: `/${pathSegments.slice(1).join('/')}`,
+  }
+}
+
+const buildSeoRewriteResponse = (req: NextRequest, pathname: string) => {
+  const rewriteUrl = req.nextUrl.clone()
+  rewriteUrl.pathname = pathname
+
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set(SEO_REWRITE_HEADER, '1')
+
+  return NextResponse.rewrite(rewriteUrl, {
+    request: {
+      headers: requestHeaders,
+    },
+  })
+}
+
 const handleCanonicalHostRedirect = (req: NextRequest) => {
   const forwardedProto = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase()
   const requestProtocol = forwardedProto || req.nextUrl.protocol.replace(':', '').toLowerCase()
@@ -74,36 +100,27 @@ const handleCanonicalHostRedirect = (req: NextRequest) => {
   return null
 }
 
-const handleLocaleSeoRouting = (req: NextRequest) => {
-  if (req.headers.get(INTERNAL_SEO_REWRITE_HEADER) === '1') return null
+const handleLocalizedSeoRoute = (req: NextRequest) => {
+  const localePathParts = getLocalePathParts(req.nextUrl.pathname)
+  if (!localePathParts) return null
 
-  const pathSegments = req.nextUrl.pathname.split('/').filter(Boolean)
-  const localeSegment = pathSegments[0]
-  if (!localeSegment || !isLocale(localeSegment)) return null
+  const { locale, localePath } = localePathParts
+  const isInternalSeoRewrite = req.headers.get(SEO_REWRITE_HEADER) === '1'
+  const canonicalPublicPath = toPublicSeoPath(locale, localePath)
 
-  const localePath = `/${pathSegments.slice(1).join('/')}`
-  const canonicalPublicPath = toPublicSeoPath(localeSegment, localePath)
-
-  if (canonicalPublicPath !== localePath) {
+  if (!isInternalSeoRewrite && canonicalPublicPath !== localePath) {
     const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = `/${localeSegment}${canonicalPublicPath}`
+    redirectUrl.pathname = `/${locale}${canonicalPublicPath}`
     return NextResponse.redirect(redirectUrl, 308)
   }
 
-  const internalLocalePath = toInternalSeoPath(localeSegment, localePath)
-  if (internalLocalePath === localePath) return null
+  const internalLocalePath = toInternalSeoPath(locale, localePath)
 
-  const rewriteUrl = req.nextUrl.clone()
-  rewriteUrl.pathname = `/${localeSegment}${internalLocalePath}`
+  if (internalLocalePath !== localePath) {
+    return buildSeoRewriteResponse(req, `/${locale}${internalLocalePath}`)
+  }
 
-  const requestHeaders = new Headers(req.headers)
-  requestHeaders.set(INTERNAL_SEO_REWRITE_HEADER, '1')
-
-  return NextResponse.rewrite(rewriteUrl, {
-    request: {
-      headers: requestHeaders,
-    },
-  })
+  return null
 }
 
 const handleRateLimit = (req: NextRequest) => {
@@ -156,8 +173,8 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl, 308)
   }
 
-  const localeSeoResponse = handleLocaleSeoRouting(req)
-  if (localeSeoResponse) return localeSeoResponse
+  const localizedSeoResponse = handleLocalizedSeoRoute(req)
+  if (localizedSeoResponse) return localizedSeoResponse
 
   const rateLimitResponse = handleRateLimit(req)
   if (rateLimitResponse) return rateLimitResponse
