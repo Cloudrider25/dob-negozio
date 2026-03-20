@@ -8,6 +8,7 @@ import { valuesSectionFields } from '../fields/valuesSectionFields'
 import { routineBuilderFields } from '../fields/routineBuilderFields'
 import { serviceNavigatorFields } from '../fields/serviceNavigatorFields'
 import { servicesCarouselFields } from '../fields/servicesCarouselFields'
+import { shippingContentFields } from '../fields/shippingContentFields'
 import { checkoutFields } from '../fields/checkoutFields'
 import { protocolSplitFields } from '../fields/protocolSplitFields'
 import { dobProtocolDiagnosiFields } from '../fields/dobProtocolDiagnosiFields'
@@ -15,6 +16,7 @@ import { dobProtocolTrattamentiFields } from '../fields/dobProtocolTrattamentiFi
 import { dobProtocolRoutineFields } from '../fields/dobProtocolRoutineFields'
 import { dobProtocolCheckUpFields } from '../fields/dobProtocolCheckUpFields'
 import { privacyContentFields } from '../fields/privacyContentFields'
+import { refundContentFields } from '../fields/refundContentFields'
 import { termsContentFields } from '../fields/termsContentFields'
 import { cookiePolicyContentFields } from '../fields/cookiePolicyContentFields'
 import { cookiePolicyBannerFields } from '../fields/cookiePolicyBannerFields'
@@ -57,6 +59,8 @@ export const Pages: CollectionConfig = {
         { label: 'Our Story', value: 'our-story' },
         { label: 'DOB Protocol', value: 'dob-protocol' },
         { label: 'Privacy', value: 'privacy' },
+        { label: 'Refund policy', value: 'refund' },
+        { label: 'Shipping', value: 'shipping' },
         { label: 'Termini e condizioni', value: 'terms' },
         { label: 'Cookie Policy', value: 'cookie-policy' },
         { label: 'FAQ', value: 'faq' },
@@ -155,6 +159,20 @@ export const Pages: CollectionConfig = {
             condition: (data) => data?.pageKey === 'privacy',
           },
           fields: [...privacyContentFields],
+        },
+        {
+          label: 'Refund Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'refund',
+          },
+          fields: [...refundContentFields],
+        },
+        {
+          label: 'Shipping Content',
+          admin: {
+            condition: (data) => data?.pageKey === 'shipping',
+          },
+          fields: [...shippingContentFields],
         },
         {
           label: 'Terms Content',

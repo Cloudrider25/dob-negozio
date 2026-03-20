@@ -1499,6 +1499,8 @@ export interface Page {
     | 'our-story'
     | 'dob-protocol'
     | 'privacy'
+    | 'refund'
+    | 'shipping'
     | 'terms'
     | 'cookie-policy'
     | 'faq'
@@ -1601,6 +1603,36 @@ export interface Page {
     media?: (number | null) | Media;
   };
   privacyContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  refundContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  shippingContent?: {
     root: {
       type: string;
       children: {
@@ -3314,6 +3346,8 @@ export interface PagesSelect<T extends boolean = true> {
         media?: T;
       };
   privacyContent?: T;
+  refundContent?: T;
+  shippingContent?: T;
   termsContent?: T;
   contactTitle?: T;
   contactDescription?: T;
