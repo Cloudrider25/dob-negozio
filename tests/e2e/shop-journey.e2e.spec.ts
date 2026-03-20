@@ -14,6 +14,8 @@ type CheckoutProduct = {
 
 const oneYearSeconds = 60 * 60 * 24 * 365
 const BASE_URL = 'http://localhost:3000'
+const IT_SHOP_PATH = '/it/negozio'
+const IT_CART_PATH = '/it/carrello'
 
 const buildPreferenceCookies = () => [
   {
@@ -99,7 +101,7 @@ test.describe('Shop journey', () => {
     await page.context().addCookies(buildPreferenceCookies())
 
     console.log('[journey] open shop')
-    await page.goto(`${BASE_URL}/it/shop`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE_URL}${IT_SHOP_PATH}`, { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/\/it\/negozio/)
 
     console.log('[journey] seed cart from in-stock product', product.slug)
@@ -123,7 +125,7 @@ test.describe('Shop journey', () => {
     }, product)
 
     console.log('[journey] open cart')
-    await page.goto(`${BASE_URL}/it/cart`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${BASE_URL}${IT_CART_PATH}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('link', { name: /Procedi al checkout/i })).toBeVisible({ timeout: 15_000 })
 
     console.log('[journey] open checkout')
