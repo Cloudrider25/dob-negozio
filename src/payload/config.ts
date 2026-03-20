@@ -462,6 +462,8 @@ export default buildConfig({
           'our-story',
           'dob-protocol',
           'privacy',
+          'refund',
+          'shipping',
           'terms',
           'cookie-policy',
           'faq',
