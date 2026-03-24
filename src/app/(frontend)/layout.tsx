@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import { Instrument_Sans } from 'next/font/google'
 import { Work_Sans } from 'next/font/google'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import '../../styles/globals.css'
 import { AnalyticsRuntime } from '@/frontend/layout/analytics/AnalyticsRuntime'
 import { ThemeHydrator } from '@/frontend/components/theme/ThemeHydrator'
@@ -89,6 +90,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           <AnalyticsRuntime measurementId={gaMeasurementId} />
         </Suspense>
         <main>{children}</main>
+        <SpeedInsights />
       </body>
     </html>
   )
