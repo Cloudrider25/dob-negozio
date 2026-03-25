@@ -4,6 +4,7 @@ import Script from 'next/script'
 import { Instrument_Sans } from 'next/font/google'
 import { Work_Sans } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/next'
 import '../../styles/globals.css'
 import { AnalyticsRuntime } from '@/frontend/layout/analytics/AnalyticsRuntime'
 import { ThemeHydrator } from '@/frontend/components/theme/ThemeHydrator'
@@ -91,6 +92,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         </Suspense>
         <main>{children}</main>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
